@@ -2,10 +2,6 @@
 
 Puslapis skirtas teikti videografikos paslaugas.
 
-# Paleidimas
-
-Bus pildoma
-
 # Autoriai
 
 + [Dominykas Gedvila](https://github.com/gedvilad)
