@@ -1,6 +1,6 @@
 # Apie projektą
 
-Text
+Puslapis skirtas teigti videografikos paslaugas.
 
 # Paleidimas
 
