@@ -1,6 +1,6 @@
 # Apie projektą
 
-Puslapis skirtas teigti videografikos paslaugas.
+Puslapis skirtas teikti videografikos paslaugas.
 
 # Paleidimas
 
