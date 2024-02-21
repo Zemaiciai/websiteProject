@@ -8,3 +8,4 @@ node_modules
 /cypress/videos
 /postgres-data
 /yarn.lock
+/prisma/migrations

@@ -17,87 +17,78 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return json({});
 };
 
-// THINGS HAVE TO BE ADDED FOR NEW SHIT LIKE FIRST,LAST NAME, USERNAME ETC
+interface Errors {
+  email?: string;
+  password?: string;
+  firstname?: string;
+  lastname?: string;
+  username?: string;
+  secretCode?: string;
+  existingUser?: string;
+  wrongSecretCode?: string;
+}
+
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const email = formData.get("email");
-  const password = formData.get("password");
-  const firstname = formData.get("firstname");
-  const lastname = formData.get("lastname");
-  const username = formData.get("username");
-  const securitycode = formData.get("securitycode");
+  const email = String(formData.get("email"));
+  const password = String(formData.get("password"));
+  const firstName = String(formData.get("firstname"));
+  const lastName = String(formData.get("lastname"));
+  const userName = String(formData.get("username"));
+  const secretCode = String(formData.get("secretCode"));
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
 
-  if (typeof firstname !== "string" || firstname.length === 0) {
-    return json(
-      { errors: { email: null, firstname: "Vardas privalomas" } },
-      { status: 400 }
-    );
-  }
+  const errors: Errors = {};
 
-  if (typeof lastname !== "string" || lastname.length === 0) {
-    return json(
-      { errors: { email: null, lastname: "Pavardė privalomas" } },
-      { status: 400 }
-    );
+  if (typeof firstName !== "string" || firstName.length === 0) {
+    errors.firstname = "Vardas privalomas";
   }
-
-  if (typeof username !== "string" || username.length === 0) {
-    return json(
-      { errors: { email: null, username: "Vardas privalomas" } },
-      { status: 400 }
-    );
+  if (typeof lastName !== "string" || lastName.length === 0) {
+    errors.lastname = "Pavardė privalomas";
   }
-
-  if (typeof securitycode !== "string" || securitycode.length === 0) {
-    return json(
-      { errors: { email: null, securitycode: "Vardas privalomas" } },
-      { status: 400 }
-    );
+  if (typeof userName !== "string" || userName.length === 0) {
+    errors.username = "Vardas privalomas";
   }
-
+  if (typeof secretCode !== "string" || secretCode.length === 0) {
+    errors.secretCode = "Pakvietimo kodas privalomas";
+  }
   if (!validateEmail(email)) {
-    return json(
-      { errors: { email: "El. pašto adresas netinkamas", password: null } },
-      { status: 400 }
-    );
+    errors.email = "El. pašto adresas netinkamas";
   }
-
   if (typeof password !== "string" || password.length === 0) {
-    return json(
-      { errors: { email: null, password: "Slaptažodis privalomas" } },
-      { status: 400 }
-    );
+    errors.password = "Slaptažodis privalomas";
   }
-
   if (password.length < 8) {
-    return json(
-      { errors: { email: null, password: "Slaptažodis per trumpas" } },
-      { status: 400 }
-    );
+    errors.password = "Slaptažodis per trumpas";
   }
 
   const existingUser = await getUserByEmail(email);
   if (existingUser) {
-    return json(
-      {
-        errors: {
-          email: "Paskyra su tokiu el. paštu jau egzistuoja",
-          password: null
-        }
-      },
-      { status: 400 }
-    );
+    errors.existingUser = "Vartotojas su tuo pačiu el. paštu jau egzistuoja";
   }
 
-  const user = await createUser(email, password);
+  const user = await createUser(
+    email,
+    password,
+    firstName,
+    lastName,
+    secretCode
+  );
 
-  return createUserSession({
-    redirectTo,
-    remember: false,
-    request,
-    userId: user.id
-  });
+  if (!user) {
+    errors.wrongSecretCode = "Neteisingas slaptas kodas";
+  }
+
+  if (Object.keys(errors).length > 0 || !user) {
+    return json({ errors }, { status: 400 });
+  } else {
+    return createUserSession({
+      redirectTo,
+      remember: false,
+      request,
+      userId: user.id
+    });
+  }
 };
 
 export const meta: MetaFunction = () => [{ title: "Sign Up" }];
@@ -108,10 +99,10 @@ export default function Join() {
   const actionData = useActionData<typeof action>();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const firstnameRef = useRef<HTMLInputElement>(null);
-  const lastnameRef = useRef<HTMLInputElement>(null);
-  const usernameRef = useRef<HTMLInputElement>(null);
-  const securitycodeRef = useRef<HTMLInputElement>(null);
+  const firstNameRef = useRef<HTMLInputElement>(null);
+  const lastNameRef = useRef<HTMLInputElement>(null);
+  const userNameRef = useRef<HTMLInputElement>(null);
+  const secretCodeRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (actionData?.errors?.email) {
@@ -130,121 +121,111 @@ export default function Join() {
         <Form method="post" className="space-y-6">
           {/* THINGS HAVE TO BE FIXED?? IDK TAS KAS UZKOMENTUOTA */}
           <div>
-            <label htmlFor="firstname" className="block text-sm text-white">
+            <label htmlFor="firstName" className="block text-sm text-white">
               Vardas
             </label>
             <div className="mt-1">
               <input
-                ref={firstnameRef}
-                id="firstname"
+                ref={firstNameRef}
+                id="firstName"
                 required
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus={true}
-                name="firstname"
-                type="firstname"
-                // autoComplete="email"
-                // aria-invalid={actionData?.errors?.email ? true : undefined}
-                // aria-describedby="email-error"
+                name="firstName"
+                type="firstName"
+                autoComplete="on"
+                aria-invalid={actionData?.errors?.firstname ? true : undefined}
+                aria-describedby="firstname-error"
                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
               />
-              {/* {actionData?.errors?.email ? (
+              {actionData?.errors?.firstname ? (
                 <div
                   className="pt-1 font-bold text-yellow-200"
-                  id="email-error"
+                  id="firstname-error"
                 >
-                  {actionData.errors.email}
+                  {actionData.errors.firstname}
                 </div>
-              ) : null} */}
+              ) : null}
             </div>
           </div>
 
           {/* THINGS HAVE TO BE FIXED?? IDK TAS KAS UZKOMENTUOTA */}
           <div>
-            <label htmlFor="lastname" className="block text-sm text-white">
+            <label htmlFor="lastName" className="block text-sm text-white">
               Pavardė
             </label>
             <div className="mt-1">
               <input
-                ref={lastnameRef}
-                id="lastname"
+                ref={lastNameRef}
+                id="lastName"
                 required
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus={true}
-                name="lastname"
-                type="lastname"
-                // autoComplete="email"
-                // aria-invalid={actionData?.errors?.email ? true : undefined}
-                // aria-describedby="email-error"
+                name="lastName"
+                type="lastName"
+                autoComplete="on"
+                aria-invalid={actionData?.errors?.lastname ? true : undefined}
+                aria-describedby="lastname-error"
                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
               />
-              {/* {actionData?.errors?.email ? (
+              {actionData?.errors?.lastname ? (
                 <div
                   className="pt-1 font-bold text-yellow-200"
-                  id="email-error"
+                  id="lastname-error"
                 >
-                  {actionData.errors.email}
+                  {actionData.errors.lastname}
                 </div>
-              ) : null} */}
+              ) : null}
             </div>
           </div>
-
-          {/* THINGS HAVE TO BE FIXED?? IDK TAS KAS UZKOMENTUOTA */}
           <div>
-            <label htmlFor="username" className="block text-sm text-white">
+            <label htmlFor="userName" className="block text-sm text-white">
               Slapyvardis
             </label>
             <div className="mt-1">
               <input
-                ref={usernameRef}
-                id="username"
+                ref={userNameRef}
+                id="userName"
                 required
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus={true}
-                name="username"
-                type="username"
-                // autoComplete="email"
-                // aria-invalid={actionData?.errors?.email ? true : undefined}
-                // aria-describedby="email-error"
+                name="userName"
+                type="userName"
+                autoComplete="on"
+                aria-invalid={actionData?.errors?.username ? true : undefined}
+                aria-describedby="username-error"
                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
               />
-              {/* {actionData?.errors?.email ? (
+              {actionData?.errors?.username ? (
                 <div
                   className="pt-1 font-bold text-yellow-200"
-                  id="email-error"
+                  id="username-error"
                 >
-                  {actionData.errors.email}
+                  {actionData.errors.username}
                 </div>
-              ) : null} */}
+              ) : null}
             </div>
           </div>
-
-          {/* THINGS HAVE TO BE FIXED?? IDK TAS KAS UZKOMENTUOTA */}
           <div>
-            <label htmlFor="securitycode" className="block text-sm text-white">
+            <label htmlFor="secretCode" className="block text-sm text-white">
               Pakvietimo kodas
             </label>
             <div className="mt-1">
               <input
-                ref={securitycodeRef}
-                id="securitycode"
+                ref={secretCodeRef}
+                id="secretCode"
                 required
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus={true}
-                name="securitycode"
-                type="securitycode"
-                // autoComplete="email"
-                // aria-invalid={actionData?.errors?.email ? true : undefined}
-                // aria-describedby="email-error"
+                name="secretCode"
+                type="secretCode"
+                autoComplete="on"
+                aria-invalid={actionData?.errors?.secretCode ? true : undefined}
+                aria-describedby="secretCode-error"
                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
               />
-              {/* {actionData?.errors?.email ? (
+              {actionData?.errors?.secretCode ? (
                 <div
                   className="pt-1 font-bold text-yellow-200"
-                  id="email-error"
+                  id="secretCode-error"
                 >
-                  {actionData.errors.email}
+                  {actionData.errors.secretCode}
                 </div>
-              ) : null} */}
+              ) : null}
             </div>
           </div>
 
@@ -257,11 +238,9 @@ export default function Join() {
                 ref={emailRef}
                 id="email"
                 required
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus={true}
                 name="email"
                 type="email"
-                autoComplete="email"
+                autoComplete="on"
                 aria-invalid={actionData?.errors?.email ? true : undefined}
                 aria-describedby="email-error"
                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
@@ -287,7 +266,7 @@ export default function Join() {
                 ref={passwordRef}
                 name="password"
                 type="password"
-                autoComplete="new-password"
+                autoComplete="on"
                 aria-invalid={actionData?.errors?.password ? true : undefined}
                 aria-describedby="password-error"
                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
