@@ -1,13 +1,25 @@
 version: "3.7"
 services:
   postgres:
+    container_name: postgres
     image: postgres:latest
-    restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+    env_file:
+      - docker.env
     ports:
-      - "5432:5432"
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - '5432:5432'
+    networks:
+      - zemaiciai-network
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    env_file:
+      - docker.env
+    ports:
+      - '8080:80'
+    networks:
+      - zemaiciai-network
+
+networks:
+  zemaiciai-network:
+    driver: bridge
