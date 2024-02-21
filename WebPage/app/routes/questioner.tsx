@@ -13,7 +13,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 const Questionnaire = () => {
   const [questions, setQuestions] = useState([
     {
-      text: "Question 1",
+      text: "Klausimas 1",
       answer: "",
       choices: ["Option 1", "Option 2", "Option 3"],
       error: false // Error state for each question
@@ -161,7 +161,7 @@ const Questionnaire = () => {
           onChange={(e) => handleSelectChange(e, index + startIndex)}
           className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
         >
-          <option value="">Select an option</option>
+          <option value="">Pasirinkite</option>
           {question.choices.map((choice, i) => (
             <option key={i} value={choice}>
               {choice}
@@ -169,14 +169,17 @@ const Questionnaire = () => {
           ))}
         </select>
         {question.error ? (
-          <p className="text-red-500 mt-1">Please select an option</p>
+          <p className="text-red-500 mt-1">Pasirinkimas būtinas</p>
         ) : null}
       </div>
     ));
   };
 
   return (
-    <div className="flex items-center justify-center h-screen">
+    <div className="flex flex-col items-center justify-center h-screen">
+      <div className="max-w-md mx-auto mb-8 text-center">
+        <h1 className="text-3xl font-bold">Atsakykite į šiuos klausimus</h1>
+      </div>
       <div className="max-w-md mx-auto">
         <form
           onSubmit={(e) => {
@@ -194,7 +197,7 @@ const Questionnaire = () => {
                   onClick={handlePreviousPage}
                   className="mt-4 mr-2 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-opacity duration-300"
                 >
-                  Previous
+                  Atgal
                 </button>
               ) : null}
               {currentPage !== Math.ceil(questions.length / 4) ? (
@@ -203,7 +206,7 @@ const Questionnaire = () => {
                   onClick={handleNextPage}
                   className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-opacity duration-300"
                 >
-                  Next
+                  Pirmyn
                 </button>
               ) : (
                 <button
@@ -211,7 +214,7 @@ const Questionnaire = () => {
                   onClick={handleSubmit}
                   className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                 >
-                  Submit
+                  Pateikti
                 </button>
               )}
             </div>
