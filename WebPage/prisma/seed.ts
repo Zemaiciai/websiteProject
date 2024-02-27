@@ -3,42 +3,48 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-async function seed() {
-  const email = "rachel@remix.run";
+const generateRandomSecretCode = (length: number) => {
+  let result = "";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
 
-  // cleanup the existing database
-  await prisma.user.delete({ where: { email } }).catch(() => {
+  return result;
+};
+
+async function seed() {
+  const email = "test@gmail.com";
+  const currentDate = new Date();
+  await prisma.secretCode.delete({ where: { email } }).catch(() => {
     // no worries if it doesn't exist yet
   });
+  const secretCode = generateRandomSecretCode(10);
+  console.log(secretCode);
+  const hashedSecretCode = await bcrypt.hash(secretCode, 10);
 
-  const hashedPassword = await bcrypt.hash("racheliscool", 10);
-
-  const user = await prisma.user.create({
+  await prisma.secretCode.create({
     data: {
-      email,
-      password: {
-        create: {
-          hash: hashedPassword,
-        },
-      },
-    },
+      hash: hashedSecretCode,
+      email: email,
+      ExpirationDate: new Date(
+        currentDate.setTime(currentDate.getTime() + 60 * 60 * 60 * 1000)
+      ),
+      Used: false
+    }
   });
-
-  await prisma.note.create({
-    data: {
-      title: "My first note",
-      body: "Hello, world!",
-      userId: user.id,
-    },
-  });
-
-  await prisma.note.create({
-    data: {
-      title: "My second note",
-      body: "Hello, world!",
-      userId: user.id,
-    },
-  });
+  // const user = await prisma.user.create({
+  //   data: {
+  //     email,
+  //     password: {
+  //       create: {
+  //         hash: hashedPassword,
+  //       },
+  //     },
+  //   },
+  // });
 
   console.log(`Database has been seeded. 🌱`);
 }
