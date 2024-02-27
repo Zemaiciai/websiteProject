@@ -5,7 +5,7 @@ import type {
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 import { createUser, getUserByEmail } from "~/models/user.server";
 import { createUserSession, getUserId } from "~/session.server";
@@ -40,22 +40,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const errors: Errors = {};
 
-  if (typeof firstName !== "string" || firstName.length === 0) {
+  if (firstName === "null") {
     errors.firstname = "Vardas privalomas";
   }
-  if (typeof lastName !== "string" || lastName.length === 0) {
+  if (lastName === "null") {
     errors.lastname = "Pavardė privalomas";
   }
-  if (typeof userName !== "string" || userName.length === 0) {
+  if (userName === "null") {
     errors.username = "Vardas privalomas";
-  }
-  if (typeof secretCode !== "string" || secretCode.length === 0) {
-    errors.secretCode = "Pakvietimo kodas privalomas";
   }
   if (!validateEmail(email)) {
     errors.email = "El. pašto adresas netinkamas";
   }
-  if (typeof password !== "string" || password.length === 0) {
+  if (password === null) {
     errors.password = "Slaptažodis privalomas";
   }
   if (password.length < 8) {
@@ -76,7 +73,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   );
 
   if (!user) {
-    errors.wrongSecretCode = "Neteisingas slaptas kodas";
+    errors.wrongSecretCode = "Neteisingas pakvietimo kodas";
   }
 
   if (Object.keys(errors).length > 0 || !user) {
@@ -104,14 +101,6 @@ export default function Join() {
   const userNameRef = useRef<HTMLInputElement>(null);
   const secretCodeRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (actionData?.errors?.email) {
-      emailRef.current?.focus();
-    } else if (actionData?.errors?.password) {
-      passwordRef.current?.focus();
-    }
-  }, [actionData]);
-
   return (
     <div className="flex min-h-full flex-col justify-center h-14 bg-gradient-to-r from-cyan-500 to-blue-500">
       <div
@@ -119,7 +108,6 @@ export default function Join() {
         style={{ borderWidth: "3px", paddingTop: "5vh", paddingBottom: "5vh" }}
       >
         <Form method="post" className="space-y-6">
-          {/* THINGS HAVE TO BE FIXED?? IDK TAS KAS UZKOMENTUOTA */}
           <div>
             <label htmlFor="firstName" className="block text-sm text-white">
               Vardas
@@ -128,9 +116,8 @@ export default function Join() {
               <input
                 ref={firstNameRef}
                 id="firstName"
-                required
                 name="firstName"
-                type="firstName"
+                type="text"
                 autoComplete="on"
                 aria-invalid={actionData?.errors?.firstname ? true : undefined}
                 aria-describedby="firstname-error"
@@ -146,8 +133,6 @@ export default function Join() {
               ) : null}
             </div>
           </div>
-
-          {/* THINGS HAVE TO BE FIXED?? IDK TAS KAS UZKOMENTUOTA */}
           <div>
             <label htmlFor="lastName" className="block text-sm text-white">
               Pavardė
@@ -156,9 +141,8 @@ export default function Join() {
               <input
                 ref={lastNameRef}
                 id="lastName"
-                required
                 name="lastName"
-                type="lastName"
+                type="text"
                 autoComplete="on"
                 aria-invalid={actionData?.errors?.lastname ? true : undefined}
                 aria-describedby="lastname-error"
@@ -182,9 +166,8 @@ export default function Join() {
               <input
                 ref={userNameRef}
                 id="userName"
-                required
                 name="userName"
-                type="userName"
+                type="text"
                 autoComplete="on"
                 aria-invalid={actionData?.errors?.username ? true : undefined}
                 aria-describedby="username-error"
@@ -208,22 +191,26 @@ export default function Join() {
               <input
                 ref={secretCodeRef}
                 id="secretCode"
-                required
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus={true}
                 name="secretCode"
-                type="secretCode"
+                type="text"
                 autoComplete="on"
-                aria-invalid={actionData?.errors?.secretCode ? true : undefined}
+                aria-invalid={
+                  actionData?.errors?.secretCode ||
+                  actionData?.errors.wrongSecretCode
+                    ? true
+                    : undefined
+                }
                 aria-describedby="secretCode-error"
                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
               />
-              {actionData?.errors?.secretCode ? (
+              {actionData?.errors?.secretCode ||
+              actionData?.errors.wrongSecretCode ? (
                 <div
                   className="pt-1 font-bold text-yellow-200"
                   id="secretCode-error"
                 >
-                  {actionData.errors.secretCode}
+                  {actionData.errors.secretCode ||
+                    actionData?.errors.wrongSecretCode}
                 </div>
               ) : null}
             </div>
@@ -237,9 +224,8 @@ export default function Join() {
               <input
                 ref={emailRef}
                 id="email"
-                required
                 name="email"
-                type="email"
+                type="text"
                 autoComplete="on"
                 aria-invalid={actionData?.errors?.email ? true : undefined}
                 aria-describedby="email-error"
@@ -255,7 +241,6 @@ export default function Join() {
               ) : null}
             </div>
           </div>
-
           <div>
             <label htmlFor="password" className="block text-sm text-white">
               Slaptažodis
@@ -285,7 +270,7 @@ export default function Join() {
           <input type="hidden" name="redirectTo" value={redirectTo} />
           <button
             type="submit"
-            className="w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-800 focus:bg-blue-400"
+            className="w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-800"
           >
             Sukurti paskyrą
           </button>
