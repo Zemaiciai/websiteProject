@@ -32,22 +32,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const email = String(formData.get("email"));
   const password = String(formData.get("password"));
-  const firstName = String(formData.get("firstname"));
-  const lastName = String(formData.get("lastname"));
-  const userName = String(formData.get("username"));
+  const firstname = String(formData.get("firstname"));
+  const lastname = String(formData.get("lastname"));
+  const username = String(formData.get("username"));
   const secretCode = String(formData.get("secretCode"));
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
 
   const errors: Errors = {};
 
-  if (firstName === "null") {
+  if (firstname === "null") {
     errors.firstname = "Vardas privalomas";
   }
-  if (lastName === "null") {
+  if (lastname === "null") {
     errors.lastname = "Pavardė privalomas";
   }
-  if (userName === "null") {
-    errors.username = "Vardas privalomas";
+  if (username === "null") {
+    errors.username = "Slapyvardis privalomas";
   }
   if (!validateEmail(email)) {
     errors.email = "El. pašto adresas netinkamas";
@@ -59,6 +59,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     errors.password = "Slaptažodis per trumpas";
   }
 
+  console.log(firstname);
+  console.log(password);
+  console.log(firstname === "null");
+
   const existingUser = await getUserByEmail(email);
   if (existingUser) {
     errors.existingUser = "Vartotojas su tuo pačiu el. paštu jau egzistuoja";
@@ -67,8 +71,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const user = await createUser(
     email,
     password,
-    firstName,
-    lastName,
+    firstname,
+    lastname,
     secretCode
   );
 
@@ -96,9 +100,9 @@ export default function Join() {
   const actionData = useActionData<typeof action>();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const firstNameRef = useRef<HTMLInputElement>(null);
-  const lastNameRef = useRef<HTMLInputElement>(null);
-  const userNameRef = useRef<HTMLInputElement>(null);
+  const firstnameRef = useRef<HTMLInputElement>(null);
+  const lastnameRef = useRef<HTMLInputElement>(null);
+  const usernameRef = useRef<HTMLInputElement>(null);
   const secretCodeRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -109,14 +113,14 @@ export default function Join() {
       >
         <Form method="post" className="space-y-6">
           <div>
-            <label htmlFor="firstName" className="block text-sm text-white">
+            <label htmlFor="firstname" className="block text-sm text-white">
               Vardas
             </label>
             <div className="mt-1">
               <input
-                ref={firstNameRef}
-                id="firstName"
-                name="firstName"
+                ref={firstnameRef}
+                id="firstname"
+                name="firstname"
                 type="text"
                 autoComplete="on"
                 aria-invalid={actionData?.errors?.firstname ? true : undefined}
@@ -134,14 +138,14 @@ export default function Join() {
             </div>
           </div>
           <div>
-            <label htmlFor="lastName" className="block text-sm text-white">
+            <label htmlFor="lastname" className="block text-sm text-white">
               Pavardė
             </label>
             <div className="mt-1">
               <input
-                ref={lastNameRef}
-                id="lastName"
-                name="lastName"
+                ref={lastnameRef}
+                id="lastname"
+                name="lastname"
                 type="text"
                 autoComplete="on"
                 aria-invalid={actionData?.errors?.lastname ? true : undefined}
@@ -159,14 +163,14 @@ export default function Join() {
             </div>
           </div>
           <div>
-            <label htmlFor="userName" className="block text-sm text-white">
+            <label htmlFor="username" className="block text-sm text-white">
               Slapyvardis
             </label>
             <div className="mt-1">
               <input
-                ref={userNameRef}
-                id="userName"
-                name="userName"
+                ref={usernameRef}
+                id="username"
+                name="username"
                 type="text"
                 autoComplete="on"
                 aria-invalid={actionData?.errors?.username ? true : undefined}
