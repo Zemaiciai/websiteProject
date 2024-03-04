@@ -7,9 +7,9 @@ import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { useRef } from "react";
 
-import { createUser, getUserByEmail } from "~/models/user.server";
+import { createUser } from "~/models/user.server";
 import { createUserSession, getUserId } from "~/session.server";
-import { safeRedirect, validateEmail } from "~/utils";
+import { safeRedirect, validateRegistrationCredentials } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await getUserId(request);
@@ -40,28 +40,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const errors: Errors = {};
 
-  if (firstname === "null" || firstname === "") {
-    errors.firstname = "Vardas privalomas";
-  }
-  if (lastname === "null" || lastname === "") {
-    errors.lastname = "Pavardė privalomas";
-  }
-  if (username === "null" || username === "") {
-    errors.username = "Slapyvardis privalomas";
-  }
-  if (!validateEmail(email)) {
-    errors.email = "El. pašto adresas netinkamas";
-  }
-  if (password === "null" || password === "") {
-    errors.password = "Slaptažodis privalomas";
-  }
-  if (password.length < 8) {
-    errors.password = "Slaptažodis per trumpas";
-  }
+  const validationErrors = await validateRegistrationCredentials(
+    firstname,
+    lastname,
+    username,
+    secretCode,
+    email,
+    password,
+    errors
+  );
 
-  const existingUser = await getUserByEmail(email);
-  if (existingUser) {
-    errors.existingUser = "Vartotojas su tuo pačiu el. paštu jau egzistuoja";
+  if (validationErrors !== null) {
+    return json({ errors: validationErrors }, { status: 400 });
   }
 
   const user = await createUser(
@@ -73,19 +63,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   );
 
   if (!user) {
-    errors.wrongSecretCode = "Neteisingas pakvietimo kodas";
+    errors.wrongSecretCode = "Neteisingas pakvietimo kodas arba el. paštas";
+    return json({ errors: errors }, { status: 400 });
   }
 
-  if (Object.keys(errors).length > 0 || !user) {
-    return json({ errors }, { status: 400 });
-  } else {
-    return createUserSession({
-      redirectTo,
-      remember: false,
-      request,
-      userId: user.id
-    });
-  }
+  return createUserSession({
+    redirectTo,
+    remember: false,
+    request,
+    userId: user.id
+  });
 };
 
 export const meta: MetaFunction = () => [{ title: "Sign Up" }];
@@ -194,23 +181,16 @@ export default function Join() {
                 name="secretCode"
                 type="text"
                 autoComplete="on"
-                aria-invalid={
-                  actionData?.errors?.secretCode ||
-                  actionData?.errors.wrongSecretCode
-                    ? true
-                    : undefined
-                }
+                aria-invalid={actionData?.errors?.secretCode ? true : undefined}
                 aria-describedby="secretCode-error"
                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
               />
-              {actionData?.errors?.secretCode ||
-              actionData?.errors.wrongSecretCode ? (
+              {actionData?.errors?.secretCode ? (
                 <div
                   className="pt-1 font-bold text-yellow-200"
                   id="secretCode-error"
                 >
-                  {actionData.errors.secretCode ||
-                    actionData?.errors.wrongSecretCode}
+                  {actionData.errors.secretCode}
                 </div>
               ) : null}
             </div>
@@ -266,6 +246,22 @@ export default function Join() {
               ) : null}
             </div>
           </div>
+          {actionData?.errors?.existingUser ? (
+            <div
+              className="pt-1 font-bold text-yellow-200"
+              id="existinguser-error"
+            >
+              {actionData.errors.existingUser}
+            </div>
+          ) : null}
+          {actionData?.errors?.wrongSecretCode ? (
+            <div
+              className="pt-1 font-bold text-yellow-200"
+              id="wrongsecrtedcode-error"
+            >
+              {actionData.errors.wrongSecretCode}
+            </div>
+          ) : null}
 
           <input type="hidden" name="redirectTo" value={redirectTo} />
           <button
