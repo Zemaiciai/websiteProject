@@ -1,10 +1,7 @@
 import { json } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom"; // Import react-router-dom
+import { useState } from "react";
 
 import { requireUser } from "~/session.server";
-import { useUser } from "~/utils";
 
 export const loader = async ({ request }) => {
   const user = await requireUser(request);

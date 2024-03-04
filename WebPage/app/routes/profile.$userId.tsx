@@ -1,7 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, useLoaderData, Link } from "@remix-run/react";
-import React, { useState } from "react";
+import { Form, Link } from "@remix-run/react";
 
 import ProfilePageTabs from "~/components/profilePageTabs";
 import { requireUser } from "~/session.server";
@@ -9,7 +8,7 @@ import { useUser } from "~/utils";
 
 import ProfileCard from "./../components/profileCard";
 
-export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
   return json({ user });
 };

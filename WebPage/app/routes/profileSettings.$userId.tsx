@@ -1,51 +1,20 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import {
-  Form,
-  isRouteErrorResponse,
-  useLoaderData,
-  useRouteError,
-  Link
-} from "@remix-run/react";
-import React, { useState } from "react";
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Form, Link } from "@remix-run/react";
 
 import ProfileSettings from "~/components/profileSettings";
 import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
 
-import ProfileAboutMe from "./../components/profileAboutMe";
 import ProfileCard from "./../components/profileCard";
-import Join from "./join";
 
-export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
   return json({ user });
 };
 
 export default function NoteDetailsPage() {
-  const [selectedImage, setSelectedImage] = useState(null);
   const user = useUser();
-  const handleImageChange = (e) => {
-    setSelectedImage(e.target.files[0]);
-  };
-  const data = useLoaderData<typeof loader>();
-
-  const [isEditingBio, setIsEditingBio] = useState(false);
-  const [bio, setBio] = useState("Sample Bio"); // Initial bio content
-
-  const handleEditBio = () => {
-    setIsEditingBio(true);
-  };
-
-  const handleSaveBio = () => {
-    setIsEditingBio(false);
-    // You can add code here to save the updated bio to your backend or perform any other actions
-  };
-
-  const handleCancelEditBio = () => {
-    setIsEditingBio(false);
-    // You might want to reset the bio content or perform any other actions when cancelling edit
-  };
 
   return (
     <div className="main-div">

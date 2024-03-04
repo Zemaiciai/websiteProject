@@ -1,6 +1,6 @@
 import { json } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
-import React, { useState } from "react";
+import { Form } from "@remix-run/react";
+import { useState } from "react";
 
 import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";

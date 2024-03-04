@@ -1,19 +1,16 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Form,
-  isRouteErrorResponse,
-  useLoaderData,
-  useRouteError
 } from "@remix-run/react";
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
 
 import ProfilePageSocialMedia from "./profilePageSocialMedia";
 
-export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
   return json({ user });
 };
