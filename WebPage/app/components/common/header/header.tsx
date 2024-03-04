@@ -15,7 +15,7 @@ const Header: React.FC<HeaderProps> = ({ title, profilePictureSrc, profileLink }
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed top-0 left-0 w-full bg-gradient-to-r from-cyan-500 to-blue-500 z-10">
+    <div className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 z-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="relative flex items-center">
@@ -26,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({ title, profilePictureSrc, profileLink }
             <DropdownMenu isOpen={isOpen} style={{ width: '200px'}} />
           </div>
           
-          <Link to="/">
+          <Link to="/dashboard">
             <h1 className="text-white text-2xl font-bold cursor-pointer">{title}</h1>
           </Link>
         </div>

@@ -1,8 +1,10 @@
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import React from "react";
 
+import Header from "~/components/common/header/header";
 import { getNoteListItems } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
+import { useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
@@ -11,6 +13,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 const Dashboard = () => {
+  const user = useUser();
+
   return (
     <div
       style={{
@@ -23,11 +27,14 @@ const Dashboard = () => {
       <header
         style={{
           borderBottom: "1px solid #ccc",
-          padding: "2rem",
           gridColumn: "1 / 4"
         }}
       >
-        <h1>Your Website Header</h1>
+        <Header
+          title="My Website"
+          profilePictureSrc="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+          profileLink={"/profile/" + user.id}
+        />
       </header>
       {/* Navigation Sidebar */}
       <div

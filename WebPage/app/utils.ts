@@ -99,12 +99,12 @@ export async function validateRegistrationCredentials(
     errors.firstname = "Vardas privalomas";
   }
   if (typeof lastname !== "string" || lastname === "") {
-    errors.lastname = "Pavardė privalomas";
+    errors.lastname = "Pavardė privaloma";
   }
   if (typeof username !== "string" || username === "") {
     errors.username = "Slapyvardis privalomas";
   }
-  if (typeof email !== "string") {
+  if (typeof email !== "string" || email === "") {
     errors.email = "El. pašto adresas privalomas";
   } else if (email.length < 3 || !email.includes("@")) {
     errors.email = "El. pašto adresas netinkamas";
