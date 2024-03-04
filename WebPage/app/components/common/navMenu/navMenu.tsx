@@ -1,0 +1,21 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+interface DropdownMenuProps {
+  isOpen: boolean;
+  style?: React.CSSProperties; 
+}
+
+const DropdownMenu: React.FC<DropdownMenuProps> = ({ isOpen, style }) => {
+  return (
+    <div className={`absolute top-12 right--10 bg-white shadow-md ${isOpen ? 'block' : 'hidden'}`} style={style}>
+        <ul className="p-2 space-y-5 text-lg py-4"> 
+          <li><Link to="/about">About</Link></li>
+        <li><Link to="/services">Services</Link></li>
+        <li><Link to="/contact">Contact</Link></li>
+      </ul>
+    </div>
+  );
+}
+
+export default DropdownMenu;
