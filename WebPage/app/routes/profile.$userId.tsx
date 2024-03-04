@@ -27,31 +27,6 @@ export default function NoteDetailsPage() {
         <ProfileCard />
         <ProfilePageTabs />
       </div>
-
-      {/* <div className="container2 mt-20 min-w-1000 w-100%">
-        <h3 className="text-2xl font-semibold">About me</h3>
-        {isEditingBio ? (
-          <div>
-            <textarea
-              className="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-            ></textarea>
-            <div className="mt-2">
-              <button
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded"
-                onClick={handleSaveBio}
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <p className="text-gray-700">{bio}</p>
-          </div>
-        )}
-      </div> */}
     </div>
   );
 }
