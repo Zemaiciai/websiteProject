@@ -13,12 +13,37 @@ export async function getUserByEmail(email: User["email"]) {
   return prisma.user.findUnique({ where: { email } });
 }
 
-export async function createUser(email: User["email"], password: string) {
+export async function createUser(
+  email: User["email"],
+  password: string,
+  firstName: string,
+  lastName: string,
+  secretCode: string
+) {
+  const userSecretCode = await prisma.secretCode.findUnique({
+    where: { email }
+  });
+
+  if (!userSecretCode) {
+    return null;
+  }
+
+  const secretCodeIsValid = await bcrypt.compare(
+    secretCode,
+    userSecretCode?.hash
+  );
+
+  if (!secretCodeIsValid) {
+    return null;
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
   return prisma.user.create({
     data: {
       email,
+      firstName: firstName,
+      lastName: lastName,
       password: {
         create: {
           hash: hashedPassword
@@ -47,12 +72,12 @@ export async function verifyLogin(
     return null;
   }
 
-  const isValid = await bcrypt.compare(
+  const passwordIsValid = await bcrypt.compare(
     password,
     userWithPassword.password.hash
   );
 
-  if (!isValid) {
+  if (!passwordIsValid) {
     return null;
   }
 

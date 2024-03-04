@@ -12,5 +12,11 @@ Puslapis skirtas teikti videografikos paslaugas.
 
 # Versijos
 
+* 0.1
+    * Login/Register page v1
+    * Profile page v1
+    * Questionnaire page v1
+    * FAQ page v1
+    * Dashboard page v1
 * 0.0
     * Projekto startas
