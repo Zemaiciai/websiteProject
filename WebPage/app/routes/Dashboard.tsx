@@ -70,22 +70,22 @@ const Dashboard = () => {
     
     {/* Footer Section 2 */}
     <div style={{ flex: 1, padding: "20px", backgroundColor: "#000000" }}>
-      <p style={{color: "white", textAlign: "left", marginLeft: "20px", fontWeight: "bold"}}>Hosting</p>
-      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Web Hosting</p>
-      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Cloud Hosting</p>
-      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>CMS Hosting</p>
-      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Email Hosting</p>
-      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Vps Hosting</p>
+      <p style={{color: "white", textAlign: "left", marginLeft: "20px", fontWeight: "bold"}}>Text</p>
+      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Text</p>
+      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Text</p>
+      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Text</p>
+      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Text</p>
+      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Text</p>
     </div>
     
     {/* Footer Section 3 */}
     <div style={{ flex: 1, padding: "20px", backgroundColor: "#000000" }}>
-      <p style={{color: "white", textAlign: "left", marginLeft: "20px", fontWeight: "bold"}}>Domain</p>
-      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Web Domain</p>
-      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Cloud Domain</p>
-      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>CMS Domain</p>
-      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Email Domain</p>
-      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Vps Domain</p>
+      <p style={{color: "white", textAlign: "left", marginLeft: "20px", fontWeight: "bold"}}>Text</p>
+      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Text</p>
+      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Text</p>
+      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Text</p>
+      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Text</p>
+      <p style={{color: "gray", textAlign: "left", marginLeft: "20px", marginTop: "10px"}}>Text</p>
     </div>
         </div>
       </footer>
