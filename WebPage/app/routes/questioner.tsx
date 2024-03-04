@@ -1,4 +1,5 @@
 import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { Form } from "@remix-run/react";
 import React, { useState, useEffect } from "react";
 
 import { getNoteListItems } from "~/models/note.server";
@@ -13,21 +14,21 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 const Questionnaire = () => {
   const [questions, setQuestions] = useState([
     {
-      text: "Klausimas 1",
+      text: "Question 1",
       answer: "",
-      choices: ["Option 1", "Option 2", "Option 3"],
+      choices: ["Yes", "No"],
       error: false // Error state for each question
     },
     {
       text: "Question 2",
       answer: "",
-      choices: ["Choice A", "Choice B", "Choice C", "Choice D"],
+      choices: ["Yes", "No"],
       error: false
     },
     {
       text: "Question 3",
       answer: "",
-      choices: ["Red", "Green", "Blue"],
+      choices: ["Yes", "No"],
       error: false
     },
     {
@@ -69,7 +70,7 @@ const Questionnaire = () => {
     {
       text: "Question 5",
       answer: "",
-      choices: ["Option 1", "Option 2", "Option 3", "Option 4"],
+      choices: ["Yes", "No"],
       error: false
     }
     // Add more questions as needed
@@ -176,55 +177,68 @@ const Questionnaire = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <div className="max-w-md mx-auto mb-8 text-center">
-        <h1 className="text-3xl font-bold">Atsakykite į šiuos klausimus</h1>
-      </div>
-      <div className="max-w-md mx-auto">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
-          <div className="flex flex-col items-center">
-            {renderQuestions()}
-            <div
-              className={`flex ${currentPage !== 1 ? "justify-between" : "justify-center"} w-full`}
-            >
-              {currentPage !== 1 ? (
-                <button
-                  type="button"
-                  onClick={handlePreviousPage}
-                  className="mt-4 mr-2 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-opacity duration-300"
-                >
-                  Atgal
-                </button>
+    <div className="">
+      <Form action={"/notes/"} method="get" className="flex flex-row-reverse">
+        <button type="submit" className="px-4 py-2 flex space-x-2 space-y-1 ">
+          <h1>Grįžti atgal</h1>
+          <img
+            className="w-4 h-4"
+            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
+            alt="ggwp"
+          ></img>
+        </button>
+      </Form>
+
+      <div className="flex flex-col items-center justify-center h-full ">
+        <div className="max-w-md mx-auto mb-8 text-center">
+          <h1 className="text-3xl font-bold">Atsakykite į šiuos klausimus</h1>
+        </div>
+        <div className="max-w-md mx-auto">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            <div className="flex flex-col items-center">
+              {renderQuestions()}
+              <div
+                className={`flex ${currentPage !== 1 ? "justify-between" : "justify-center"} w-full`}
+              >
+                {currentPage !== 1 ? (
+                  <button
+                    type="button"
+                    onClick={handlePreviousPage}
+                    className="mt-4 mr-2 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-opacity duration-300"
+                  >
+                    Atgal
+                  </button>
+                ) : null}
+                {currentPage !== Math.ceil(questions.length / 4) ? (
+                  <button
+                    type="button"
+                    onClick={handleNextPage}
+                    className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-opacity duration-300"
+                  >
+                    Pirmyn
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  >
+                    Pateikti
+                  </button>
+                )}
+              </div>
+              {error ? (
+                <p className="text-red-500 mt-2 ml-4">
+                  Please answer all questions before proceeding.
+                </p>
               ) : null}
-              {currentPage !== Math.ceil(questions.length / 4) ? (
-                <button
-                  type="button"
-                  onClick={handleNextPage}
-                  className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-opacity duration-300"
-                >
-                  Pirmyn
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                >
-                  Pateikti
-                </button>
-              )}
             </div>
-            {error ? (
-              <p className="text-red-500 mt-2 ml-4">
-                Please answer all questions before proceeding.
-              </p>
-            ) : null}
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
