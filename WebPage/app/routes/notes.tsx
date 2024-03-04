@@ -31,6 +31,14 @@ export default function NotesPage() {
             Logout
           </button>
         </Form>
+        <Form action={"/profile/" + user.id} method="get">
+          <button
+            type="submit"
+            className="rounded bg-slate-600 px-4 py-2 text-blue-100 hover:bg-blue-500 active:bg-blue-600"
+          >
+            Profile
+          </button>
+        </Form>
       </header>
 
       <main className="flex h-full bg-white">
