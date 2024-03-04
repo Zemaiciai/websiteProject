@@ -40,28 +40,24 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const errors: Errors = {};
 
-  if (firstname === "null") {
+  if (firstname === "null" || firstname === "") {
     errors.firstname = "Vardas privalomas";
   }
-  if (lastname === "null") {
+  if (lastname === "null" || lastname === "") {
     errors.lastname = "Pavardė privalomas";
   }
-  if (username === "null") {
+  if (username === "null" || username === "") {
     errors.username = "Slapyvardis privalomas";
   }
   if (!validateEmail(email)) {
     errors.email = "El. pašto adresas netinkamas";
   }
-  if (password === null) {
+  if (password === "null" || password === "") {
     errors.password = "Slaptažodis privalomas";
   }
   if (password.length < 8) {
     errors.password = "Slaptažodis per trumpas";
   }
-
-  console.log(firstname);
-  console.log(password);
-  console.log(firstname === "null");
 
   const existingUser = await getUserByEmail(email);
   if (existingUser) {
