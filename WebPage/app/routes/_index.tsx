@@ -22,7 +22,7 @@ export default function Index() {
                     to="/dashboard"
                     className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-blue-700 shadow-sm hover:bg-blue-50 sm:px-8"
                   >
-                    View Notes for {user.email}
+                    Dashboard for {user.email}
                   </Link>
                 ) : (
                   <div className="space-y-4 w-[300px] mb-20">
