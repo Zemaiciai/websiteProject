@@ -1,15 +1,26 @@
-
-
+import { LoaderFunctionArgs, json } from '@remix-run/node';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import DropdownMenu from "~/components/common/navMenu/navMenu";
-import navbarIcon from "~/pictures/navMenu/navMenuIcon.png"; 
+
+import { requireUser } from '~/session.server';
+
+import navbarIcon from "../../../pictures/navMenu/navMenuIcon.png"; 
+import NavMenu from "../navMenu/navMenu";
+import { useLoaderData } from '@remix-run/react';
+
+
+
 
 interface HeaderProps {
   title: string;
   profilePictureSrc: string; 
   profileLink: string; 
 }
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const user = await requireUser(request);
+  return json({ user });
+};
 
 const Header: React.FC<HeaderProps> = ({ title, profilePictureSrc, profileLink }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,7 +34,7 @@ const Header: React.FC<HeaderProps> = ({ title, profilePictureSrc, profileLink }
               
               <img src={navbarIcon} alt="Navbar Icon" className="h-8 w-8" />
             </button>
-            <DropdownMenu isOpen={isOpen} style={{ width: '200px'}} />
+            <NavMenu isOpen={isOpen} style={{ width: '200px'}} />
           </div>
           
           <Link to="/dashboard">

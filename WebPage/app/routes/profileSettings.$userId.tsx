@@ -6,7 +6,7 @@ import ProfileSettings from "~/components/profileSettings";
 import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
 
-import ProfileCard from "./../components/profileCard";
+import ProfileCard from "../components/profileCard";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);

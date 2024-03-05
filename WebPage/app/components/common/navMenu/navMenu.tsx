@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-interface DropdownMenuProps {
+interface NavMenu {
   isOpen: boolean;
   style?: React.CSSProperties; 
 }
 
-const DropdownMenu: React.FC<DropdownMenuProps> = ({ isOpen, style }) => {
+const NavMenu: React.FC<NavMenu> = ({ isOpen, style }) => {
   return (
     <div className={`absolute top-12 right--10 bg-white shadow-md ${isOpen ? 'block' : 'hidden'}`} style={style}>
         <ul className="p-2 space-y-5 text-lg py-4"> 
@@ -18,4 +18,4 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ isOpen, style }) => {
   );
 }
 
-export default DropdownMenu;
+export default NavMenu;
