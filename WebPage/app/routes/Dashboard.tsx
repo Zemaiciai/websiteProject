@@ -1,5 +1,4 @@
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import React from "react";
 
 import Header from "~/components/common/header/header";
 import { getNoteListItems } from "~/models/note.server";

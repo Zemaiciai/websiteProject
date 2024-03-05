@@ -1,14 +1,12 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import {
-  Form,
-} from "@remix-run/react";
+import { Form } from "@remix-run/react";
 import { useState } from "react";
 
 import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
 
-import ProfilePageSocialMedia from "./profilePageSocialMedia";
+import ProfilePageSocialMedia from "../profilePageSocialMedia";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
@@ -18,8 +16,8 @@ function ProfilePageEditDropBox() {
   const [isOpen, setIsOpen] = useState(false);
   const user = useUser();
   return (
-    <Form method="get" className="editButtonForm mt-[90px]">
-      <div className="hs-dropdown relative">
+    <Form method="get" className="editButtonForm">
+      <div className="hs-dropdown relative place-items-center	">
         <button
           id="hs-dropdown-with-dividers"
           type="button"
