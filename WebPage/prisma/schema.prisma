@@ -37,6 +37,15 @@ model SecretCode {
   Used Boolean @default(false)
 }
 
+model SecretCodeAdmin {
+  customName String 
+  email String @unique
+  contractNumber String
+
+  ExpirationDate DateTime @default(now())
+  Used Boolean @default(false)
+}
+
 model Note {
   id    String @id @default(cuid())
   title String
