@@ -39,6 +39,13 @@ export default function NotesPage() {
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (customNameRef.current) customNameRef.current.value = "";
+    if (emailRef.current) emailRef.current.value = "";
+    if (contractNumberRef.current) contractNumberRef.current.value = "";
+  };
+
   return (
     <div className="flex h-full min-h-screen flex-col">
       <Header
@@ -129,7 +136,7 @@ export default function NotesPage() {
                   Pakvietimo kodo generavimas
                 </h1>
 
-                <Form method="post">
+                <Form method="post" onSubmit={handleSubmit}>
                   <div>
                     <label
                       htmlFor="customName"
