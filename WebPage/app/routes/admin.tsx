@@ -55,7 +55,7 @@ export default function NotesPage() {
                 ? "text-gray-900 bg-gray-200"
                 : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
             } w-full`}
-            onClick={() => handleTabClick.bind("Dashboard")}
+            onClick={() => handleTabClick("Dashboard")}
           >
             Dashboard
           </button>
@@ -66,7 +66,7 @@ export default function NotesPage() {
                 ? "text-gray-900 bg-gray-200"
                 : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
             } w-full`}
-            onClick={() => handleTabClick.bind("InviteCode")}
+            onClick={() => handleTabClick("InviteCode")}
           >
             Invite Code
           </button>
