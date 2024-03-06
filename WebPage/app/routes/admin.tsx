@@ -1,50 +1,19 @@
-import { PrismaClient } from "@prisma/client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
-import bcrypt from "bcryptjs";
+import { Form } from "@remix-run/react";
 import { useRef, useState } from "react";
 
 import Header from "~/components/common/header/header";
 import { getNoteListItems } from "~/models/note.server";
+import { createCode } from "~/models/secretCode.server";
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
-
-const prisma = new PrismaClient();
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   const noteListItems = await getNoteListItems({ userId });
   return json({ noteListItems });
 };
-
-const generateRandomSecretCode = (length: number) => {
-  let result = "";
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const charactersLength = characters.length;
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-
-  return result;
-};
-
-async function createCode(customName, emailAdress, contractNumber) {
-  const secretCode = generateRandomSecretCode(10);
-  const currentDate = new Date();
-  await prisma.secretCodeAdmin.create({
-    data: {
-      customName: customName,
-      email: emailAdress,
-      contractNumber: contractNumber,
-      ExpirationDate: new Date(currentDate.getTime() + 60 * 60 * 60 * 1000),
-      Used: false,
-      role: "worker",
-      secretCode: secretCode
-    }
-  });
-}
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -53,6 +22,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const contractNumber = String(formData.get("contractNumber"));
 
   await createCode(customName, email, contractNumber);
+
   return null;
 };
 
@@ -60,8 +30,9 @@ export default function NotesPage() {
   const [activeTab, setActiveTab] = useState("InviteCode");
   const user = useUser();
 
-  const handleTabClick = (tab) => {
+  const handleTabClick = (tab: string) => {
     setActiveTab(tab);
+    console.log(tab);
   };
 
   const emailRef = useRef<HTMLInputElement>(null);
@@ -84,7 +55,7 @@ export default function NotesPage() {
                 ? "text-gray-900 bg-gray-200"
                 : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
             } w-full`}
-            onClick={() => handleTabClick("Dashboard")}
+            onClick={() => handleTabClick.bind("Dashboard")}
           >
             Dashboard
           </button>
@@ -95,14 +66,14 @@ export default function NotesPage() {
                 ? "text-gray-900 bg-gray-200"
                 : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
             } w-full`}
-            onClick={() => handleTabClick("InviteCode")}
+            onClick={() => handleTabClick.bind("InviteCode")}
           >
             Invite Code
           </button>
 
           <button
             className={`inline-flex justify-center px-4 py-3 ${
-              activeTab === "Dashboard"
+              activeTab === "Users"
                 ? "text-gray-900 bg-gray-200"
                 : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
             } w-full`}
@@ -113,7 +84,7 @@ export default function NotesPage() {
 
           <button
             className={`inline-flex justify-center px-4 py-3 ${
-              activeTab === "Dashboard"
+              activeTab === "Reports"
                 ? "text-gray-900 bg-gray-200"
                 : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
             } w-full`}
@@ -124,7 +95,7 @@ export default function NotesPage() {
 
           <button
             className={`inline-flex justify-center px-4 py-3 ${
-              activeTab === "Dashboard"
+              activeTab === "adminStats"
                 ? "text-gray-900 bg-gray-200"
                 : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
             } w-full`}
