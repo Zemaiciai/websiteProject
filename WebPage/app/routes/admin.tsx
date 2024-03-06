@@ -18,14 +18,27 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const customName = String(formData.get("customName"));
   const contractNumber = String(formData.get("contractNumber"));
   const roleSelection = String(formData.get("roleSelection"));
-  await createCode(customName, email, contractNumber, roleSelection);
-  return null;
+
+  const createdCode = await createCode(
+    customName,
+    email,
+    contractNumber,
+    roleSelection
+  );
+  const secretCode = createdCode ? createdCode.secretCode : null;
+  return json({ secretCode });
+  //return null;
 };
 
 export default function NotesPage() {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const user = useUser();
   const data = useLoaderData<typeof loader>();
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [inviteCode, setInviteCode] = useState("");
+  const togglePopup = () => {
+    setPopupOpen(!popupOpen);
+  };
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
     console.log(tab);
@@ -33,6 +46,7 @@ export default function NotesPage() {
   const emailRef = useRef<HTMLInputElement>(null);
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
+  const { secretCode } = action;
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -171,7 +185,7 @@ export default function NotesPage() {
         {activeTab === "InviteCode" ? (
           <>
             <div className="flex flex-col w-full ml-3 mt-3 mr-8">
-              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3">
+              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[450px] ml-3 mt-3 mr-3">
                 <h1 className="text-3xl font-mono font-font-extralight">
                   Pakvietimo kodo generavimas
                 </h1>
@@ -286,11 +300,33 @@ export default function NotesPage() {
                       </select>
                     </div>
                   </div>
-                  <button type="submit">Submit</button>
+
+                  <button
+                    type="submit"
+                    className="w-full rounded bg-blue-600 mt-5 px-2 py-2 text-white hover:bg-blue-800"
+                    onClick={togglePopup} // Add onClick handler to open popup
+                  >
+                    Sukurti kodą
+                  </button>
+
+                  {/* Popup message box */}
+                  {popupOpen ? (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+                      <div className="bg-white p-8 rounded-lg shadow-md">
+                        <p id="secretCode">Generated Secret Code:</p>
+                        <button
+                          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                          onClick={togglePopup}
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
                 </Form>
               </div>
 
-              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3">
+              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
                 <h1 className="text-3xl font-mono font-font-extralight">
                   Sistemoje esantys pakvietimo kodai
                 </h1>

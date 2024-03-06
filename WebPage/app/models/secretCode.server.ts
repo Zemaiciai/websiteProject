@@ -29,7 +29,7 @@ export async function createCode(
     return null;
   }
 
-  return prisma.secretCodeAdmin.create({
+  const createdCode = await prisma.secretCodeAdmin.create({
     data: {
       customName: customName,
       email: emailAdress,
@@ -40,6 +40,8 @@ export async function createCode(
       secretCode: secretCode
     }
   });
+
+  return createdCode; // Return the created code object
 }
 
 export async function getAllcodes() {
