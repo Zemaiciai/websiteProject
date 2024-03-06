@@ -29,15 +29,8 @@ model Password {
   userId String @unique
 }
 
-model SecretCode {
-  hash String 
-  email String @unique
-
-  ExpirationDate DateTime @default(now())
-  Used Boolean @default(false)
-}
-
 model SecretCodeAdmin {
+  id    String @id @default(cuid())
   secretCode String
   customName String 
   email String @unique

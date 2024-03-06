@@ -1,18 +1,16 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
 
 import Header from "~/components/common/header/header";
-import { getNoteListItems } from "~/models/note.server";
-import { createCode } from "~/models/secretCode.server";
+import { createCode, getAllcodes } from "~/models/secretCode.server";
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const userId = await requireUserId(request);
-  const noteListItems = await getNoteListItems({ userId });
-  return json({ noteListItems });
+  const secretCodeList = getAllcodes;
+  return json({ secretCodeList });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -20,23 +18,23 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const email = String(formData.get("emailAdress"));
   const customName = String(formData.get("customName"));
   const contractNumber = String(formData.get("contractNumber"));
-
-  await createCode(customName, email, contractNumber);
+  const roleSelection = String(formData.get("roleSelection"));
+  await createCode(customName, email, contractNumber, roleSelection);
   return null;
 };
 
 export default function NotesPage() {
-  const [activeTab, setActiveTab] = useState("InviteCode");
+  const [activeTab, setActiveTab] = useState("Dashboard");
   const user = useUser();
-
+  const data = useLoaderData<typeof loader>();
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
     console.log(tab);
   };
-
   const emailRef = useRef<HTMLInputElement>(null);
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
+  const roleSelectionRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -106,16 +104,68 @@ export default function NotesPage() {
 
         {activeTab === "Dashboard" ? (
           <>
-            <div className="p-6 bg-gray-100 text-medium dark:text-gray-1000 dark:bg-gray-300 w-full h-[400px] ml-3 mt-3 mr-3">
-              {/* Dashboard content */}
+            <div className="flex flex-col w-full ml-3 mt-3 mr-8">
+              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3">
+                <h1 className="text-3xl font-mono font-font-extralight">
+                  Dashboard
+                </h1>
+              </div>
+              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3">
+                <h1 className="text-3xl font-mono font-font-extralight">
+                  Placeholder
+                </h1>
+              </div>
             </div>
           </>
         ) : null}
 
         {activeTab === "Users" ? (
           <>
-            <div className="p-6 bg-gray-100 text-medium dark:text-gray-1000 dark:bg-gray-300 w-full h-[400px] ml-3 mt-3 mr-3">
-              {/* Dashboard content */}
+            <div className="flex flex-col w-full ml-3 mt-3 mr-8">
+              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3">
+                <h1 className="text-3xl font-mono font-font-extralight">
+                  Users
+                </h1>
+              </div>
+              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3">
+                <h1 className="text-3xl font-mono font-font-extralight">
+                  Placeholder
+                </h1>
+              </div>
+            </div>
+          </>
+        ) : null}
+
+        {activeTab === "Reports" ? (
+          <>
+            <div className="flex flex-col w-full ml-3 mt-3 mr-8">
+              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3">
+                <h1 className="text-3xl font-mono font-font-extralight">
+                  Reports
+                </h1>
+              </div>
+              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3">
+                <h1 className="text-3xl font-mono font-font-extralight">
+                  Placeholder
+                </h1>
+              </div>
+            </div>
+          </>
+        ) : null}
+
+        {activeTab === "adminStats" ? (
+          <>
+            <div className="flex flex-col w-full ml-3 mt-3 mr-8">
+              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3">
+                <h1 className="text-3xl font-mono font-font-extralight">
+                  adminStats
+                </h1>
+              </div>
+              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3">
+                <h1 className="text-3xl font-mono font-font-extralight">
+                  Placeholder
+                </h1>
+              </div>
             </div>
           </>
         ) : null}
@@ -218,6 +268,26 @@ export default function NotesPage() {
                       </select>
                     </div>
                   </div>
+
+                  <div>
+                    <label
+                      htmlFor="roleSelection"
+                      className="block text-sm text-black"
+                    >
+                      Pasirinkti rolę
+                    </label>
+                    <div className="mt-1">
+                      <select
+                        id="roleSelection"
+                        name="roleSelection"
+                        className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                      >
+                        <option value="holder">Pasirinkti</option>
+                        <option value="worker">worker</option>
+                        <option value="client">client</option>
+                      </select>
+                    </div>
+                  </div>
                   <button type="submit">Submit</button>
                 </Form>
               </div>
@@ -226,6 +296,51 @@ export default function NotesPage() {
                 <h1 className="text-3xl font-mono font-font-extralight">
                   Sistemoje esantys pakvietimo kodai
                 </h1>
+                <div className="overflow-hidden">
+                  <table className="min-w-full text-center text-sm font-light">
+                    <thead className="border-b bg-neutral-50 font-medium dark:border-neutral-500 dark:text-neutral-800">
+                      <tr>
+                        <th scope="col" className=" px-6 py-4">
+                          #
+                        </th>
+                        <th scope="col" className=" px-6 py-4">
+                          Pavadinimas
+                        </th>
+                        <th scope="col" className=" px-6 py-4">
+                          El. paštas
+                        </th>
+                        <th scope="col" className=" px-6 py-4">
+                          Rolė
+                        </th>
+                        <th scope="col" className=" px-6 py-4">
+                          Kontrakto nr.
+                        </th>
+                        <th scope="col" className=" px-6 py-4">
+                          Galiojimo data
+                        </th>
+                        <th scope="col" className=" px-6 py-4">
+                          Panaudojimas
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+
+                {/* <ol>
+                  {data.secretCodeList.map((email) => (
+                    <li key={email.id}>
+                      <NavLink
+                        className={({ isActive }) =>
+                          `block border-b p-4 text-xl ${isActive ? "bg-white" : ""}`
+                        }
+                        to={email.id}
+                      >
+                        📝 {email.title}
+                      </NavLink>
+                    </li>
+                  ))}
+                </ol> */}
               </div>
             </div>
           </>

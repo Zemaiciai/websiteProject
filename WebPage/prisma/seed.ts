@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -18,21 +17,18 @@ const generateRandomSecretCode = (length: number) => {
 async function seed() {
   const email = "test@gmail.com";
   const currentDate = new Date();
-  await prisma.secretCode.delete({ where: { email } }).catch(() => {
-    // no worries if it doesn't exist yet
-  });
   const secretCode = generateRandomSecretCode(10);
   console.log(secretCode);
-  const hashedSecretCode = await bcrypt.hash(secretCode, 10);
 
-  await prisma.secretCode.create({
+  await prisma.secretCodeAdmin.create({
     data: {
-      hash: hashedSecretCode,
+      customName: "test",
       email: email,
-      ExpirationDate: new Date(
-        currentDate.setTime(currentDate.getTime() + 60 * 60 * 60 * 1000)
-      ),
-      Used: false
+      contractNumber: "test",
+      ExpirationDate: currentDate,
+      Used: false,
+      role: "admin",
+      secretCode: secretCode
     }
   });
   // const user = await prisma.user.create({

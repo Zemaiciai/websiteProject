@@ -15,10 +15,20 @@ const generateRandomSecretCode = (length: number) => {
 export async function createCode(
   customName: string,
   emailAdress: string,
-  contractNumber: string
+  contractNumber: string,
+  roleSelection: string
 ) {
   const secretCode = generateRandomSecretCode(10);
   const currentDate = new Date();
+
+  if (roleSelection === "holder") {
+    return null;
+  }
+
+  if (customName === "" || emailAdress === "" || contractNumber === "") {
+    return null;
+  }
+
   return prisma.secretCodeAdmin.create({
     data: {
       customName: customName,
@@ -26,13 +36,14 @@ export async function createCode(
       contractNumber: contractNumber,
       ExpirationDate: new Date(currentDate.getTime() + 60 * 60 * 60 * 1000),
       Used: false,
-      role: "worker",
+      role: roleSelection,
       secretCode: secretCode
     }
   });
 }
 
 export async function getAllcodes() {
-  const allCodes = await prisma.secretCodeAdmin.findMany();
-  return allCodes;
+  return prisma.secretCodeAdmin.findMany({
+    select: { email: true }
+  });
 }
