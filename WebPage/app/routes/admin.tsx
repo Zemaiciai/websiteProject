@@ -1,9 +1,9 @@
 import { PrismaClient } from "@prisma/client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import bcrypt from "bcryptjs";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import Header from "~/components/common/header/header";
 import { getNoteListItems } from "~/models/note.server";
@@ -30,19 +30,31 @@ const generateRandomSecretCode = (length: number) => {
   return result;
 };
 
-async function createCode(customName, emailAdress) {
+async function createCode(customName, emailAdress, contractNumber) {
   const secretCode = generateRandomSecretCode(10);
-  const hashedSecretCode = await bcrypt.hash(secretCode, 10);
   const currentDate = new Date();
-  await prisma.secretCode.create({
+  await prisma.secretCodeAdmin.create({
     data: {
-      hash: hashedSecretCode,
+      customName: customName,
       email: emailAdress,
+      contractNumber: contractNumber,
       ExpirationDate: new Date(currentDate.getTime() + 60 * 60 * 60 * 1000),
-      Used: false
+      Used: false,
+      role: "worker",
+      secretCode: secretCode
     }
   });
 }
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  const email = String(formData.get("emailAdress"));
+  const customName = String(formData.get("customName"));
+  const contractNumber = String(formData.get("contractNumber"));
+
+  await createCode(customName, email, contractNumber);
+  return null;
+};
 
 export default function NotesPage() {
   const [activeTab, setActiveTab] = useState("InviteCode");
@@ -52,14 +64,9 @@ export default function NotesPage() {
     setActiveTab(tab);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    const customName = formData.get("customName") as string;
-    const emailAdress = formData.get("emailAdress") as string;
-    createCode(customName, emailAdress);
-  };
+  const emailRef = useRef<HTMLInputElement>(null);
+  const customNameRef = useRef<HTMLInputElement>(null);
+  const contractNumberRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -93,15 +100,36 @@ export default function NotesPage() {
             Invite Code
           </button>
 
-          <button className="inline-flex justify-center px-4 py-3  hover:text-gray-900 bg-gray-50 hover:bg-gray-200 w-full">
+          <button
+            className={`inline-flex justify-center px-4 py-3 ${
+              activeTab === "Dashboard"
+                ? "text-gray-900 bg-gray-200"
+                : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
+            } w-full`}
+            onClick={() => handleTabClick("Users")}
+          >
             Users
           </button>
 
-          <button className="inline-flex justify-center px-4 py-3  hover:text-gray-900 bg-gray-50 hover:bg-gray-200 w-full">
+          <button
+            className={`inline-flex justify-center px-4 py-3 ${
+              activeTab === "Dashboard"
+                ? "text-gray-900 bg-gray-200"
+                : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
+            } w-full`}
+            onClick={() => handleTabClick("Reports")}
+          >
             Reports
           </button>
 
-          <button className="inline-flex justify-center px-4 py-3  hover:text-gray-900 bg-gray-50 hover:bg-gray-200 w-full">
+          <button
+            className={`inline-flex justify-center px-4 py-3 ${
+              activeTab === "Dashboard"
+                ? "text-gray-900 bg-gray-200"
+                : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
+            } w-full`}
+            onClick={() => handleTabClick("adminStats")}
+          >
             Admin statistics
           </button>
         </div>
@@ -124,100 +152,111 @@ export default function NotesPage() {
 
         {activeTab === "InviteCode" ? (
           <>
-            <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3">
-              <h1 className="text-3xl font-mono font-font-extralight">
-                Pakvietimo kodo generavimas
-              </h1>
+            <div className="flex flex-col w-full ml-3 mt-3 mr-8">
+              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3">
+                <h1 className="text-3xl font-mono font-font-extralight">
+                  Pakvietimo kodo generavimas
+                </h1>
 
-              <form onSubmit={handleSubmit}>
-                <div>
-                  <label
-                    htmlFor="customName"
-                    className="block text-sm text-black"
-                  >
-                    Pavadinimas
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      id="customName"
-                      name="customName"
-                      type="text"
-                      autoComplete="on"
-                      aria-describedby="email-error"
-                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="emailAdress"
-                    className="block text-sm text-black"
-                  >
-                    El. pašto adresas
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      id="emailAdress"
-                      name="emailAdress"
-                      type="text"
-                      autoComplete="on"
-                      aria-describedby="email-error"
-                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="contractNumber"
-                    className="block text-sm text-black"
-                  >
-                    Kontrakto numeris
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      id="contractNumber"
-                      name="contractNumber"
-                      type="text"
-                      autoComplete="on"
-                      aria-describedby="email-error"
-                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="selectedTime"
-                    className="block text-sm text-black"
-                  >
-                    Pasirinkti kodo galiojimą
-                  </label>
-                  <div className="mt-1">
-                    <select
-                      id="selectedTime"
-                      name="selectedTime"
-                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                <Form method="post">
+                  <div>
+                    <label
+                      htmlFor="customName"
+                      className="block text-sm text-black"
                     >
-                      <option value="holder">Pasirinkti</option>
-                      <option value="thirtyMinutes">30 minučių</option>
-                      <option value="oneHour">1 valandai</option>
-                      <option value="fifeHours">5 valandom</option>
-                      <option value="twelveHours">12 valandų</option>
-                      <option value="twentyForHours00">24 valandom</option>
-                      <option value="oneWeek">1 savaitei</option>
-                      <option value="oneMonth">1 mėnesiui</option>
-                      <option value="threeMonths">3 mėnesiai</option>
-                      <option value="sixMonths">6 mėnesiai</option>
-                      <option value="nineMonths">9 mėnesiai</option>
-                      <option value="oneYear">1 metai</option>
-                      <option value="unlimited">Neribotas</option>
-                    </select>
+                      Pavadinimas
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        id="customName"
+                        name="customName"
+                        type="text"
+                        ref={customNameRef}
+                        autoComplete="on"
+                        aria-describedby="email-error"
+                        className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                      />
+                    </div>
                   </div>
-                </div>
-                <button type="submit">Submit</button>
-              </form>
+
+                  <div>
+                    <label
+                      htmlFor="emailAdress"
+                      className="block text-sm text-black"
+                    >
+                      El. pašto adresas
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        id="emailAdress"
+                        name="emailAdress"
+                        type="text"
+                        ref={emailRef}
+                        autoComplete="on"
+                        aria-describedby="email-error"
+                        className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="contractNumber"
+                      className="block text-sm text-black"
+                    >
+                      Kontrakto numeris
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        id="contractNumber"
+                        name="contractNumber"
+                        type="text"
+                        ref={contractNumberRef}
+                        autoComplete="on"
+                        aria-describedby="email-error"
+                        className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="selectedTime"
+                      className="block text-sm text-black"
+                    >
+                      Pasirinkti kodo galiojimą
+                    </label>
+                    <div className="mt-1">
+                      <select
+                        id="selectedTime"
+                        name="selectedTime"
+                        className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                      >
+                        <option value="holder">Pasirinkti</option>
+                        <option value="thirtyMinutes">30 minučių</option>
+                        <option value="oneHour">1 valandai</option>
+                        <option value="fifeHours">5 valandom</option>
+                        <option value="twelveHours">12 valandų</option>
+                        <option value="twentyForHours00">24 valandom</option>
+                        <option value="oneWeek">1 savaitei</option>
+                        <option value="oneMonth">1 mėnesiui</option>
+                        <option value="threeMonths">3 mėnesiai</option>
+                        <option value="sixMonths">6 mėnesiai</option>
+                        <option value="nineMonths">9 mėnesiai</option>
+                        <option value="oneYear">1 metai</option>
+                        <option value="unlimited">Neribotas</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button type="submit">Submit</button>
+                </Form>
+              </div>
+
+              <div className="p-6 bg-gray-200 text-medium dark:text-gray-1000 dark:bg-gray-1000 w-full h-[400px] ml-3 mt-3 mr-3">
+                <h1 className="text-3xl font-mono font-font-extralight">
+                  Sistemoje esantys pakvietimo kodai
+                </h1>
+              </div>
             </div>
           </>
         ) : null}

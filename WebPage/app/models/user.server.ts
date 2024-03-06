@@ -20,7 +20,7 @@ export async function createUser(
   lastName: string,
   secretCode: string
 ) {
-  const userSecretCode = await prisma.secretCode.findUnique({
+  const userSecretCode = await prisma.secretCodeAdmin.findUnique({
     where: { email }
   });
 
@@ -28,10 +28,7 @@ export async function createUser(
     return null;
   }
 
-  const secretCodeIsValid = await bcrypt.compare(
-    secretCode,
-    userSecretCode?.hash
-  );
+  const secretCodeIsValid = secretCode === userSecretCode.secretCode;
 
   if (!secretCodeIsValid) {
     return null;

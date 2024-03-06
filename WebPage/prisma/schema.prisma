@@ -38,9 +38,11 @@ model SecretCode {
 }
 
 model SecretCodeAdmin {
+  secretCode String
   customName String 
   email String @unique
   contractNumber String
+  role String
 
   ExpirationDate DateTime @default(now())
   Used Boolean @default(false)
