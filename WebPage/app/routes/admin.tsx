@@ -41,9 +41,7 @@ export default function NotesPage() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (customNameRef.current) customNameRef.current.value = "";
-    if (emailRef.current) emailRef.current.value = "";
-    if (contractNumberRef.current) contractNumberRef.current.value = "";
+    event.currentTarget.reset();
   };
 
   return (
