@@ -1,7 +1,5 @@
 import { prisma } from "~/db.server";
 
-export type { User } from "@prisma/client";
-
 const generateRandomSecretCode = (length: number) => {
   let result = "";
   const characters =
@@ -14,7 +12,11 @@ const generateRandomSecretCode = (length: number) => {
   return result;
 };
 
-export async function createCode(customName, emailAdress, contractNumber) {
+export async function createCode(
+  customName: string,
+  emailAdress: string,
+  contractNumber: string
+) {
   const secretCode = generateRandomSecretCode(10);
   const currentDate = new Date();
   return prisma.secretCodeAdmin.create({
@@ -28,4 +30,9 @@ export async function createCode(customName, emailAdress, contractNumber) {
       secretCode: secretCode
     }
   });
+}
+
+export async function getAllcodes() {
+  const allCodes = await prisma.secretCodeAdmin.findMany();
+  return allCodes;
 }

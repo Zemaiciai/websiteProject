@@ -22,7 +22,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const contractNumber = String(formData.get("contractNumber"));
 
   await createCode(customName, email, contractNumber);
-
   return null;
 };
 
@@ -38,11 +37,6 @@ export default function NotesPage() {
   const emailRef = useRef<HTMLInputElement>(null);
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    event.currentTarget.reset();
-  };
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -134,7 +128,7 @@ export default function NotesPage() {
                   Pakvietimo kodo generavimas
                 </h1>
 
-                <Form method="post" onSubmit={handleSubmit}>
+                <Form method="post">
                   <div>
                     <label
                       htmlFor="customName"
