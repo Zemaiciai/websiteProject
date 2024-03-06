@@ -1,14 +1,13 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
 
 import Header from "~/components/common/header/header";
 import { createCode, getAllcodes } from "~/models/secretCode.server";
-import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async () => {
   const secretCodeList = getAllcodes;
   return json({ secretCodeList });
 };
@@ -34,7 +33,6 @@ export default function NotesPage() {
   const emailRef = useRef<HTMLInputElement>(null);
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
-  const roleSelectionRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="flex h-full min-h-screen flex-col">
