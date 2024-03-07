@@ -8,7 +8,7 @@ function XImage() {
       <svg
         version="1.0"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-8 h-8 hover:w-9 hover:h-9 pb-2"
+        className="w-8 h-8 opacity-75 hover:opacity-100 pb-1"
         viewBox="0 0 3840.000000 2160.000000"
         preserveAspectRatio="xMidYMid meet"
       >

@@ -2,11 +2,11 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 
 import Header from "~/components/common/header/header";
-import ProfilePageTabs from "~/components/profilePageTabs";
+import ProfilePageTabs from "~/components/profilePageComponents/profilePageTabs";
 import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
 
-import ProfileCard from "./../components/profileCard";
+import ProfileCard from "../components/profilePageComponents/profileCard";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);

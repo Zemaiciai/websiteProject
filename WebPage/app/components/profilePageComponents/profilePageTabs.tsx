@@ -3,6 +3,10 @@ import { useState } from "react";
 
 import { requireUser } from "~/session.server";
 
+import ProfilePageSocialMedia from "./profilePageSocialMedia";
+import ProfilePageTabsSkills from "./profilePageTabsSkills";
+import ProfileSettings from "./profileSettings";
+
 export const loader = async ({ request }) => {
   const user = await requireUser(request);
   return json({ user });
@@ -42,6 +46,18 @@ function ProfilePageTabs() {
             Skills
           </button>
         </li>
+        <li className="me-2">
+          <button
+            className={`inline-block p-4  ${
+              activeTab === "settings"
+                ? "border-sky-500 border-b-2 rounded-t-lg"
+                : "hover:text-gray-600 hover:border-gray-300"
+            }`}
+            onClick={() => handleTabClick("settings")}
+          >
+            Settings
+          </button>
+        </li>
       </ul>
       <div className="p-6 text-medium text-gray-500 rounded-lg w-[800px] h-[400px]">
         {activeTab === "statistics" ? (
@@ -53,9 +69,12 @@ function ProfilePageTabs() {
         ) : null}
         {activeTab === "skills" ? (
           <>
-            <div className="skillsDiv border rounded border-grey-200">
-              <p>Skillai</p>
-            </div>
+            <ProfilePageTabsSkills />
+          </>
+        ) : null}
+        {activeTab === "settings" ? (
+          <>
+            <ProfileSettings />
           </>
         ) : null}
       </div>

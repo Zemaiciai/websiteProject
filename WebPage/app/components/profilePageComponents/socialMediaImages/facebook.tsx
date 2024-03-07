@@ -10,7 +10,7 @@ function FacebookImage() {
         version="1.1"
         id="Capa_1"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-6 h-6 hover:w-7 hover:h-7"
+        className="w-6 h-6 opacity-75 hover:opacity-100"
         viewBox="0 0 96.124 96.123"
         xmlSpace="preserve"
       >
