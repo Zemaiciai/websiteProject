@@ -6,8 +6,20 @@ import { useRef, useState } from "react";
 import { createCode, getAllcodes } from "~/models/secretCode.server";
 import { useUser } from "~/utils";
 
+
+
+interface SecretCode {
+  id: string;
+  secretCode: string;
+  customName: string;
+  email: string;
+  contractNumber: string;
+  role: string;
+  ExpirationDate: Date;
+  Used: boolean;
+}
 export const loader = async () => {
-  const secretCodeList = getAllcodes;
+  const secretCodeList = await getAllcodes();
   return json({ secretCodeList });
 };
 
@@ -25,7 +37,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     roleSelection
   );
   const secretCode = createdCode ? createdCode.secretCode : null;
-  return json({ secretCode });
+  return json(secretCode);
   //return null;
 };
 
@@ -45,7 +57,12 @@ export default function NotesPage() {
   const emailRef = useRef<HTMLInputElement>(null);
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
-  const { secretCode } = action;
+  const {secretCode} = action;
+
+  const loaderData = useLoaderData(); // No type provided
+  const secretCodeList = (loaderData as { secretCodeList: SecretCode[] }).secretCodeList;
+
+  
 
   return (
     <div className="flex h-full min-h-screen flex-col relative">
@@ -477,6 +494,11 @@ export default function NotesPage() {
                         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
                           <div className="bg-white p-8 rounded-lg shadow-md">
                             <p id="secretCode">Generated Secret Code:</p>
+                            <p id="secretCode">
+                              {secretCodeList && secretCodeList.length > 0 ? (
+  <p>{secretCodeList[secretCodeList.length - 1].secretCode}</p>
+) : null}
+                            </p>
                             <button
                               className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                               onClick={togglePopup}
@@ -520,24 +542,32 @@ export default function NotesPage() {
                             </th>
                           </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                          {secretCodeList
+                            ? secretCodeList.map((code, index) => (
+                                <tr key={index}>
+                                  <td className="px-6 py-4">{index + 1}</td>
+                                  <td className="px-6 py-4">
+                                    {code.customName}
+                                  </td>
+                                  <td className="px-6 py-4">{code.email}</td>
+                                  <td className="px-6 py-4">{code.role}</td>
+                                  <td className="px-6 py-4">
+                                    {code.contractNumber}
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    {code.ExpirationDate.toString()}
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    {code.Used ? "Yes" : "No"}
+                                  </td>
+                                </tr>
+                              ))
+                            : null}
+                        </tbody>
+                        <div></div>
                       </table>
                     </div>
-
-                    {/* <ol>
-                  {data.secretCodeList.map((email) => (
-                    <li key={email.id}>
-                      <NavLink
-                        className={({ isActive }) =>
-                          `block border-b p-4 text-xl ${isActive ? "bg-white" : ""}`
-                        }
-                        to={email.id}
-                      >
-                        📝 {email.title}
-                      </NavLink>
-                    </li>
-                  ))}
-                </ol> */}
                   </div>
                 </div>
               </div>

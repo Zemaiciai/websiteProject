@@ -45,7 +45,5 @@ export async function createCode(
 }
 
 export async function getAllcodes() {
-  return prisma.secretCodeAdmin.findMany({
-    select: { email: true }
-  });
+  return prisma.secretCodeAdmin.findMany();
 }
