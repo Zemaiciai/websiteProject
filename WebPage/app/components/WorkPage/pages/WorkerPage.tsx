@@ -10,12 +10,15 @@ export default function WorkPageWorker() {
     setExpanded(!expanded);
   };
 
+  const numberOfWorkCards = 100;
+
   return (
-    <div className="work-page-container">
-      <div className="work-table-container flex justify-center flex-col bg-slate-300 p-2">
-        <WorkTableHeader toggleExpand={toggleExpand} />
-        <ExpandedContentTable numberOfWorkCards={100} expanded={expanded} />
-      </div>
+    <div className="work-page-container flex justify-center flex-col bg-slate-300 p-2">
+      <WorkTableHeader toggleExpand={toggleExpand} />
+      <ExpandedContentTable
+        numberOfWorkCards={numberOfWorkCards}
+        expanded={expanded}
+      />
     </div>
   );
 }
