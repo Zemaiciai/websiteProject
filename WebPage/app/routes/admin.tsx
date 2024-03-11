@@ -86,15 +86,15 @@ export default function NotesPage() {
   );
 
   return (
-    <div className="flex h-full min-h-screen flex-col relative">
+    <div className="flex flex-grow h-screen flex-col relative">
       {/* <Header
         title="My Website"
         profilePictureSrc="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
         profileLink={"/profile/" + user.id}
       /> */}
 
-      <main className="flex  bg-white">
-        <div className="flex flex-col flex-grow w-80 border-r-2 border-black bg-custom-900">
+      <main className="flex h-screen bg-white">
+        <div className="flex flex-col flex-grow w-80 border-r-2 border-black bg-custom-900 h-screen overflow-auto">
           <div className="h-32 flex justify-center items-center">
             <a href="/admin" className="text-4xl text-white">
               Admin
@@ -156,7 +156,7 @@ export default function NotesPage() {
 
         {activeTab === "Dashboard" ? (
           <>
-            <div className="flex flex-col w-full relative">
+            <div className="flex flex-col w-full relative overflow-auto">
               <div className="flex flex-col w-full bg-custom-100">
                 {/* HEADER FOR ADMIN PANEL */}
                 <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
@@ -199,15 +199,14 @@ export default function NotesPage() {
                     </div>
                   </div>
                 </div>
-                {/* END OF HEADER FOR ADMIN PANEL */}
-                <div className="flex flex-col w-[98,3%] ml-3 mt-3 mr-8">
-                  <div className="p-6 bg-custom-200 text-medium   w-full h-[450px] ml-3 mt-3 mr-3">
+                <div className="flex flex-col ml-3 mt-3 mr-8">
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[450px] ml-3 mt-3 mr-3">
                     <h1 className="text-3xl font-mono font-font-extralight">
                       Dashboard
                     </h1>
                   </div>
 
-                  <div className="p-6 bg-custom-200 text-medium   w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
                     <h1 className="text-3xl font-mono font-font-extralight">
                       Placeholder
                     </h1>
