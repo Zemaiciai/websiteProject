@@ -6,8 +6,6 @@ import { useRef, useState } from "react";
 import { createCode, getAllcodes } from "~/models/secretCode.server";
 import { useUser } from "~/utils";
 
-
-
 interface SecretCode {
   id: string;
   secretCode: string;
@@ -46,7 +44,7 @@ export default function NotesPage() {
   const user = useUser();
   const data = useLoaderData<typeof loader>();
   const [popupOpen, setPopupOpen] = useState(false);
-  const [inviteCode, setInviteCode] = useState("");
+
   const togglePopup = () => {
     setPopupOpen(!popupOpen);
   };
@@ -57,12 +55,33 @@ export default function NotesPage() {
   const emailRef = useRef<HTMLInputElement>(null);
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
-  const {secretCode} = action;
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  // Move the declaration of secretCodeList here
   const loaderData = useLoaderData(); // No type provided
-  const secretCodeList = (loaderData as { secretCodeList: SecretCode[] }).secretCodeList;
+  const secretCodeList = (loaderData as { secretCodeList: SecretCode[] })
+    .secretCodeList;
 
-  
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = secretCodeList.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const { secretCode } = action;
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Function to handle input change and update the searchTerm state
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  // Filter the currentItems based on the searchTerm
+  const filteredItems = currentItems.filter((code) =>
+    code.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="flex h-full min-h-screen flex-col relative">
@@ -73,62 +92,64 @@ export default function NotesPage() {
       /> */}
 
       <main className="flex h-full bg-white">
-        <div className="h-full w-80 border-r-2 border-black bg-custom-900">
-          <div className="h-32 w-full flex justify-center items-center">
+        <div className="flex flex-col flex-grow w-80 border-r-2 border-black bg-custom-900">
+          <div className="h-32 flex justify-center items-center">
             <a href="/admin" className="text-4xl text-white">
               Admin
             </a>
           </div>
-          <button
-            className={`inline-flex justify-center px-4 py-3 ${
-              activeTab === "Dashboard"
-                ? "text-white bg-custom-850"
-                : "text-white bg-custom-900 hover:bg-custom-850"
-            } w-full`}
-            onClick={() => handleTabClick("Dashboard")}
-          >
-            Dashboard
-          </button>
-          <button
-            className={`inline-flex justify-center px-4 py-3 ${
-              activeTab === "InviteCode"
-                ? "text-white bg-custom-850"
-                : "text-white bg-custom-900 hover:bg-custom-850"
-            } w-full`}
-            onClick={() => handleTabClick("InviteCode")}
-          >
-            Invite Code
-          </button>
-          <button
-            className={`inline-flex justify-center px-4 py-3 ${
-              activeTab === "Users"
-                ? "text-white bg-custom-850"
-                : "text-white bg-custom-900 hover:bg-custom-850"
-            } w-full`}
-            onClick={() => handleTabClick("Users")}
-          >
-            Users
-          </button>
-          <button
-            className={`inline-flex justify-center px-4 py-3 ${
-              activeTab === "Reports"
-                ? "text-white bg-custom-850"
-                : "text-white bg-custom-900 hover:bg-custom-850"
-            } w-full`}
-            onClick={() => handleTabClick("Reports")}
-          >
-            Reports
-          </button>
-          <button
-            className={`inline-flex justify-center px-4 py-3 ${
-              activeTab === "adminStats"
-                ? "text-white bg-custom-850"
-                : "text-white bg-custom-900 hover:bg-custom-850"
-            } w-full`}
-            onClick={() => handleTabClick("adminStats")}
-          >
-            Admin statistics
-          </button>
+          <div className="flex-grow">
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "Dashboard"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850"
+              } w-full`}
+              onClick={() => handleTabClick("Dashboard")}
+            >
+              Dashboard
+            </button>
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "InviteCode"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850"
+              } w-full`}
+              onClick={() => handleTabClick("InviteCode")}
+            >
+              Invite Code
+            </button>
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "Users"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850"
+              } w-full`}
+              onClick={() => handleTabClick("Users")}
+            >
+              Users
+            </button>
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "Reports"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850"
+              } w-full`}
+              onClick={() => handleTabClick("Reports")}
+            >
+              Reports
+            </button>
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "adminStats"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850"
+              } w-full`}
+              onClick={() => handleTabClick("adminStats")}
+            >
+              Admin statistics
+            </button>
+          </div>
         </div>
 
         {activeTab === "Dashboard" ? (
@@ -140,7 +161,7 @@ export default function NotesPage() {
                   <div className="flex items-center justify-between">
                     <div className="pt-6 pl-6 pb-6">
                       <h1 className="text-2xl text-bold font-bold">
-                        Invite code
+                        Dashboard
                       </h1>
                     </div>
                     <div className="flex items-center text-1xl text-bold font-bold pr-6">
@@ -186,9 +207,7 @@ export default function NotesPage() {
                 <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
                   <div className="flex items-center justify-between">
                     <div className="pt-6 pl-6 pb-6">
-                      <h1 className="text-2xl text-bold font-bold">
-                        Invite code
-                      </h1>
+                      <h1 className="text-2xl text-bold font-bold">Users</h1>
                     </div>
                     <div className="flex items-center text-1xl text-bold font-bold pr-6">
                       <Link to="/dashboard" className="btn btn-primary">
@@ -233,9 +252,7 @@ export default function NotesPage() {
                 <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
                   <div className="flex items-center justify-between">
                     <div className="pt-6 pl-6 pb-6">
-                      <h1 className="text-2xl text-bold font-bold">
-                        Invite code
-                      </h1>
+                      <h1 className="text-2xl text-bold font-bold">Reports</h1>
                     </div>
                     <div className="flex items-center text-1xl text-bold font-bold pr-6">
                       <Link to="/dashboard" className="btn btn-primary">
@@ -281,7 +298,7 @@ export default function NotesPage() {
                   <div className="flex items-center justify-between">
                     <div className="pt-6 pl-6 pb-6">
                       <h1 className="text-2xl text-bold font-bold">
-                        Invite code
+                        Admin stats
                       </h1>
                     </div>
                     <div className="flex items-center text-1xl text-bold font-bold pr-6">
@@ -492,83 +509,134 @@ export default function NotesPage() {
 
                       {popupOpen ? (
                         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
-                          <div className="bg-white p-8 rounded-lg shadow-md">
-                            <p id="secretCode">Generated Secret Code:</p>
+                          <div className="bg-white p-8 rounded-lg shadow-md text-center">
                             <p id="secretCode">
+                              Sugeneruotas kodas:{" "}
                               {secretCodeList && secretCodeList.length > 0 ? (
-  <p>{secretCodeList[secretCodeList.length - 1].secretCode}</p>
-) : null}
+                                <strong>
+                                  {
+                                    secretCodeList[secretCodeList.length - 1]
+                                      .secretCode
+                                  }
+                                </strong>
+                              ) : null}
                             </p>
-                            <button
-                              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                              onClick={togglePopup}
-                            >
-                              Close
-                            </button>
+                            <p className="text-red-500 mt-4">
+                              Uždarius šią lentelę, Jūs nebegalėsite matyti kodo
+                            </p>
+                            <div className="mt-4">
+                              <button
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                onClick={togglePopup}
+                              >
+                                Uždaryti
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ) : null}
                     </Form>
                   </div>
 
-                  <div className="p-6 bg-custom-200 text-medium w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
-                    <h1 className="text-3xl font-mono font-font-extralight">
+                  <div className="p-6 bg-custom-200 text-medium w-full ml-3 mt-3 mr-3 mb-5">
+                    <h1 className="text-3xl font-mono font-font-extralight pb-4">
                       Sistemoje esantys pakvietimo kodai
                     </h1>
                     <div className="">
+                      <div className="mt-4 mb-4">
+                        <input
+                          type="text"
+                          placeholder="Ieškokite pagal el. paštą"
+                          value={searchTerm}
+                          onChange={handleSearch}
+                          className="px-4 py-2 border rounded-md w-full"
+                        />
+                      </div>
                       <table className="min-w-full text-center text-sm font-light">
                         <thead className="border-b bg-neutral-50 font-medium ">
                           <tr>
-                            <th scope="col" className=" px-6 py-4">
-                              #
-                            </th>
-                            <th scope="col" className=" px-6 py-4">
-                              Pavadinimas
-                            </th>
-                            <th scope="col" className=" px-6 py-4">
-                              El. paštas
-                            </th>
-                            <th scope="col" className=" px-6 py-4">
-                              Rolė
-                            </th>
-                            <th scope="col" className=" px-6 py-4">
-                              Kontrakto nr.
-                            </th>
-                            <th scope="col" className=" px-6 py-4">
-                              Galiojimo data
-                            </th>
-                            <th scope="col" className=" px-6 py-4">
-                              Panaudojimas
-                            </th>
+                            <th className="px-6 py-4 w-16">#</th>
+                            <th className="px-6 py-4 w-1/6">Pavadinimas</th>
+                            <th className="px-6 py-4 w-1/6">El. paštas</th>
+                            <th className="px-6 py-4 w-1/6">Rolė</th>
+                            <th className="px-6 py-4 w-1/6">Kontrakto nr.</th>
+                            <th className="px-6 py-4 w-1/6">Galiojimo data</th>
+                            <th className="px-6 py-4 w-1/6">Panaudojimas</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {secretCodeList
-                            ? secretCodeList.map((code, index) => (
-                                <tr key={index}>
-                                  <td className="px-6 py-4">{index + 1}</td>
-                                  <td className="px-6 py-4">
-                                    {code.customName}
-                                  </td>
-                                  <td className="px-6 py-4">{code.email}</td>
-                                  <td className="px-6 py-4">{code.role}</td>
-                                  <td className="px-6 py-4">
-                                    {code.contractNumber}
-                                  </td>
-                                  <td className="px-6 py-4">
-                                    {code.ExpirationDate.toString()}
-                                  </td>
-                                  <td className="px-6 py-4">
-                                    {code.Used ? "Yes" : "No"}
-                                  </td>
-                                </tr>
-                              ))
+                          {filteredItems.map((code, index) => (
+                            <tr key={index}>
+                              <td className="px-6 py-4">{index + 1}</td>
+                              <td className="px-6 py-4">{code.customName}</td>
+                              <td className="px-6 py-4">{code.email}</td>
+                              <td className="px-6 py-4">{code.role}</td>
+                              <td className="px-6 py-4">
+                                {code.contractNumber}
+                              </td>
+                              <td className="px-6 py-4">
+                                {new Date(code.ExpirationDate).toLocaleString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: false
+                                  }
+                                )}
+                              </td>
+                              <td className="px-6 py-4">
+                                {code.Used ? "Yes" : "No"}
+                              </td>
+                            </tr>
+                          ))}
+                          {filteredItems.length < 10
+                            ? Array(10 - filteredItems.length)
+                                .fill(null)
+                                .map((_, index) => (
+                                  <tr key={`empty-${index}`}>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                  </tr>
+                                ))
                             : null}
                         </tbody>
-                        <div></div>
                       </table>
+                      <div className="mt-4">
+                        <ul className="flex justify-center">
+                          {secretCodeList.length > itemsPerPage
+                            ? Array.from({
+                                length: Math.ceil(
+                                  secretCodeList.length / itemsPerPage
+                                )
+                              }).map((_, index) => (
+                                <li key={index} className="mx-1">
+                                  <button
+                                    className={`px-3 py-1 rounded ${
+                                      currentPage === index + 1
+                                        ? "bg-blue-500 text-white"
+                                        : "bg-gray-200 text-gray-700"
+                                    }`}
+                                    onClick={() => paginate(index + 1)}
+                                  >
+                                    {index + 1}
+                                  </button>
+                                </li>
+                              ))
+                            : null}
+                        </ul>
+                      </div>
                     </div>
                   </div>
+
+                  {/*  */}
                 </div>
               </div>
             </div>
