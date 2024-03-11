@@ -20,8 +20,13 @@ export async function createUser(
   lastName: string,
   secretCode: string
 ) {
-  const userSecretCode = await prisma.secretCodeAdmin.findUnique({
-    where: { email }
+  const userSecretCode = await prisma.secretCodeAdmin.findFirst({
+    where: {
+      email,
+      ExpirationDate: {
+        gte: new Date()
+      }
+    }
   });
 
   if (!userSecretCode) {

@@ -19,6 +19,23 @@ export async function createCode(
   roleSelection: string,
   time: string
 ) {
+  const existingCode = await prisma.secretCodeAdmin.findFirst({
+    where: {
+      email: emailAdress,
+      ExpirationDate: {
+        gte: new Date() // Only consider non-expired codes
+      }
+    }
+  });
+
+  if (existingCode) {
+    // If code exists and is not expired, disallow creation
+    if (existingCode.ExpirationDate > new Date()) {
+      throw new Error("Code already exists and is not expired.");
+    }
+    // If code exists but is expired, proceed to create a new one
+  }
+
   const secretCode = generateRandomSecretCode(10);
   let currentDate = new Date();
   let role = "";
@@ -35,6 +52,7 @@ export async function createCode(
   }
   if (time === "thirtyMinutes") {
     currentDate = new Date(currentDate.getTime() + 30 * 60000);
+    //currentDate = new Date(currentDate.getTime() + 1 * 10000);
   }
   if (time === "oneHour") {
     currentDate = new Date(currentDate.getTime() + 1 * 60 * 60 * 1000);

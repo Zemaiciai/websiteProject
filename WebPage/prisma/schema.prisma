@@ -33,7 +33,7 @@ model SecretCodeAdmin {
   id    String @id @default(cuid())
   secretCode String
   customName String 
-  email String @unique
+  email String
   contractNumber String
   role String
 
