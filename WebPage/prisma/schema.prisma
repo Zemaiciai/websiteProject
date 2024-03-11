@@ -20,8 +20,6 @@ model User {
   notes    Note[]
 }
 
-
-
 model Password {
   hash String
 
