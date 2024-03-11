@@ -27,12 +27,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const customName = String(formData.get("customName"));
   const contractNumber = String(formData.get("contractNumber"));
   const roleSelection = String(formData.get("roleSelection"));
+  const code = String(formData.get("selectedTime"));
 
   const createdCode = await createCode(
     customName,
     email,
     contractNumber,
-    roleSelection
+    roleSelection,
+    code
   );
   const secretCode = createdCode ? createdCode.secretCode : null;
   return json(secretCode);
@@ -91,7 +93,7 @@ export default function NotesPage() {
         profileLink={"/profile/" + user.id}
       /> */}
 
-      <main className="flex h-full bg-white">
+      <main className="flex  bg-white">
         <div className="flex flex-col flex-grow w-80 border-r-2 border-black bg-custom-900">
           <div className="h-32 flex justify-center items-center">
             <a href="/admin" className="text-4xl text-white">
@@ -107,7 +109,7 @@ export default function NotesPage() {
               } w-full`}
               onClick={() => handleTabClick("Dashboard")}
             >
-              Dashboard
+              Titulinis
             </button>
             <button
               className={`inline-flex justify-center px-4 py-3 ${
@@ -117,7 +119,7 @@ export default function NotesPage() {
               } w-full`}
               onClick={() => handleTabClick("InviteCode")}
             >
-              Invite Code
+              Pakvietimo kodai
             </button>
             <button
               className={`inline-flex justify-center px-4 py-3 ${
@@ -127,7 +129,7 @@ export default function NotesPage() {
               } w-full`}
               onClick={() => handleTabClick("Users")}
             >
-              Users
+              Naudotojai
             </button>
             <button
               className={`inline-flex justify-center px-4 py-3 ${
@@ -147,7 +149,7 @@ export default function NotesPage() {
               } w-full`}
               onClick={() => handleTabClick("adminStats")}
             >
-              Admin statistics
+              Admin statistika
             </button>
           </div>
         </div>
@@ -161,10 +163,27 @@ export default function NotesPage() {
                   <div className="flex items-center justify-between">
                     <div className="pt-6 pl-6 pb-6">
                       <h1 className="text-2xl text-bold font-bold">
-                        Dashboard
+                        Titulinis
                       </h1>
                     </div>
+
                     <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
                       <Link to="/dashboard" className="btn btn-primary">
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <span style={{ marginRight: "0.5rem" }}>
@@ -180,6 +199,7 @@ export default function NotesPage() {
                     </div>
                   </div>
                 </div>
+                {/* END OF HEADER FOR ADMIN PANEL */}
                 <div className="flex flex-col w-[98,3%] ml-3 mt-3 mr-8">
                   <div className="p-6 bg-custom-200 text-medium   w-full h-[450px] ml-3 mt-3 mr-3">
                     <h1 className="text-3xl font-mono font-font-extralight">
@@ -207,9 +227,28 @@ export default function NotesPage() {
                 <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
                   <div className="flex items-center justify-between">
                     <div className="pt-6 pl-6 pb-6">
-                      <h1 className="text-2xl text-bold font-bold">Users</h1>
+                      <h1 className="text-2xl text-bold font-bold">
+                        Naudotojai
+                      </h1>
                     </div>
+
                     <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
                       <Link to="/dashboard" className="btn btn-primary">
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <span style={{ marginRight: "0.5rem" }}>
@@ -225,16 +264,17 @@ export default function NotesPage() {
                     </div>
                   </div>
                 </div>
+                {/* END OF HEADER FOR ADMIN PANEL */}
                 <div className="flex flex-col w-[98,3%] ml-3 mt-3 mr-8">
                   <div className="p-6 bg-custom-200 text-medium   w-full h-[450px] ml-3 mt-3 mr-3">
                     <h1 className="text-3xl font-mono font-font-extralight">
-                      Users
+                      Ieškoti vartotojo
                     </h1>
                   </div>
 
                   <div className="p-6 bg-custom-200 text-medium   w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
                     <h1 className="text-3xl font-mono font-font-extralight">
-                      Placeholder
+                      Visi vartotojai
                     </h1>
                     <div className=""></div>
                   </div>
@@ -252,9 +292,26 @@ export default function NotesPage() {
                 <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
                   <div className="flex items-center justify-between">
                     <div className="pt-6 pl-6 pb-6">
-                      <h1 className="text-2xl text-bold font-bold">Reports</h1>
+                      <h1 className="text-2xl text-bold font-bold">Reportai</h1>
                     </div>
+
                     <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
                       <Link to="/dashboard" className="btn btn-primary">
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <span style={{ marginRight: "0.5rem" }}>
@@ -270,6 +327,7 @@ export default function NotesPage() {
                     </div>
                   </div>
                 </div>
+                {/* END OF HEADER FOR ADMIN PANEL */}
                 <div className="flex flex-col w-[98,3%] ml-3 mt-3 mr-8">
                   <div className="p-6 bg-custom-200 text-medium   w-full h-[450px] ml-3 mt-3 mr-3">
                     <h1 className="text-3xl font-mono font-font-extralight">
@@ -298,10 +356,27 @@ export default function NotesPage() {
                   <div className="flex items-center justify-between">
                     <div className="pt-6 pl-6 pb-6">
                       <h1 className="text-2xl text-bold font-bold">
-                        Admin stats
+                        Admin statistika
                       </h1>
                     </div>
+
                     <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
                       <Link to="/dashboard" className="btn btn-primary">
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <span style={{ marginRight: "0.5rem" }}>
@@ -317,6 +392,7 @@ export default function NotesPage() {
                     </div>
                   </div>
                 </div>
+                {/* END OF HEADER FOR ADMIN PANEL */}
                 <div className="flex flex-col w-[98,3%] ml-3 mt-3 mr-8">
                   <div className="p-6 bg-custom-200 text-medium   w-full h-[450px] ml-3 mt-3 mr-3">
                     <h1 className="text-3xl font-mono font-font-extralight">
@@ -338,17 +414,34 @@ export default function NotesPage() {
 
         {activeTab === "InviteCode" ? (
           <>
-            {/* HEADER FOR ADMIN PANEL */}
             <div className="flex flex-col w-full relative ">
               <div className="flex flex-col w-full bg-custom-100">
+                {/* HEADER FOR ADMIN PANEL */}
                 <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
                   <div className="flex items-center justify-between">
                     <div className="pt-6 pl-6 pb-6">
                       <h1 className="text-2xl text-bold font-bold">
-                        Invite code
+                        Pakvietimo kodai
                       </h1>
                     </div>
+
                     <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
                       <Link to="/dashboard" className="btn btn-primary">
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <span style={{ marginRight: "0.5rem" }}>
@@ -364,9 +457,10 @@ export default function NotesPage() {
                     </div>
                   </div>
                 </div>
+                {/* END OF HEADER FOR ADMIN PANEL */}
 
                 <div className="flex flex-col w-[98,3%] ml-3 mt-3 mr-8 ">
-                  <div className="p-6 bg-custom-200 text-medium w-full h-[450px] ml-3 mt-3 mr-3">
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[380px] ml-3 mt-3 mr-3">
                     <h1 className="text-3xl font-mono font-font-extralight">
                       Pakvietimo kodo generavimas
                     </h1>
@@ -452,14 +546,14 @@ export default function NotesPage() {
                                 name="selectedTime"
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
                               >
-                                <option value="holder">Pasirinkti</option>
+                                <option value="holder"></option>
                                 <option value="thirtyMinutes">
                                   30 minučių
                                 </option>
                                 <option value="oneHour">1 valandai</option>
                                 <option value="fifeHours">5 valandom</option>
                                 <option value="twelveHours">12 valandų</option>
-                                <option value="twentyForHours00">
+                                <option value="twentyForHours">
                                   24 valandom
                                 </option>
                                 <option value="oneWeek">1 savaitei</option>
@@ -468,7 +562,7 @@ export default function NotesPage() {
                                 <option value="sixMonths">6 mėnesiai</option>
                                 <option value="nineMonths">9 mėnesiai</option>
                                 <option value="oneYear">1 metai</option>
-                                <option value="unlimited">Neribotas</option>
+                                <option value="twoYears">2 metai</option>
                               </select>
                             </div>
                           </div>
@@ -490,9 +584,9 @@ export default function NotesPage() {
                                 name="roleSelection"
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
                               >
-                                <option value="holder">Pasirinkti</option>
-                                <option value="worker">worker</option>
-                                <option value="client">client</option>
+                                <option value="holder"></option>
+                                <option value="worker">Darbuotojas</option>
+                                <option value="client">Klientas</option>
                               </select>
                             </div>
                           </div>
@@ -539,11 +633,11 @@ export default function NotesPage() {
                   </div>
 
                   <div className="p-6 bg-custom-200 text-medium w-full ml-3 mt-3 mr-3 mb-5">
-                    <h1 className="text-3xl font-mono font-font-extralight pb-4">
+                    <h1 className="text-3xl font-mono font-font-extralight pb-2">
                       Sistemoje esantys pakvietimo kodai
                     </h1>
                     <div className="">
-                      <div className="mt-4 mb-4">
+                      <div className="mt-4 mb-8">
                         <input
                           type="text"
                           placeholder="Ieškokite pagal el. paštą"
