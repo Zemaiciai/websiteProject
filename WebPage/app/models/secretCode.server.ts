@@ -21,6 +21,7 @@ export async function createCode(
 ) {
   const secretCode = generateRandomSecretCode(10);
   let currentDate = new Date();
+  let role = "";
 
   if (roleSelection === "holder") {
     return null;
@@ -74,6 +75,13 @@ export async function createCode(
     currentDate.setMonth(currentMonth + 24);
   }
 
+  if (roleSelection === "worker") {
+    role = "Darbuotojas";
+  }
+
+  if (roleSelection === "client") {
+    role = "Klientas";
+  }
   if (
     customName === "" ||
     emailAdress === "" ||
@@ -90,7 +98,7 @@ export async function createCode(
         contractNumber: contractNumber,
         ExpirationDate: currentDate,
         Used: false,
-        role: roleSelection,
+        role: role,
         secretCode: secretCode
       }
     });

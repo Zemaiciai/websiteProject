@@ -681,7 +681,7 @@ export default function NotesPage() {
                                 )}
                               </td>
                               <td className="px-6 py-4">
-                                {code.Used ? "Yes" : "No"}
+                                {code.Used ? "Panaudotas" : "Nepanaudotas"}
                               </td>
                             </tr>
                           ))}
