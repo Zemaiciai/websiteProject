@@ -100,6 +100,8 @@ export async function createCode(
   if (roleSelection === "client") {
     role = "Klientas";
   }
+
+  const nowdate = new Date();
   if (
     customName === "" ||
     emailAdress === "" ||
@@ -114,6 +116,7 @@ export async function createCode(
         customName: customName,
         email: emailAdress,
         contractNumber: contractNumber,
+        CreationData: nowdate,
         ExpirationDate: currentDate,
         Used: false,
         role: role,

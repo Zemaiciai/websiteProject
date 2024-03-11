@@ -37,6 +37,7 @@ model SecretCodeAdmin {
   contractNumber String
   role String
 
+  CreationData DateTime @default(now())
   ExpirationDate DateTime @default(now())
   Used Boolean @default(false)
 }

@@ -13,6 +13,7 @@ interface SecretCode {
   email: string;
   contractNumber: string;
   role: string;
+  CreationData: Date;
   ExpirationDate: Date;
   Used: boolean;
 }
@@ -105,7 +106,7 @@ export default function NotesPage() {
               className={`inline-flex justify-center px-4 py-3 ${
                 activeTab === "Dashboard"
                   ? "text-white bg-custom-850"
-                  : "text-white bg-custom-900 hover:bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
               } w-full`}
               onClick={() => handleTabClick("Dashboard")}
             >
@@ -115,7 +116,7 @@ export default function NotesPage() {
               className={`inline-flex justify-center px-4 py-3 ${
                 activeTab === "InviteCode"
                   ? "text-white bg-custom-850"
-                  : "text-white bg-custom-900 hover:bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
               } w-full`}
               onClick={() => handleTabClick("InviteCode")}
             >
@@ -125,7 +126,7 @@ export default function NotesPage() {
               className={`inline-flex justify-center px-4 py-3 ${
                 activeTab === "Users"
                   ? "text-white bg-custom-850"
-                  : "text-white bg-custom-900 hover:bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
               } w-full`}
               onClick={() => handleTabClick("Users")}
             >
@@ -135,7 +136,7 @@ export default function NotesPage() {
               className={`inline-flex justify-center px-4 py-3 ${
                 activeTab === "Reports"
                   ? "text-white bg-custom-850"
-                  : "text-white bg-custom-900 hover:bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
               } w-full`}
               onClick={() => handleTabClick("Reports")}
             >
@@ -145,7 +146,7 @@ export default function NotesPage() {
               className={`inline-flex justify-center px-4 py-3 ${
                 activeTab === "adminStats"
                   ? "text-white bg-custom-850"
-                  : "text-white bg-custom-900 hover:bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
               } w-full`}
               onClick={() => handleTabClick("adminStats")}
             >
@@ -459,8 +460,8 @@ export default function NotesPage() {
                 {/* END OF HEADER FOR ADMIN PANEL */}
 
                 <div className="flex flex-col ml-3 mt-3 mr-8">
-                  <div className="p-6 bg-custom-200 text-medium w-full h-[380px] ml-3 mt-3 mr-3 ">
-                    <h1 className="text-3xl font-mono font-font-extralight">
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[380px] ml-3 mt-3 mr-3">
+                    <h1 className="text-3xl font-mono font-font-extralight pb-3">
                       Pakvietimo kodo generavimas
                     </h1>
                     <Form method="post">
@@ -594,7 +595,7 @@ export default function NotesPage() {
 
                       <button
                         type="submit"
-                        className="w-full rounded bg-blue-600 mt-5 px-2 py-2 text-white hover:bg-blue-800 transition duration-300 ease-in-out"
+                        className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
                         onClick={togglePopup}
                       >
                         Sukurti kodą
@@ -604,22 +605,26 @@ export default function NotesPage() {
                         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
                           <div className="bg-white p-8 rounded-lg shadow-md text-center">
                             <p id="secretCode">
-                              Sugeneruotas kodas:{" "}
                               {secretCodeList && secretCodeList.length > 0 ? (
-                                <strong>
-                                  {
-                                    secretCodeList[secretCodeList.length - 1]
-                                      .secretCode
-                                  }
-                                </strong>
-                              ) : null}
+                                <>
+                                  Sugeneruotas kodas:{" "}
+                                  <strong>
+                                    {
+                                      secretCodeList[secretCodeList.length - 1]
+                                        .secretCode
+                                    }
+                                  </strong>
+                                </>
+                              ) : (
+                                <p id="secretCode">test</p>
+                              )}
                             </p>
                             <p className="text-red-500 mt-4">
                               Uždarius šią lentelę, Jūs nebegalėsite matyti kodo
                             </p>
                             <div className="mt-4">
                               <button
-                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                className="px-4 py-2 bg-custom-800 text-white rounded-md hover:bg-custom-850 transition duration-300 ease-in-out"
                                 onClick={togglePopup}
                               >
                                 Uždaryti
@@ -653,6 +658,7 @@ export default function NotesPage() {
                             <th className="px-6 py-4 w-1/6">El. paštas</th>
                             <th className="px-6 py-4 w-1/6">Rolė</th>
                             <th className="px-6 py-4 w-1/6">Kontrakto nr.</th>
+                            <th className="px-6 py-4 w-1/6">Sukūrimo data</th>
                             <th className="px-6 py-4 w-1/6">Galiojimo data</th>
                             <th className="px-6 py-4 w-1/6">Panaudojimas</th>
                           </tr>
@@ -666,6 +672,19 @@ export default function NotesPage() {
                               <td className="px-6 py-4">{code.role}</td>
                               <td className="px-6 py-4">
                                 {code.contractNumber}
+                              </td>
+                              <td className="px-6 py-4">
+                                {new Date(code.CreationData).toLocaleString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: false
+                                  }
+                                )}
                               </td>
                               <td className="px-6 py-4">
                                 {new Date(code.ExpirationDate).toLocaleString(
