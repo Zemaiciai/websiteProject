@@ -29,7 +29,9 @@ export async function createCode(
   if (customName === "" || emailAdress === "" || contractNumber === "") {
     return null;
   }
-
+  if (time === "") {
+    return null;
+  }
   if (time === "thirtyMinutes") {
     currentDate = new Date(currentDate.getTime() + 30 * 60000);
   }
@@ -71,19 +73,30 @@ export async function createCode(
     const currentMonth = currentDate.getMonth();
     currentDate.setMonth(currentMonth + 24);
   }
-  const createdCode = await prisma.secretCodeAdmin.create({
-    data: {
-      customName: customName,
-      email: emailAdress,
-      contractNumber: contractNumber,
-      ExpirationDate: currentDate,
-      Used: false,
-      role: roleSelection,
-      secretCode: secretCode
-    }
-  });
 
-  return createdCode; // Return the created code object
+  if (
+    customName === "" ||
+    emailAdress === "" ||
+    contractNumber === "" ||
+    roleSelection === "" ||
+    time === ""
+  ) {
+    return null;
+  } else {
+    const createdCode = await prisma.secretCodeAdmin.create({
+      data: {
+        customName: customName,
+        email: emailAdress,
+        contractNumber: contractNumber,
+        ExpirationDate: currentDate,
+        Used: false,
+        role: roleSelection,
+        secretCode: secretCode
+      }
+    });
+
+    return createdCode; // Return the created code object
+  }
 }
 
 export async function getAllcodes() {
