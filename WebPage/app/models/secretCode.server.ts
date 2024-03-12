@@ -107,7 +107,9 @@ export async function createCode(
     emailAdress === "" ||
     contractNumber === "" ||
     roleSelection === "" ||
-    time === ""
+    time === "" ||
+    time === "holder" ||
+    roleSelection === "holder"
   ) {
     return null;
   } else {
