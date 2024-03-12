@@ -17,6 +17,7 @@ interface SecretCode {
   ExpirationDate: Date;
   Used: boolean;
 }
+
 export const loader = async () => {
   const secretCodeList = await getAllcodes();
   return json({ secretCodeList });
@@ -29,7 +30,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const contractNumber = String(formData.get("contractNumber"));
   const roleSelection = String(formData.get("roleSelection"));
   const code = String(formData.get("selectedTime"));
-
   const createdCode = await createCode(
     customName,
     email,
@@ -59,32 +59,50 @@ export default function NotesPage() {
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
   // Move the declaration of secretCodeList here
   const loaderData = useLoaderData(); // No type provided
   const secretCodeList = (loaderData as { secretCodeList: SecretCode[] })
     .secretCodeList;
-
+  const { secretCode } = action;
+  // search
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = secretCodeList.slice(indexOfFirstItem, indexOfLastItem);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  const { secretCode } = action;
-
-  const [searchTerm, setSearchTerm] = useState("");
+  const currentItems = secretCodeList
+    .filter((code) =>
+      code.email.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .slice(indexOfFirstItem, indexOfLastItem);
 
   // Function to handle input change and update the searchTerm state
   const handleSearch = (event) => {
+    setCurrentPage(1); // Reset current page when searching
     setSearchTerm(event.target.value);
   };
 
-  // Filter the currentItems based on the searchTerm
-  const filteredItems = currentItems.filter((code) =>
-    code.email.toLowerCase().includes(searchTerm.toLowerCase())
+  // Function to handle pagination
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Calculate total pages based on filtered items
+  const totalPages = Math.ceil(
+    secretCodeList.filter((code) =>
+      code.email.toLowerCase().includes(searchTerm.toLowerCase())
+    ).length / itemsPerPage
   );
+
+  // let databaseCreationTime =
+  //   new Date(
+  //     secretCodeList[secretCodeList.length - 1]?.CreationData
+  //   ).getTime() + 100000;
+  // const currentTime = Date.now();
+
+  // databaseCreationTime = databaseCreationTime + 100000;
+  // console.log("Database CreationData:", databaseCreationTime);
+  // console.log("Current :", currentTime);
 
   return (
     <div className="flex flex-grow h-screen flex-col relative">
@@ -619,6 +637,7 @@ export default function NotesPage() {
                                 <p id="secretCode">test</p>
                               )}
                             </p>
+
                             <p className="text-red-500 mt-4">
                               Uždarius šią lentelę, Jūs nebegalėsite matyti kodo
                             </p>
@@ -664,7 +683,7 @@ export default function NotesPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredItems.map((code, index) => (
+                          {currentItems.map((code, index) => (
                             <tr key={index}>
                               <td className="px-6 py-4">{index + 1}</td>
                               <td className="px-6 py-4">{code.customName}</td>
@@ -704,8 +723,8 @@ export default function NotesPage() {
                               </td>
                             </tr>
                           ))}
-                          {filteredItems.length < 10
-                            ? Array(10 - filteredItems.length)
+                          {currentItems.length < itemsPerPage
+                            ? Array(itemsPerPage - currentItems.length)
                                 .fill(null)
                                 .map((_, index) => (
                                   <tr key={`empty-${index}`}>
@@ -723,25 +742,23 @@ export default function NotesPage() {
                       </table>
                       <div className="mt-4">
                         <ul className="flex justify-center">
-                          {secretCodeList.length > itemsPerPage
-                            ? Array.from({
-                                length: Math.ceil(
-                                  secretCodeList.length / itemsPerPage
+                          {totalPages > 1
+                            ? Array.from({ length: totalPages }).map(
+                                (_, index) => (
+                                  <li key={index} className="mx-1">
+                                    <button
+                                      className={`px-3 py-1 rounded ${
+                                        currentPage === index + 1
+                                          ? "bg-blue-500 text-white"
+                                          : "bg-gray-200 text-gray-700"
+                                      }`}
+                                      onClick={() => paginate(index + 1)}
+                                    >
+                                      {index + 1}
+                                    </button>
+                                  </li>
                                 )
-                              }).map((_, index) => (
-                                <li key={index} className="mx-1">
-                                  <button
-                                    className={`px-3 py-1 rounded ${
-                                      currentPage === index + 1
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-200 text-gray-700"
-                                    }`}
-                                    onClick={() => paginate(index + 1)}
-                                  >
-                                    {index + 1}
-                                  </button>
-                                </li>
-                              ))
+                              )
                             : null}
                         </ul>
                       </div>
