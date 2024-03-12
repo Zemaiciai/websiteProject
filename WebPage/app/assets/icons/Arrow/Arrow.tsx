@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-export default function ArrowLeft({ className = "", ...props }) {
+export default function Arrow({ className = "", ...props }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -24,7 +24,7 @@ export default function ArrowLeft({ className = "", ...props }) {
   );
 }
 
-ArrowLeft.propTypes = {
+Arrow.propTypes = {
   className: PropTypes.string,
-  style: PropTypes.object
+  style: PropTypes.object,
 };

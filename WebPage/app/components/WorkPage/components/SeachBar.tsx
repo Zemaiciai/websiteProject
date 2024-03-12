@@ -1,16 +1,14 @@
-import { useState } from "react";
-
 import SearchIcon from "~/assets/icons/SearchIcon/SearchIcon";
 
-export default function SearchBar() {
-  const [searchQuery, setSearchQuery] = useState("");
+interface SearchBarProps {
+  handleSearch: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  searchQuery: string;
+}
 
-  const handleInputChange = (event) => {
-    setSearchQuery(event.target.value);
-
-    console.log(searchQuery);
-  };
-
+export default function SearchBar({
+  handleSearch,
+  searchQuery,
+}: SearchBarProps) {
   return (
     <div className="search-bar-container flex flex-row bg-white p-1 w-[25rem]">
       <div className="icon-wrapper flex items-center justify-center mr-1">
@@ -20,17 +18,11 @@ export default function SearchBar() {
         <input
           type="text"
           value={searchQuery}
-          onChange={handleInputChange}
+          onChange={handleSearch}
           placeholder="Search..."
           className="flex-grow outline-none w-full"
         />
       </div>
-      <button
-        className="search-button ml-1 p-1 border-2 border-gray-500"
-        onClick={handleInputChange}
-      >
-        serach
-      </button>
     </div>
   );
 }

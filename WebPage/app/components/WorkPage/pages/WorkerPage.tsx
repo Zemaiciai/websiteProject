@@ -5,6 +5,11 @@ import WorkTableHeader from "../components/WorkTableHeader";
 
 export default function WorkPageWorker() {
   const [expanded, setExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
 
   const toggleExpand = () => {
     setExpanded(!expanded);
@@ -12,12 +17,32 @@ export default function WorkPageWorker() {
 
   const numberOfWorkCards = 100;
 
+  const workCardsArray = Array.from(
+    { length: numberOfWorkCards },
+    (_, index) => {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() + index);
+      return {
+        workName: `Work${index + 1}`,
+        workStatus: "Baigtas",
+        startDate: startDate,
+        completionDate: index % 2 === 0 ? new Date() : undefined,
+      };
+    },
+  );
+
   return (
     <div className="work-page-container flex justify-center flex-col bg-slate-300 p-2">
-      <WorkTableHeader toggleExpand={toggleExpand} />
-      <ExpandedContentTable
-        numberOfWorkCards={numberOfWorkCards}
+      <WorkTableHeader
+        toggleExpand={toggleExpand}
         expanded={expanded}
+        handleSearch={handleSearch}
+        searchQuery={searchQuery}
+      />
+      <ExpandedContentTable
+        workCards={workCardsArray}
+        expanded={expanded}
+        searchQuery={searchQuery}
       />
     </div>
   );

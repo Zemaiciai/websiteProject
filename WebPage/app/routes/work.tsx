@@ -23,7 +23,6 @@ export default function WorkPage() {
   const [worker, setWorker] = useState(true);
 
   useEffect(() => {
-    console.log(user);
     if (user && user.role === "worker") {
       setWorker(true);
     }
