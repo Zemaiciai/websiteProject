@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import ExpandedContentTable from "../components/ExpandedContentTable";
-import WorkTableHeader from "../components/WorkTableHeader";
+import ExpandedContentTable from "../common/WorkPage/ExpandedTable";
+import WorkTableHeader from "../common/WorkPage/WorkPageHeader";
 
 export default function WorkPageWorker() {
   const [expanded, setExpanded] = useState(false);
@@ -9,6 +9,8 @@ export default function WorkPageWorker() {
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
+    !expanded && setExpanded(true);
+    if (event.target.value.length === 0) setExpanded(false);
   };
 
   const toggleExpand = () => {

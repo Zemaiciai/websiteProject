@@ -1,5 +1,7 @@
 import { useState } from "react";
 import WorkCard from "./WorkCard";
+import Arrow from "~/assets/icons/Arrow/Arrow";
+import ExpandedTableHeader from "./ExpandedTableHeader";
 
 interface WorkCard {
   workName: string;
@@ -8,19 +10,27 @@ interface WorkCard {
   completionDate?: Date;
 }
 
-interface ExpandedContentTableProps {
+interface ExpandedTable {
   expanded: boolean;
   workCards: WorkCard[];
   searchQuery: string;
 }
 
-export default function ExpandedContentTable({
+export default function ExpandedTable({
   expanded,
   workCards,
   searchQuery,
-}: ExpandedContentTableProps) {
+}: ExpandedTable) {
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  workCards[0].workStatus = "A";
+  workCards[1].workStatus = "B";
+  workCards[2].workStatus = "C";
+
+  workCards[0].workName = "C";
+  workCards[1].workName = "A";
+  workCards[2].workName = "B";
 
   const handleSort = (column: string) => {
     if (sortColumn === column) {
@@ -68,48 +78,13 @@ export default function ExpandedContentTable({
 
   return (
     <>
-      {expanded ? (
+      {expanded && filteredWorkCards.length > 0 ? (
         <table className="expanded-content-table mt-4 outline outline-1 outline-gray-100">
-          <thead className="expanded-content-table-header bg-white">
-            <tr>
-              <th scope="col">
-                <span
-                  className="cursor-pointer"
-                  onClick={() => handleSort("name")}
-                  select-none
-                >
-                  Pavadinimas
-                </span>
-              </th>
-              <th scope="col">
-                <span
-                  className="cursor-pointer"
-                  onClick={() => handleSort("status")}
-                  select-none
-                >
-                  Statusas
-                </span>
-              </th>
-              <th scope="col">
-                <span
-                  className="cursor-pointer"
-                  onClick={() => handleSort("startDate")}
-                  select-none
-                >
-                  Pradižios data
-                </span>
-              </th>
-              <th scope="col">
-                <span
-                  className="cursor-pointer"
-                  onClick={() => handleSort("endDate")}
-                  select-none
-                >
-                  Pabaigos data
-                </span>
-              </th>
-            </tr>
-          </thead>
+          <ExpandedTableHeader
+            handleSort={handleSort}
+            sortOrder={sortOrder}
+            sortColumn={sortColumn}
+          />
           <tbody>
             {sortedWorkCards.map((work, index) => (
               <WorkCard
@@ -122,7 +97,9 @@ export default function ExpandedContentTable({
             ))}
           </tbody>
         </table>
-      ) : null}
+      ) : (
+        filteredWorkCards.length <= 0 && <span>No Results Found</span>
+      )}
     </>
   );
 }

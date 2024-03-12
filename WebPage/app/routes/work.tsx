@@ -2,8 +2,8 @@ import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
-import WorkPageCustomer from "~/components/WorkPage/pages/CustomerPage";
-import WorkPageWorker from "~/components/WorkPage/pages/WorkerPage";
+import WorkPageCustomer from "~/components/WorkPage/CustomerPage";
+import WorkPageWorker from "~/components/WorkPage/WorkerPage";
 import { getUser } from "~/session.server";
 
 /* TODO: Change this to return the actual role of a user,
@@ -13,7 +13,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
   return user
     ? json({
-        role: user.id
+        role: user.id,
       })
     : null;
 };
