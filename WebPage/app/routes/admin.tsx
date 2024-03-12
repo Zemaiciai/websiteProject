@@ -58,6 +58,7 @@ export default function NotesPage() {
   const emailRef = useRef<HTMLInputElement>(null);
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
+  const deletetionEmailRef = useRef<HTMLInputElement>(null);
 
   // Move the declaration of secretCodeList here
   const loaderData = useLoaderData(); // No type provided
@@ -94,24 +95,8 @@ export default function NotesPage() {
     ).length / itemsPerPage
   );
 
-  // let databaseCreationTime =
-  //   new Date(
-  //     secretCodeList[secretCodeList.length - 1]?.CreationData
-  //   ).getTime() + 100000;
-  // const currentTime = Date.now();
-
-  // databaseCreationTime = databaseCreationTime + 100000;
-  // console.log("Database CreationData:", databaseCreationTime);
-  // console.log("Current :", currentTime);
-
   return (
     <div className="flex flex-grow h-screen flex-col relative">
-      {/* <Header
-        title="My Website"
-        profilePictureSrc="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
-        profileLink={"/profile/" + user.id}
-      /> */}
-
       <main className="flex h-screen bg-white">
         <div className="flex flex-col flex-grow w-80 border-r-2 border-black bg-custom-900 h-screen overflow-auto">
           <div className="h-32 flex justify-center items-center">
@@ -477,8 +462,8 @@ export default function NotesPage() {
                 </div>
                 {/* END OF HEADER FOR ADMIN PANEL */}
 
-                <div className="flex flex-col ml-3 mt-3 mr-8">
-                  <div className="p-6 bg-custom-200 text-medium w-full h-[380px] ml-3 mt-3 mr-3">
+                <div className="flex flex-col ml-3 mt-3 mr-8 ">
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[380px] ml-3 mt-3 mr-3 ">
                     <h1 className="text-3xl font-mono font-font-extralight pb-3">
                       Pakvietimo kodo generavimas
                     </h1>
@@ -763,6 +748,46 @@ export default function NotesPage() {
                         </ul>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Deleting invite code */}
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[230px] ml-3 mr-3 mb-6 ">
+                    <h1 className="text-3xl font-mono font-font-extralight pb-3">
+                      Pakvietimo kodo ištrynimas NOT IMPLEMENTED
+                    </h1>
+                    <Form method="post">
+                      <div className="flex flex-wrap -mx-3 mb-4">
+                        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                          <div className="flex flex-col">
+                            <label
+                              htmlFor="deletetionEmail"
+                              className="text-sm text-black"
+                            >
+                              El. paštas
+                            </label>
+                            <div className="relative">
+                              <input
+                                id="deletetionEmail"
+                                name="deletetionEmail"
+                                type="text"
+                                ref={deletetionEmailRef}
+                                autoComplete="on"
+                                aria-describedby="email-error"
+                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                        // onClick={togglePopup}
+                      >
+                        Ištrinti kodą
+                      </button>
+                    </Form>
                   </div>
 
                   {/*  */}
