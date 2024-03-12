@@ -24,14 +24,6 @@ export default function ExpandedTable({
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  workCards[0].workStatus = "A";
-  workCards[1].workStatus = "B";
-  workCards[2].workStatus = "C";
-
-  workCards[0].workName = "C";
-  workCards[1].workName = "A";
-  workCards[2].workName = "B";
-
   const handleSort = (column: string) => {
     if (sortColumn === column) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");

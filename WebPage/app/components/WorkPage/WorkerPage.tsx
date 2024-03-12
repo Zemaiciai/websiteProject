@@ -26,7 +26,7 @@ export default function WorkPageWorker() {
       startDate.setDate(startDate.getDate() + index);
       return {
         workName: `Work${index + 1}`,
-        workStatus: "Baigtas",
+        workStatus: index % 2 === 0 ? "Baigtas" : "Daromas",
         startDate: startDate,
         completionDate: index % 2 === 0 ? new Date() : undefined,
       };
