@@ -47,6 +47,13 @@ export default function ExpandedTableHeader({
     <thead className="expanded-content-table-header bg-white">
       <tr>
         <TableHeaderCell
+          column="orderedBy"
+          title="Užsakymas sukurtas"
+          handleSort={handleSort}
+          sortOrder={sortOrder}
+          sortColumn={sortColumn}
+        />
+        <TableHeaderCell
           column="name"
           title="Pavadinimas"
           handleSort={handleSort}
@@ -61,15 +68,8 @@ export default function ExpandedTableHeader({
           sortColumn={sortColumn}
         />
         <TableHeaderCell
-          column="startDate"
-          title="Pradižios data"
-          handleSort={handleSort}
-          sortOrder={sortOrder}
-          sortColumn={sortColumn}
-        />
-        <TableHeaderCell
           column="endDate"
-          title="Pabaigos data"
+          title="Likęs Laikas"
           handleSort={handleSort}
           sortOrder={sortOrder}
           sortColumn={sortColumn}

@@ -3,10 +3,10 @@ import WorkCard from "./WorkCard";
 import ExpandedTableHeader from "./ExpandedTableHeader";
 
 interface WorkCard {
+  orderedBy: string;
   workName: string;
   workStatus: string;
-  startDate: Date;
-  completionDate?: Date;
+  completionDate: Date;
 }
 
 interface ExpandedTable {
@@ -30,12 +30,8 @@ export default function ExpandedTable({
   }, [searchQuery]);
 
   const handleSort = (column: string) => {
-    if (sortColumn === column) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortColumn(column);
-      setSortOrder("asc");
-    }
+    setSortColumn(column);
+    setSortOrder(sortColumn === column && sortOrder === "asc" ? "desc" : "asc");
   };
 
   const filteredWorkCards = workCards.filter((work) =>
@@ -43,50 +39,36 @@ export default function ExpandedTable({
   );
 
   const sortedWorkCards = [...filteredWorkCards].sort((a, b) => {
+    const order = sortOrder === "asc" ? 1 : -1;
     switch (sortColumn) {
+      case "orderedBy":
+        return order * a.orderedBy.localeCompare(b.orderedBy);
       case "name":
-        return sortOrder === "asc"
-          ? a.workName.localeCompare(b.workName)
-          : b.workName.localeCompare(a.workName);
+        return order * a.workName.localeCompare(b.workName);
       case "status":
-        return sortOrder === "asc"
-          ? a.workStatus.localeCompare(b.workStatus)
-          : b.workStatus.localeCompare(a.workStatus);
-      case "startDate":
-        return sortOrder === "asc"
-          ? a.startDate.getTime() - b.startDate.getTime()
-          : b.startDate.getTime() - a.startDate.getTime();
+        return order * a.workStatus.localeCompare(b.workStatus);
       case "endDate":
-        if (a.completionDate && b.completionDate) {
-          return sortOrder === "asc"
-            ? a.completionDate.getTime() - b.completionDate.getTime()
-            : b.completionDate.getTime() - a.completionDate.getTime();
-        } else if (a.completionDate) {
-          return sortOrder === "asc" ? -1 : 1;
-        } else if (b.completionDate) {
-          return sortOrder === "asc" ? 1 : -1;
-        } else {
-          return 0;
-        }
+        return (
+          order * (a.completionDate.getTime() - b.completionDate.getTime())
+        );
       default:
         return 0;
     }
   });
 
-  const indexOfLastCard = currentPage * cardsPerPage;
-  const indexOfFirstCard = indexOfLastCard - cardsPerPage;
-  const currentCards = sortedWorkCards.slice(indexOfFirstCard, indexOfLastCard);
-  const maxPageAmount = Math.ceil(sortedWorkCards.length / cardsPerPage);
-
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
+  const maxPageAmount = Math.ceil(filteredWorkCards.length / cardsPerPage);
+  const currentCards = sortedWorkCards.slice(
+    (currentPage - 1) * cardsPerPage,
+    currentPage * cardsPerPage,
+  );
 
   return (
-    <>
-      {expanded && filteredWorkCards.length > 0 ? (
+    <div className={`${!expanded && "hidden"} w-full`}>
+      {filteredWorkCards.length > 0 ? (
         <>
-          <table className="expanded-content-table mt-4 outline outline-1 outline-gray-100">
+          <table
+            className={`expanded-content-table mt-4 outline outline-1 outline-gray-100 w-full`}
+          >
             <ExpandedTableHeader
               handleSort={handleSort}
               sortOrder={sortOrder}
@@ -96,16 +78,16 @@ export default function ExpandedTable({
               {currentCards.map((work, index) => (
                 <WorkCard
                   key={index}
+                  orderedBy={work.orderedBy}
                   workName={work.workName}
                   workStatus={work.workStatus}
-                  startDate={work.startDate}
                   completionDate={work.completionDate}
                 />
               ))}
             </tbody>
           </table>
-          <div className="page-buttons flex justify-center mt-2">
-            {maxPageAmount > 1 ? (
+          {maxPageAmount > 1 && (
+            <div className="page-buttons flex justify-center mt-2">
               <ul className="flex list-none">
                 {Array.from({ length: maxPageAmount }).map((_, index) => (
                   <li key={index} className="mx-1">
@@ -115,19 +97,19 @@ export default function ExpandedTable({
                           ? "bg-blue-500 text-white"
                           : "bg-gray-200 text-gray-700"
                       }`}
-                      onClick={() => handlePageChange(index + 1)}
+                      onClick={() => setCurrentPage(index + 1)}
                     >
                       {index + 1}
                     </button>
                   </li>
                 ))}
               </ul>
-            ) : null}
-          </div>
+            </div>
+          )}
         </>
       ) : (
-        filteredWorkCards.length <= 0 && <span>No Results Found</span>
+        <span>No Results Found</span>
       )}
-    </>
+    </div>
   );
 }
