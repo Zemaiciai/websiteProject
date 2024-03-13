@@ -4,6 +4,7 @@ import { Form, Link, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
 
 import { createCode, getAllcodes } from "~/models/secretCode.server";
+import { getAllusers } from "~/models/user.server";
 import { useUser } from "~/utils";
 
 interface SecretCode {
@@ -17,9 +18,24 @@ interface SecretCode {
   ExpirationDate: Date;
   Used: boolean;
 }
+
+interface Users {
+  id: string;
+  email: string;
+  CreationDate: Date;
+  UpdationDate: Date;
+  firstName: string;
+  lastName: string;
+}
+
 export const loader = async () => {
   const secretCodeList = await getAllcodes();
   return json({ secretCodeList });
+};
+
+export const loaderUsers = async () => {
+  const userList = await getAllusers();
+  return json({ userList });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -29,7 +45,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const contractNumber = String(formData.get("contractNumber"));
   const roleSelection = String(formData.get("roleSelection"));
   const code = String(formData.get("selectedTime"));
-
   const createdCode = await createCode(
     customName,
     email,
@@ -42,10 +57,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   //return null;
 };
 
+
+
 export default function NotesPage() {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const user = useUser();
   const data = useLoaderData<typeof loader>();
+  const dataUsers = useLoaderData<typeof loaderUsers>();
   const [popupOpen, setPopupOpen] = useState(false);
 
   const togglePopup = () => {
@@ -58,42 +76,49 @@ export default function NotesPage() {
   const emailRef = useRef<HTMLInputElement>(null);
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
+  const deletetionEmailRef = useRef<HTMLInputElement>(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
   // Move the declaration of secretCodeList here
   const loaderData = useLoaderData(); // No type provided
   const secretCodeList = (loaderData as { secretCodeList: SecretCode[] })
     .secretCodeList;
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = secretCodeList.slice(indexOfFirstItem, indexOfLastItem);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   const { secretCode } = action;
 
+  // users list
+  // const loaderDataForUsers = useLoaderData<typeof loaderUsers>();
+  // const userList = (loaderDataForUsers as { userList: Users[] }).userList;
+  // search
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = secretCodeList
+    .filter((code) =>
+      code.email.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .slice(indexOfFirstItem, indexOfLastItem);
 
   // Function to handle input change and update the searchTerm state
   const handleSearch = (event) => {
+    setCurrentPage(1); // Reset current page when searching
     setSearchTerm(event.target.value);
   };
 
-  // Filter the currentItems based on the searchTerm
-  const filteredItems = currentItems.filter((code) =>
-    code.email.toLowerCase().includes(searchTerm.toLowerCase())
+  // Function to handle pagination
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Calculate total pages based on filtered items
+  const totalPages = Math.ceil(
+    secretCodeList.filter((code) =>
+      code.email.toLowerCase().includes(searchTerm.toLowerCase())
+    ).length / itemsPerPage
   );
 
   return (
     <div className="flex flex-grow h-screen flex-col relative">
-      {/* <Header
-        title="My Website"
-        profilePictureSrc="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
-        profileLink={"/profile/" + user.id}
-      /> */}
-
       <main className="flex h-screen bg-white">
         <div className="flex flex-col flex-grow w-80 border-r-2 border-black bg-custom-900 h-screen overflow-auto">
           <div className="h-32 flex justify-center items-center">
@@ -266,18 +291,88 @@ export default function NotesPage() {
                 </div>
                 {/* END OF HEADER FOR ADMIN PANEL */}
                 <div className="flex flex-col ml-3 mt-3 mr-8">
-                  <div className="p-6 bg-custom-200 text-medium   w-full h-[450px] ml-3 mt-3 mr-3">
-                    <h1 className="text-3xl font-mono font-font-extralight">
-                      Ieškoti vartotojo
+                  {/* Deleting invite code */}
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[230px] ml-3 mr-3 mb-6 ">
+                    <h1 className="text-3xl font-mono font-font-extralight pb-3">
+                      Ieškoti vartotojo NOT IMPLEMENTED
                     </h1>
+                    <Form method="post">
+                      <div className="flex flex-wrap -mx-3 mb-4">
+                        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                          <div className="flex flex-col">
+                            <label
+                              htmlFor="deletetionEmail"
+                              className="text-sm text-black"
+                            >
+                              El. paštas
+                            </label>
+                            <div className="relative">
+                              <input
+                                id="deletetionEmail"
+                                name="deletetionEmail"
+                                type="text"
+                                ref={deletetionEmailRef}
+                                autoComplete="on"
+                                aria-describedby="email-error"
+                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                        onClick={togglePopup}
+                      >
+                        Ieškoti
+                      </button>
+
+                      {popupOpen ? (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+                          <div className="bg-white p-8 rounded-lg shadow-md text-center">
+                            <p id="secretCode">
+                              {secretCodeList && secretCodeList.length > 0 ? (
+                                <>
+                                  Sugeneruotas kodas:{" "}
+                                  <strong>
+                                    {
+                                      secretCodeList[secretCodeList.length - 1]
+                                        .secretCode
+                                    }
+                                  </strong>
+                                </>
+                              ) : (
+                                <p id="secretCode">test</p>
+                              )}
+                            </p>
+
+                            <p className="text-red-500 mt-4">
+                              Uždarius šią lentelę, Jūs nebegalėsite matyti kodo
+                            </p>
+                            <div className="mt-4">
+                              <button
+                                className="px-4 py-2 bg-custom-800 text-white rounded-md hover:bg-custom-850 transition duration-300 ease-in-out"
+                                onClick={togglePopup}
+                              >
+                                Uždaryti
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
+                    </Form>
                   </div>
 
-                  <div className="p-6 bg-custom-200 text-medium  w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
+                  {/*  */}
+
+                  {/* <div className="p-6 bg-custom-200 text-medium  w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
                     <h1 className="text-3xl font-mono font-font-extralight">
                       Visi vartotojai
                     </h1>
                     <div className=""></div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -459,8 +554,8 @@ export default function NotesPage() {
                 </div>
                 {/* END OF HEADER FOR ADMIN PANEL */}
 
-                <div className="flex flex-col ml-3 mt-3 mr-8">
-                  <div className="p-6 bg-custom-200 text-medium w-full h-[380px] ml-3 mt-3 mr-3">
+                <div className="flex flex-col ml-3 mt-3 mr-8 ">
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[380px] ml-3 mt-3 mr-3 ">
                     <h1 className="text-3xl font-mono font-font-extralight pb-3">
                       Pakvietimo kodo generavimas
                     </h1>
@@ -619,6 +714,7 @@ export default function NotesPage() {
                                 <p id="secretCode">test</p>
                               )}
                             </p>
+
                             <p className="text-red-500 mt-4">
                               Uždarius šią lentelę, Jūs nebegalėsite matyti kodo
                             </p>
@@ -664,7 +760,7 @@ export default function NotesPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredItems.map((code, index) => (
+                          {currentItems.map((code, index) => (
                             <tr key={index}>
                               <td className="px-6 py-4">{index + 1}</td>
                               <td className="px-6 py-4">{code.customName}</td>
@@ -704,8 +800,8 @@ export default function NotesPage() {
                               </td>
                             </tr>
                           ))}
-                          {filteredItems.length < 10
-                            ? Array(10 - filteredItems.length)
+                          {currentItems.length < itemsPerPage
+                            ? Array(itemsPerPage - currentItems.length)
                                 .fill(null)
                                 .map((_, index) => (
                                   <tr key={`empty-${index}`}>
@@ -723,29 +819,67 @@ export default function NotesPage() {
                       </table>
                       <div className="mt-4">
                         <ul className="flex justify-center">
-                          {secretCodeList.length > itemsPerPage
-                            ? Array.from({
-                                length: Math.ceil(
-                                  secretCodeList.length / itemsPerPage
+                          {totalPages > 1
+                            ? Array.from({ length: totalPages }).map(
+                                (_, index) => (
+                                  <li key={index} className="mx-1">
+                                    <button
+                                      className={`px-3 py-1 rounded ${
+                                        currentPage === index + 1
+                                          ? "bg-blue-500 text-white"
+                                          : "bg-gray-200 text-gray-700"
+                                      }`}
+                                      onClick={() => paginate(index + 1)}
+                                    >
+                                      {index + 1}
+                                    </button>
+                                  </li>
                                 )
-                              }).map((_, index) => (
-                                <li key={index} className="mx-1">
-                                  <button
-                                    className={`px-3 py-1 rounded ${
-                                      currentPage === index + 1
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-200 text-gray-700"
-                                    }`}
-                                    onClick={() => paginate(index + 1)}
-                                  >
-                                    {index + 1}
-                                  </button>
-                                </li>
-                              ))
+                              )
                             : null}
                         </ul>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Deleting invite code */}
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[230px] ml-3 mr-3 mb-6 ">
+                    <h1 className="text-3xl font-mono font-font-extralight pb-3">
+                      Pakvietimo kodo ištrynimas NOT IMPLEMENTED
+                    </h1>
+                    <Form method="post">
+                      <div className="flex flex-wrap -mx-3 mb-4">
+                        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                          <div className="flex flex-col">
+                            <label
+                              htmlFor="deletetionEmail"
+                              className="text-sm text-black"
+                            >
+                              El. paštas
+                            </label>
+                            <div className="relative">
+                              <input
+                                id="deletetionEmail"
+                                name="deletetionEmail"
+                                type="text"
+                                ref={deletetionEmailRef}
+                                autoComplete="on"
+                                aria-describedby="email-error"
+                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                        // onClick={togglePopup}
+                      >
+                        Ištrinti kodą
+                      </button>
+                    </Form>
                   </div>
 
                   {/*  */}
