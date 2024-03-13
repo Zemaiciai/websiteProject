@@ -10,7 +10,6 @@ export default function WorkPageWorker() {
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
     !expanded && setExpanded(true);
-    if (event.target.value.length === 0) setExpanded(false);
   };
 
   const toggleExpand = () => {

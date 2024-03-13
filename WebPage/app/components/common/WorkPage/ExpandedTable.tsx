@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import WorkCard from "./WorkCard";
-import Arrow from "~/assets/icons/Arrow/Arrow";
 import ExpandedTableHeader from "./ExpandedTableHeader";
 
 interface WorkCard {
@@ -23,6 +22,12 @@ export default function ExpandedTable({
 }: ExpandedTable) {
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const cardsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const handleSort = (column: string) => {
     if (sortColumn === column) {
@@ -68,27 +73,58 @@ export default function ExpandedTable({
     }
   });
 
+  const indexOfLastCard = currentPage * cardsPerPage;
+  const indexOfFirstCard = indexOfLastCard - cardsPerPage;
+  const currentCards = sortedWorkCards.slice(indexOfFirstCard, indexOfLastCard);
+  const maxPageAmount = Math.ceil(sortedWorkCards.length / cardsPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <>
       {expanded && filteredWorkCards.length > 0 ? (
-        <table className="expanded-content-table mt-4 outline outline-1 outline-gray-100">
-          <ExpandedTableHeader
-            handleSort={handleSort}
-            sortOrder={sortOrder}
-            sortColumn={sortColumn}
-          />
-          <tbody>
-            {sortedWorkCards.map((work, index) => (
-              <WorkCard
-                key={index}
-                workName={work.workName}
-                workStatus={work.workStatus}
-                startDate={work.startDate}
-                completionDate={work.completionDate}
-              />
-            ))}
-          </tbody>
-        </table>
+        <>
+          <table className="expanded-content-table mt-4 outline outline-1 outline-gray-100">
+            <ExpandedTableHeader
+              handleSort={handleSort}
+              sortOrder={sortOrder}
+              sortColumn={sortColumn}
+            />
+            <tbody>
+              {currentCards.map((work, index) => (
+                <WorkCard
+                  key={index}
+                  workName={work.workName}
+                  workStatus={work.workStatus}
+                  startDate={work.startDate}
+                  completionDate={work.completionDate}
+                />
+              ))}
+            </tbody>
+          </table>
+          <div className="page-buttons flex justify-center mt-2">
+            {maxPageAmount > 1 ? (
+              <ul className="flex list-none">
+                {Array.from({ length: maxPageAmount }).map((_, index) => (
+                  <li key={index} className="mx-1">
+                    <button
+                      className={`w-10 h-8 rounded ${
+                        currentPage === index + 1
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-200 text-gray-700"
+                      }`}
+                      onClick={() => handlePageChange(index + 1)}
+                    >
+                      {index + 1}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        </>
       ) : (
         filteredWorkCards.length <= 0 && <span>No Results Found</span>
       )}
