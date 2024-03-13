@@ -102,10 +102,10 @@
     "tailwindcss": "^3.3.3",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^4.4.4",
+    "typescript": "^5.4.2",
     "vite": "^4.5.0",
     "vite-tsconfig-paths": "^4.2.1",
-    "vitest": "^0.34.6"
+    "vitest": "^1.3.1"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -114,6 +114,6 @@
     "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
   },
   "resolutions": {
-    "string-width": "4.2.3"
+    "string-width": "^5.1.2"
   }
 }
