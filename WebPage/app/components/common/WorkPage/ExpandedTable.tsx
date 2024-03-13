@@ -1,3 +1,7 @@
+// TODO: The timer doesn't start until the table is expanded
+//       it should be counting regardless if the page is open or not
+//       maybe this can be done when we are saving the jobs in a database
+
 import { useState, useEffect } from "react";
 import WorkCard from "./WorkCard";
 import ExpandedTableHeader from "./ExpandedTableHeader";
