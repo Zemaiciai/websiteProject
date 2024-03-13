@@ -33,8 +33,8 @@ export default function AuctionTimer({
         </span>
       ) : time.days >= 1 && time.days <= 3 ? (
         <span>
-          {time.days} d.&nbsp;
-          {time.hours !== 0 && <p>{String(time.hours).padStart(2, "0")} h.</p>}
+          {time.days} diena&nbsp;
+          {time.hours !== 0 && <p>{String(time.hours).padStart(2, "0")} h</p>}
         </span>
       ) : time.hours > 0 ? (
         <span>

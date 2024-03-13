@@ -32,6 +32,10 @@ export default function WorkPageWorker() {
     },
   );
 
+  workCardsArray[0].completionDate.setMonth(
+    workCardsArray[0].completionDate.getMonth() + 1,
+  );
+
   return (
     <div className="work-page-container flex justify-center flex-col bg-gray-300 p-2">
       <WorkTableHeader
