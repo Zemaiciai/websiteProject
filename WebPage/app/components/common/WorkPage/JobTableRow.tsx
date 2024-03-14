@@ -1,5 +1,5 @@
 import { useState } from "react";
-import WorkTimer from "./WorkTimer";
+import WorkTimer from "./JobTimer";
 import useDuration from "~/hooks/useDuration";
 
 interface WorkCardProps {

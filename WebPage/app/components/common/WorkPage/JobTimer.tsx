@@ -7,7 +7,7 @@ interface ItemCardTimerProps {
   handleWorkEnd: () => void;
 }
 
-export default function AuctionTimer({
+export default function JobTimer({
   workEndDate,
   handleWorkEnd,
 }: ItemCardTimerProps) {

@@ -1,6 +1,6 @@
 import Arrow from "~/assets/icons/Arrow/Arrow";
 
-interface TableHeaderCellProps {
+interface JobsJobsTableHeaderCellProps {
   column: string;
   title: string;
   handleSort: (column: string) => void;
@@ -8,13 +8,13 @@ interface TableHeaderCellProps {
   sortColumn: string | null;
 }
 
-function TableHeaderCell({
+function JobsTableHeaderCell({
   column,
   title,
   handleSort,
   sortOrder,
   sortColumn,
-}: TableHeaderCellProps) {
+}: JobsJobsTableHeaderCellProps) {
   return (
     <th scope="col">
       <span
@@ -32,42 +32,41 @@ function TableHeaderCell({
   );
 }
 
-interface ExpandedTableHeaderProps {
+interface JobsTableHeaderProps {
   handleSort: (column: string) => void;
   sortOrder: string;
   sortColumn: string | null;
 }
 
-export default function ExpandedTableHeader({
-  handleSort,
-  sortOrder,
-  sortColumn,
-}: ExpandedTableHeaderProps) {
+export default function JobsTableHeader(
+  { handleSort }: JobsTableHeaderProps,
+  { sortOrder, sortColumn },
+) {
   return (
     <thead className="expanded-content-table-header bg-white">
       <tr>
-        <TableHeaderCell
+        <JobsTableHeaderCell
           column="orderedBy"
           title="Užsakymas sukurtas"
           handleSort={handleSort}
           sortOrder={sortOrder}
           sortColumn={sortColumn}
         />
-        <TableHeaderCell
+        <JobsTableHeaderCell
           column="name"
           title="Pavadinimas"
           handleSort={handleSort}
           sortOrder={sortOrder}
           sortColumn={sortColumn}
         />
-        <TableHeaderCell
+        <JobsTableHeaderCell
           column="status"
           title="Statusas"
           handleSort={handleSort}
           sortOrder={sortOrder}
           sortColumn={sortColumn}
         />
-        <TableHeaderCell
+        <JobsTableHeaderCell
           column="endDate"
           title="Likęs Laikas"
           handleSort={handleSort}

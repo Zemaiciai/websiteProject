@@ -3,8 +3,8 @@
 //       maybe this can be done when we are saving the jobs in a database
 
 import { useState, useEffect } from "react";
-import WorkCard from "./WorkCard";
-import ExpandedTableHeader from "./ExpandedTableHeader";
+import JobTableRow from "./JobTableRow";
+import JobsTableHeader from "./JobsTableHeader";
 
 interface WorkCard {
   orderedBy: string;
@@ -14,13 +14,11 @@ interface WorkCard {
 }
 
 interface ExpandedTable {
-  expanded: boolean;
   workCards: WorkCard[];
   searchQuery: string;
 }
 
 export default function ExpandedTable({
-  expanded,
   workCards,
   searchQuery,
 }: ExpandedTable) {
@@ -67,20 +65,20 @@ export default function ExpandedTable({
   );
 
   return (
-    <div className={`${!expanded && "hidden"} w-full`}>
+    <div className="w-full">
       {filteredWorkCards.length > 0 ? (
-        <>
+        <div className="w-full">
           <table
             className={`expanded-content-table mt-4 outline outline-1 outline-gray-100 w-full`}
           >
-            <ExpandedTableHeader
+            <JobsTableHeader
               handleSort={handleSort}
               sortOrder={sortOrder}
               sortColumn={sortColumn}
             />
             <tbody>
               {currentCards.map((work, index) => (
-                <WorkCard
+                <JobTableRow
                   key={index}
                   orderedBy={work.orderedBy}
                   workName={work.workName}
@@ -110,7 +108,7 @@ export default function ExpandedTable({
               </ul>
             </div>
           )}
-        </>
+        </div>
       ) : (
         <span>No Results Found</span>
       )}

@@ -1,19 +1,14 @@
 import { useState } from "react";
 
-import ExpandedContentTable from "../common/WorkPage/ExpandedTable";
-import WorkTableHeader from "../common/WorkPage/WorkPageHeader";
+import JobsPageHeader from "../common/WorkPage/JobsPageHeader";
+import JobsTable from "../common/WorkPage/JobsTable";
+import JobsPageNavBar from "../common/WorkPage/JobsPageNavBar";
 
 export default function WorkPageWorker() {
-  const [expanded, setExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
-    !expanded && setExpanded(true);
-  };
-
-  const toggleExpand = () => {
-    setExpanded(!expanded);
   };
 
   const numberOfWorkCards = 100;
@@ -37,18 +32,12 @@ export default function WorkPageWorker() {
   );
 
   return (
-    <div className="work-page-container flex justify-center flex-col bg-gray-300 p-2">
-      <WorkTableHeader
-        toggleExpand={toggleExpand}
-        expanded={expanded}
-        handleSearch={handleSearch}
-        searchQuery={searchQuery}
-      />
-      <ExpandedContentTable
-        workCards={workCardsArray}
-        expanded={expanded}
-        searchQuery={searchQuery}
-      />
+    <div className="jobs-page-container flex w-full">
+      <JobsPageNavBar />
+      <div className="jobs-page-table-container flex justify-center flex-col bg-gray-300 p-2 w-full">
+        <JobsPageHeader handleSearch={handleSearch} searchQuery={searchQuery} />
+        <JobsTable workCards={workCardsArray} searchQuery={searchQuery} />
+      </div>
     </div>
   );
 }
