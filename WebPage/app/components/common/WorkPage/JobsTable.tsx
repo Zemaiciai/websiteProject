@@ -61,17 +61,15 @@ export default function ExpandedTable({
   );
 
   return (
-    <div className="w-full h-full">
+    <div className="table-container flex flex-col h-full overflow-auto">
       {filteredWorkCards.length > 0 ? (
-        <table
-          className={`expanded-content-table mt-4 outline outline-1 outline-gray-100 h-full w-full`}
-        >
+        <table className="expanded-content-table mt-4 outline outline-1 outline-gray-100 h-full w-full">
           <JobsTableHeader
             handleSort={handleSort}
             sortOrder={sortOrder}
             sortColumn={sortColumn}
           />
-          <tbody>
+          <tbody className="h-max">
             {currentCards.map((work, index) => (
               <JobTableRow
                 key={index}

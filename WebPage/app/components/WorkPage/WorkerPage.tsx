@@ -40,7 +40,7 @@ export default function WorkPageWorker() {
   );
 
   return (
-    <div className="jobs-page-container flex w-full bg-custom-100">
+    <div className="jobs-page-container flex h-screen bg-custom-100">
       <div className="navbar-container">
         <NavBar
           title={"Jobs"}
@@ -50,14 +50,25 @@ export default function WorkPageWorker() {
           tabTitles={["TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST"]}
         />
       </div>
-      <div className="h-screen w-screen">
-        <NavBarHeader />
-        <div className="jobs-page-table-container flex justify-center flex-col h-max w-max bg-gray-300 p-2">
-          <JobsPageHeader
-            handleSearch={handleSearch}
-            searchQuery={searchQuery}
-          />
-          <JobsTable workCards={workCardsArray} searchQuery={searchQuery} />
+      <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto pb-3">
+        <NavBarHeader title="Darbų sąrašas" />
+        <div className="h-full w-full flex">
+          <div className="jobs-page-table-container flex justify-center flex-col w-3/4 bg-custom-200 ml-3 p-2 ">
+            <JobsPageHeader
+              handleSearch={handleSearch}
+              searchQuery={searchQuery}
+            />
+            <JobsTable workCards={workCardsArray} searchQuery={searchQuery} />
+          </div>
+          <div className="customer-and-worker-options rm-4 flex-grow flex justify-center place-items-start">
+            <div className="flex flex-col">
+              {/* TODO: Kai paspaudžiami šį mygtuką turetu redirectint i psl kur butu galimą sukurti orderį */}
+              <button className="">Sukurti orderį</button>
+              {/* TODO: Sukurti priminimu lentele darbuotojui bei užsakovui (greitai pasibaigiantys darbai, 
+                nesenei pabaigti darbai) */}
+              <h1>PRIMINIMU LENTELE</h1>
+            </div>
+          </div>
         </div>
       </div>
     </div>
