@@ -114,6 +114,6 @@
     "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
   },
   "resolutions": {
-    "string-width": "^5.1.2"
+    "string-width": "^4.1.0"
   }
 }
