@@ -3,6 +3,7 @@ import { useState } from "react";
 import JobsPageHeader from "../common/WorkPage/JobsPageHeader";
 import JobsTable from "../common/WorkPage/JobsTable";
 import NavBar from "../common/NavBar/NavBar";
+import NavBarHeader from "../common/NavBar/NavBarHeader";
 
 export default function WorkPageWorker() {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -39,17 +40,25 @@ export default function WorkPageWorker() {
   );
 
   return (
-    <div className="jobs-page-container flex w-full">
-      <NavBar
-        title={"Jobs"}
-        handleTabClick={handleTabClick}
-        redirectTo={"work"}
-        activeTab={activeTab}
-        tabTitles={["TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST"]}
-      />
-      <div className="jobs-page-table-container flex justify-center flex-col bg-gray-300 p-2 w-full">
-        <JobsPageHeader handleSearch={handleSearch} searchQuery={searchQuery} />
-        <JobsTable workCards={workCardsArray} searchQuery={searchQuery} />
+    <div className="jobs-page-container flex w-full bg-custom-100">
+      <div className="navbar-container">
+        <NavBar
+          title={"Jobs"}
+          handleTabClick={handleTabClick}
+          redirectTo={"work"}
+          activeTab={activeTab}
+          tabTitles={["TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST"]}
+        />
+      </div>
+      <div className="h-screen w-screen">
+        <NavBarHeader />
+        <div className="jobs-page-table-container flex justify-center flex-col h-max w-max bg-gray-300 p-2">
+          <JobsPageHeader
+            handleSearch={handleSearch}
+            searchQuery={searchQuery}
+          />
+          <JobsTable workCards={workCardsArray} searchQuery={searchQuery} />
+        </div>
       </div>
     </div>
   );

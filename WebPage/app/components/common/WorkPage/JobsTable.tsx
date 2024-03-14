@@ -1,7 +1,3 @@
-// TODO: The timer doesn't start until the table is expanded
-//       it should be counting regardless if the page is open or not
-//       maybe this can be done when we are saving the jobs in a database
-
 import { useState, useEffect } from "react";
 import JobTableRow from "./JobTableRow";
 import JobsTableHeader from "./JobsTableHeader";
@@ -65,52 +61,50 @@ export default function ExpandedTable({
   );
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       {filteredWorkCards.length > 0 ? (
-        <div className="w-full">
-          <table
-            className={`expanded-content-table mt-4 outline outline-1 outline-gray-100 w-full`}
-          >
-            <JobsTableHeader
-              handleSort={handleSort}
-              sortOrder={sortOrder}
-              sortColumn={sortColumn}
-            />
-            <tbody>
-              {currentCards.map((work, index) => (
-                <JobTableRow
-                  key={index}
-                  orderedBy={work.orderedBy}
-                  workName={work.workName}
-                  workStatus={work.workStatus}
-                  completionDate={work.completionDate}
-                />
-              ))}
-            </tbody>
-          </table>
-          {maxPageAmount > 1 && (
-            <div className="page-buttons flex justify-center mt-2">
-              <ul className="flex list-none">
-                {Array.from({ length: maxPageAmount }).map((_, index) => (
-                  <li key={index} className="mx-1">
-                    <button
-                      className={`w-10 h-8 rounded ${
-                        currentPage === index + 1
-                          ? "bg-blue-500 text-white"
-                          : "bg-gray-200 text-gray-700"
-                      }`}
-                      onClick={() => setCurrentPage(index + 1)}
-                    >
-                      {index + 1}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+        <table
+          className={`expanded-content-table mt-4 outline outline-1 outline-gray-100 h-full w-full`}
+        >
+          <JobsTableHeader
+            handleSort={handleSort}
+            sortOrder={sortOrder}
+            sortColumn={sortColumn}
+          />
+          <tbody>
+            {currentCards.map((work, index) => (
+              <JobTableRow
+                key={index}
+                orderedBy={work.orderedBy}
+                workName={work.workName}
+                workStatus={work.workStatus}
+                completionDate={work.completionDate}
+              />
+            ))}
+          </tbody>
+        </table>
       ) : (
         <span>No Results Found</span>
+      )}
+      {maxPageAmount > 1 && (
+        <div className="page-buttons flex justify-center mt-2">
+          <ul className="flex list-none">
+            {Array.from({ length: maxPageAmount }).map((_, index) => (
+              <li key={index} className="mx-1">
+                <button
+                  className={`w-10 h-8 rounded ${
+                    currentPage === index + 1
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                  onClick={() => setCurrentPage(index + 1)}
+                >
+                  {index + 1}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

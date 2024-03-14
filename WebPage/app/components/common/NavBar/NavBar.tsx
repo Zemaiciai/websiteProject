@@ -40,10 +40,7 @@ export default function NavBar({
 }: NavBarProps) {
   return (
     <div>
-      <div className="absolute w-full">
-        <NavBarHeader />
-      </div>
-      <div className="flex flex-col relative flex-grow w-80 border-r-2 border-black bg-custom-800 h-screen overflow-auto">
+      <div className="flex flex-col flex-grow w-80 border-r-2 border-black bg-custom-800 h-screen overflow-auto mr-3">
         <div className="h-32 flex justify-center items-center">
           <a href={`/${redirectTo}`} className="text-4xl text-white ">
             {title}
