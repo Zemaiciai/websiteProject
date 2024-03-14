@@ -2,13 +2,20 @@ import { useState } from "react";
 
 import JobsPageHeader from "../common/WorkPage/JobsPageHeader";
 import JobsTable from "../common/WorkPage/JobsTable";
-import JobsPageNavBar from "../common/WorkPage/JobsPageNavBar";
+import NavBar from "../common/NavBar/NavBar";
 
 export default function WorkPageWorker() {
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [activeTab, setActiveTab] = useState("");
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
+  };
+
+  const handleTabClick = (tab: string) => {
+    setActiveTab(tab);
+
+    console.log(activeTab);
   };
 
   const numberOfWorkCards = 100;
@@ -33,7 +40,13 @@ export default function WorkPageWorker() {
 
   return (
     <div className="jobs-page-container flex w-full">
-      <JobsPageNavBar />
+      <NavBar
+        title={"Jobs"}
+        handleTabClick={handleTabClick}
+        redirectTo={"work"}
+        activeTab={activeTab}
+        tabTitles={["TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST"]}
+      />
       <div className="jobs-page-table-container flex justify-center flex-col bg-gray-300 p-2 w-full">
         <JobsPageHeader handleSearch={handleSearch} searchQuery={searchQuery} />
         <JobsTable workCards={workCardsArray} searchQuery={searchQuery} />

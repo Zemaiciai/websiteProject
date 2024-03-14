@@ -29,7 +29,7 @@ export default function WorkPage() {
   }, [user]);
 
   return (
-    <div className="main m-10">
+    <div className="main">
       {worker ? <WorkPageWorker /> : <WorkPageCustomer />}
     </div>
   );
