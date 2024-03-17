@@ -20,10 +20,16 @@ export async function createUser(
   password: string,
   firstName: string,
   lastName: string,
-  secretCode: string
+  userName: string,
+  secretCode: string,
 ) {
-  const userSecretCode = await prisma.secretCode.findUnique({
-    where: { email }
+  const userSecretCode = await prisma.secretCodeAdmin.findFirst({
+    where: {
+      email,
+      ExpirationDate: {
+        gte: new Date(),
+      },
+    },
   });
 
  
@@ -32,10 +38,7 @@ export async function createUser(
     return null;
   }
 
-  const secretCodeIsValid = await bcrypt.compare(
-    secretCode,
-    userSecretCode?.hash
-  );
+  const secretCodeIsValid = secretCode === userSecretCode.secretCode;
 
   if (!secretCodeIsValid) {
     return null;
@@ -55,14 +58,23 @@ export async function createUser(
       email,
       firstName: firstName,
       lastName: lastName,
+      userName: userName,
       password: {
         create: {
+<<<<<<< HEAD
           hash: hashedPassword
         }
       }
     }
   }
   );
+=======
+          hash: hashedPassword,
+        },
+      },
+    },
+  });
+>>>>>>> 17d373ddeb5ad3f54ef960f952d597910381d985
 }
 
 export async function deleteUserByEmail(email: User["email"]) {
@@ -71,13 +83,13 @@ export async function deleteUserByEmail(email: User["email"]) {
 
 export async function verifyLogin(
   email: User["email"],
-  password: Password["hash"]
+  password: Password["hash"],
 ) {
   const userWithPassword = await prisma.user.findUnique({
     where: { email },
     include: {
-      password: true
-    }
+      password: true,
+    },
   });
 
   if (!userWithPassword || !userWithPassword.password) {
@@ -86,7 +98,7 @@ export async function verifyLogin(
 
   const passwordIsValid = await bcrypt.compare(
     password,
-    userWithPassword.password.hash
+    userWithPassword.password.hash,
   );
 
   if (!passwordIsValid) {
@@ -97,4 +109,8 @@ export async function verifyLogin(
   const { password: _password, ...userWithoutPassword } = userWithPassword;
 
   return userWithoutPassword;
+}
+
+export async function getAllusers() {
+  return prisma.user.findMany();
 }
