@@ -61,20 +61,11 @@ export async function createUser(
       userName: userName,
       password: {
         create: {
-<<<<<<< HEAD
-          hash: hashedPassword
-        }
-      }
-    }
-  }
-  );
-=======
           hash: hashedPassword,
         },
       },
     },
   });
->>>>>>> 17d373ddeb5ad3f54ef960f952d597910381d985
 }
 
 export async function deleteUserByEmail(email: User["email"]) {
