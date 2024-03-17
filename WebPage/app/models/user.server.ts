@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 
 import { prisma } from "~/db.server";
 
+import axios from 'axios';
+
 export type { User } from "@prisma/client";
 
 export async function getUserById(id: User["id"]) {
@@ -24,6 +26,8 @@ export async function createUser(
     where: { email }
   });
 
+ 
+
   if (!userSecretCode) {
     return null;
   }
@@ -38,7 +42,14 @@ export async function createUser(
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-
+ 
+    const r = await axios.put(
+      'https://api.chatengine.io/users/',
+      { username: firstName, secret: lastName, first_name: firstName },
+      {headers: {"private-key": "c4fc041f-6d9a-4305-9d09-aca41bde03f3"}}
+    )
+   
+  
   return prisma.user.create({
     data: {
       email,
@@ -50,7 +61,8 @@ export async function createUser(
         }
       }
     }
-  });
+  }
+  );
 }
 
 export async function deleteUserByEmail(email: User["email"]) {
