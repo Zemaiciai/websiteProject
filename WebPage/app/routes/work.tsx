@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { useLoaderData, useLocation } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
 import WorkPageCustomer from "~/components/OrderPage/CustomerPage";

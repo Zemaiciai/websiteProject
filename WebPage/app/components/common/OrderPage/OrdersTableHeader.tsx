@@ -1,6 +1,6 @@
 import Arrow from "~/assets/icons/Arrow/Arrow";
 
-interface OrderOrderTableHeaderCellProps {
+interface OrderTableHeaderCellProps {
   column: string;
   title: string;
   handleSort: (column: string) => void;
@@ -14,7 +14,7 @@ function OrderTableHeaderCell({
   handleSort,
   sortOrder,
   sortColumn,
-}: OrderOrderTableHeaderCellProps) {
+}: OrderTableHeaderCellProps) {
   return (
     <th scope="col">
       <span
