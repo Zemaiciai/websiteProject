@@ -13,14 +13,13 @@ model User {
 
   firstName String
   lastName String
+  userName String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   password Password?
   notes    Note[]
 }
-
-
 
 model Password {
   hash String
