@@ -1,9 +1,9 @@
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useLocation } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
-import WorkPageCustomer from "~/components/WorkPage/CustomerPage";
-import WorkPageWorker from "~/components/WorkPage/WorkerPage";
+import WorkPageCustomer from "~/components/OrderPage/CustomerPage";
+import WorkPageWorker from "~/components/OrderPage/WorkerPage";
 import { getUser } from "~/session.server";
 
 /* TODO: Change this to return the actual role of a user,
