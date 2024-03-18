@@ -82,7 +82,6 @@ export default function NotesPage() {
   const loaderData = useLoaderData(); // No type provided
   const secretCodeList = (loaderData as { secretCodeList: SecretCode[] })
     .secretCodeList;
-  const { secretCode } = action;
 
   // users list
   // const loaderDataForUsers = useLoaderData<typeof loaderUsers>();

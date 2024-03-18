@@ -31,7 +31,7 @@ export default function NoteDetailsPage() {
       />
       <div className="profilePageDiv relative">
         <ProfileCard user={user} />
-        <ProfilePageTabs />
+        <ProfilePageTabs user={user} />
         <div className="profileImageDiv absolute top-0 left-20 mt-28 rounded-full outline-4 outline-white outline shadow-xl">
           <img
             className="rounded-full"

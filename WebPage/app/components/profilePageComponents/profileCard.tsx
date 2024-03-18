@@ -5,7 +5,7 @@ import { requireUser } from "~/session.server";
 
 import ProfilePageEditDropBox from "./profilePageEditDropBox";
 import ProfilePageTabs from "./profilePageTabs";
-import UserInfo from "./userInformation";
+import UserInfo from "./userInfo";
 import UserRatingAndOther from "./userRatingAndButtons";
 import { User } from "@prisma/client";
 
@@ -15,7 +15,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 interface ProfileCardProps {
-  user: {type};
+  user: any;
 }
 
 export default function ProfileCard({ user }: ProfileCardProps) {

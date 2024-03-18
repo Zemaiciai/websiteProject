@@ -1,5 +1,3 @@
-import { useUser } from "~/utils";
-
 import FacebookImage from "./socialMediaImages/facebook";
 import InstagramImage from "./socialMediaImages/instagram";
 import XImage from "./socialMediaImages/x";
@@ -43,7 +41,7 @@ export default function UserInfo({ user }: UserInfoProps) {
           className="w-6 h-6"
         />
         <h3 className="text-base font-semibold text-sky-500 w-[800px]">
-          {/* {user.email} */}
+          {user?.email}
         </h3>
       </div>
 
