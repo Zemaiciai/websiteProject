@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-export default function useDuration(workEndDate: Date) {
+export default function useDuration(completionDate: Date) {
   const calculateTimeRemaining = () => {
-    const endInMs = workEndDate.getTime() - Date.now();
+    const endInMs = completionDate.getTime() - Date.now();
 
     let seconds = Math.trunc(Math.abs(endInMs) / 1000);
 
@@ -29,7 +29,7 @@ export default function useDuration(workEndDate: Date) {
     const interval = setInterval(updateTime, 1000);
 
     return () => clearInterval(interval);
-  }, [workEndDate]);
+  }, [completionDate]);
 
   return time;
 }

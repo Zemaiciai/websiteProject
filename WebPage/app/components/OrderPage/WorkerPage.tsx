@@ -69,7 +69,7 @@ export default function OrderPageOrderer() {
             />
           </div>
           <div className="customer-and-orderer-options rm-4 flex-grow flex justify-center place-items-start">
-            <div className="flex flex-col">
+            <div className="flex flex-col w-full">
               <div className="flex button justify-center mb-4">
                 {/*TODO: in the future goto a page where you can create an order*/}
                 <Link
