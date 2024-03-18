@@ -7,18 +7,23 @@ import ProfilePageEditDropBox from "./profilePageEditDropBox";
 import ProfilePageTabs from "./profilePageTabs";
 import UserInfo from "./userInformation";
 import UserRatingAndOther from "./userRatingAndButtons";
+import { User } from "@prisma/client";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
   return json({ user });
 };
 
-export default function ProfileCard() {
+interface ProfileCardProps {
+  user: {type};
+}
+
+export default function ProfileCard({ user }: ProfileCardProps) {
   return (
     <div className="profileCardDiv w-full h-full static">
       <div className="backGroundPhoto w-full h-[285px] bg-gradient-to-r from-sky-300 to-zinc-600 shadow-xl"></div>
       <div className="infoDiv w-full h-[200px] flex space-x-20">
-        <UserInfo />
+        <UserInfo user={user} />
         <UserRatingAndOther />
       </div>
     </div>

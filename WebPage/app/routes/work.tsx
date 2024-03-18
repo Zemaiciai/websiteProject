@@ -11,16 +11,17 @@ import { getUser } from "~/session.server";
 */
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
-  return user
-    ? json({
-        role: user.id,
-      })
-    : null;
+  return json({
+    role: user?.id,
+    request: request.url,
+  });
 };
 
 export default function WorkPage() {
   const user = useLoaderData<typeof loader>();
   const [worker, setWorker] = useState(true);
+
+  console.log("!!!!!!!!!!!!!!!!!!!!!!\n" + user?.request);
 
   useEffect(() => {
     if (user && user.role === "worker") {

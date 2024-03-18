@@ -3,12 +3,20 @@ import { useUser } from "~/utils";
 import FacebookImage from "./socialMediaImages/facebook";
 import InstagramImage from "./socialMediaImages/instagram";
 import XImage from "./socialMediaImages/x";
-function UserInfo() {
-  const user = useUser();
+import { useEffect, useState } from "react";
+import { User, getUserById } from "~/models/user.server";
+
+interface UserInfoProps {
+  user: any;
+}
+
+export default function UserInfo({ user }: UserInfoProps) {
+  console.log(user);
+
   return (
     <div className="info h-full place-items-center">
       <h1 className="text-4xl font-semibold pl-96 pt-6 font-serif w-[800px]">
-        {user.firstName + " " + user.lastName}
+        {user?.firstName + " " + user?.lastName}
       </h1>
       <div className="userName pt-3 flex space-x-2 pl-[400px] w-[800px]">
         <img
@@ -17,7 +25,7 @@ function UserInfo() {
           className="w-6 h-6"
         />
         <h2 className="text-base font-semibold text-sky-500 w-[800px]">
-          UserName (not in data base yet)
+          {user?.userName}
         </h2>
       </div>
       <div className="role pt-3 flex space-x-2 pl-[400px] w-[800px]">
@@ -35,7 +43,7 @@ function UserInfo() {
           className="w-6 h-6"
         />
         <h3 className="text-base font-semibold text-sky-500 w-[800px]">
-          {user.email}
+          {/* {user.email} */}
         </h3>
       </div>
 
@@ -47,5 +55,3 @@ function UserInfo() {
     </div>
   );
 }
-
-export default UserInfo;

@@ -1,30 +1,36 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 
 import Header from "~/components/common/header/header";
 import ProfilePageTabs from "~/components/profilePageComponents/profilePageTabs";
-import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
 
 import ProfileCard from "../components/profilePageComponents/profileCard";
+import { useLoaderData } from "@remix-run/react";
+import { User, getUserById } from "~/models/user.server";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const user = await requireUser(request);
-  return json({ user });
+export const loader = async ({
+  request,
+}: LoaderFunctionArgs): Promise<User | null> => {
+  const url = request.url;
+  const parts = url.split("/");
+  const userProfileId = parts[parts.length - 1];
+  const user = await getUserById(userProfileId);
+  return user;
 };
 
 export default function NoteDetailsPage() {
-  const user = useUser();
+  const OGuser = useUser();
+  const user = useLoaderData<typeof loader>();
 
   return (
     <div className="main-div">
       <Header
         title="My Website"
         profilePictureSrc="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
-        profileLink={"/profile/" + user.id}
+        profileLink={"/profile/" + OGuser.id}
       />
       <div className="profilePageDiv relative">
-        <ProfileCard />
+        <ProfileCard user={user} />
         <ProfilePageTabs />
         <div className="profileImageDiv absolute top-0 left-20 mt-28 rounded-full outline-4 outline-white outline shadow-xl">
           <img
