@@ -21,18 +21,20 @@ export async function createUser(
   userName: string,
   secretCode: string,
 ) {
-  const userSecretCode = await prisma.secretCode.findUnique({
-    where: { email },
+  const userSecretCode = await prisma.secretCodeAdmin.findFirst({
+    where: {
+      email,
+      ExpirationDate: {
+        gte: new Date(),
+      },
+    },
   });
 
   if (!userSecretCode) {
     return null;
   }
 
-  const secretCodeIsValid = await bcrypt.compare(
-    secretCode,
-    userSecretCode?.hash,
-  );
+  const secretCodeIsValid = secretCode === userSecretCode.secretCode;
 
   if (!secretCodeIsValid) {
     return null;
@@ -87,4 +89,8 @@ export async function verifyLogin(
   const { password: _password, ...userWithoutPassword } = userWithPassword;
 
   return userWithoutPassword;
+}
+
+export async function getAllusers() {
+  return prisma.user.findMany();
 }
