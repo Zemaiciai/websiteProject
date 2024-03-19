@@ -37,7 +37,7 @@ export default function OrderPageOrderer() {
     { length: numberOfOrderCards },
     (_, index) => {
       const endDate = new Date();
-      endDate.setHours(endDate.getHours() + (index + 1));
+      endDate.setMinutes(endDate.getMinutes() + (index + 1));
       return {
         orderedBy: `User${index + 1}`,
         orderName: `Order${index + 1}`,
@@ -66,6 +66,7 @@ export default function OrderPageOrderer() {
               orderCards={orderCardsArray}
               handleSearch={(event) => handleSearch(event, "mainTable")}
               searchQuery={searchQueries.mainTable}
+              title={"Darbų sąrašas"}
             />
           </div>
           <div className="customer-and-orderer-options rm-4 flex-grow flex justify-center place-items-start">
@@ -86,6 +87,7 @@ export default function OrderPageOrderer() {
                 handleSearch={(event) => handleSearch(event, "importantTable")}
                 searchQuery={searchQueries.importantTable}
                 important={true}
+                title={"Priminimų sąrašas"}
               />
             </div>
           </div>

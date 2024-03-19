@@ -22,11 +22,15 @@ export default function useDuration(completionDate: Date) {
 
   useEffect(() => {
     const updateTime = () => {
-      setTime(calculateTimeRemaining());
+      const updatedTime = calculateTimeRemaining();
+      if (updatedTime.endInMs > 0) {
+        setTime(updatedTime);
+      } else {
+        clearInterval(interval);
+      }
     };
-    updateTime();
-
     const interval = setInterval(updateTime, 1000);
+    updateTime();
 
     return () => clearInterval(interval);
   }, [completionDate]);

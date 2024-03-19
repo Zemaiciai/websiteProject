@@ -15,6 +15,7 @@ interface OrdersTableProps {
   searchQuery: string;
   handleSearch: (event: React.ChangeEvent<HTMLInputElement>) => void;
   important?: boolean;
+  title: string;
 }
 
 export default function OrdersTable({
@@ -22,6 +23,7 @@ export default function OrdersTable({
   searchQuery,
   important,
   handleSearch,
+  title
 }: OrdersTableProps) {
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -104,7 +106,7 @@ export default function OrdersTable({
           <OrderPageHeader
             handleSearch={handleSearch}
             searchQuery={searchQuery}
-            title={"Darbų sąrašas"}
+            title={title}
           />
           {filteredOrderCards.length > 0 ? (
             <div className="table-wrapper flex flex-col h-full overflow-auto">
