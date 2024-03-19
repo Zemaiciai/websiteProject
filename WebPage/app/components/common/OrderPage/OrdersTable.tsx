@@ -1,6 +1,6 @@
 import { useState, useEffect, ChangeEvent } from "react";
-import JobTableRow from "./OrderTableRow";
-import JobsTableHeader from "./OrdersTableHeader";
+import OrderTableRow from "./OrderTableRow";
+import OrdersTableHeader from "./OrdersTableHeader";
 import OrderPageHeader from "./OrderPageHeader";
 
 interface OrderCard {
@@ -23,7 +23,7 @@ export default function OrdersTable({
   searchQuery,
   important,
   handleSearch,
-  title
+  title,
 }: OrdersTableProps) {
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -111,14 +111,14 @@ export default function OrdersTable({
           {filteredOrderCards.length > 0 ? (
             <div className="table-wrapper flex flex-col h-full overflow-auto">
               <table className="expanded-content-table mt-4 outline outline-1 outline-gray-100 h-full w-full">
-                <JobsTableHeader
+                <OrdersTableHeader
                   handleSort={handleSort}
                   sortOrder={sortOrder}
                   sortColumn={sortColumn}
                 />
                 <tbody className="h-max">
                   {currentCards.map((order, index) => (
-                    <JobTableRow
+                    <OrderTableRow
                       key={index}
                       orderedBy={order.orderedBy}
                       orderName={order.orderName}
