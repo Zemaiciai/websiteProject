@@ -57,8 +57,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   //return null;
 };
 
-
-
 export default function NotesPage() {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const user = useUser();
@@ -555,7 +553,7 @@ export default function NotesPage() {
                 {/* END OF HEADER FOR ADMIN PANEL */}
 
                 <div className="flex flex-col ml-3 mt-3 mr-8 ">
-                  <div className="p-6 bg-custom-200 text-medium w-full h-[380px] ml-3 mt-3 mr-3 ">
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[300px] ml-3 mt-3 mr-3 ">
                     <h1 className="text-3xl font-mono font-font-extralight pb-3">
                       Pakvietimo kodo generavimas
                     </h1>
@@ -563,12 +561,6 @@ export default function NotesPage() {
                       <div className="flex flex-wrap -mx-3 mb-4">
                         <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                           <div className="flex flex-col">
-                            <label
-                              htmlFor="customName"
-                              className="text-sm text-black"
-                            >
-                              Pavadinimas
-                            </label>
                             <div className="relative">
                               <input
                                 id="customName"
@@ -577,19 +569,14 @@ export default function NotesPage() {
                                 ref={customNameRef}
                                 autoComplete="on"
                                 aria-describedby="email-error"
-                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                                placeholder="Pavadinimas"
                               />
                             </div>
                           </div>
                         </div>
                         <div className="w-full md:w-1/2 px-3">
                           <div className="flex flex-col">
-                            <label
-                              htmlFor="emailAdress"
-                              className="text-sm text-black"
-                            >
-                              El. pašto adresas
-                            </label>
                             <div className="relative">
                               <input
                                 id="emailAdress"
@@ -598,7 +585,8 @@ export default function NotesPage() {
                                 ref={emailRef}
                                 autoComplete="on"
                                 aria-describedby="email-error"
-                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                                placeholder="El. pašto adresas"
                               />
                             </div>
                           </div>
@@ -608,12 +596,6 @@ export default function NotesPage() {
                       <div className="flex flex-wrap -mx-3 mb-4">
                         <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                           <div className="flex flex-col">
-                            <label
-                              htmlFor="contractNumber"
-                              className="text-sm text-black"
-                            >
-                              Kontrakto numeris
-                            </label>
                             <div className="relative">
                               <input
                                 id="contractNumber"
@@ -622,26 +604,23 @@ export default function NotesPage() {
                                 ref={contractNumberRef}
                                 autoComplete="on"
                                 aria-describedby="email-error"
-                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                                placeholder="Kontrakto numeris"
                               />
                             </div>
                           </div>
                         </div>
                         <div className="w-full md:w-1/2 px-3">
                           <div className="flex flex-col">
-                            <label
-                              htmlFor="selectedTime"
-                              className="text-sm text-black"
-                            >
-                              Pasirinkti kodo galiojimą
-                            </label>
                             <div className="relative">
                               <select
                                 id="selectedTime"
                                 name="selectedTime"
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
                               >
-                                <option value="holder"></option>
+                                <option value="holder">
+                                  Pasirinkti kodo galiojimą
+                                </option>
                                 <option value="thirtyMinutes">
                                   30 minučių
                                 </option>
@@ -664,22 +643,16 @@ export default function NotesPage() {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap -mx-3 mb-4">
+                      <div className="flex flex-wrap -mx-3 mb-1">
                         <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                           <div className="flex flex-col">
-                            <label
-                              htmlFor="roleSelection"
-                              className="text-sm text-black"
-                            >
-                              Pasirinkti rolę
-                            </label>
                             <div className="relative">
                               <select
                                 id="roleSelection"
                                 name="roleSelection"
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
                               >
-                                <option value="holder"></option>
+                                <option value="holder">Pasirinkti rolę</option>
                                 <option value="worker">Darbuotojas</option>
                                 <option value="client">Klientas</option>
                               </select>
