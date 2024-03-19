@@ -1,7 +1,7 @@
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
-  MetaFunction
+  MetaFunction,
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
@@ -47,7 +47,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     secretCode,
     email,
     password,
-    errors
+    errors,
   );
 
   if (validationErrors !== null) {
@@ -59,7 +59,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     password,
     firstname,
     lastname,
-    secretCode
+    username,
+    secretCode,
   );
 
   if (!user) {
@@ -71,7 +72,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     redirectTo,
     remember: false,
     request,
-    userId: user.id
+    userId: user.id,
   });
 };
 
@@ -277,7 +278,7 @@ export default function Join() {
                 className="text-grey underline hover:text-slate-300"
                 to={{
                   pathname: "/login",
-                  search: searchParams.toString()
+                  search: searchParams.toString(),
                 }}
               >
                 Prisijungti
