@@ -5,7 +5,6 @@ import { useRef, useState } from "react";
 
 import { createCode, getAllcodes } from "~/models/secretCode.server";
 import { getAllusers } from "~/models/user.server";
-import { useUser } from "~/utils";
 
 interface SecretCode {
   id: string;
@@ -30,12 +29,8 @@ interface Users {
 
 export const loader = async () => {
   const secretCodeList = await getAllcodes();
-  return json({ secretCodeList });
-};
-
-export const loaderUsers = async () => {
   const userList = await getAllusers();
-  return json({ userList });
+  return json({ secretCodeList, userList });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -54,14 +49,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   );
   const secretCode = createdCode ? createdCode.secretCode : null;
   return json(secretCode);
-  //return null;
 };
 
 export default function NotesPage() {
   const [activeTab, setActiveTab] = useState("Dashboard");
-  const user = useUser();
-  const data = useLoaderData<typeof loader>();
-  const dataUsers = useLoaderData<typeof loaderUsers>();
   const [popupOpen, setPopupOpen] = useState(false);
 
   const togglePopup = () => {
@@ -75,12 +66,15 @@ export default function NotesPage() {
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
   const deletetionEmailRef = useRef<HTMLInputElement>(null);
+  const findingUserEmailRef = useRef<HTMLInputElement>(null);
 
   // Move the declaration of secretCodeList here
   const loaderData = useLoaderData(); // No type provided
   const secretCodeList = (loaderData as { secretCodeList: SecretCode[] })
     .secretCodeList;
-  const { secretCode } = action;
+
+  const loaderData2 = useLoaderData<{ userList: Users[] }>();
+  const userList = loaderData2.userList;
 
   // users list
   // const loaderDataForUsers = useLoaderData<typeof loaderUsers>();
@@ -244,7 +238,7 @@ export default function NotesPage() {
 
         {activeTab === "Users" ? (
           <>
-            <div className="flex flex-col w-full relative overflow-auto">
+            <div className="flex flex-col w-full relative overflow-auto bg-custom-100">
               <div className="flex flex-col w-full bg-custom-100">
                 {/* HEADER FOR ADMIN PANEL */}
                 <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
@@ -299,17 +293,17 @@ export default function NotesPage() {
                         <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                           <div className="flex flex-col">
                             <label
-                              htmlFor="deletetionEmail"
+                              htmlFor="findingUserEmail"
                               className="text-sm text-black"
                             >
                               El. paštas
                             </label>
                             <div className="relative">
                               <input
-                                id="deletetionEmail"
-                                name="deletetionEmail"
+                                id="findingUserEmail"
+                                name="findingUserEmail"
                                 type="text"
-                                ref={deletetionEmailRef}
+                                ref={findingUserEmailRef}
                                 autoComplete="on"
                                 aria-describedby="email-error"
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
@@ -330,22 +324,35 @@ export default function NotesPage() {
                       {popupOpen ? (
                         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
                           <div className="bg-white p-8 rounded-lg shadow-md text-center">
-                            <p id="secretCode">
-                              {secretCodeList && secretCodeList.length > 0 ? (
-                                <>
-                                  Sugeneruotas kodas:{" "}
+                            {userList ? (
+                              <>
+                                <p id="secretCode">
+                                  Vardas:{" "}
                                   <strong>
-                                    {
-                                      secretCodeList[secretCodeList.length - 1]
-                                        .secretCode
-                                    }
+                                    {userList[userList.length - 1].firstName}
                                   </strong>
-                                </>
-                              ) : (
-                                <p id="secretCode">test</p>
-                              )}
-                            </p>
-
+                                </p>
+                                <p id="secretCode">
+                                  Pavardė:{" "}
+                                  <strong>
+                                    {userList[userList.length - 1].lastName}
+                                  </strong>
+                                </p>
+                                <p id="secretCode">
+                                  Email:{" "}
+                                  <strong>
+                                    {userList[userList.length - 1].email}
+                                  </strong>
+                                </p>
+                              </>
+                            ) : (
+                              <>
+                                <p id="secretCode">
+                                  Sugeneruotas kodas:{" "}
+                                  <strong>No user available</strong>
+                                </p>
+                              </>
+                            )}
                             <p className="text-red-500 mt-4">
                               Uždarius šią lentelę, Jūs nebegalėsite matyti kodo
                             </p>
@@ -362,15 +369,6 @@ export default function NotesPage() {
                       ) : null}
                     </Form>
                   </div>
-
-                  {/*  */}
-
-                  {/* <div className="p-6 bg-custom-200 text-medium  w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
-                    <h1 className="text-3xl font-mono font-font-extralight">
-                      Visi vartotojai
-                    </h1>
-                    <div className=""></div>
-                  </div> */}
                 </div>
               </div>
             </div>
@@ -799,8 +797,8 @@ export default function NotesPage() {
                                     <button
                                       className={`px-3 py-1 rounded ${
                                         currentPage === index + 1
-                                          ? "bg-blue-500 text-white"
-                                          : "bg-gray-200 text-gray-700"
+                                          ? "bg-custom-850 text-white"
+                                          : "bg-custom-800 text-white"
                                       }`}
                                       onClick={() => paginate(index + 1)}
                                     >
