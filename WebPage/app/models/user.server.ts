@@ -5,7 +5,7 @@ import { prisma } from "~/db.server";
 
 export type { User } from "@prisma/client";
 
-export async function getUserById(id: User["id"]) {
+export async function getUserById(id: string) {
   return prisma.user.findUnique({ where: { id } });
 }
 
