@@ -48,6 +48,8 @@ export async function createUser(
       firstName: firstName,
       lastName: lastName,
       userName: userName,
+      expiringAt: userSecretCode.ExpirationDate,
+      role: userSecretCode.role,
       password: {
         create: {
           hash: hashedPassword

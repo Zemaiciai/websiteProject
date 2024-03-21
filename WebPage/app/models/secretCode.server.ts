@@ -1,5 +1,3 @@
-import { SecretCodeAdmin } from "@prisma/client";
-
 import { prisma } from "~/db.server";
 
 const generateRandomSecretCode = (length: number) => {
@@ -134,10 +132,4 @@ export async function createCode(
 
 export async function getAllcodes() {
   return prisma.secretCodeAdmin.findMany();
-}
-
-export async function getUserByEmailInviteCode(
-  email: SecretCodeAdmin["email"]
-) {
-  return prisma.user.findUnique({ where: { email } });
 }

@@ -407,27 +407,15 @@ export default function NotesPage() {
                                     <div className="flex flex-col">
                                       <div className="flex mb-5">
                                         <h1 className="mr-2">Vardas:</h1>
-                                        <h1>
-                                          {
-                                            userList[userList.length - 1]
-                                              .firstName
-                                          }
-                                        </h1>
+                                        <h1>{userShitNahui?.firstName}</h1>
                                       </div>
                                       <div className="flex mb-5">
                                         <h1 className="mr-2">Pavardė:</h1>
-                                        <h1>
-                                          {
-                                            userList[userList.length - 1]
-                                              .lastName
-                                          }
-                                        </h1>
+                                        <h1>{userShitNahui?.lastName}</h1>
                                       </div>
                                       <div className="flex mb-5">
                                         <h1 className="mr-2">Rolė:</h1>
-                                        <h1 className="text-red-800">
-                                          NOT IMPLEMENTED
-                                        </h1>
+                                        <h1>{userShitNahui?.role}</h1>
                                       </div>
                                       <div className="flex mb-5">
                                         <h1 className="mr-2">Slapyvardis:</h1>
@@ -491,9 +479,23 @@ export default function NotesPage() {
                                       </div>
                                       <div className="flex mb-5">
                                         <h1 className="mr-2">Galioja iki:</h1>
-                                        <h1 className="text-red-800">
-                                          NOT IMPLEMENTED
-                                        </h1>
+                                        {userShitNahui?.expiringAt
+                                          ? new Date(userShitNahui.expiringAt)
+                                              .toLocaleDateString("en-CA", {
+                                                year: "numeric",
+                                                month: "2-digit",
+                                                day: "2-digit"
+                                              })
+                                              .replace(/\//g, "-") +
+                                            ", " +
+                                            new Date(
+                                              userShitNahui.expiringAt
+                                            ).toLocaleTimeString([], {
+                                              hour: "2-digit",
+                                              minute: "2-digit",
+                                              hour12: false
+                                            })
+                                          : null}
                                       </div>
                                       <div className="flex mb-5">
                                         <h1 className="mr-2">
