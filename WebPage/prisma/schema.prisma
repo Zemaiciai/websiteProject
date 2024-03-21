@@ -22,7 +22,19 @@ model User {
 
   password Password?
   notes    Note[]
+
+  warningAmount String
+  firstWarning String?
+  firstWarningDate DateTime?
+  secondWarning String?
+  secondWarningDate DateTime?
+  thirdWarning String?
+  thirdWarningDate DateTime?
+
+  userStatus String
+  banReason String?
 }
+
 
 model Password {
   hash String

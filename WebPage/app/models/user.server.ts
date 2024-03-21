@@ -54,6 +54,8 @@ export async function createUser(
       userName: userName,
       expiringAt: userSecretCode.ExpirationDate,
       role: userSecretCode.role,
+      warningAmount: "0",
+      userStatus: "Aktyvi",
       password: {
         create: {
           hash: hashedPassword

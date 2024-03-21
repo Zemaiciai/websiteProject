@@ -501,9 +501,15 @@ export default function NotesPage() {
                                         <h1 className="mr-2">
                                           Įspėjimų skaičius:
                                         </h1>
-                                        <h1 className="text-red-800">
-                                          NOT IMPLEMENTED
+                                        <h1>
+                                          {userShitNahui?.warningAmount}/3
                                         </h1>
+                                      </div>
+                                      <div className="flex mb-5">
+                                        <h1 className="mr-2">
+                                          Paskyros būsėna:
+                                        </h1>
+                                        <h1>{userShitNahui?.userStatus}</h1>
                                       </div>
                                     </div>
                                   </div>
