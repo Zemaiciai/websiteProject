@@ -894,30 +894,42 @@ export default function NotesPage() {
                                 {code.contractNumber}
                               </td>
                               <td className="px-6 py-4">
-                                {new Date(code.CreationData).toLocaleString(
-                                  "en-US",
-                                  {
-                                    year: "numeric",
-                                    month: "2-digit",
-                                    day: "2-digit",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    hour12: false
-                                  }
-                                )}
+                                {code.CreationData
+                                  ? new Date(code.CreationData)
+                                      .toLocaleDateString("en-CA", {
+                                        year: "numeric",
+                                        month: "2-digit",
+                                        day: "2-digit"
+                                      })
+                                      .replace(/\//g, "-") +
+                                    ", " +
+                                    new Date(
+                                      code.CreationData
+                                    ).toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: false
+                                    })
+                                  : null}
                               </td>
                               <td className="px-6 py-4">
-                                {new Date(code.ExpirationDate).toLocaleString(
-                                  "en-US",
-                                  {
-                                    year: "numeric",
-                                    month: "2-digit",
-                                    day: "2-digit",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    hour12: false
-                                  }
-                                )}
+                                {code.ExpirationDate
+                                  ? new Date(code.ExpirationDate)
+                                      .toLocaleDateString("en-CA", {
+                                        year: "numeric",
+                                        month: "2-digit",
+                                        day: "2-digit"
+                                      })
+                                      .replace(/\//g, "-") +
+                                    ", " +
+                                    new Date(
+                                      code.ExpirationDate
+                                    ).toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: false
+                                    })
+                                  : null}
                               </td>
                               <td className="px-6 py-4">
                                 {code.Used ? "Panaudotas" : "Nepanaudotas"}
