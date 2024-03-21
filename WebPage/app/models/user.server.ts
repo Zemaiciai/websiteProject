@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 
 import { prisma } from "~/db.server";
 
+import { markCodeAsUsed } from "./secretCode.server";
+
 export type { User } from "@prisma/client";
 
 export async function getUserById(id: string) {
@@ -41,6 +43,8 @@ export async function createUser(
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
+
+  markCodeAsUsed(userSecretCode.id);
 
   return prisma.user.create({
     data: {

@@ -133,3 +133,29 @@ export async function createCode(
 export async function getAllcodes() {
   return prisma.secretCodeAdmin.findMany();
 }
+
+export async function markCodeAsUsed(findID: string) {
+  // Check if the code exists
+  const existingCode = await prisma.secretCodeAdmin.findUnique({
+    where: {
+      id: findID
+    }
+  });
+
+  // If the code doesn't exist, throw an error
+  if (!existingCode) {
+    throw new Error(`Code with ID ${findID} does not exist.`);
+  }
+
+  // Update the Used field to true
+  const updatedCode = await prisma.secretCodeAdmin.update({
+    where: {
+      id: findID
+    },
+    data: {
+      Used: true
+    }
+  });
+
+  return updatedCode;
+}
