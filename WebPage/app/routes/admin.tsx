@@ -1,10 +1,9 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
+import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
 
 import { createCode, getAllcodes } from "~/models/secretCode.server";
-import { getAllusers } from "~/models/user.server";
+import { User, getAllusers, getUserByEmail } from "~/models/user.server";
 
 interface SecretCode {
   id: string;
@@ -18,37 +17,41 @@ interface SecretCode {
   Used: boolean;
 }
 
-interface Users {
-  id: string;
-  email: string;
-  CreationDate: Date;
-  UpdationDate: Date;
-  firstName: string;
-  lastName: string;
-}
-
 export const loader = async () => {
   const secretCodeList = await getAllcodes();
   const userList = await getAllusers();
   return json({ secretCodeList, userList });
 };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
-  const email = String(formData.get("emailAdress"));
-  const customName = String(formData.get("customName"));
-  const contractNumber = String(formData.get("contractNumber"));
-  const roleSelection = String(formData.get("roleSelection"));
-  const code = String(formData.get("selectedTime"));
-  const createdCode = await createCode(
-    customName,
-    email,
-    contractNumber,
-    roleSelection,
-    code
-  );
-  const secretCode = createdCode ? createdCode.secretCode : null;
-  return json(secretCode);
+export const action = async (actionArg) => {
+  const formData = await actionArg.request.formData();
+  const formId = formData.get("form-id");
+
+  if (formId === "codeGeneration") {
+    console.log("ATEJO I code generation");
+    const email = String(formData.get("emailAdress"));
+    const customName = String(formData.get("customName"));
+    const contractNumber = String(formData.get("contractNumber"));
+    const roleSelection = String(formData.get("roleSelection"));
+    const code = String(formData.get("selectedTime"));
+    const createdCode = await createCode(
+      customName,
+      email,
+      contractNumber,
+      roleSelection,
+      code
+    );
+    const secretCode = createdCode ? createdCode.secretCode : null;
+    return json(secretCode);
+  } else if (formId === "findingUser") {
+    console.log("ATEJO I FINDING USER");
+    const email = String(formData.get("findingUserEmail"));
+    const user = await getUserByEmail(email);
+    console.log(user?.email);
+    return json(user);
+  } else {
+    return null;
+  }
 };
 
 export default function NotesPage() {
@@ -73,13 +76,10 @@ export default function NotesPage() {
   const secretCodeList = (loaderData as { secretCodeList: SecretCode[] })
     .secretCodeList;
 
-  const loaderData2 = useLoaderData<{ userList: Users[] }>();
+  const userShitNahui = useActionData<User>();
+  const loaderData2 = useLoaderData<{ userList: User[] }>();
   const userList = loaderData2.userList;
 
-  // users list
-  // const loaderDataForUsers = useLoaderData<typeof loaderUsers>();
-  // const userList = (loaderDataForUsers as { userList: Users[] }).userList;
-  // search
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -283,7 +283,6 @@ export default function NotesPage() {
                 </div>
                 {/* END OF HEADER FOR ADMIN PANEL */}
                 <div className="flex flex-col ml-3 mt-3 mr-8">
-                  {/* Deleting invite code */}
                   <div className="p-6 bg-custom-200 text-medium w-full h-[230px] ml-3 mr-3 mb-6 ">
                     <h1 className="text-3xl font-mono font-font-extralight pb-3">
                       Ieškoti vartotojo NOT IMPLEMENTED
@@ -299,6 +298,11 @@ export default function NotesPage() {
                               El. paštas
                             </label>
                             <div className="relative">
+                              <input
+                                name="form-id"
+                                hidden
+                                defaultValue="findingUser"
+                              />
                               <input
                                 id="findingUserEmail"
                                 name="findingUserEmail"
@@ -323,47 +327,151 @@ export default function NotesPage() {
 
                       {popupOpen ? (
                         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
-                          <div className="bg-white p-8 rounded-lg shadow-md text-center">
+                          <div className="bg-custom-100 p-3 rounded-lg shadow-md text-center">
                             {userList ? (
                               <>
-                                <p id="secretCode">
-                                  Vardas:{" "}
-                                  <strong>
-                                    {userList[userList.length - 1].firstName}
-                                  </strong>
-                                </p>
-                                <p id="secretCode">
-                                  Pavardė:{" "}
-                                  <strong>
-                                    {userList[userList.length - 1].lastName}
-                                  </strong>
-                                </p>
-                                <p id="secretCode">
-                                  Email:{" "}
-                                  <strong>
-                                    {userList[userList.length - 1].email}
-                                  </strong>
-                                </p>
+                                {/* Header for this popup to hold images */}
+                                <div className="bg-custom-200 h-50 w-full flex justify-center items-center p-5">
+                                  {/* Profile picture */}
+                                  <div className="border border-custom-800">
+                                    <h1 className="border-b border-custom-800 ">
+                                      Avataro paveikslėlis
+                                    </h1>
+                                    <div className="">
+                                      <img
+                                        className=""
+                                        src="data:image/png;base64,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"
+                                        alt="Contact Person"
+                                        width={230}
+                                        height={230}
+                                      />
+                                    </div>
+                                  </div>
+                                  {/* Background picture */}
+                                  <div className="border-t border-r border-b border-custom-800">
+                                    <h1 className="border-b border-custom-800">
+                                      Fono paveikslėlis
+                                    </h1>
+                                    <div className="w-[800px] h-[230px]">
+                                      <img
+                                        className="w-full h-full object-cover"
+                                        src="https://static.vecteezy.com/system/resources/thumbnails/026/747/041/small/dark-and-blue-concreate-and-cement-wall-to-present-product-and-background-generative-ai-free-photo.jpg"
+                                        alt="Contact Person"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                                {/* Main contents */}
+                                <div className="flex pt-5 bg-custom-200 mt-2 pb-5">
+                                  {/* Left column for buttons */}
+                                  <div className="flex flex-col justify-center items-center w-[230px] ml-5">
+                                    <button
+                                      className="w-full px-22 py-5 text-xs bg-custom-800 text-white hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
+                                      style={{ textAlign: "center" }}
+                                      onClick={togglePopup}
+                                    >
+                                      Užblokuoti
+                                    </button>
+                                    <button
+                                      className="w-full px-22 py-5 text-xs bg-custom-800 text-white hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
+                                      style={{ textAlign: "center" }}
+                                      onClick={togglePopup}
+                                    >
+                                      Įspėti vartotoją
+                                    </button>
+                                    <button
+                                      className="w-full px-22 py-5 text-xs bg-custom-800 text-white hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
+                                      style={{ textAlign: "center" }}
+                                      onClick={togglePopup}
+                                    >
+                                      Peržiūrėti įspėjimus
+                                    </button>
+                                    <button
+                                      className="w-full px-22 py-5 text-xs bg-custom-800 text-white hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
+                                      style={{ textAlign: "center" }}
+                                      onClick={togglePopup}
+                                    >
+                                      Panaikinti nuotraukas
+                                    </button>
+                                    <button
+                                      className="w-full px-22 py-5 text-xs bg-custom-800 text-white hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
+                                      style={{ textAlign: "center" }}
+                                      onClick={togglePopup}
+                                    >
+                                      Uždaryti
+                                    </button>
+                                  </div>
+
+                                  {/* Center column for center content of information */}
+                                  <div className="flex-grow flex items-center pl-8">
+                                    <div className="flex flex-col">
+                                      <div className="flex mb-5">
+                                        <h1 className="mr-2">Vardas:</h1>
+                                        <h1>
+                                          {
+                                            userList[userList.length - 1]
+                                              .firstName
+                                          }
+                                        </h1>
+                                      </div>
+                                      <div className="flex mb-5">
+                                        <h1 className="mr-2">Pavardė:</h1>
+                                        <h1>
+                                          {
+                                            userList[userList.length - 1]
+                                              .lastName
+                                          }
+                                        </h1>
+                                      </div>
+                                      <div className="flex mb-5">
+                                        <h1 className="mr-2">Rolė:</h1>
+                                        <h1></h1>
+                                      </div>
+                                      <div className="flex mb-5">
+                                        <h1 className="mr-2">Slapyvardis:</h1>
+                                        <h1>{userShitNahui?.lastName}</h1>
+                                      </div>
+                                      <div className="flex mb-5">
+                                        <h1 className="mr-2">El. Paštas:</h1>
+                                        <h1>
+                                          {userList[userList.length - 1].email}
+                                        </h1>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  {/* Right column for right content of information */}
+                                  <div className="flex-grow flex items-center pl-8">
+                                    <div className="flex flex-col">
+                                      <div className="flex mb-5">
+                                        <h1 className="mr-2">Sukūrimo data:</h1>
+                                        <h1></h1>
+                                      </div>
+
+                                      <div className="flex mb-5">
+                                        <h1 className="mr-2">
+                                          Atnaujinimo data:
+                                        </h1>
+                                        <h1></h1>
+                                      </div>
+                                      <div className="flex mb-5">
+                                        <h1 className="mr-2">Galioja iki:</h1>
+                                        <h1></h1>
+                                      </div>
+                                      <div className="flex mb-5">
+                                        <h1 className="mr-2">
+                                          Įspėjimų skaičius:
+                                        </h1>
+                                        <h1></h1>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
                               </>
                             ) : (
                               <>
-                                <p id="secretCode">
-                                  Sugeneruotas kodas:{" "}
-                                  <strong>No user available</strong>
-                                </p>
+                                <p id="secretCode">nieko nėra</p>
                               </>
                             )}
-                            <p className="text-red-500 mt-4">
-                              Uždarius šią lentelę, Jūs nebegalėsite matyti kodo
-                            </p>
-                            <div className="mt-4">
-                              <button
-                                className="px-4 py-2 bg-custom-800 text-white rounded-md hover:bg-custom-850 transition duration-300 ease-in-out"
-                                onClick={togglePopup}
-                              >
-                                Uždaryti
-                              </button>
-                            </div>
                           </div>
                         </div>
                       ) : null}
@@ -560,6 +668,11 @@ export default function NotesPage() {
                         <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                           <div className="flex flex-col">
                             <div className="relative">
+                              <input
+                                name="form-id"
+                                hidden
+                                defaultValue="codeGeneration"
+                              />
                               <input
                                 id="customName"
                                 name="customName"
