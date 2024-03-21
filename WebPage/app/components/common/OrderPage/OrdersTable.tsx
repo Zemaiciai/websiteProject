@@ -95,8 +95,6 @@ export default function OrdersTable({
     currentPage * cardsPerPage,
   );
 
-  console.log(imporantCardsAmount);
-
   return (
     <>
       {imporantCardsAmount === 0 && important ? (
