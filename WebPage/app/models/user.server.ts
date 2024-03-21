@@ -47,6 +47,7 @@ export async function createUser(
       email,
       firstName: firstName,
       lastName: lastName,
+      userName: userName,
       password: {
         create: {
           hash: hashedPassword
