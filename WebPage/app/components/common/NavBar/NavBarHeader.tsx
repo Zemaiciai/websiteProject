@@ -1,10 +1,12 @@
 import { Link } from "@remix-run/react";
+import { useUser } from "~/utils";
 
 interface NavBarHeaderProps {
   title: string;
 }
 
 export default function NavBarHeader({ title }: NavBarHeaderProps) {
+  const user = useUser();
   return (
     <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center mb-3">
       <div className="flex items-center justify-between">
@@ -16,7 +18,9 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
           <div className="flex items-center text-1xl text-bold font-bold pr-6">
             <Link to="/dashboard" className="btn btn-primary">
               <div style={{ display: "flex", alignItems: "center" }}>
-                <span style={{ marginRight: "0.5rem" }}>Vardas pavardė</span>
+                <span style={{ marginRight: "0.5rem" }}>
+                  {user.firstName + " " + user.lastName}
+                </span>
                 <img
                   src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
                   alt="Profile"

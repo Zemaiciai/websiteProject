@@ -110,18 +110,25 @@ export default function NewOrderPage() {
   return (
     <div className="w-full m-4">
       <Form method="post">
-        <Datepicker
-          options={options}
-          onChange={handleChange}
-          show={show}
-          setShow={handleClose}
-        />
-        {/* <Datepicker
-          options={options}
-          onChange={handleChange}
-          show={show}
-          setShow={handleClose}
-        /> */}
+        <label className="flex w-full flex-col gap-1">
+          <span>Pabaigos data: </span>
+          <Datepicker
+            options={options}
+            onChange={handleChange}
+            show={show}
+            setShow={handleClose}
+          />
+        </label>
+
+        <label className="flex w-full flex-col gap-1">
+          <span>Revizijos data: </span>
+          <Datepicker
+            options={options}
+            onChange={handleChange}
+            show={show}
+            setShow={handleClose}
+          />
+        </label>
         <OrderStringInput
           title={"Darbuotuojo el. pastas"}
           name={"workerEmail"}
