@@ -21,6 +21,9 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
                 <span style={{ marginRight: "0.5rem" }}>
                   {user.firstName + " " + user.lastName}
                 </span>
+                <span style={{ marginRight: "0.5rem" }}>
+                  {user.firstName + " " + user.lastName}
+                </span>
                 <img
                   src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
                   alt="Profile"
