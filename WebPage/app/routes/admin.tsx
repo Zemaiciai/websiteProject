@@ -425,17 +425,17 @@ export default function NotesPage() {
                                       </div>
                                       <div className="flex mb-5">
                                         <h1 className="mr-2">Rolė:</h1>
-                                        <h1></h1>
+                                        <h1 className="text-red-800">
+                                          NOT IMPLEMENTED
+                                        </h1>
                                       </div>
                                       <div className="flex mb-5">
                                         <h1 className="mr-2">Slapyvardis:</h1>
-                                        <h1>{userShitNahui?.lastName}</h1>
+                                        <h1>{userShitNahui?.userName}</h1>
                                       </div>
                                       <div className="flex mb-5">
                                         <h1 className="mr-2">El. Paštas:</h1>
-                                        <h1>
-                                          {userList[userList.length - 1].email}
-                                        </h1>
+                                        <h1>{userShitNahui?.email}</h1>
                                       </div>
                                     </div>
                                   </div>
@@ -444,24 +444,64 @@ export default function NotesPage() {
                                     <div className="flex flex-col">
                                       <div className="flex mb-5">
                                         <h1 className="mr-2">Sukūrimo data:</h1>
-                                        <h1></h1>
+                                        <h1>
+                                          {userShitNahui?.createdAt
+                                            ? new Date(userShitNahui.createdAt)
+                                                .toLocaleDateString("en-CA", {
+                                                  year: "numeric",
+                                                  month: "2-digit",
+                                                  day: "2-digit"
+                                                })
+                                                .replace(/\//g, "-") +
+                                              ", " +
+                                              new Date(
+                                                userShitNahui.createdAt
+                                              ).toLocaleTimeString([], {
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                                hour12: false
+                                              })
+                                            : null}
+                                        </h1>
                                       </div>
 
                                       <div className="flex mb-5">
                                         <h1 className="mr-2">
                                           Atnaujinimo data:
                                         </h1>
-                                        <h1></h1>
+                                        <h1>
+                                          {userShitNahui?.createdAt
+                                            ? new Date(userShitNahui.updatedAt)
+                                                .toLocaleDateString("en-CA", {
+                                                  year: "numeric",
+                                                  month: "2-digit",
+                                                  day: "2-digit"
+                                                })
+                                                .replace(/\//g, "-") +
+                                              ", " +
+                                              new Date(
+                                                userShitNahui.createdAt
+                                              ).toLocaleTimeString([], {
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                                hour12: false
+                                              })
+                                            : null}
+                                        </h1>
                                       </div>
                                       <div className="flex mb-5">
                                         <h1 className="mr-2">Galioja iki:</h1>
-                                        <h1></h1>
+                                        <h1 className="text-red-800">
+                                          NOT IMPLEMENTED
+                                        </h1>
                                       </div>
                                       <div className="flex mb-5">
                                         <h1 className="mr-2">
                                           Įspėjimų skaičius:
                                         </h1>
-                                        <h1></h1>
+                                        <h1 className="text-red-800">
+                                          NOT IMPLEMENTED
+                                        </h1>
                                       </div>
                                     </div>
                                   </div>
