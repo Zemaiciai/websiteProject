@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "SecretCodeAdmin" ADD COLUMN     "CreationData" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

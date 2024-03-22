@@ -15,7 +15,7 @@ export default function ProfileCard() {
 
   return (
     <div className="profileCardDiv w-full h-full static">
-      <div className="backGroundPhoto w-full h-full bg-gradient-to-r from-sky-300 to-zinc-600 shadow-xl"></div>
+      <div className="backGroundPhoto w-full h-[285px] bg-gradient-to-r from-sky-300 to-zinc-600 shadow-xl"></div>
       <div className="infoDiv w-full h-[200px] flex">
         <div className="info max-w-[800px] h-full">
           <h1 className="text-4xl font-semibold pl-96 pt-6 font-serif w-[800px]">
