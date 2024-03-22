@@ -6,6 +6,7 @@ import { createCode, getAllcodes } from "~/models/secretCode.server";
 import {
   User,
   baningUser,
+  changeUserInformation,
   getAllusers,
   getUserByEmail,
   unBaningUser,
@@ -64,6 +65,21 @@ export const action = async (actionArg) => {
     const emailID = formData.get("email-id");
     const warningReason = String(formData.get("warningReason"));
     return warningUser(emailID, warningReason);
+  } else if (formId === "changingUserInformationAdmin") {
+    const emailID = formData.get("email-id");
+    const firstNameChange = formData.get("changeFirstName");
+    const lastNameChange = formData.get("changeLastName");
+    const nickNameChange = formData.get("changeUserName");
+    const emailChange = formData.get("changeEmail");
+    const roleChange = formData.get("changeRole");
+    return changeUserInformation(
+      emailID,
+      firstNameChange,
+      lastNameChange,
+      nickNameChange,
+      emailChange,
+      roleChange
+    );
   } else {
     return null;
   }
@@ -404,6 +420,21 @@ export default function NotesPage() {
                                     </button>
                                     <button
                                       className={`inline-flex justify-center px-4 py-3 ${
+                                        activeTabUsers ===
+                                        "changeUserInformation"
+                                          ? "text-white text-xs py-5 bg-custom-900 border-t border-black "
+                                          : "text-white text-xs py-5 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
+                                      } w-full`}
+                                      onClick={() =>
+                                        handleTabClickUser(
+                                          "changeUserInformation"
+                                        )
+                                      }
+                                    >
+                                      Keisti vartotojo informacija
+                                    </button>
+                                    <button
+                                      className={`inline-flex justify-center px-4 py-3 ${
                                         activeTabUsers === "banningUser"
                                           ? "text-white text-xs py-5 bg-custom-900 border-t border-black "
                                           : "text-white text-xs py-5 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
@@ -671,6 +702,167 @@ export default function NotesPage() {
                                               className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
                                             >
                                               Užblokuoti!
+                                            </button>
+                                          </Form>
+                                        </div>
+                                      </div>
+                                    </>
+                                  ) : null}
+
+                                  {activeTabUsers ===
+                                  "changeUserInformation" ? (
+                                    <>
+                                      {/* Center column for center content of information */}
+                                      <div className="flex items-center pl-8 ">
+                                        <div className="flex flex-col">
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">
+                                              Šiuo veiksmu galite keisti
+                                              vartotojo informaciją, kurio el.
+                                              paštas:
+                                            </h1>
+                                            <h1>{userShitNahui?.email}</h1>
+                                          </div>
+                                          <Form method="post">
+                                            <div className="flex flex-wrap mb-4">
+                                              <div className="w-full lg:w-1/2 px-10 order-2 lg:order-1">
+                                                <div className="flex flex-col">
+                                                  <input
+                                                    name="form-id"
+                                                    hidden
+                                                    defaultValue="changingUserInformationAdmin"
+                                                  />
+                                                  <input
+                                                    name="email-id"
+                                                    hidden
+                                                    defaultValue={
+                                                      userShitNahui?.email
+                                                    }
+                                                  />
+                                                  <label
+                                                    htmlFor="changeFirstName"
+                                                    className="text-sm text-black"
+                                                  >
+                                                    Vardas
+                                                  </label>
+                                                  <input
+                                                    id="changeFirstName"
+                                                    name="changeFirstName"
+                                                    type="text"
+                                                    ref={baningUserReasonRef}
+                                                    autoComplete="on"
+                                                    aria-describedby="email-error"
+                                                    className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none mb-4"
+                                                    defaultValue={
+                                                      userShitNahui?.firstName
+                                                    }
+                                                  />
+                                                  <label
+                                                    htmlFor="changeLastName"
+                                                    className="text-sm text-black"
+                                                  >
+                                                    Pavardė
+                                                  </label>
+                                                  <input
+                                                    id="changeLastName"
+                                                    name="changeLastName"
+                                                    type="text"
+                                                    ref={baningUserReasonRef}
+                                                    autoComplete="on"
+                                                    aria-describedby="email-error"
+                                                    className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none mb-4"
+                                                    defaultValue={
+                                                      userShitNahui?.lastName
+                                                    }
+                                                  />
+                                                  <label
+                                                    htmlFor="changeUserName"
+                                                    className="text-sm text-black"
+                                                  >
+                                                    Slapyvardis
+                                                  </label>
+                                                  <input
+                                                    id="changeUserName"
+                                                    name="changeUserName"
+                                                    type="text"
+                                                    ref={baningUserReasonRef}
+                                                    autoComplete="on"
+                                                    aria-describedby="email-error"
+                                                    className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none"
+                                                    defaultValue={
+                                                      userShitNahui?.userName
+                                                    }
+                                                  />
+                                                </div>
+                                              </div>
+                                              <div className="w-full lg:w-1/2 px-10 order-1 lg:order-2">
+                                                <div className="flex flex-col">
+                                                  <label
+                                                    htmlFor="changeEmail"
+                                                    className="text-sm text-black"
+                                                  >
+                                                    El. paštas
+                                                  </label>
+                                                  <input
+                                                    id="changeEmail"
+                                                    name="changeEmail"
+                                                    type="text"
+                                                    ref={baningUserReasonRef}
+                                                    autoComplete="on"
+                                                    aria-describedby="email-error"
+                                                    className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none mb-4"
+                                                    defaultValue={
+                                                      userShitNahui?.email
+                                                    }
+                                                  />
+                                                  <label
+                                                    htmlFor="changeRole"
+                                                    className="text-sm text-black"
+                                                  >
+                                                    Rolė
+                                                  </label>
+                                                  <select
+                                                    id="changeRole"
+                                                    name="changeRole"
+                                                    className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                                                    defaultValue={
+                                                      userShitNahui?.role ||
+                                                      "Darbuotojas"
+                                                    }
+                                                  >
+                                                    {userShitNahui?.role ? (
+                                                      <>
+                                                        <option value="Darbuotojas">
+                                                          Darbuotojas
+                                                        </option>
+                                                        <option value="Klientas">
+                                                          Klientas
+                                                        </option>
+                                                        <option value="Admin">
+                                                          Admin
+                                                        </option>
+                                                        <option value="Super Admin">
+                                                          Super Admin
+                                                        </option>
+                                                      </>
+                                                    ) : (
+                                                      <option value="Darbuotojas">
+                                                        Darbuotojas
+                                                      </option>
+                                                    )}
+                                                  </select>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <h1 className="text-red-500">
+                                              Įsitikinkite, kad keičiate tinkamą
+                                              informaciją!
+                                            </h1>
+                                            <button
+                                              type="submit"
+                                              className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                                            >
+                                              Pakeisti informaciją!
                                             </button>
                                           </Form>
                                         </div>
@@ -955,7 +1147,7 @@ export default function NotesPage() {
                                   {activeTabUsers === "removePictures" ? (
                                     <>
                                       {/* Center column for center content of information */}
-                                      remove pictures
+                                      CANNOT BE IMPLEMENTED YET
                                     </>
                                   ) : null}
                                 </div>

@@ -195,3 +195,27 @@ export async function warningUser(findEMAIL: string, reason: string) {
 
   return user;
 }
+
+export async function changeUserInformation(
+  findEMAIL: string,
+  firstNameChange: string,
+  lastNameChange: string,
+  nickNameChange: string,
+  emailChange: string,
+  roleChange: string
+) {
+  const banUser = await prisma.user.update({
+    where: {
+      email: findEMAIL
+    },
+    data: {
+      firstName: firstNameChange,
+      lastName: lastNameChange,
+      userName: nickNameChange,
+      role: roleChange,
+      email: emailChange
+    }
+  });
+
+  return banUser;
+}
