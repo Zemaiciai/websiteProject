@@ -7,7 +7,8 @@ import {
   User,
   baningUser,
   getAllusers,
-  getUserByEmail
+  getUserByEmail,
+  unBaningUser
 } from "~/models/user.server";
 
 interface SecretCode {
@@ -53,9 +54,11 @@ export const action = async (actionArg) => {
     return json(user);
   } else if (formId === "baningUser") {
     const emailID = formData.get("email-id");
-    console.log(emailID);
     const banReason = String(formData.get("baningUserReason"));
     return baningUser(emailID, banReason);
+  } else if (formId === "unbaningUser") {
+    const emailID = formData.get("email-id");
+    return unBaningUser(emailID);
   } else {
     return null;
   }
@@ -385,8 +388,8 @@ export default function NotesPage() {
                                     <button
                                       className={`inline-flex justify-center px-4 py-3 ${
                                         activeTabUsers === "userInformation"
-                                          ? "text-white text-xs py-5 bg-custom-900 border-t border-black"
-                                          : "text-white text-xs py-5 bg-custom-850 hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
+                                          ? "text-white text-xs py-5 bg-custom-900 border-t border-black "
+                                          : "text-white text-xs py-5 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
                                       } w-full`}
                                       onClick={() =>
                                         handleTabClickUser("userInformation")
@@ -405,6 +408,18 @@ export default function NotesPage() {
                                       }
                                     >
                                       Užblokuoti vartotoją
+                                    </button>
+                                    <button
+                                      className={`inline-flex justify-center px-4 py-3 ${
+                                        activeTabUsers === "unbanningUser"
+                                          ? "text-white text-xs py-5 bg-custom-900 border-t border-black "
+                                          : "text-white text-xs py-5 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
+                                      } w-full`}
+                                      onClick={() =>
+                                        handleTabClickUser("unbanningUser")
+                                      }
+                                    >
+                                      Atblokuoti vartotoją
                                     </button>
                                     <button
                                       className={`inline-flex justify-center px-4 py-3  ${
@@ -651,6 +666,65 @@ export default function NotesPage() {
                                               className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
                                             >
                                               Užblokuoti!
+                                            </button>
+                                          </Form>
+                                        </div>
+                                      </div>
+                                    </>
+                                  ) : null}
+
+                                  {activeTabUsers === "unbanningUser" ? (
+                                    <>
+                                      {/* Center column for center content of information */}
+                                      <div className="flex items-center pl-8 ">
+                                        <div className="flex flex-col">
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">
+                                              Šiuo veiksmu bus atblokuotas
+                                              vartotojas kurio el. paštas:
+                                            </h1>
+                                            <h1>{userShitNahui?.email}</h1>
+                                          </div>
+                                          <Form method="post">
+                                            <div className="flex flex-wrap mb-4">
+                                              <div className="w-full px-10">
+                                                <div className="flex flex-col">
+                                                  <div className="relative">
+                                                    <input
+                                                      name="form-id"
+                                                      hidden
+                                                      defaultValue="unbaningUser"
+                                                    />
+                                                    <input
+                                                      name="email-id"
+                                                      hidden
+                                                      defaultValue={
+                                                        userShitNahui?.email
+                                                      }
+                                                    />
+                                                    <input
+                                                      id="unbaningUserEmail"
+                                                      name="unbaningUserEmail"
+                                                      type="text"
+                                                      ref={baningUserReasonRef}
+                                                      autoComplete="on"
+                                                      aria-describedby="email-error"
+                                                      className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none" // Increased py-2 for vertical padding
+                                                      placeholder="El. paštas"
+                                                    />
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <h1 className="text-red-500">
+                                              Norint patvirtintį šį veiksmą
+                                              įveskite vartotojo el. paštą!
+                                            </h1>
+                                            <button
+                                              type="submit"
+                                              className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                                            >
+                                              Atblokuoti!
                                             </button>
                                           </Form>
                                         </div>

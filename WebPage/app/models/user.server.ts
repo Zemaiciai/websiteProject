@@ -116,3 +116,17 @@ export async function baningUser(findEMAIL: string, reason: string) {
 
   return banUser;
 }
+
+export async function unBaningUser(findEMAIL: string) {
+  const banUser = await prisma.user.update({
+    where: {
+      email: findEMAIL
+    },
+    data: {
+      banReason: null,
+      userStatus: "Aktyvi"
+    }
+  });
+
+  return banUser;
+}
