@@ -1,3 +1,4 @@
+
 import { json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
@@ -8,7 +9,8 @@ import {
   baningUser,
   getAllusers,
   getUserByEmail,
-  unBaningUser
+  unBaningUser,
+  warningUser
 } from "~/models/user.server";
 
 interface SecretCode {
@@ -59,6 +61,10 @@ export const action = async (actionArg) => {
   } else if (formId === "unbaningUser") {
     const emailID = formData.get("email-id");
     return unBaningUser(emailID);
+  } else if (formId === "warningUser") {
+    const emailID = formData.get("email-id");
+    const warningReason = String(formData.get("warningReason"));
+    return warningUser(emailID, warningReason);
   } else {
     return null;
   }
@@ -735,7 +741,59 @@ export default function NotesPage() {
                                   {activeTabUsers === "warningUser" ? (
                                     <>
                                       {/* Center column for center content of information */}
-                                      doing warnings
+                                      <div className="flex items-center pl-8 ">
+                                        <div className="flex flex-col">
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">
+                                              Šiuo veiksmu bus uždėtas įspėjimas
+                                              vartotojas kurio el. paštas:
+                                            </h1>
+                                            <h1>{userShitNahui?.email}</h1>
+                                          </div>
+                                          <Form method="post">
+                                            <div className="flex flex-wrap mb-4">
+                                              <div className="w-full px-10">
+                                                <div className="flex flex-col">
+                                                  <div className="relative">
+                                                    <input
+                                                      name="form-id"
+                                                      hidden
+                                                      defaultValue="warningUser"
+                                                    />
+                                                    <input
+                                                      name="email-id"
+                                                      hidden
+                                                      defaultValue={
+                                                        userShitNahui?.email
+                                                      }
+                                                    />
+                                                    <input
+                                                      id="warningReason"
+                                                      name="warningReason"
+                                                      type="text"
+                                                      ref={baningUserReasonRef}
+                                                      autoComplete="on"
+                                                      aria-describedby="email-error"
+                                                      className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none" // Increased py-2 for vertical padding
+                                                      placeholder="Įspėjimo priežastis"
+                                                    />
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <h1 className="text-red-500">
+                                              Įsitikinkite ar parinktas
+                                              vartotojas tinkamas!
+                                            </h1>
+                                            <button
+                                              type="submit"
+                                              className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                                            >
+                                              Įspėti!
+                                            </button>
+                                          </Form>
+                                        </div>
+                                      </div>
                                     </>
                                   ) : null}
 

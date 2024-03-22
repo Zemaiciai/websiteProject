@@ -130,3 +130,50 @@ export async function unBaningUser(findEMAIL: string) {
 
   return banUser;
 }
+
+export async function warningUser(findEMAIL: string, reason: string) {
+  let user = await prisma.user.findUnique({
+    where: {
+      email: findEMAIL
+    }
+  });
+
+  if (user?.warningAmount === "0") {
+    user = await prisma.user.update({
+      where: {
+        email: findEMAIL
+      },
+      data: {
+        warningAmount: "1",
+        firstWarning: reason,
+        firstWarningDate: new Date()
+      }
+    });
+  } else if (user?.warningAmount === "1") {
+    user = await prisma.user.update({
+      where: {
+        email: findEMAIL
+      },
+      data: {
+        warningAmount: "2",
+        secondWarning: reason,
+        secondWarningDate: new Date()
+      }
+    });
+  } else {
+    user = await prisma.user.update({
+      where: {
+        email: findEMAIL
+      },
+      data: {
+        warningAmount: "3",
+        thirdWarning: reason,
+        thirdWarningDate: new Date(),
+        userStatus: "Užlokuota",
+        banReason: "Surinkti 3 įspėjimai"
+      }
+    });
+  }
+
+  return user;
+}
