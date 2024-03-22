@@ -173,6 +173,24 @@ export async function warningUser(findEMAIL: string, reason: string) {
         banReason: "Surinkti 3 įspėjimai"
       }
     });
+    //IF YOU WANT TO REMOVE WARNINGS
+    // } else {
+    //   user = await prisma.user.update({
+    //     where: {
+    //       email: findEMAIL
+    //     },
+    //     data: {
+    //       warningAmount: "0",
+    //       thirdWarning: null,
+    //       thirdWarningDate: null,
+    //       secondWarning: null,
+    //       secondWarningDate: null,
+    //       firstWarning: null,
+    //       firstWarningDate: null,
+    //       userStatus: "Aktyvi",
+    //       banReason: null
+    //     }
+    //   });
   }
 
   return user;

@@ -1,4 +1,3 @@
-
 import { json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
@@ -311,7 +310,7 @@ export default function NotesPage() {
                 <div className="flex flex-col ml-3 mt-3 mr-8">
                   <div className="p-6 bg-custom-200 text-medium w-full h-[230px] ml-3 mr-3 mb-6 ">
                     <h1 className="text-3xl font-mono font-font-extralight pb-3">
-                      Ieškoti vartotojo NOT IMPLEMENTED
+                      Ieškoti vartotojo
                     </h1>
                     <Form method="post">
                       <div className="flex flex-wrap -mx-3 mb-4">
@@ -799,8 +798,157 @@ export default function NotesPage() {
 
                                   {activeTabUsers === "viewWarnings" ? (
                                     <>
-                                      {/* Center column for center content of information */}
-                                      see warnings
+                                      <div className="flex items-center pl-8 ">
+                                        <div className="flex flex-col">
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">
+                                              Šiuo metu žiūrite įspėjimus
+                                              naudotojui kurio el. paštas:
+                                            </h1>
+                                            <h1>{userShitNahui?.email}</h1>
+                                          </div>
+                                          <table className="min-w-full text-center text-sm font-light w-[750px]">
+                                            <thead className="border-b bg-neutral-50 font-medium">
+                                              <tr>
+                                                <th className="px-6 py-4 w-1/6">
+                                                  Skaičius
+                                                </th>
+                                                <th className="px-6 py-4 w-1/6">
+                                                  Įspėjimo priežastis
+                                                </th>
+                                                <th className="px-6 py-4 w-1/6">
+                                                  Įspėjimo data
+                                                </th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              {userShitNahui?.firstWarning ? (
+                                                <tr>
+                                                  <td className="px-6 py-4">
+                                                    1
+                                                  </td>
+                                                  <td className="px-6 py-4">
+                                                    {userShitNahui.firstWarning}
+                                                  </td>
+                                                  <td className="px-6 py-4">
+                                                    {userShitNahui.firstWarningDate
+                                                      ? new Date(
+                                                          userShitNahui.firstWarningDate
+                                                        )
+                                                          .toLocaleDateString(
+                                                            "en-CA",
+                                                            {
+                                                              year: "numeric",
+                                                              month: "2-digit",
+                                                              day: "2-digit"
+                                                            }
+                                                          )
+                                                          .replace(/\//g, "-") +
+                                                        ", " +
+                                                        new Date(
+                                                          userShitNahui.firstWarningDate
+                                                        ).toLocaleTimeString(
+                                                          [],
+                                                          {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                            hour12: false
+                                                          }
+                                                        )
+                                                      : null}
+                                                  </td>
+                                                </tr>
+                                              ) : (
+                                                <tr>
+                                                  <td
+                                                    colSpan={3}
+                                                    className="px-6 py-4"
+                                                  >
+                                                    Šis vartotojas neturi jokių
+                                                    įspėjimų.
+                                                  </td>
+                                                </tr>
+                                              )}
+                                              {userShitNahui?.secondWarning ? (
+                                                <tr>
+                                                  <td className="px-6 py-4">
+                                                    2
+                                                  </td>
+                                                  <td className="px-6 py-4">
+                                                    {
+                                                      userShitNahui.secondWarning
+                                                    }
+                                                  </td>
+                                                  <td className="px-6 py-4">
+                                                    {userShitNahui.secondWarningDate
+                                                      ? new Date(
+                                                          userShitNahui.secondWarningDate
+                                                        )
+                                                          .toLocaleDateString(
+                                                            "en-CA",
+                                                            {
+                                                              year: "numeric",
+                                                              month: "2-digit",
+                                                              day: "2-digit"
+                                                            }
+                                                          )
+                                                          .replace(/\//g, "-") +
+                                                        ", " +
+                                                        new Date(
+                                                          userShitNahui.secondWarningDate
+                                                        ).toLocaleTimeString(
+                                                          [],
+                                                          {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                            hour12: false
+                                                          }
+                                                        )
+                                                      : null}
+                                                  </td>
+                                                </tr>
+                                              ) : null}
+                                              {userShitNahui?.thirdWarning ? (
+                                                <tr>
+                                                  <td className="px-6 py-4">
+                                                    3
+                                                  </td>
+                                                  <td className="px-6 py-4">
+                                                    {userShitNahui.thirdWarning}
+                                                  </td>
+                                                  <td className="px-6 py-4">
+                                                    {userShitNahui.thirdWarningDate
+                                                      ? new Date(
+                                                          userShitNahui.thirdWarningDate
+                                                        )
+                                                          .toLocaleDateString(
+                                                            "en-CA",
+                                                            {
+                                                              year: "numeric",
+                                                              month: "2-digit",
+                                                              day: "2-digit"
+                                                            }
+                                                          )
+                                                          .replace(/\//g, "-") +
+                                                        ", " +
+                                                        new Date(
+                                                          userShitNahui.thirdWarningDate
+                                                        ).toLocaleTimeString(
+                                                          [],
+                                                          {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                            hour12: false
+                                                          }
+                                                        )
+                                                      : null}
+                                                  </td>
+                                                </tr>
+                                              ) : null}
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      </div>
                                     </>
                                   ) : null}
 
