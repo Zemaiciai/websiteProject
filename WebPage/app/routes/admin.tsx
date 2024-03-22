@@ -72,13 +72,15 @@ export const action = async (actionArg) => {
     const nickNameChange = formData.get("changeUserName");
     const emailChange = formData.get("changeEmail");
     const roleChange = formData.get("changeRole");
+    const timeChange = formData.get("changeTime");
     return changeUserInformation(
       emailID,
       firstNameChange,
       lastNameChange,
       nickNameChange,
       emailChange,
-      roleChange
+      roleChange,
+      timeChange
     );
   } else {
     return null;
@@ -851,9 +853,47 @@ export default function NotesPage() {
                                                       </option>
                                                     )}
                                                   </select>
+                                                  <label
+                                                    htmlFor="changeTime"
+                                                    className="text-sm text-black pt-7"
+                                                  >
+                                                    Galiojimo data
+                                                  </label>
+                                                  <select
+                                                    id="changeTime"
+                                                    name="changeTime"
+                                                    className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                                                  >
+                                                    <option value="holder">
+                                                      Nekeičiamas
+                                                    </option>
+                                                    <option value="oneMonth">
+                                                      1 mėnesiui
+                                                    </option>
+                                                    <option value="threeMonths">
+                                                      3 mėnesiai
+                                                    </option>
+                                                    <option value="sixMonths">
+                                                      6 mėnesiai
+                                                    </option>
+                                                    <option value="nineMonths">
+                                                      9 mėnesiai
+                                                    </option>
+                                                    <option value="oneYear">
+                                                      1 metai
+                                                    </option>
+                                                    <option value="twoYears">
+                                                      2 metai
+                                                    </option>
+                                                  </select>
                                                 </div>
                                               </div>
                                             </div>
+                                            <h1 className="text-red-500">
+                                              Keičiant galiojimo laiką, laikas
+                                              yra pridedamas prie esamo
+                                              nustatyto!
+                                            </h1>
                                             <h1 className="text-red-500">
                                               Įsitikinkite, kad keičiate tinkamą
                                               informaciją!

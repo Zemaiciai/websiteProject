@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 
 import { prisma } from "~/db.server";
 
-import { markCodeAsUsed } from "./secretCode.server";
+import { changeCodeExpiring, markCodeAsUsed } from "./secretCode.server";
 
 export type { User } from "@prisma/client";
 
@@ -202,20 +202,65 @@ export async function changeUserInformation(
   lastNameChange: string,
   nickNameChange: string,
   emailChange: string,
-  roleChange: string
+  roleChange: string,
+  timeChange: string
 ) {
-  const banUser = await prisma.user.update({
+  const user = await prisma.user.findUnique({
     where: {
       email: findEMAIL
-    },
-    data: {
-      firstName: firstNameChange,
-      lastName: lastNameChange,
-      userName: nickNameChange,
-      role: roleChange,
-      email: emailChange
     }
   });
 
-  return banUser;
+  let currentDate: Date | null = user?.expiringAt ?? null;
+
+  if (currentDate !== null && timeChange !== "holder") {
+    if (timeChange === "oneMonth") {
+      currentDate = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+    } else if (timeChange === "threeMonths") {
+      const currentMonth = currentDate.getMonth();
+      currentDate.setMonth(currentMonth + 3);
+    } else if (timeChange === "sixMonths") {
+      const currentMonth = currentDate.getMonth();
+      currentDate.setMonth(currentMonth + 6);
+    } else if (timeChange === "nineMonths") {
+      const currentMonth = currentDate.getMonth();
+      currentDate.setMonth(currentMonth + 9);
+    } else if (timeChange === "oneYear") {
+      const currentMonth = currentDate.getMonth();
+      currentDate.setMonth(currentMonth + 12);
+    } else if (timeChange === "twoYears") {
+      const currentMonth = currentDate.getMonth();
+      currentDate.setMonth(currentMonth + 24);
+    }
+
+    const changeInfo = await prisma.user.update({
+      where: {
+        email: findEMAIL
+      },
+      data: {
+        firstName: firstNameChange,
+        lastName: lastNameChange,
+        userName: nickNameChange,
+        role: roleChange,
+        email: emailChange,
+        expiringAt: currentDate !== null ? currentDate : undefined
+      }
+    });
+    changeCodeExpiring(findEMAIL, currentDate);
+    return changeInfo;
+  } else {
+    const changeInfo = await prisma.user.update({
+      where: {
+        email: findEMAIL
+      },
+      data: {
+        firstName: firstNameChange,
+        lastName: lastNameChange,
+        userName: nickNameChange,
+        role: roleChange,
+        email: emailChange
+      }
+    });
+    return changeInfo;
+  }
 }

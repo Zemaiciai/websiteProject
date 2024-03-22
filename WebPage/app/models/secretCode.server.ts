@@ -159,3 +159,29 @@ export async function markCodeAsUsed(findID: string) {
 
   return updatedCode;
 }
+
+export async function changeCodeExpiring(emailtest: string, date: Date) {
+  // Update the Used field to true
+
+  const code = await prisma.secretCodeAdmin.findFirst({
+    where: {
+      email: emailtest
+    }
+  });
+
+  // If a code is found, update its ExpirationDate
+  if (code) {
+    const updatedCode = await prisma.secretCodeAdmin.update({
+      where: {
+        id: code.id // Use the code's id to uniquely identify it
+      },
+      data: {
+        ExpirationDate: date
+      }
+    });
+
+    return updatedCode;
+  } else {
+    throw new Error(`Code with email ${emailtest} not found.`);
+  }
+}
