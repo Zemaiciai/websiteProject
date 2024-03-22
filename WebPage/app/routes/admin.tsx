@@ -28,7 +28,6 @@ export const action = async (actionArg) => {
   const formId = formData.get("form-id");
 
   if (formId === "codeGeneration") {
-    console.log("ATEJO I code generation");
     const email = String(formData.get("emailAdress"));
     const customName = String(formData.get("customName"));
     const contractNumber = String(formData.get("contractNumber"));
@@ -44,10 +43,8 @@ export const action = async (actionArg) => {
     const secretCode = createdCode ? createdCode.secretCode : null;
     return json(secretCode);
   } else if (formId === "findingUser") {
-    console.log("ATEJO I FINDING USER");
     const email = String(formData.get("findingUserEmail"));
     const user = await getUserByEmail(email);
-    console.log(user?.email);
     return json(user);
   } else {
     return null;
@@ -55,16 +52,25 @@ export const action = async (actionArg) => {
 };
 
 export default function NotesPage() {
+  // Admin page tabs
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [popupOpen, setPopupOpen] = useState(false);
 
-  const togglePopup = () => {
-    setPopupOpen(!popupOpen);
-  };
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
     console.log(tab);
   };
+  // Admin page user page tabs
+  const [activeTabUsers, setActiveTabUsers] = useState("userInformation");
+  const handleTabClickUser = (tab: string) => {
+    setActiveTabUsers(tab);
+    console.log(tab);
+  };
+
+  const togglePopup = () => {
+    setPopupOpen(!popupOpen);
+  };
+
   const emailRef = useRef<HTMLInputElement>(null);
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
@@ -366,30 +372,62 @@ export default function NotesPage() {
                                   {/* Left column for buttons */}
                                   <div className="flex flex-col justify-center items-center w-[230px] ml-5">
                                     <button
-                                      className="w-full px-22 py-5 text-xs bg-custom-800 text-white hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
-                                      style={{ textAlign: "center" }}
-                                      onClick={togglePopup}
+                                      className={`inline-flex justify-center px-4 py-3 ${
+                                        activeTabUsers === "userInformation"
+                                          ? "text-white text-xs py-5 bg-custom-900 border-t border-black"
+                                          : "text-white text-xs py-5 bg-custom-850 hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
+                                      } w-full`}
+                                      onClick={() =>
+                                        handleTabClickUser("userInformation")
+                                      }
                                     >
-                                      Užblokuoti
+                                      Vartotojo informacija
                                     </button>
                                     <button
-                                      className="w-full px-22 py-5 text-xs bg-custom-800 text-white hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
-                                      style={{ textAlign: "center" }}
-                                      onClick={togglePopup}
+                                      className={`inline-flex justify-center px-4 py-3 ${
+                                        activeTabUsers === "banningUser"
+                                          ? "text-white text-xs py-5 bg-custom-900 border-t border-black "
+                                          : "text-white text-xs py-5 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
+                                      } w-full`}
+                                      onClick={() =>
+                                        handleTabClickUser("banningUser")
+                                      }
+                                    >
+                                      Užblokuoti vartotoją
+                                    </button>
+                                    <button
+                                      className={`inline-flex justify-center px-4 py-3  ${
+                                        activeTabUsers === "warningUser"
+                                          ? "text-white text-xs py-5 bg-custom-900 border-t border-black"
+                                          : "text-white text-xs py-5 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
+                                      } w-full`}
+                                      onClick={() =>
+                                        handleTabClickUser("warningUser")
+                                      }
                                     >
                                       Įspėti vartotoją
                                     </button>
                                     <button
-                                      className="w-full px-22 py-5 text-xs bg-custom-800 text-white hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
-                                      style={{ textAlign: "center" }}
-                                      onClick={togglePopup}
+                                      className={`inline-flex justify-center px-4 py-3  ${
+                                        activeTabUsers === "viewWarnings"
+                                          ? "text-white text-xs py-5 bg-custom-900 border-t border-black"
+                                          : "text-white text-xs py-5 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
+                                      } w-full`}
+                                      onClick={() =>
+                                        handleTabClickUser("viewWarnings")
+                                      }
                                     >
                                       Peržiūrėti įspėjimus
                                     </button>
                                     <button
-                                      className="w-full px-22 py-5 text-xs bg-custom-800 text-white hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
-                                      style={{ textAlign: "center" }}
-                                      onClick={togglePopup}
+                                      className={`inline-flex justify-center px-4 py-3  ${
+                                        activeTabUsers === "removePictures"
+                                          ? "text-white text-xs py-5 bg-custom-900 border-t border-black"
+                                          : "text-white text-xs py-5 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-t border-black"
+                                      } w-full`}
+                                      onClick={() =>
+                                        handleTabClickUser("removePictures")
+                                      }
                                     >
                                       Panaikinti nuotraukas
                                     </button>
@@ -402,117 +440,176 @@ export default function NotesPage() {
                                     </button>
                                   </div>
 
-                                  {/* Center column for center content of information */}
-                                  <div className="flex-grow flex items-center pl-8">
-                                    <div className="flex flex-col">
-                                      <div className="flex mb-5">
-                                        <h1 className="mr-2">Vardas:</h1>
-                                        <h1>{userShitNahui?.firstName}</h1>
+                                  {activeTabUsers === "userInformation" ? (
+                                    <>
+                                      {/* Center column for center content of information */}
+                                      <div className="flex-grow flex items-center pl-8">
+                                        <div className="flex flex-col">
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">Vardas:</h1>
+                                            <h1>{userShitNahui?.firstName}</h1>
+                                          </div>
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">Pavardė:</h1>
+                                            <h1>{userShitNahui?.lastName}</h1>
+                                          </div>
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">Rolė:</h1>
+                                            <h1>{userShitNahui?.role}</h1>
+                                          </div>
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">
+                                              Slapyvardis:
+                                            </h1>
+                                            <h1>{userShitNahui?.userName}</h1>
+                                          </div>
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">
+                                              El. Paštas:
+                                            </h1>
+                                            <h1>{userShitNahui?.email}</h1>
+                                          </div>
+                                        </div>
                                       </div>
-                                      <div className="flex mb-5">
-                                        <h1 className="mr-2">Pavardė:</h1>
-                                        <h1>{userShitNahui?.lastName}</h1>
-                                      </div>
-                                      <div className="flex mb-5">
-                                        <h1 className="mr-2">Rolė:</h1>
-                                        <h1>{userShitNahui?.role}</h1>
-                                      </div>
-                                      <div className="flex mb-5">
-                                        <h1 className="mr-2">Slapyvardis:</h1>
-                                        <h1>{userShitNahui?.userName}</h1>
-                                      </div>
-                                      <div className="flex mb-5">
-                                        <h1 className="mr-2">El. Paštas:</h1>
-                                        <h1>{userShitNahui?.email}</h1>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  {/* Right column for right content of information */}
-                                  <div className="flex-grow flex items-center pl-8">
-                                    <div className="flex flex-col">
-                                      <div className="flex mb-5">
-                                        <h1 className="mr-2">Sukūrimo data:</h1>
-                                        <h1>
-                                          {userShitNahui?.createdAt
-                                            ? new Date(userShitNahui.createdAt)
-                                                .toLocaleDateString("en-CA", {
-                                                  year: "numeric",
-                                                  month: "2-digit",
-                                                  day: "2-digit"
-                                                })
-                                                .replace(/\//g, "-") +
-                                              ", " +
-                                              new Date(
-                                                userShitNahui.createdAt
-                                              ).toLocaleTimeString([], {
-                                                hour: "2-digit",
-                                                minute: "2-digit",
-                                                hour12: false
-                                              })
-                                            : null}
-                                        </h1>
-                                      </div>
+                                      {/* Right column for right content of information */}
+                                      <div className="flex-grow flex items-center pl-8">
+                                        <div className="flex flex-col">
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">
+                                              Sukūrimo data:
+                                            </h1>
+                                            <h1>
+                                              {userShitNahui?.createdAt
+                                                ? new Date(
+                                                    userShitNahui.createdAt
+                                                  )
+                                                    .toLocaleDateString(
+                                                      "en-CA",
+                                                      {
+                                                        year: "numeric",
+                                                        month: "2-digit",
+                                                        day: "2-digit"
+                                                      }
+                                                    )
+                                                    .replace(/\//g, "-") +
+                                                  ", " +
+                                                  new Date(
+                                                    userShitNahui.createdAt
+                                                  ).toLocaleTimeString([], {
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                    hour12: false
+                                                  })
+                                                : null}
+                                            </h1>
+                                          </div>
 
-                                      <div className="flex mb-5">
-                                        <h1 className="mr-2">
-                                          Atnaujinimo data:
-                                        </h1>
-                                        <h1>
-                                          {userShitNahui?.createdAt
-                                            ? new Date(userShitNahui.updatedAt)
-                                                .toLocaleDateString("en-CA", {
-                                                  year: "numeric",
-                                                  month: "2-digit",
-                                                  day: "2-digit"
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">
+                                              Atnaujinimo data:
+                                            </h1>
+                                            <h1>
+                                              {userShitNahui?.createdAt
+                                                ? new Date(
+                                                    userShitNahui.updatedAt
+                                                  )
+                                                    .toLocaleDateString(
+                                                      "en-CA",
+                                                      {
+                                                        year: "numeric",
+                                                        month: "2-digit",
+                                                        day: "2-digit"
+                                                      }
+                                                    )
+                                                    .replace(/\//g, "-") +
+                                                  ", " +
+                                                  new Date(
+                                                    userShitNahui.createdAt
+                                                  ).toLocaleTimeString([], {
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                    hour12: false
+                                                  })
+                                                : null}
+                                            </h1>
+                                          </div>
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">
+                                              Galioja iki:
+                                            </h1>
+                                            {userShitNahui?.expiringAt
+                                              ? new Date(
+                                                  userShitNahui.expiringAt
+                                                )
+                                                  .toLocaleDateString("en-CA", {
+                                                    year: "numeric",
+                                                    month: "2-digit",
+                                                    day: "2-digit"
+                                                  })
+                                                  .replace(/\//g, "-") +
+                                                ", " +
+                                                new Date(
+                                                  userShitNahui.expiringAt
+                                                ).toLocaleTimeString([], {
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                                  hour12: false
                                                 })
-                                                .replace(/\//g, "-") +
-                                              ", " +
-                                              new Date(
-                                                userShitNahui.createdAt
-                                              ).toLocaleTimeString([], {
-                                                hour: "2-digit",
-                                                minute: "2-digit",
-                                                hour12: false
-                                              })
-                                            : null}
-                                        </h1>
+                                              : null}
+                                          </div>
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">
+                                              Įspėjimų skaičius:
+                                            </h1>
+                                            <h1>
+                                              {userShitNahui?.warningAmount}/3
+                                            </h1>
+                                          </div>
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">
+                                              Paskyros būsėna:
+                                            </h1>
+                                            <h1>{userShitNahui?.userStatus}</h1>
+                                          </div>
+                                        </div>
                                       </div>
-                                      <div className="flex mb-5">
-                                        <h1 className="mr-2">Galioja iki:</h1>
-                                        {userShitNahui?.expiringAt
-                                          ? new Date(userShitNahui.expiringAt)
-                                              .toLocaleDateString("en-CA", {
-                                                year: "numeric",
-                                                month: "2-digit",
-                                                day: "2-digit"
-                                              })
-                                              .replace(/\//g, "-") +
-                                            ", " +
-                                            new Date(
-                                              userShitNahui.expiringAt
-                                            ).toLocaleTimeString([], {
-                                              hour: "2-digit",
-                                              minute: "2-digit",
-                                              hour12: false
-                                            })
-                                          : null}
-                                      </div>
-                                      <div className="flex mb-5">
-                                        <h1 className="mr-2">
-                                          Įspėjimų skaičius:
-                                        </h1>
-                                        <h1>
-                                          {userShitNahui?.warningAmount}/3
-                                        </h1>
-                                      </div>
-                                      <div className="flex mb-5">
-                                        <h1 className="mr-2">
-                                          Paskyros būsėna:
-                                        </h1>
-                                        <h1>{userShitNahui?.userStatus}</h1>
-                                      </div>
-                                    </div>
-                                  </div>
+                                    </>
+                                  ) : null}
+
+                                  {activeTabUsers === "banningUser" ? (
+                                    <>
+                                      {/* Center column for center content of information */}
+                                      banning
+                                    </>
+                                  ) : null}
+
+                                  {activeTabUsers === "banningUser" ? (
+                                    <>
+                                      {/* Center column for center content of information */}
+                                      banning
+                                    </>
+                                  ) : null}
+
+                                  {activeTabUsers === "warningUser" ? (
+                                    <>
+                                      {/* Center column for center content of information */}
+                                      doing warnings
+                                    </>
+                                  ) : null}
+
+                                  {activeTabUsers === "viewWarnings" ? (
+                                    <>
+                                      {/* Center column for center content of information */}
+                                      see warnings
+                                    </>
+                                  ) : null}
+
+                                  {activeTabUsers === "removePictures" ? (
+                                    <>
+                                      {/* Center column for center content of information */}
+                                      remove pictures
+                                    </>
+                                  ) : null}
                                 </div>
                               </>
                             ) : (
