@@ -3,7 +3,12 @@ import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
 
 import { createCode, getAllcodes } from "~/models/secretCode.server";
-import { User, getAllusers, getUserByEmail } from "~/models/user.server";
+import {
+  User,
+  baningUser,
+  getAllusers,
+  getUserByEmail
+} from "~/models/user.server";
 
 interface SecretCode {
   id: string;
@@ -46,6 +51,11 @@ export const action = async (actionArg) => {
     const email = String(formData.get("findingUserEmail"));
     const user = await getUserByEmail(email);
     return json(user);
+  } else if (formId === "baningUser") {
+    const emailID = formData.get("email-id");
+    console.log(emailID);
+    const banReason = String(formData.get("baningUserReason"));
+    return baningUser(emailID, banReason);
   } else {
     return null;
   }
@@ -76,6 +86,7 @@ export default function NotesPage() {
   const contractNumberRef = useRef<HTMLInputElement>(null);
   const deletetionEmailRef = useRef<HTMLInputElement>(null);
   const findingUserEmailRef = useRef<HTMLInputElement>(null);
+  const baningUserReasonRef = useRef<HTMLInputElement>(null);
 
   // Move the declaration of secretCodeList here
   const loaderData = useLoaderData(); // No type provided
@@ -571,6 +582,18 @@ export default function NotesPage() {
                                             </h1>
                                             <h1>{userShitNahui?.userStatus}</h1>
                                           </div>
+                                          {userShitNahui?.banReason ? (
+                                            <div className="flex mb-5">
+                                              <h1 className="mr-2">
+                                                Priežastis:
+                                              </h1>
+                                              <h1>
+                                                {userShitNahui?.banReason}
+                                              </h1>
+                                            </div>
+                                          ) : (
+                                            <p></p>
+                                          )}
                                         </div>
                                       </div>
                                     </>
@@ -579,14 +602,59 @@ export default function NotesPage() {
                                   {activeTabUsers === "banningUser" ? (
                                     <>
                                       {/* Center column for center content of information */}
-                                      banning
-                                    </>
-                                  ) : null}
-
-                                  {activeTabUsers === "banningUser" ? (
-                                    <>
-                                      {/* Center column for center content of information */}
-                                      banning
+                                      <div className="flex items-center pl-8 ">
+                                        <div className="flex flex-col">
+                                          <div className="flex mb-5">
+                                            <h1 className="mr-2">
+                                              Šiuo veiksmu bus užblokuotas
+                                              vartotojas kurio el. paštas:
+                                            </h1>
+                                            <h1>{userShitNahui?.email}</h1>
+                                          </div>
+                                          <Form method="post">
+                                            <div className="flex flex-wrap mb-4">
+                                              <div className="w-full px-10">
+                                                <div className="flex flex-col">
+                                                  <div className="relative">
+                                                    <input
+                                                      name="form-id"
+                                                      hidden
+                                                      defaultValue="baningUser"
+                                                    />
+                                                    <input
+                                                      name="email-id"
+                                                      hidden
+                                                      defaultValue={
+                                                        userShitNahui?.email
+                                                      }
+                                                    />
+                                                    <input
+                                                      id="baningUserReason"
+                                                      name="baningUserReason"
+                                                      type="text"
+                                                      ref={baningUserReasonRef}
+                                                      autoComplete="on"
+                                                      aria-describedby="email-error"
+                                                      className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none" // Increased py-2 for vertical padding
+                                                      placeholder="Užblokavimo priežastis"
+                                                    />
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <h1 className="text-red-500">
+                                              Įsitikinkite, kad yra blokuojama
+                                              tinkama paskyra!
+                                            </h1>
+                                            <button
+                                              type="submit"
+                                              className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                                            >
+                                              Užblokuoti!
+                                            </button>
+                                          </Form>
+                                        </div>
+                                      </div>
                                     </>
                                   ) : null}
 

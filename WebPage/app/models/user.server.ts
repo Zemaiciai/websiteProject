@@ -102,3 +102,17 @@ export async function verifyLogin(
 export async function getAllusers() {
   return prisma.user.findMany();
 }
+
+export async function baningUser(findEMAIL: string, reason: string) {
+  const banUser = await prisma.user.update({
+    where: {
+      email: findEMAIL
+    },
+    data: {
+      banReason: reason,
+      userStatus: "Užblokuota"
+    }
+  });
+
+  return banUser;
+}
