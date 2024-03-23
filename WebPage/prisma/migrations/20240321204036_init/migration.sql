@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "firstWarning" DROP NOT NULL,
+ALTER COLUMN "firstWarningDate" DROP NOT NULL,
+ALTER COLUMN "secondWarning" DROP NOT NULL,
+ALTER COLUMN "secondWarningDate" DROP NOT NULL,
+ALTER COLUMN "thirdWarning" DROP NOT NULL,
+ALTER COLUMN "thirdWarningDate" DROP NOT NULL;

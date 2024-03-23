@@ -14,12 +14,27 @@ model User {
   firstName String
   lastName String
   userName String
+  role String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  expiringAt DateTime
+
   password Password?
   notes    Note[]
+
+  warningAmount String
+  firstWarning String?
+  firstWarningDate DateTime?
+  secondWarning String?
+  secondWarningDate DateTime?
+  thirdWarning String?
+  thirdWarningDate DateTime?
+
+  userStatus String
+  banReason String?
 }
+
 
 model Password {
   hash String
@@ -28,10 +43,15 @@ model Password {
   userId String @unique
 }
 
-model SecretCode {
-  hash String 
-  email String @unique
+model SecretCodeAdmin {
+  id    String @id @default(cuid())
+  secretCode String
+  customName String 
+  email String
+  contractNumber String
+  role String
 
+  CreationData DateTime @default(now())
   ExpirationDate DateTime @default(now())
   Used Boolean @default(false)
 }
