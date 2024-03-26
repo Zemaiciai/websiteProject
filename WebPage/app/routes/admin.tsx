@@ -1086,6 +1086,7 @@ export default function NotesPage() {
           {activeTab === "Reports" ? (
             <>
               <div className="flex flex-col w-full relative overflow-auto">
+                <div className="flex flex-col w-full bg-custom-100">
                 {/* END OF HEADER FOR ADMIN PANEL */}
                 <div className="flex flex-col ml-3 mt-3 mr-8">
                   <div className="p-6 bg-custom-200 text-medium   w-full h-[450px] ml-3 mt-3 mr-3">
@@ -1100,6 +1101,7 @@ export default function NotesPage() {
                     </h1>
                     <div className=""></div>
                   </div>
+                </div>
                 </div>
               </div>
             </>

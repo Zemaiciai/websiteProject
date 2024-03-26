@@ -54,7 +54,7 @@ export default function OrderPageOrderer() {
         activeTab={activeTab}
         tabTitles={[
           "TEST",
-          "TEStT",
+          "NEVEIKIA",
           "TEaST",
           "TESTb",
           "TESTc",
