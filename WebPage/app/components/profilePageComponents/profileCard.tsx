@@ -24,7 +24,7 @@ export default function ProfileCard({ user }: ProfileCardProps) {
       <div className="backGroundPhoto w-full h-[285px] bg-gradient-to-r from-sky-300 to-zinc-600 shadow-xl"></div>
       <div className="infoDiv w-full h-[200px] flex space-x-20">
         <UserInfo user={user} />
-        <UserRatingAndOther />
+        <UserRatingAndOther user={user} />
       </div>
     </div>
   );
