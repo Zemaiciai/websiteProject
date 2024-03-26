@@ -14,10 +14,9 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
         <div className="pt-6 pl-6 pb-6">
           <h1 className="text-2xl text-bold font-bold">{title}</h1>
         </div>
-
-        <div className="flex items-center text-1xl text-bold font-bold pr-6">
-          <div className="flex items-center text-1xl text-bold font-bold pr-6">
-            <Link to="/dashboard" className="btn btn-primary">
+        <div className="flex items-center text-1xl text-bold font-bold pr-6 space-x-4">
+          <div className="flex items-center text-1xl text-bold font-bold">
+            <Link to={"/profile/"+user.id} className="btn btn-primary">
               <div style={{ display: "flex", alignItems: "center" }}>
                 <span style={{ marginRight: "0.5rem" }}>
                   {user.firstName + " " + user.lastName}
@@ -30,6 +29,15 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
               </div>
             </Link>
           </div>
+          <Link to="/notifications" className="btn btn-primary">
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <img
+                className="w-5 h-5"
+                src="https://cdn1.iconfinder.com/data/icons/100-basic-for-user-interface/32/94-bell-256.png"
+                alt="sugedo"
+              />
+            </div>
+          </Link>
           <Link to="/dashboard" className="btn btn-primary">
             <div style={{ display: "flex", alignItems: "center" }}>
               <span style={{ marginRight: "0.5rem" }}>Grįžti atgal</span>

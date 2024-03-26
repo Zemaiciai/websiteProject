@@ -1,6 +1,8 @@
 import { json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
+import NavBar from "~/components/common/NavBar/NavBar";
+import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 
 import { createCode, getAllcodes } from "~/models/secretCode.server";
 import {
@@ -155,7 +157,20 @@ export default function NotesPage() {
   return (
     <div className="flex flex-grow h-screen flex-col relative">
       <main className="flex h-screen bg-white">
-        <div className="flex flex-col flex-grow w-80 border-r-2 border-black bg-custom-900 h-screen overflow-auto">
+        <NavBar
+        title={"Admin"}
+        handleTabClick={handleTabClick}
+        redirectTo={"admin"}
+        activeTab={activeTab}
+        tabTitles={[
+          "Dashboard",
+          "InviteCode",
+          "Users",
+          "Reports",
+          "adminStats"
+        ]}
+      />
+        {/* <div className="flex flex-col flex-grow w-80 border-r-2 border-black bg-custom-900 h-screen overflow-auto">
           <div className="h-32 flex justify-center items-center">
             <a href="/admin" className="text-4xl text-white">
               Admin
@@ -213,14 +228,15 @@ export default function NotesPage() {
               Admin statistika
             </button>
           </div>
-        </div>
+        </div> */}
 
         {activeTab === "Dashboard" ? (
           <>
             <div className="flex flex-col w-full relative overflow-auto">
               <div className="flex flex-col w-full bg-custom-100">
+                <NavBarHeader title="Darbų sąrašas" />
                 {/* HEADER FOR ADMIN PANEL */}
-                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
+                {/* <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
                   <div className="flex items-center justify-between">
                     <div className="pt-6 pl-6 pb-6">
                       <h1 className="text-2xl text-bold font-bold">
@@ -259,7 +275,7 @@ export default function NotesPage() {
                       </Link>
                     </div>
                   </div>
-                </div>
+                </div> */}
                 <div className="flex flex-col ml-3 mt-3 mr-8">
                   <div className="p-6 bg-custom-200 text-medium w-full h-[450px] ml-3 mt-3 mr-3">
                     <h1 className="text-3xl font-mono font-font-extralight">
@@ -283,48 +299,7 @@ export default function NotesPage() {
           <>
             <div className="flex flex-col w-full relative overflow-auto bg-custom-100">
               <div className="flex flex-col w-full bg-custom-100">
-                {/* HEADER FOR ADMIN PANEL */}
-                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
-                  <div className="flex items-center justify-between">
-                    <div className="pt-6 pl-6 pb-6">
-                      <h1 className="text-2xl text-bold font-bold">
-                        Naudotojai
-                      </h1>
-                    </div>
-
-                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
-                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
-                        <Link to="/dashboard" className="btn btn-primary">
-                          <div
-                            style={{ display: "flex", alignItems: "center" }}
-                          >
-                            <span style={{ marginRight: "0.5rem" }}>
-                              Vardas pavardė
-                            </span>
-                            <img
-                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
-                              alt="Profile"
-                              className="h-10 w-10 rounded-full cursor-pointer"
-                            />
-                          </div>
-                        </Link>
-                      </div>
-                      <Link to="/dashboard" className="btn btn-primary">
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <span style={{ marginRight: "0.5rem" }}>
-                            Grįžti atgal
-                          </span>
-                          <img
-                            className="w-4 h-4"
-                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
-                            alt="ggwp"
-                          />
-                        </div>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-                {/* END OF HEADER FOR ADMIN PANEL */}
+                <NavBarHeader title="Darbų sąrašas" />
                 <div className="flex flex-col ml-3 mt-3 mr-8">
                   <div className="p-6 bg-custom-200 text-medium w-full h-[230px] ml-3 mr-3 mb-6 ">
                     <h1 className="text-3xl font-mono font-font-extralight pb-3">
@@ -1212,46 +1187,7 @@ export default function NotesPage() {
           <>
             <div className="flex flex-col w-full relative overflow-auto">
               <div className="flex flex-col w-full bg-custom-100">
-                {/* HEADER FOR ADMIN PANEL */}
-                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
-                  <div className="flex items-center justify-between">
-                    <div className="pt-6 pl-6 pb-6">
-                      <h1 className="text-2xl text-bold font-bold">Reportai</h1>
-                    </div>
-
-                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
-                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
-                        <Link to="/dashboard" className="btn btn-primary">
-                          <div
-                            style={{ display: "flex", alignItems: "center" }}
-                          >
-                            <span style={{ marginRight: "0.5rem" }}>
-                              Vardas pavardė
-                            </span>
-                            <img
-                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
-                              alt="Profile"
-                              className="h-10 w-10 rounded-full cursor-pointer"
-                            />
-                          </div>
-                        </Link>
-                      </div>
-                      <Link to="/dashboard" className="btn btn-primary">
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <span style={{ marginRight: "0.5rem" }}>
-                            Grįžti atgal
-                          </span>
-                          <img
-                            className="w-4 h-4"
-                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
-                            alt="ggwp"
-                          />
-                        </div>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-                {/* END OF HEADER FOR ADMIN PANEL */}
+                <NavBarHeader title="Darbų sąrašas" />
                 <div className="flex flex-col ml-3 mt-3 mr-8">
                   <div className="p-6 bg-custom-200 text-medium   w-full h-[450px] ml-3 mt-3 mr-3">
                     <h1 className="text-3xl font-mono font-font-extralight">
@@ -1275,48 +1211,7 @@ export default function NotesPage() {
           <>
             <div className="flex flex-col w-full relative overflow-auto">
               <div className="flex flex-col w-full bg-custom-100">
-                {/* HEADER FOR ADMIN PANEL */}
-                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
-                  <div className="flex items-center justify-between">
-                    <div className="pt-6 pl-6 pb-6">
-                      <h1 className="text-2xl text-bold font-bold">
-                        Admin statistika
-                      </h1>
-                    </div>
-
-                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
-                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
-                        <Link to="/dashboard" className="btn btn-primary">
-                          <div
-                            style={{ display: "flex", alignItems: "center" }}
-                          >
-                            <span style={{ marginRight: "0.5rem" }}>
-                              Vardas pavardė
-                            </span>
-                            <img
-                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
-                              alt="Profile"
-                              className="h-10 w-10 rounded-full cursor-pointer"
-                            />
-                          </div>
-                        </Link>
-                      </div>
-                      <Link to="/dashboard" className="btn btn-primary">
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <span style={{ marginRight: "0.5rem" }}>
-                            Grįžti atgal
-                          </span>
-                          <img
-                            className="w-4 h-4"
-                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
-                            alt="ggwp"
-                          />
-                        </div>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-                {/* END OF HEADER FOR ADMIN PANEL */}
+                <NavBarHeader title="Darbų sąrašas" />
                 <div className="flex flex-col w-[98,3%] ml-3 mt-3 mr-8">
                   <div className="p-6 bg-custom-200 text-medium   w-full h-[450px] ml-3 mt-3 mr-3">
                     <h1 className="text-3xl font-mono font-font-extralight">
@@ -1340,48 +1235,7 @@ export default function NotesPage() {
           <>
             <div className="flex flex-col w-full relative overflow-auto">
               <div className="flex flex-col w-full bg-custom-100">
-                {/* HEADER FOR ADMIN PANEL */}
-                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
-                  <div className="flex items-center justify-between">
-                    <div className="pt-6 pl-6 pb-6">
-                      <h1 className="text-2xl text-bold font-bold">
-                        Pakvietimo kodai
-                      </h1>
-                    </div>
-
-                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
-                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
-                        <Link to="/dashboard" className="btn btn-primary">
-                          <div
-                            style={{ display: "flex", alignItems: "center" }}
-                          >
-                            <span style={{ marginRight: "0.5rem" }}>
-                              Vardas pavardė
-                            </span>
-                            <img
-                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
-                              alt="Profile"
-                              className="h-10 w-10 rounded-full cursor-pointer"
-                            />
-                          </div>
-                        </Link>
-                      </div>
-                      <Link to="/dashboard" className="btn btn-primary">
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <span style={{ marginRight: "0.5rem" }}>
-                            Grįžti atgal
-                          </span>
-                          <img
-                            className="w-4 h-4"
-                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
-                            alt="ggwp"
-                          />
-                        </div>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-                {/* END OF HEADER FOR ADMIN PANEL */}
+                <NavBarHeader title="Darbų sąrašas" />
 
                 <div className="flex flex-col ml-3 mt-3 mr-8 ">
                   <div className="p-6 bg-custom-200 text-medium w-full h-[300px] ml-3 mt-3 mr-3 ">

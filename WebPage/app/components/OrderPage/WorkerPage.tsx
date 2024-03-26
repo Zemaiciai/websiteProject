@@ -1,27 +1,25 @@
+import { Link } from "@remix-run/react";
 import { useState } from "react";
 
-import OrdersPageHeader from "../common/OrderPage/OrderPageHeader";
-import OrdersTable from "../common/OrderPage/OrdersTable";
 import NavBar from "../common/NavBar/NavBar";
 import NavBarHeader from "../common/NavBar/NavBarHeader";
-import { Link } from "@remix-run/react";
+import OrdersPageHeader from "../common/OrderPage/OrderPageHeader";
+import OrdersTable from "../common/OrderPage/OrdersTable";
 
 export default function OrderPageOrderer() {
   const [activeTab, setActiveTab] = useState("");
-  const [searchQueries, setSearchQueries] = useState<{ [key: string]: string }>(
-    {
-      mainTable: "",
-      importantTable: "",
-    },
-  );
+  const [searchQueries, setSearchQueries] = useState<Record<string, string>>({
+    mainTable: "",
+    importantTable: ""
+  });
 
   const handleSearch = (
     event: React.ChangeEvent<HTMLInputElement>,
-    tableName: string,
+    tableName: string
   ) => {
     setSearchQueries({
       ...searchQueries,
-      [tableName]: event.target.value,
+      [tableName]: event.target.value
     });
   };
 
@@ -42,22 +40,28 @@ export default function OrderPageOrderer() {
         orderedBy: `User${index + 1}`,
         orderName: `Order${index + 1}`,
         orderStatus: index % 2 === 0 ? "Baigtas" : "Daromas",
-        completionDate: endDate,
+        completionDate: endDate
       };
-    },
+    }
   );
 
   return (
     <div className="jobs-page-container flex h-screen bg-custom-100">
-      <div className="navbar-container">
-        <NavBar
-          title={"Orders"}
-          handleTabClick={handleTabClick}
-          redirectTo={"order"}
-          activeTab={activeTab}
-          tabTitles={["TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST"]}
-        />
-      </div>
+      <NavBar
+        title={"Orders"}
+        handleTabClick={handleTabClick}
+        redirectTo={"order"}
+        activeTab={activeTab}
+        tabTitles={[
+          "TEST",
+          "TEStT",
+          "TEaST",
+          "TESTb",
+          "TESTc",
+          "dTEST",
+          "TEeST"
+        ]}
+      />
       <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto pb-3">
         <NavBarHeader title="Darbų sąrašas" />
         <div className="h-full w-full flex">
