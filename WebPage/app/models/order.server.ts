@@ -15,12 +15,12 @@ export async function getOrderById(id: Order["id"]) {
   return prisma.order.findUnique({ where: { id } });
 }
 
-export async function getOrdersByUserId(id: User["id"]) {
+export async function getOrdersByUserId(userId: User["id"]) {
   let orders: Order[];
-  orders = await prisma.order.findMany({ where: { workerId: id } });
+  orders = await prisma.order.findMany({ where: { workerId: userId } });
 
   if (orders.length === 0) {
-    orders = await prisma.order.findMany({ where: { customerId: id } });
+    orders = await prisma.order.findMany({ where: { customerId: userId } });
   }
 
   return orders.length === 0 ? null : orders;
@@ -34,6 +34,7 @@ export async function getOrdersByEmail(email: User["email"]) {
 }
 
 export async function createOrder(
+  orderName: string,
   createdBy: User,
   worker: User,
   completionDate: Date,
@@ -41,10 +42,9 @@ export async function createOrder(
   description: string,
   footageLink: string,
 ) {
-  console.log("!!CREATING ORDER!!");
-
   return prisma.order.create({
     data: {
+      orderName: orderName,
       completionDate: completionDate,
       revisionDate: revisionDate,
       orderStatus: OrderStatus.PLACED,

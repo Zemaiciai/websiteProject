@@ -4,8 +4,13 @@ import OrdersTable from "../common/OrderPage/OrdersTable";
 import NavBar from "../common/NavBar/NavBar";
 import NavBarHeader from "../common/NavBar/NavBarHeader";
 import { Link, Outlet, useLocation } from "@remix-run/react";
+import { Order } from "@prisma/client";
 
-export default function OrdersPage() {
+interface OrdersPageProps {
+  orders: Order[];
+}
+
+export default function OrdersPage({ orders }: OrdersPageProps) {
   const [activeTab, setActiveTab] = useState("");
   const [searchQueries, setSearchQueries] = useState<{ [key: string]: string }>(
     {
@@ -40,23 +45,20 @@ export default function OrdersPage() {
     setActiveTab(tab);
   };
 
-  const numberOfOrderCards = 100;
+  // const numberOfOrderCards = 100;
 
   // TODO: when we are saving workcards in the databse
   //       use that instead of generating the workcards here
-  const orderCardsArray = Array.from(
-    { length: numberOfOrderCards },
-    (_, index) => {
-      const endDate = new Date();
-      endDate.setMinutes(endDate.getMinutes() + (index + 1));
-      return {
-        orderedBy: `User${index + 1}`,
-        orderName: `Order${index + 1}`,
-        orderStatus: index % 2 === 0 ? "Baigtas" : "Daromas",
-        completionDate: endDate,
-      };
-    },
-  );
+  // const orders = Array.from({ length: numberOfOrderCards }, (_, index) => {
+  //   const endDate = new Date();
+  //   endDate.setMinutes(endDate.getMinutes() + (index + 1));
+  //   return {
+  //     orderedBy: `User${index + 1}`,
+  //     orderName: `Order${index + 1}`,
+  //     orderStatus: index % 2 === 0 ? "Baigtas" : "Daromas",
+  //     completionDate: endDate,
+  //   };
+  // });
 
   return (
     <div className="jobs-page-container flex h-screen bg-custom-100">
@@ -73,14 +75,14 @@ export default function OrdersPage() {
         <NavBarHeader
           title={`${linkClicked ? "Užsakymo sukurimas" : "Darbų sąrašas"}`}
         />
-        <main className="h-full w-full flex">
+        <main className="h-full w-full">
           {linkClicked ? (
             <Outlet />
           ) : (
-            <div className="flex">
+            <div className="flex justify-between">
               <div className="jobs-page-table-container flex justify-center flex-col w-2/4 bg-custom-200 ml-3">
                 <OrdersTable
-                  orderCards={orderCardsArray}
+                  orderCards={orders}
                   handleSearch={(event) => handleSearch(event, "mainTable")}
                   searchQuery={searchQueries.mainTable}
                   title={"Darbų sąrašas"}
@@ -101,7 +103,7 @@ export default function OrdersPage() {
                     </Link>
                   </div>
                   <OrdersTable
-                    orderCards={orderCardsArray}
+                    orderCards={orders}
                     handleSearch={(event) =>
                       handleSearch(event, "importantTable")
                     }

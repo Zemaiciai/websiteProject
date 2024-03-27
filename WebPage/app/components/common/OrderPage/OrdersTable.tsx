@@ -1,17 +1,11 @@
-import { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect } from "react";
 import OrderTableRow from "./OrderTableRow";
 import OrdersTableHeader from "./OrdersTableHeader";
 import OrderPageHeader from "./OrderPageHeader";
-
-interface OrderCard {
-  orderedBy: string;
-  orderName: string;
-  orderStatus: string;
-  completionDate: Date;
-}
+import { Order } from "@prisma/client";
 
 interface OrdersTableProps {
-  orderCards: OrderCard[];
+  orderCards?: Order[];
   searchQuery: string;
   handleSearch: (event: React.ChangeEvent<HTMLInputElement>) => void;
   important?: boolean;
@@ -40,6 +34,10 @@ export default function OrdersTable({
     setSortOrder(sortColumn === column && sortOrder === "asc" ? "desc" : "asc");
   };
 
+  if (!orderCards || orderCards.length === 0) {
+    return <span>No orders available</span>;
+  }
+
   const filteredOrderCards = orderCards.filter((order) =>
     order.orderName.toLowerCase().includes(searchQuery.toLowerCase()),
   );
@@ -47,22 +45,28 @@ export default function OrdersTable({
   let imporantCardsAmount = 0;
 
   orderCards.map((order) => {
-    const endInMs = order.completionDate.getTime() - Date.now();
-    if (endInMs <= ONE_HOUR_IN_MS) {
-      imporantCardsAmount++;
+    if (order.completionDate instanceof Date) {
+      const endInMs = order.completionDate.getTime() - Date.now();
+      if (endInMs <= ONE_HOUR_IN_MS) {
+        imporantCardsAmount++;
+      }
     }
   });
 
   let sortedOrderCards = [...filteredOrderCards]
     .filter((order) => {
-      if (important) {
+      if (important && order.completionDate instanceof Date) {
         const endInMs = order.completionDate.getTime() - Date.now();
         return endInMs <= ONE_HOUR_IN_MS;
       }
       return true;
     })
     .sort((a, b) => {
-      if (important) {
+      if (
+        important &&
+        a.completionDate instanceof Date &&
+        b.completionDate instanceof Date
+      ) {
         const endInMsA = a.completionDate.getTime() - Date.now();
         const endInMsB = b.completionDate.getTime() - Date.now();
 
@@ -75,7 +79,7 @@ export default function OrdersTable({
       const order = sortOrder === "asc" ? 1 : -1;
       switch (sortColumn) {
         case "orderedBy":
-          return order * a.orderedBy.localeCompare(b.orderedBy);
+          return order * a.customerId.localeCompare(b.customerId);
         case "name":
           return order * a.orderName.localeCompare(b.orderName);
         case "status":
@@ -118,7 +122,7 @@ export default function OrdersTable({
                   {currentCards.map((order, index) => (
                     <OrderTableRow
                       key={index}
-                      orderedBy={order.orderedBy}
+                      orderedBy={order.customerId}
                       orderName={order.orderName}
                       completionDate={order.completionDate}
                     />
