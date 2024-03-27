@@ -24,11 +24,24 @@ model User {
 
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  expiringAt DateTime
 
   password       Password?
   notes Note[]
   createdOrders  Order[]  @relation("CreatedBy")
   workingOrders  Order[]  @relation("Worker")
+  role String
+
+  warningAmount String
+  firstWarning String?
+  firstWarningDate DateTime?
+  secondWarning String?
+  secondWarningDate DateTime?
+  thirdWarning String?
+  thirdWarningDate DateTime?
+
+  userStatus String
+  banReason String?
 }
 
 model Password {
@@ -55,11 +68,15 @@ model Order {
   footageLink String
 }
 
+model SecretCodeAdmin {
+  id    String @id @default(cuid())
+  secretCode String
+  customName String 
+  email String
+  contractNumber String
+  role String
 
-model SecretCode {
-  hash String 
-  email String @unique
-
+  CreationData DateTime @default(now())
   ExpirationDate DateTime @default(now())
   Used Boolean @default(false)
 }
