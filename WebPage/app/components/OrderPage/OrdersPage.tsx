@@ -7,7 +7,7 @@ import { Link, Outlet, useLocation } from "@remix-run/react";
 import { Order } from "@prisma/client";
 
 interface OrdersPageProps {
-  orders: Order[];
+  orders: Order[] | null;
 }
 
 export default function OrdersPage({ orders }: OrdersPageProps) {
@@ -45,21 +45,6 @@ export default function OrdersPage({ orders }: OrdersPageProps) {
     setActiveTab(tab);
   };
 
-  // const numberOfOrderCards = 100;
-
-  // TODO: when we are saving workcards in the databse
-  //       use that instead of generating the workcards here
-  // const orders = Array.from({ length: numberOfOrderCards }, (_, index) => {
-  //   const endDate = new Date();
-  //   endDate.setMinutes(endDate.getMinutes() + (index + 1));
-  //   return {
-  //     orderedBy: `User${index + 1}`,
-  //     orderName: `Order${index + 1}`,
-  //     orderStatus: index % 2 === 0 ? "Baigtas" : "Daromas",
-  //     completionDate: endDate,
-  //   };
-  // });
-
   return (
     <div className="jobs-page-container flex h-screen bg-custom-100">
       <div className="navbar-container">
@@ -75,20 +60,23 @@ export default function OrdersPage({ orders }: OrdersPageProps) {
         <NavBarHeader
           title={`${linkClicked ? "Užsakymo sukurimas" : "Darbų sąrašas"}`}
         />
-        <main className="h-full w-full">
+        <main className="h-full w-full flex">
           {linkClicked ? (
             <Outlet />
           ) : (
-            <div className="flex justify-between">
-              <div className="jobs-page-table-container flex justify-center flex-col w-2/4 bg-custom-200 ml-3">
-                <OrdersTable
-                  orderCards={orders}
-                  handleSearch={(event) => handleSearch(event, "mainTable")}
-                  searchQuery={searchQueries.mainTable}
-                  title={"Darbų sąrašas"}
-                />
+            <div className="flex m-4 py-4 bg-custom-200 w-full">
+              <div>
+                <div className="jobs-page-table-container flex-grow flex justify-center place-items-start">
+                  <OrdersTable
+                    orderCards={orders}
+                    handleSearch={(event) => handleSearch(event, "mainTable")}
+                    searchQuery={searchQueries.mainTable}
+                    title={"Darbų sąrašas"}
+                  />
+                </div>
               </div>
-              <div className="customer-and-orderer-options rm-4 flex-grow flex justify-center place-items-start">
+
+              <div className="customer-and-orderer-options flex-grow flex justify-center place-items-start">
                 <div className="flex flex-col w-full">
                   <div className="flex button justify-center mb-4">
                     {/*TODO: in the future goto a page where you can create an order*/}

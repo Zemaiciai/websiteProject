@@ -1,8 +1,8 @@
 import { useState } from "react";
 import OrderTimer from "./OrderTimer";
-
+import { User } from "~/models/user.server";
 interface OrderCardProps {
-  orderedBy: string;
+  createdBy: User["userName"];
   orderName: string;
   completionDate: Date;
 }
@@ -10,7 +10,7 @@ interface OrderCardProps {
 export default function OrderCard({
   orderName,
   completionDate,
-  orderedBy,
+  createdBy,
 }: OrderCardProps) {
   const [ended, setEnded] = useState(false);
 
@@ -21,7 +21,7 @@ export default function OrderCard({
   return (
     <tr className="order-card-row bg-white outline outline-1 outline-gray-100">
       <td className="order-name text-center max-w-[100px] truncate ...">
-        {orderedBy}
+        {createdBy}
       </td>
       <td className="order-name text-center max-w-[100px] truncate ...">
         {orderName}

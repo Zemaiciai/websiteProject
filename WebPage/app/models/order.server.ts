@@ -15,15 +15,43 @@ export async function getOrderById(id: Order["id"]) {
   return prisma.order.findUnique({ where: { id } });
 }
 
-export async function getOrdersByUserId(userId: User["id"]) {
-  let orders: Order[];
-  orders = await prisma.order.findMany({ where: { workerId: userId } });
+export async function getOrdersByUserId(
+  userId: User["id"],
+  includeUserName?: boolean,
+): Promise<Order[] | null> {
+  try {
+    let includeCreatedBy = {};
+    if (includeUserName) {
+      includeCreatedBy = { createdBy: { select: { userName: true } } };
+    }
 
-  if (orders.length === 0) {
-    orders = await prisma.order.findMany({ where: { customerId: userId } });
+    const workerOrders = await prisma.order.findMany({
+      where: {
+        workerId: userId,
+      },
+      include: includeCreatedBy,
+    });
+
+    if (workerOrders.length > 0) {
+      return workerOrders;
+    }
+
+    const customerOrders = await prisma.order.findMany({
+      where: {
+        customerId: userId,
+      },
+      include: includeCreatedBy,
+    });
+
+    if (customerOrders.length > 0) {
+      return customerOrders;
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error fetching orders by user ID:", error);
+    return null;
   }
-
-  return orders.length === 0 ? null : orders;
 }
 
 export async function getOrdersByEmail(email: User["email"]) {

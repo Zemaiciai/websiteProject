@@ -7639,6 +7639,11 @@ remark-rehype@^10.0.0:
     mdast-util-to-hast "^12.1.0"
     unified "^10.0.0"
 
+remix-typedjson@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/remix-typedjson/-/remix-typedjson-0.4.1.tgz#548a68bb7a3520ce0fd8e9810cf96078e45b5c29"
+  integrity sha512-AL6LdNajqce1Exy6aB1bD6GYMk90S6H31e8kDCi6jLgBi4K82Ph604lqGGzalswaPPYckYK+NZzgvhWEY7JCDw==
+
 request-progress@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/request-progress/-/request-progress-3.0.0.tgz"

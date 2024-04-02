@@ -5,7 +5,7 @@ import OrderPageHeader from "./OrderPageHeader";
 import { Order } from "@prisma/client";
 
 interface OrdersTableProps {
-  orderCards?: Order[];
+  orderCards?: Order[] | null;
   searchQuery: string;
   handleSearch: (event: React.ChangeEvent<HTMLInputElement>) => void;
   important?: boolean;
@@ -122,7 +122,7 @@ export default function OrdersTable({
                   {currentCards.map((order, index) => (
                     <OrderTableRow
                       key={index}
-                      orderedBy={order.customerId}
+                      createdBy={order["createdBy"]["userName"]}
                       orderName={order.orderName}
                       completionDate={order.completionDate}
                     />

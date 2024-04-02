@@ -74,6 +74,18 @@ export function useUser(): User {
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
 }
+
+export function validateDate(date: unknown): date is Date {
+  const currentDate = new Date();
+
+  return (
+    date instanceof Date &&
+    date.getFullYear() >= currentDate.getFullYear() &&
+    date.getFullYear() < currentDate.getFullYear() + 2 &&
+    date.getDate() >= currentDate.getDate() &&
+    date.getMonth() + 1 >= currentDate.getMonth() + 1
+  );
+}
 interface RegisterErrors {
   email?: string;
   password?: string;
@@ -110,7 +122,6 @@ export async function validateRegistrationCredentials(
     errors.email = "El. pašto adresas netinkamas";
   } else {
     const existingUser = await getUserByEmail(email);
-    console.log(existingUser);
     if (existingUser) {
       errors.existingUser = "Vartotojas su tuo pačiu el. paštu jau egzistuoja";
     }
@@ -161,31 +172,49 @@ export async function validateLoginCredentials(
   return user;
 }
 
-// TODO: Error checking before creating an order
-
-/* interface OrderErrors {
-  userNotFound: string;
-  completionDate: unknown;
-  revisionDate: unknown;
-  description: unknown;
-  footageLink: unknown;
+interface OrderErrors {
+  orderName?: string;
+  completionDate?: string;
+  workerEmail?: string;
+  revisionDate?: string;
+  description?: string;
+  footageLink?: string;
 }
 
 export async function validateOrderData(
-  createdBy: unknown,
-  worker: unknown,
+  orderName: unknown,
   completionDate: unknown,
+  workerEmail: unknown,
   revisionDate: unknown,
   description: unknown,
   footageLink: unknown,
-  errors: OrderErrors,
 ): Promise<OrderErrors | null> {
+  const errors: OrderErrors = {};
 
-  // {Check for errors here}
+  if (!(completionDate instanceof Date)) {
+    errors.completionDate = "Pabaigos data privaloma";
+  } else if (!validateDate(completionDate)) {
+    errors.completionDate = "Pabaigos datos formatas neteisingas";
+  }
+  if (!validateEmail(workerEmail)) {
+    errors.workerEmail = "Neteisingas darbuotojo el. paštas";
+  }
+  if (!(revisionDate instanceof Date)) {
+    errors.revisionDate = "Revizijos data privaloma";
+  } else if (!validateDate(revisionDate)) {
+    errors.revisionDate = "Revizijos datos formatas neteisingas";
+  }
+
+  if (typeof description !== "string")
+    errors.description = "Aprašymo tipas neteisingas";
+  if (typeof footageLink !== "string")
+    errors.footageLink = "Aprašymo tipas neteisingas";
+  if (typeof orderName !== "string" || orderName.length <= 0)
+    errors.orderName = "Užsakymo pavadinimas privalomas";
 
   if (Object.keys(errors).length > 0) {
     return errors;
   }
 
   return null;
- } */
+}
