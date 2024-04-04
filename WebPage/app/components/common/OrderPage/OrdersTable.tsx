@@ -122,7 +122,9 @@ export default function OrdersTable({
                   {currentCards.map((order, index) => (
                     <OrderTableRow
                       key={index}
+                      state={order.orderStatus}
                       createdBy={order["createdBy"]["userName"]}
+                      orderId={order.id}
                       orderName={order.orderName}
                       completionDate={order.completionDate}
                     />

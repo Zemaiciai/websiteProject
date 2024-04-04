@@ -14,7 +14,7 @@ interface OrderErrors {
   sameUser?: string;
   orderName?: string;
   completionDate?: string;
-  revisionDate?: string;
+  revisionDays?: string;
   description?: string;
   footageLink?: string;
 }
@@ -28,9 +28,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const workerEmail = String(formData.get("workerEmail"));
 
   const completionDateString = formData.get("completionDate") as string;
-  const revisionDateString = formData.get("revisionDate") as string;
+  const revisionDays = parseInt(String(formData.get("revisionDays")));
+
+  const revisionDate = new Date();
+  revisionDate.setDate(revisionDate.getDate() + revisionDays);
+
   const completionDate = new Date(completionDateString);
-  const revisionDate = new Date(revisionDateString);
 
   const description = String(formData.get("description"));
   const footageLink = String(formData.get("footageLink"));
@@ -38,10 +41,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   let validationErrors: OrderErrors | null = {};
 
   const additionalErrors = await validateOrderData(
+    revisionDays,
     orderName,
     completionDate,
     workerEmail,
-    revisionDate,
     description,
     footageLink,
   );
@@ -128,13 +131,14 @@ export default function NewOrderPage() {
   const descriptionRef = useRef<HTMLInputElement>(null);
   const footageLinkRef = useRef<HTMLInputElement>(null);
   const completionDateRef = useRef<HTMLInputElement>(null);
-  const revisionDateRef = useRef<HTMLInputElement>(null);
+  const revisionDaysRef = useRef<HTMLInputElement>(null);
   const orderNameRef = useRef<HTMLInputElement>(null);
 
   const [selectedDate, setSelectedDate] = useState<{ [key: string]: Date }>({
     completionDate: new Date(),
-    revisionDate: new Date(),
   });
+
+  const [selectedDay, setSelectedDay] = useState<string>("0");
 
   const handleDateChange = (
     event: React.ChangeEvent<HTMLSelectElement>,
@@ -164,6 +168,11 @@ export default function NewOrderPage() {
     });
   };
 
+  const handleDayChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = event.target;
+    setSelectedDay(value);
+  };
+
   return (
     <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3">
       {actionData?.errors.sameUser ? (
@@ -186,13 +195,32 @@ export default function NewOrderPage() {
             name="completionDate"
             ref={completionDateRef}
           />
-          <OrderDatePicker
-            handleDateChange={handleDateChange}
-            selectedDate={selectedDate.revisionDate}
-            title="Revizijos data:"
-            name="revisionDate"
-            ref={revisionDateRef}
-          />
+          <div className="w-full md:w-1/2 px-3 mb-4">
+            <div>
+              <input
+                name="revisionDays"
+                ref={revisionDaysRef}
+                value={selectedDay}
+                readOnly={true}
+                hidden
+              />
+              <span>Revizijos dienos:</span>
+            </div>
+            <label>
+              <select
+                name="reivisonDays"
+                value={selectedDay}
+                onChange={(e) => handleDayChange(e)}
+                className="cursor-pointer focus:outline-none appearance-none"
+              >
+                {[...Array(4).keys()].map((day) => (
+                  <option key={day} value={day}>
+                    {day}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
           <OrderStringInput
             title={"Pavadinimas"}
             name={"orderName"}

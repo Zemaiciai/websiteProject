@@ -86,6 +86,13 @@ export function validateDate(date: unknown): date is Date {
     date.getMonth() + 1 >= currentDate.getMonth() + 1
   );
 }
+function validateUrl(url: unknown): url is string {
+  if (typeof url !== "string") return false;
+
+  const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
+
+  return urlRegex.test(url);
+}
 interface RegisterErrors {
   email?: string;
   password?: string;
@@ -173,23 +180,27 @@ export async function validateLoginCredentials(
 }
 
 interface OrderErrors {
+  revisionDays?: string;
   orderName?: string;
   completionDate?: string;
   workerEmail?: string;
-  revisionDate?: string;
   description?: string;
   footageLink?: string;
 }
 
 export async function validateOrderData(
+  revisionDays: unknown,
   orderName: unknown,
   completionDate: unknown,
   workerEmail: unknown,
-  revisionDate: unknown,
   description: unknown,
   footageLink: unknown,
 ): Promise<OrderErrors | null> {
   const errors: OrderErrors = {};
+
+  if (typeof revisionDays !== "number") {
+    errors.revisionDays = "Revizijos dienos turi buti skaicius";
+  }
 
   if (!(completionDate instanceof Date)) {
     errors.completionDate = "Pabaigos data privaloma";
@@ -199,16 +210,10 @@ export async function validateOrderData(
   if (!validateEmail(workerEmail)) {
     errors.workerEmail = "Neteisingas darbuotojo el. paštas";
   }
-  if (!(revisionDate instanceof Date)) {
-    errors.revisionDate = "Revizijos data privaloma";
-  } else if (!validateDate(revisionDate)) {
-    errors.revisionDate = "Revizijos datos formatas neteisingas";
-  }
-
   if (typeof description !== "string")
     errors.description = "Aprašymo tipas neteisingas";
-  if (typeof footageLink !== "string")
-    errors.footageLink = "Aprašymo tipas neteisingas";
+  if (!validateUrl(footageLink))
+    errors.footageLink = "Nuorodos formatas neteisingas";
   if (typeof orderName !== "string" || orderName.length <= 0)
     errors.orderName = "Užsakymo pavadinimas privalomas";
 

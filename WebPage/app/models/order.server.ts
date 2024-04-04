@@ -11,6 +11,18 @@ import { getUserByEmail, getUserById } from "./user.server";
 
 export type { Order } from "@prisma/client";
 
+export async function updateOrderStatus(
+  newStatus: OrderStatus,
+  orderId: Order["id"],
+) {
+  const updatedOrder = await prisma.order.update({
+    where: { id: orderId },
+    data: { orderStatus: newStatus },
+  });
+
+  return updatedOrder;
+}
+
 export async function getOrderById(id: Order["id"]) {
   return prisma.order.findUnique({ where: { id } });
 }

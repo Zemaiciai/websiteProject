@@ -11,6 +11,8 @@ enum OrderStatus {
   PLACED
   IN_PROGRESS
   COMPLETED
+  ACCEPTED
+  DECLINED
   CANCELLED
 }
 
