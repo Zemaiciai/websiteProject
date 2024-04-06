@@ -11,7 +11,7 @@ interface OrderErrors {
   customerNotFound?: string;
   workerNotFound?: string;
   workerEmail?: string;
-  sameUser?: string;
+  wrongUser?: string;
   orderName?: string;
   completionDate?: string;
   revisionDays?: string;
@@ -28,12 +28,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const workerEmail = String(formData.get("workerEmail"));
 
   const completionDateString = formData.get("completionDate") as string;
-  const revisionDays = parseInt(String(formData.get("revisionDays")));
-
-  const revisionDate = new Date();
-  revisionDate.setDate(revisionDate.getDate() + revisionDays);
-
   const completionDate = new Date(completionDateString);
+
+  const revisionDays = parseInt(String(formData.get("revisionDays")));
+  const revisionDate = completionDate;
+  if (revisionDays > 0) {
+    revisionDate.setDate(revisionDate.getDate() + revisionDays);
+  }
+  console.log(completionDate);
 
   const description = String(formData.get("description"));
   const footageLink = String(formData.get("footageLink"));
@@ -58,8 +60,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     validationErrors.workerNotFound = "Nerastas darbuotuojas";
   }
   if (worker?.email === createdBy?.email) {
-    validationErrors.sameUser = "Negalima sukurti užsakymo sau";
-  }
+    validationErrors.wrongUser = "Negalima sukurti užsakymo sau";
+  } else if (worker?.role !== "worker")
+    validationErrors.wrongUser = "Reikia pasirinkti darbuotoja, o ne klientą";
 
   // If there are additional errors we append them to the existing validation errors
   if (additionalErrors !== null && typeof additionalErrors === "object") {
@@ -113,7 +116,7 @@ const OrderStringInput = forwardRef<HTMLInputElement, OrderStringInputProps>(
             {error ? (
               <div
                 className="pt-1 font-bold text-red-400 absolute bottom-9"
-                id="firstname-error"
+                id={`${name}-error`}
               >
                 {error}
               </div>
@@ -134,7 +137,9 @@ export default function NewOrderPage() {
   const revisionDaysRef = useRef<HTMLInputElement>(null);
   const orderNameRef = useRef<HTMLInputElement>(null);
 
-  const [selectedDate, setSelectedDate] = useState<{ [key: string]: Date }>({
+  const [selectedDate, setSelectedDate] = useState<{
+    [key: string]: Date;
+  }>({
     completionDate: new Date(),
   });
 
@@ -158,6 +163,10 @@ export default function NewOrderPage() {
       case "year":
         newDate.setFullYear(parseInt(value, 10));
         break;
+      case "hour":
+        newDate.setHours(0, 0, 0, 0);
+        newDate.setHours(parseInt(value));
+        break;
       default:
         break;
     }
@@ -175,12 +184,12 @@ export default function NewOrderPage() {
 
   return (
     <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3">
-      {actionData?.errors.sameUser ? (
+      {actionData?.errors.wrongUser ? (
         <div
           className="pt-1 font-bold text-red-400 m-0 absolute end-6"
           id="sameuser-error"
         >
-          {actionData?.errors.sameUser}
+          {actionData?.errors.wrongUser}
         </div>
       ) : null}
       <h1 className="text-3xl font-mono font-font-extralight pb-3">
@@ -189,6 +198,7 @@ export default function NewOrderPage() {
       <Form method="post">
         <div className="flex flex-wrap -mx-3">
           <OrderDatePicker
+            error={actionData?.errors.completionDate}
             handleDateChange={handleDateChange}
             selectedDate={selectedDate.completionDate}
             title="Pabaigimo data:"
@@ -204,15 +214,17 @@ export default function NewOrderPage() {
                 readOnly={true}
                 hidden
               />
-              <span>Revizijos dienos:</span>
+              <span>Revizijos dienos (MAX 3 dienos):</span>
             </div>
             <label>
               <select
                 name="reivisonDays"
-                value={selectedDay}
                 onChange={(e) => handleDayChange(e)}
-                className="cursor-pointer focus:outline-none appearance-none"
+                className="cursor-pointer focus:outline-none"
               >
+                <option value="" hidden selected disabled>
+                  D
+                </option>
                 {[...Array(4).keys()].map((day) => (
                   <option key={day} value={day}>
                     {day}

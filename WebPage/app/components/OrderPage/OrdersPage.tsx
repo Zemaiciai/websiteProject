@@ -8,9 +8,10 @@ import { Order } from "@prisma/client";
 
 interface OrdersPageProps {
   orders: Order[] | null;
+  worker: boolean;
 }
 
-export default function OrdersPage({ orders }: OrdersPageProps) {
+export default function OrdersPage({ orders, worker }: OrdersPageProps) {
   const [activeTab, setActiveTab] = useState("");
   const [searchQueries, setSearchQueries] = useState<{ [key: string]: string }>(
     {
@@ -65,21 +66,26 @@ export default function OrdersPage({ orders }: OrdersPageProps) {
             <Outlet />
           ) : (
             <div className="flex m-4 py-4 bg-custom-200 w-full">
-              <div>
-                <div className="jobs-page-table-container flex-grow flex justify-center place-items-start">
+              <div className="orders-table grow flex justify-center place-items-start">
+                <div className="w-full">
                   <OrdersTable
                     orderCards={orders}
                     handleSearch={(event) => handleSearch(event, "mainTable")}
                     searchQuery={searchQueries.mainTable}
-                    title={"Darbų sąrašas"}
+                    title={`${
+                      worker ? "Darbų sąrašas" : "Jūsų užsakymų sąrašas"
+                    }`}
                   />
                 </div>
               </div>
 
               <div className="customer-and-orderer-options flex-grow flex justify-center place-items-start">
                 <div className="flex flex-col w-full">
-                  <div className="flex button justify-center mb-4">
-                    {/*TODO: in the future goto a page where you can create an order*/}
+                  <div
+                    className={`flex button justify-center mb-4 ${
+                      worker && "hidden"
+                    }`}
+                  >
                     <Link
                       className="flex justify-center px-4 py-3 w-3/4 
                   text-white bg-custom-900 hover:bg-custom-850 

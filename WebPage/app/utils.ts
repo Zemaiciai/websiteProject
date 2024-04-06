@@ -78,13 +78,7 @@ export function validateEmail(email: unknown): email is string {
 export function validateDate(date: unknown): date is Date {
   const currentDate = new Date();
 
-  return (
-    date instanceof Date &&
-    date.getFullYear() >= currentDate.getFullYear() &&
-    date.getFullYear() < currentDate.getFullYear() + 2 &&
-    date.getDate() >= currentDate.getDate() &&
-    date.getMonth() + 1 >= currentDate.getMonth() + 1
-  );
+  return date instanceof Date && date >= currentDate;
 }
 function validateUrl(url: unknown): url is string {
   if (typeof url !== "string") return false;
@@ -197,23 +191,37 @@ export async function validateOrderData(
   footageLink: unknown,
 ): Promise<OrderErrors | null> {
   const errors: OrderErrors = {};
+  const currentDate = new Date();
 
   if (typeof revisionDays !== "number") {
     errors.revisionDays = "Revizijos dienos turi buti skaicius";
   }
 
   if (!(completionDate instanceof Date)) {
+    errors.completionDate = "Pabaigos data neteisingo formato";
+  } else if (
+    completionDate.getFullYear() === currentDate.getFullYear() &&
+    completionDate.getMonth() === currentDate.getMonth() &&
+    completionDate.getDate() === currentDate.getDate()
+  ) {
     errors.completionDate = "Pabaigos data privaloma";
   } else if (!validateDate(completionDate)) {
-    errors.completionDate = "Pabaigos datos formatas neteisingas";
+    errors.completionDate = "Negalima pabaigos data";
   }
-  if (!validateEmail(workerEmail)) {
+
+  if (typeof workerEmail === "string" && workerEmail.length <= 0) {
+    errors.workerEmail = "Darbuotojo el. paštas privalomas";
+  } else if (!validateEmail(workerEmail))
     errors.workerEmail = "Neteisingas darbuotojo el. paštas";
-  }
+
   if (typeof description !== "string")
     errors.description = "Aprašymo tipas neteisingas";
-  if (!validateUrl(footageLink))
+
+  if (typeof footageLink === "string" && footageLink.length <= 0)
+    errors.footageLink = "Nuoroda privalomas";
+  else if (!validateUrl(footageLink))
     errors.footageLink = "Nuorodos formatas neteisingas";
+
   if (typeof orderName !== "string" || orderName.length <= 0)
     errors.orderName = "Užsakymo pavadinimas privalomas";
 

@@ -11,17 +11,8 @@ export default function OrderTimer({
   orderEndDate,
   handleOrderEnd,
 }: OrderCardTimerProps) {
-  // let day: number;
-  // let month: number;
-  // let time: {
-  //   seconds: number;
-  //   minutes: number;
-  //   hours: number;
-  //   days: number;
-  //   endInMs: number;
-  // };
   const day = orderEndDate.getDate();
-  const month = orderEndDate.getMonth();
+  const month = orderEndDate.getMonth() + 1;
   const time = useDuration(orderEndDate);
 
   const [ending, setEnding] = useState(false);

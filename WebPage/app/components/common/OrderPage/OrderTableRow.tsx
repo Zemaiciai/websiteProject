@@ -3,6 +3,7 @@ import OrderTimer from "./OrderTimer";
 import { User } from "~/models/user.server";
 import { Form } from "@remix-run/react";
 import { OrderStatus } from "@prisma/client";
+import { useUser } from "~/utils";
 interface OrderCardProps {
   createdBy: User["userName"];
   orderName: string;
@@ -18,6 +19,8 @@ export default function OrderCard({
   createdBy,
   state,
 }: OrderCardProps) {
+  const user = useUser();
+
   const [ended, setEnded] = useState(false);
 
   const handleOrderEnd = () => {
@@ -26,9 +29,10 @@ export default function OrderCard({
 
   return (
     <tr className="order-card-row bg-white outline outline-1 outline-gray-100">
-      {state === "PLACED" ? (
+      {state === "PLACED" &&
+      (user.role === "worker" || user.role === "Super Admin") ? (
         <>
-          <td className="order-name text-center max-w-[100px] truncate ...">
+          <td className="order-name text-center max-w-[50px] truncate ...">
             {createdBy}
           </td>
           <td className="order-name text-center max-w-[100px] truncate ...">

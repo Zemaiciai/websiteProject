@@ -40,17 +40,17 @@ export default function WorkPage() {
   const user = useUser();
   const userOrders = useTypedLoaderData<typeof loader>();
 
-  const [worker, setWorker] = useState(true);
+  const [worker, setWorker] = useState(false);
 
   useEffect(() => {
-    if (user && user.id === "worker") {
+    if (user && (user.role === "worker" || user.role === "Super Admin")) {
       setWorker(true);
     }
   }, [user]);
 
   return (
     <div className="main">
-      <OrdersPage orders={userOrders} />
+      <OrdersPage orders={userOrders} worker={worker} />
     </div>
   );
 }

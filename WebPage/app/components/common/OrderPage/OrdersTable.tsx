@@ -112,13 +112,13 @@ export default function OrdersTable({
           />
           {filteredOrderCards.length > 0 ? (
             <div className="table-wrapper flex flex-col h-full overflow-auto">
-              <table className="expanded-content-table mt-4 outline outline-1 outline-gray-100 h-full w-full">
+              <table className="table mt-4 outline outline-1 outline-gray-100 h-min w-full">
                 <OrdersTableHeader
                   handleSort={handleSort}
                   sortOrder={sortOrder}
                   sortColumn={sortColumn}
                 />
-                <tbody className="h-max">
+                <tbody>
                   {currentCards.map((order, index) => (
                     <OrderTableRow
                       key={index}
