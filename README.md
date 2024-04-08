@@ -12,7 +12,10 @@ Puslapis skirtas teikti videografikos paslaugas.
 
 # Versijos
 * 0.3
-    * NA
+    * Admin panel v2
+    * Roles
+    * New header/navigation
+    * Work ordering v1
 * 0.2
     * Admin panel v1
     * Work ordering page v1
