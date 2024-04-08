@@ -87,73 +87,62 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return redirect("/orders");
 };
 
-interface OrderStringInputProps {
+interface OrderInputProps {
   title: string;
   error?: string;
   name: string;
   bigger?: boolean;
 }
 
-const OrderStringInput = forwardRef<HTMLInputElement, OrderStringInputProps>(
-  ({ title, name, error, bigger }, ref) => {
-    const [currentLenght, setCurrentLength] = useState(0);
+const OrderInput = ({ title, name, error, bigger }: OrderInputProps) => {
+  const [currentLenght, setCurrentLength] = useState(0);
 
-    const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-      const inputValue = event.target.value;
-      setCurrentLength(inputValue.length);
-    };
+  const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    const inputValue = event.target.value;
+    setCurrentLength(inputValue.length);
+  };
 
-    return (
-      <div className={`w-full ${bigger && "h-44"} md:w-1/2 px-3 mb-6`}>
-        {error ? (
-          <div
-            className="pt-1 font-bold text-red-400 bottom-9"
-            id={`${name}-error`}
-          >
-            {error}
-          </div>
-        ) : null}
-        <div className="flex flex-col h-full">
-          <div className="relative h-full">
-            {bigger ? (
-              <div className="flex flex-col h-full text-right">
-                <span
-                  className={`${500 - currentLenght < 0 && "text-red-500"}`}
-                >
-                  {500 - currentLenght}
-                </span>
-                <textarea
-                  name={name}
-                  onChange={(e) => handleChange(e)}
-                  placeholder="Aprašymas"
-                  className="w-full h-full resize-none rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black "
-                />
-              </div>
-            ) : (
-              <input
-                ref={ref}
+  return (
+    <div className={`w-full ${bigger && "h-44"} md:w-1/2 px-3 mb-6`}>
+      {error ? (
+        <div
+          className="pt-1 font-bold text-red-400 bottom-9"
+          id={`${name}-error`}
+        >
+          {error}
+        </div>
+      ) : null}
+      <div className="flex flex-col h-full">
+        <div className="relative h-full">
+          {bigger ? (
+            <div className="flex flex-col h-full text-right">
+              <span className={`${500 - currentLenght < 0 && "text-red-500"}`}>
+                {500 - currentLenght}
+              </span>
+              <textarea
                 name={name}
-                type="text"
-                autoComplete="on"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
-                placeholder={title}
+                onChange={(e) => handleChange(e)}
+                placeholder="Aprašymas"
+                className="w-full h-full resize-none rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black "
               />
-            )}
-          </div>
+            </div>
+          ) : (
+            <input
+              name={name}
+              type="text"
+              autoComplete="on"
+              className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+              placeholder={title}
+            />
+          )}
         </div>
       </div>
-    );
-  },
-);
+    </div>
+  );
+};
 
 export default function NewOrderPage() {
   const actionData = useActionData<typeof action>();
-  const workerEmailRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLInputElement>(null);
-  const footageLinkRef = useRef<HTMLInputElement>(null);
-  const completionDateRef = useRef<HTMLInputElement>(null);
-  const revisionDaysRef = useRef<HTMLInputElement>(null);
-  const orderNameRef = useRef<HTMLInputElement>(null);
 
   const [selectedDate, setSelectedDate] = useState<{
     [key: string]: Date;
@@ -221,13 +210,11 @@ export default function NewOrderPage() {
             selectedDate={selectedDate.completionDate}
             title="Pabaigos data:"
             name="completionDate"
-            ref={completionDateRef}
           />
           <div className="w-full md:w-1/2 px-3 mb-4">
             <div>
               <input
                 name="revisionDays"
-                ref={revisionDaysRef}
                 value={selectedDay}
                 readOnly={true}
                 hidden
@@ -251,32 +238,28 @@ export default function NewOrderPage() {
               </select>
             </label>
           </div>
-          <OrderStringInput
+          <OrderInput
             title={"Pavadinimas"}
             name={"orderName"}
-            ref={orderNameRef}
             error={actionData?.errors.orderName}
           />
-          <OrderStringInput
+          <OrderInput
             title={"Darbuotuojo el. pastas"}
             name={"workerEmail"}
-            ref={workerEmailRef}
             error={
               actionData?.errors.workerEmail ||
               actionData?.errors.workerNotFound
             }
           />
-          <OrderStringInput
+          <OrderInput
             title={"Aprasymas"}
             name={"description"}
-            ref={descriptionRef}
             error={actionData?.errors.description}
             bigger={true}
           />
-          <OrderStringInput
+          <OrderInput
             title={"Video nuoruoda"}
             name={"footageLink"}
-            ref={footageLinkRef}
             error={actionData?.errors.footageLink}
           />
           <button
