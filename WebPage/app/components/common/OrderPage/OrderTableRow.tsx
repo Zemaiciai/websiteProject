@@ -41,12 +41,7 @@ export default function OrderCard({
           <td className="order-status text-center truncate ...">{state}</td>
           <td className="order-status text-center truncate ...">
             <Form method="post" className="flex justify-center">
-              <input
-                type="hidden" // Hidden input field
-                name="orderId" // Name of the field
-                value={orderId} // Value of the orderId
-                readOnly
-              />
+              <input type="hidden" name="orderId" value={orderId} readOnly />
               <input
                 type="submit"
                 name="action"
