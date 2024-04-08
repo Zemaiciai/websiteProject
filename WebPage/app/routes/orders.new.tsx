@@ -232,7 +232,7 @@ export default function NewOrderPage() {
                 readOnly={true}
                 hidden
               />
-              <span>Revizijos dienos (MAX 3 dienos):</span>
+              <span>Revizijos dienos (MAX 2 dienos):</span>
             </div>
             <label>
               <select
@@ -243,7 +243,7 @@ export default function NewOrderPage() {
                 <option value="" hidden selected disabled>
                   D
                 </option>
-                {[...Array(4).keys()].map((day) => (
+                {[...Array(3).keys()].map((day) => (
                   <option key={day} value={day}>
                     {day}
                   </option>
