@@ -216,9 +216,10 @@ export async function validateOrderData(
 
   if (typeof description !== "string")
     errors.description = "Aprašymo tipas neteisingas";
+  else if (description.length > 500) errors.description = "Aprašymas per ilgas";
 
   if (typeof footageLink === "string" && footageLink.length <= 0)
-    errors.footageLink = "Nuoroda privalomas";
+    errors.footageLink = "Nuoroda privaloma";
   else if (!validateUrl(footageLink))
     errors.footageLink = "Nuorodos formatas neteisingas";
 

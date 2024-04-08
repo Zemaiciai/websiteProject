@@ -1,7 +1,6 @@
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
-import { forwardRef, useRef, useState } from "react";
-import { typedjson, useTypedActionData } from "remix-typedjson";
+import { ChangeEvent, forwardRef, useRef, useState } from "react";
 import OrderDatePicker from "~/components/common/OrderPage/OrderDatePicker";
 import { createOrder } from "~/models/order.server";
 import { getUserByEmail, getUserById } from "~/models/user.server";
@@ -61,7 +60,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
   if (worker?.email === createdBy?.email) {
     validationErrors.wrongUser = "Negalima sukurti užsakymo sau";
-  } else if (worker?.role !== "worker")
+  } else if (worker?.role === "client")
     validationErrors.wrongUser = "Reikia pasirinkti darbuotoja, o ne klientą";
 
   // If there are additional errors we append them to the existing validation errors
@@ -92,35 +91,54 @@ interface OrderStringInputProps {
   title: string;
   error?: string;
   name: string;
-  selectedDate?: Date;
-  handleDateChange?: (
-    event: React.ChangeEvent<HTMLSelectElement>,
-    type: string,
-    dateName: string,
-  ) => void;
+  bigger?: boolean;
 }
 
 const OrderStringInput = forwardRef<HTMLInputElement, OrderStringInputProps>(
-  ({ title, name, error }, ref) => {
+  ({ title, name, error, bigger }, ref) => {
+    const [currentLenght, setCurrentLength] = useState(0);
+
+    const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+      const inputValue = event.target.value;
+      setCurrentLength(inputValue.length);
+    };
+
     return (
-      <div className="w-full md:w-1/2 px-3 mb-6">
-        <div className="flex flex-col">
-          <div className="relative">
-            <input
-              ref={ref}
-              name={name}
-              autoComplete="on"
-              className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
-              placeholder={title}
-            />
-            {error ? (
-              <div
-                className="pt-1 font-bold text-red-400 absolute bottom-9"
-                id={`${name}-error`}
-              >
-                {error}
+      <div className={`w-full ${bigger && "h-44"} md:w-1/2 px-3 mb-6`}>
+        {error ? (
+          <div
+            className="pt-1 font-bold text-red-400 bottom-9"
+            id={`${name}-error`}
+          >
+            {error}
+          </div>
+        ) : null}
+        <div className="flex flex-col h-full">
+          <div className="relative h-full">
+            {bigger ? (
+              <div className="flex flex-col h-full text-right">
+                <span
+                  className={`${500 - currentLenght < 0 && "text-red-500"}`}
+                >
+                  {500 - currentLenght}
+                </span>
+                <textarea
+                  name={name}
+                  onChange={(e) => handleChange(e)}
+                  placeholder="Aprašymas"
+                  className="w-full h-full resize-none rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black "
+                />
               </div>
-            ) : null}
+            ) : (
+              <input
+                ref={ref}
+                name={name}
+                type="text"
+                autoComplete="on"
+                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                placeholder={title}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -201,7 +219,7 @@ export default function NewOrderPage() {
             error={actionData?.errors.completionDate}
             handleDateChange={handleDateChange}
             selectedDate={selectedDate.completionDate}
-            title="Pabaigimo data:"
+            title="Pabaigos data:"
             name="completionDate"
             ref={completionDateRef}
           />
@@ -253,6 +271,7 @@ export default function NewOrderPage() {
             name={"description"}
             ref={descriptionRef}
             error={actionData?.errors.description}
+            bigger={true}
           />
           <OrderStringInput
             title={"Video nuoruoda"}
