@@ -50,6 +50,7 @@ export const action = async (actionArg) => {
       roleSelection,
       code,
       selectedPercentage,
+      adminUserName,
     );
     const secretCode = createdCode ? createdCode.secretCode : null;
     return json(secretCode);
@@ -1546,6 +1547,11 @@ export default function NotesPage() {
                                 aria-describedby="email-error"
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                                 placeholder="Kontrakto numeris"
+                              />
+                              <input
+                                name="adminUserName"
+                                hidden
+                                defaultValue={data.user.userName}
                               />
                             </div>
                           </div>

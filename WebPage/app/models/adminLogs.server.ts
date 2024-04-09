@@ -31,6 +31,19 @@ export async function createUnBanLog(
   });
 }
 
+export async function inviteCodeLog(
+  inviteCodeCreatedFor: string,
+  admin: string,
+) {
+  const info = "Sukūrė pakvietimo kodą el. paštui " + inviteCodeCreatedFor;
+  return prisma.adminLogs.create({
+    data: {
+      user: admin,
+      information: info,
+    },
+  });
+}
+
 export async function createWarningLog(
   userWhichWasWarned: string,
   warningReason: string,
