@@ -4,9 +4,14 @@ import bcrypt from "bcryptjs";
 import { prisma } from "~/db.server";
 
 import {
+  createBanLog,
+  createUnBanLog,
+  createWarningLog,
+} from "./adminLogs.server";
+import {
   changeCodeExpiring,
   changeCodePercentage,
-  markCodeAsUsed
+  markCodeAsUsed,
 } from "./secretCode.server";
 
 export type { User } from "@prisma/client";
@@ -25,15 +30,15 @@ export async function createUser(
   firstName: string,
   lastName: string,
   userName: string,
-  secretCode: string
+  secretCode: string,
 ) {
   const userSecretCode = await prisma.secretCodeAdmin.findFirst({
     where: {
       email,
       ExpirationDate: {
-        gte: new Date()
-      }
-    }
+        gte: new Date(),
+      },
+    },
   });
 
   if (!userSecretCode) {
@@ -63,10 +68,10 @@ export async function createUser(
       userStatus: "Aktyvi",
       password: {
         create: {
-          hash: hashedPassword
-        }
-      }
-    }
+          hash: hashedPassword,
+        },
+      },
+    },
   });
 }
 
@@ -76,13 +81,13 @@ export async function deleteUserByEmail(email: User["email"]) {
 
 export async function verifyLogin(
   email: User["email"],
-  password: Password["hash"]
+  password: Password["hash"],
 ) {
   const userWithPassword = await prisma.user.findUnique({
     where: { email },
     include: {
-      password: true
-    }
+      password: true,
+    },
   });
 
   if (!userWithPassword || !userWithPassword.password) {
@@ -91,7 +96,7 @@ export async function verifyLogin(
 
   const passwordIsValid = await bcrypt.compare(
     password,
-    userWithPassword.password.hash
+    userWithPassword.password.hash,
   );
 
   if (!passwordIsValid) {
@@ -108,76 +113,90 @@ export async function getAllusers() {
   return prisma.user.findMany();
 }
 
-export async function baningUser(findEMAIL: string, reason: string) {
+export async function baningUser(
+  findEMAIL: string,
+  reason: string,
+  admin: string,
+) {
   const banUser = await prisma.user.update({
     where: {
-      email: findEMAIL
+      email: findEMAIL,
     },
     data: {
       banReason: reason,
-      userStatus: "Užblokuota"
-    }
+      userStatus: "Užblokuota",
+    },
   });
+
+  createBanLog(banUser.email, reason, admin);
 
   return banUser;
 }
 
-export async function unBaningUser(findEMAIL: string) {
+export async function unBaningUser(findEMAIL: string, admin: string) {
   const banUser = await prisma.user.update({
     where: {
-      email: findEMAIL
+      email: findEMAIL,
     },
     data: {
       banReason: null,
-      userStatus: "Aktyvi"
-    }
+      userStatus: "Aktyvi",
+    },
   });
-
+  createUnBanLog(banUser.email, admin);
   return banUser;
 }
 
-export async function warningUser(findEMAIL: string, reason: string) {
+export async function warningUser(
+  findEMAIL: string,
+  reason: string,
+  admin: string,
+) {
   let user = await prisma.user.findUnique({
     where: {
-      email: findEMAIL
-    }
+      email: findEMAIL,
+    },
   });
 
   if (user?.warningAmount === "0") {
     user = await prisma.user.update({
       where: {
-        email: findEMAIL
+        email: findEMAIL,
       },
       data: {
         warningAmount: "1",
         firstWarning: reason,
-        firstWarningDate: new Date()
-      }
+        firstWarningDate: new Date(),
+      },
     });
+    createWarningLog(user.email, reason, admin);
   } else if (user?.warningAmount === "1") {
     user = await prisma.user.update({
       where: {
-        email: findEMAIL
+        email: findEMAIL,
       },
       data: {
         warningAmount: "2",
         secondWarning: reason,
-        secondWarningDate: new Date()
-      }
+        secondWarningDate: new Date(),
+      },
     });
+    createWarningLog(user.email, reason, admin);
   } else {
     user = await prisma.user.update({
       where: {
-        email: findEMAIL
+        email: findEMAIL,
       },
       data: {
         warningAmount: "3",
         thirdWarning: reason,
         thirdWarningDate: new Date(),
         userStatus: "Užlokuota",
-        banReason: "Surinkti 3 įspėjimai"
-      }
+        banReason: "Surinkti 3 įspėjimai",
+      },
     });
+    createWarningLog(user.email, reason, admin);
+
     //IF YOU WANT TO REMOVE WARNINGS
     // } else {
     //   user = await prisma.user.update({
@@ -209,12 +228,12 @@ export async function changeUserInformation(
   emailChange: string,
   roleChange: string,
   timeChange: string,
-  percentageChange: string
+  percentageChange: string,
 ) {
   const user = await prisma.user.findUnique({
     where: {
-      email: findEMAIL
-    }
+      email: findEMAIL,
+    },
   });
 
   let currentDate: Date | null = user?.expiringAt ?? null;
@@ -241,7 +260,7 @@ export async function changeUserInformation(
 
     const changeInfo = await prisma.user.update({
       where: {
-        email: findEMAIL
+        email: findEMAIL,
       },
       data: {
         firstName: firstNameChange,
@@ -250,8 +269,8 @@ export async function changeUserInformation(
         role: roleChange,
         email: emailChange,
         percentage: percentageChange,
-        expiringAt: currentDate !== null ? currentDate : undefined
-      }
+        expiringAt: currentDate !== null ? currentDate : undefined,
+      },
     });
     changeCodeExpiring(findEMAIL, currentDate);
 
@@ -263,7 +282,7 @@ export async function changeUserInformation(
   } else {
     const changeInfo = await prisma.user.update({
       where: {
-        email: findEMAIL
+        email: findEMAIL,
       },
       data: {
         firstName: firstNameChange,
@@ -271,8 +290,8 @@ export async function changeUserInformation(
         userName: nickNameChange,
         role: roleChange,
         email: emailChange,
-        percentage: percentageChange
-      }
+        percentage: percentageChange,
+      },
     });
     if (percentageChange !== "") {
       changeCodePercentage(findEMAIL, percentageChange);

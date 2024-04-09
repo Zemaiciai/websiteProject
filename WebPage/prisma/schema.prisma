@@ -97,3 +97,11 @@ model Note {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
 }
+
+model AdminLogs{
+  id    String @id @default(cuid())
+  user String
+  information String
+
+  createdAt DateTime @default(now())
+}

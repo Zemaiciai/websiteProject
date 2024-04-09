@@ -1,4 +1,4 @@
-import { json } from "@remix-run/node";
+import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
 
@@ -10,8 +10,9 @@ import {
   getAllusers,
   getUserByEmail,
   unBaningUser,
-  warningUser
+  warningUser,
 } from "~/models/user.server";
+import { requireUser } from "~/session.server";
 
 interface SecretCode {
   id: string;
@@ -25,16 +26,16 @@ interface SecretCode {
   Used: boolean;
 }
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const secretCodeList = await getAllcodes();
   const userList = await getAllusers();
-  return json({ secretCodeList, userList });
+  const user = await requireUser(request);
+  return json({ secretCodeList, userList, user });
 };
-
 export const action = async (actionArg) => {
   const formData = await actionArg.request.formData();
   const formId = formData.get("form-id");
-
+  const adminUserName = formData.get("adminUserName");
   if (formId === "codeGeneration") {
     const email = String(formData.get("emailAdress"));
     const customName = String(formData.get("customName"));
@@ -48,7 +49,7 @@ export const action = async (actionArg) => {
       contractNumber,
       roleSelection,
       code,
-      selectedPercentage
+      selectedPercentage,
     );
     const secretCode = createdCode ? createdCode.secretCode : null;
     return json(secretCode);
@@ -59,14 +60,14 @@ export const action = async (actionArg) => {
   } else if (formId === "baningUser") {
     const emailID = formData.get("email-id");
     const banReason = String(formData.get("baningUserReason"));
-    return baningUser(emailID, banReason);
+    return baningUser(emailID, banReason, adminUserName);
   } else if (formId === "unbaningUser") {
     const emailID = formData.get("email-id");
-    return unBaningUser(emailID);
+    return unBaningUser(emailID, adminUserName);
   } else if (formId === "warningUser") {
     const emailID = formData.get("email-id");
     const warningReason = String(formData.get("warningReason"));
-    return warningUser(emailID, warningReason);
+    return warningUser(emailID, warningReason, adminUserName);
   } else if (formId === "changingUserInformationAdmin") {
     const emailID = formData.get("email-id");
     const firstNameChange = formData.get("changeFirstName");
@@ -84,7 +85,7 @@ export const action = async (actionArg) => {
       emailChange,
       roleChange,
       timeChange,
-      percentage
+      percentage,
     );
   } else {
     return null;
@@ -111,6 +112,8 @@ export default function NotesPage() {
     setPopupOpen(!popupOpen);
   };
 
+  const data = useLoaderData<typeof loader>();
+
   const emailRef = useRef<HTMLInputElement>(null);
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
@@ -134,7 +137,7 @@ export default function NotesPage() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = secretCodeList
     .filter((code) =>
-      code.email.toLowerCase().includes(searchTerm.toLowerCase())
+      code.email.toLowerCase().includes(searchTerm.toLowerCase()),
     )
     .slice(indexOfFirstItem, indexOfLastItem);
 
@@ -152,8 +155,8 @@ export default function NotesPage() {
   // Calculate total pages based on filtered items
   const totalPages = Math.ceil(
     secretCodeList.filter((code) =>
-      code.email.toLowerCase().includes(searchTerm.toLowerCase())
-    ).length / itemsPerPage
+      code.email.toLowerCase().includes(searchTerm.toLowerCase()),
+    ).length / itemsPerPage,
   );
 
   const [roleSelection, setRoleSelection] = useState("holder");
@@ -435,7 +438,7 @@ export default function NotesPage() {
                                       } w-full`}
                                       onClick={() =>
                                         handleTabClickUser(
-                                          "changeUserInformation"
+                                          "changeUserInformation",
                                         )
                                       }
                                     >
@@ -564,24 +567,24 @@ export default function NotesPage() {
                                             <h1>
                                               {userShitNahui?.createdAt
                                                 ? new Date(
-                                                    userShitNahui.createdAt
+                                                    userShitNahui.createdAt,
                                                   )
                                                     .toLocaleDateString(
                                                       "en-CA",
                                                       {
                                                         year: "numeric",
                                                         month: "2-digit",
-                                                        day: "2-digit"
-                                                      }
+                                                        day: "2-digit",
+                                                      },
                                                     )
                                                     .replace(/\//g, "-") +
                                                   ", " +
                                                   new Date(
-                                                    userShitNahui.createdAt
+                                                    userShitNahui.createdAt,
                                                   ).toLocaleTimeString([], {
                                                     hour: "2-digit",
                                                     minute: "2-digit",
-                                                    hour12: false
+                                                    hour12: false,
                                                   })
                                                 : null}
                                             </h1>
@@ -594,24 +597,24 @@ export default function NotesPage() {
                                             <h1>
                                               {userShitNahui?.createdAt
                                                 ? new Date(
-                                                    userShitNahui.updatedAt
+                                                    userShitNahui.updatedAt,
                                                   )
                                                     .toLocaleDateString(
                                                       "en-CA",
                                                       {
                                                         year: "numeric",
                                                         month: "2-digit",
-                                                        day: "2-digit"
-                                                      }
+                                                        day: "2-digit",
+                                                      },
                                                     )
                                                     .replace(/\//g, "-") +
                                                   ", " +
                                                   new Date(
-                                                    userShitNahui.createdAt
+                                                    userShitNahui.createdAt,
                                                   ).toLocaleTimeString([], {
                                                     hour: "2-digit",
                                                     minute: "2-digit",
-                                                    hour12: false
+                                                    hour12: false,
                                                   })
                                                 : null}
                                             </h1>
@@ -622,21 +625,21 @@ export default function NotesPage() {
                                             </h1>
                                             {userShitNahui?.expiringAt
                                               ? new Date(
-                                                  userShitNahui.expiringAt
+                                                  userShitNahui.expiringAt,
                                                 )
                                                   .toLocaleDateString("en-CA", {
                                                     year: "numeric",
                                                     month: "2-digit",
-                                                    day: "2-digit"
+                                                    day: "2-digit",
                                                   })
                                                   .replace(/\//g, "-") +
                                                 ", " +
                                                 new Date(
-                                                  userShitNahui.expiringAt
+                                                  userShitNahui.expiringAt,
                                                 ).toLocaleTimeString([], {
                                                   hour: "2-digit",
                                                   minute: "2-digit",
-                                                  hour12: false
+                                                  hour12: false,
                                                 })
                                               : null}
                                           </div>
@@ -692,6 +695,13 @@ export default function NotesPage() {
                                                       name="form-id"
                                                       hidden
                                                       defaultValue="baningUser"
+                                                    />
+                                                    <input
+                                                      name="adminUserName"
+                                                      hidden
+                                                      defaultValue={
+                                                        data.user.userName
+                                                      }
                                                     />
                                                     <input
                                                       name="email-id"
@@ -1005,6 +1015,13 @@ export default function NotesPage() {
                                                       defaultValue="unbaningUser"
                                                     />
                                                     <input
+                                                      name="adminUserName"
+                                                      hidden
+                                                      defaultValue={
+                                                        data.user.userName
+                                                      }
+                                                    />
+                                                    <input
                                                       name="email-id"
                                                       hidden
                                                       defaultValue={
@@ -1062,6 +1079,13 @@ export default function NotesPage() {
                                                       name="form-id"
                                                       hidden
                                                       defaultValue="warningUser"
+                                                    />
+                                                    <input
+                                                      name="adminUserName"
+                                                      hidden
+                                                      defaultValue={
+                                                        data.user.userName
+                                                      }
                                                     />
                                                     <input
                                                       name="email-id"
@@ -1137,27 +1161,27 @@ export default function NotesPage() {
                                                   <td className="px-6 py-4">
                                                     {userShitNahui.firstWarningDate
                                                       ? new Date(
-                                                          userShitNahui.firstWarningDate
+                                                          userShitNahui.firstWarningDate,
                                                         )
                                                           .toLocaleDateString(
                                                             "en-CA",
                                                             {
                                                               year: "numeric",
                                                               month: "2-digit",
-                                                              day: "2-digit"
-                                                            }
+                                                              day: "2-digit",
+                                                            },
                                                           )
                                                           .replace(/\//g, "-") +
                                                         ", " +
                                                         new Date(
-                                                          userShitNahui.firstWarningDate
+                                                          userShitNahui.firstWarningDate,
                                                         ).toLocaleTimeString(
                                                           [],
                                                           {
                                                             hour: "2-digit",
                                                             minute: "2-digit",
-                                                            hour12: false
-                                                          }
+                                                            hour12: false,
+                                                          },
                                                         )
                                                       : null}
                                                   </td>
@@ -1186,27 +1210,27 @@ export default function NotesPage() {
                                                   <td className="px-6 py-4">
                                                     {userShitNahui.secondWarningDate
                                                       ? new Date(
-                                                          userShitNahui.secondWarningDate
+                                                          userShitNahui.secondWarningDate,
                                                         )
                                                           .toLocaleDateString(
                                                             "en-CA",
                                                             {
                                                               year: "numeric",
                                                               month: "2-digit",
-                                                              day: "2-digit"
-                                                            }
+                                                              day: "2-digit",
+                                                            },
                                                           )
                                                           .replace(/\//g, "-") +
                                                         ", " +
                                                         new Date(
-                                                          userShitNahui.secondWarningDate
+                                                          userShitNahui.secondWarningDate,
                                                         ).toLocaleTimeString(
                                                           [],
                                                           {
                                                             hour: "2-digit",
                                                             minute: "2-digit",
-                                                            hour12: false
-                                                          }
+                                                            hour12: false,
+                                                          },
                                                         )
                                                       : null}
                                                   </td>
@@ -1223,27 +1247,27 @@ export default function NotesPage() {
                                                   <td className="px-6 py-4">
                                                     {userShitNahui.thirdWarningDate
                                                       ? new Date(
-                                                          userShitNahui.thirdWarningDate
+                                                          userShitNahui.thirdWarningDate,
                                                         )
                                                           .toLocaleDateString(
                                                             "en-CA",
                                                             {
                                                               year: "numeric",
                                                               month: "2-digit",
-                                                              day: "2-digit"
-                                                            }
+                                                              day: "2-digit",
+                                                            },
                                                           )
                                                           .replace(/\//g, "-") +
                                                         ", " +
                                                         new Date(
-                                                          userShitNahui.thirdWarningDate
+                                                          userShitNahui.thirdWarningDate,
                                                         ).toLocaleTimeString(
                                                           [],
                                                           {
                                                             hour: "2-digit",
                                                             minute: "2-digit",
-                                                            hour12: false
-                                                          }
+                                                            hour12: false,
+                                                          },
                                                         )
                                                       : null}
                                                   </td>
@@ -1685,16 +1709,16 @@ export default function NotesPage() {
                                       .toLocaleDateString("en-CA", {
                                         year: "numeric",
                                         month: "2-digit",
-                                        day: "2-digit"
+                                        day: "2-digit",
                                       })
                                       .replace(/\//g, "-") +
                                     ", " +
                                     new Date(
-                                      code.CreationData
+                                      code.CreationData,
                                     ).toLocaleTimeString([], {
                                       hour: "2-digit",
                                       minute: "2-digit",
-                                      hour12: false
+                                      hour12: false,
                                     })
                                   : null}
                               </td>
@@ -1704,16 +1728,16 @@ export default function NotesPage() {
                                       .toLocaleDateString("en-CA", {
                                         year: "numeric",
                                         month: "2-digit",
-                                        day: "2-digit"
+                                        day: "2-digit",
                                       })
                                       .replace(/\//g, "-") +
                                     ", " +
                                     new Date(
-                                      code.ExpirationDate
+                                      code.ExpirationDate,
                                     ).toLocaleTimeString([], {
                                       hour: "2-digit",
                                       minute: "2-digit",
-                                      hour12: false
+                                      hour12: false,
                                     })
                                   : null}
                               </td>
@@ -1756,7 +1780,7 @@ export default function NotesPage() {
                                       {index + 1}
                                     </button>
                                   </li>
-                                )
+                                ),
                               )
                             : null}
                         </ul>
