@@ -48,3 +48,33 @@ export async function createWarningLog(
     },
   });
 }
+
+export async function createInfoChangeLog(
+  userWhichWasChanged: string,
+  admin: string,
+  changes: string,
+  previous: string,
+  changedTo: string,
+) {
+  let info = "";
+  if (previous !== "" || changedTo !== "") {
+    info =
+      "Vartotojui " +
+      userWhichWasChanged +
+      " buvo pakeistas " +
+      changes +
+      " iš " +
+      previous +
+      " į " +
+      changedTo;
+  } else {
+    info = "Vartotojui " + userWhichWasChanged + " buvo pakeistas " + changes;
+  }
+
+  return prisma.adminLogs.create({
+    data: {
+      user: admin,
+      information: info,
+    },
+  });
+}

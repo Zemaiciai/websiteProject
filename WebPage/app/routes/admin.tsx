@@ -86,6 +86,7 @@ export const action = async (actionArg) => {
       roleChange,
       timeChange,
       percentage,
+      adminUserName,
     );
   } else {
     return null;
@@ -762,6 +763,13 @@ export default function NotesPage() {
                                                     name="form-id"
                                                     hidden
                                                     defaultValue="changingUserInformationAdmin"
+                                                  />
+                                                  <input
+                                                    name="adminUserName"
+                                                    hidden
+                                                    defaultValue={
+                                                      data.user.userName
+                                                    }
                                                   />
                                                   <input
                                                     name="email-id"
