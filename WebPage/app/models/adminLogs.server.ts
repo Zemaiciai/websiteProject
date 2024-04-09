@@ -91,3 +91,7 @@ export async function createInfoChangeLog(
     },
   });
 }
+
+export async function getAllLogs() {
+  return prisma.adminLogs.findMany();
+}

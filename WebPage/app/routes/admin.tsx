@@ -1,6 +1,7 @@
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
+import { getAllLogs } from "~/models/adminLogs.server";
 
 import { createCode, getAllcodes } from "~/models/secretCode.server";
 import {
@@ -26,12 +27,21 @@ interface SecretCode {
   Used: boolean;
 }
 
+interface AdminLogs {
+  id: string;
+  user: string;
+  information: string;
+  createdAt: Date; // Change the type to Date
+}
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const secretCodeList = await getAllcodes();
   const userList = await getAllusers();
   const user = await requireUser(request);
-  return json({ secretCodeList, userList, user });
+  const logsOfAdmin = await getAllLogs();
+  return json({ secretCodeList, userList, user, logsOfAdmin });
 };
+
 export const action = async (actionArg) => {
   const formData = await actionArg.request.formData();
   const formId = formData.get("form-id");
@@ -123,41 +133,56 @@ export default function NotesPage() {
   const findingUserEmailRef = useRef<HTMLInputElement>(null);
   const baningUserReasonRef = useRef<HTMLInputElement>(null);
 
-  // Move the declaration of secretCodeList here
-  const loaderData = useLoaderData(); // No type provided
-  const secretCodeList = (loaderData as { secretCodeList: SecretCode[] })
-    .secretCodeList;
+  const secretCodeList = data.secretCodeList;
+  const adminLogItems: AdminLogs[] = data.logsOfAdmin;
 
   const userShitNahui = useActionData<User>();
-  const loaderData2 = useLoaderData<{ userList: User[] }>();
-  const userList = loaderData2.userList;
+  const userList = useLoaderData<{ userList: User[] }>().userList;
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+  const currentAdminLogItems = adminLogItems
+    .sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      if (!isNaN(dateA) && !isNaN(dateB)) {
+        return dateB - dateA;
+      }
+      // Handle cases where createdAt is not a valid date
+      return 0;
+    })
+    .slice(indexOfFirstItem, indexOfLastItem);
+
   const currentItems = secretCodeList
     .filter((code) =>
       code.email.toLowerCase().includes(searchTerm.toLowerCase()),
     )
     .slice(indexOfFirstItem, indexOfLastItem);
 
-  // Function to handle input change and update the searchTerm state
   const handleSearch = (event) => {
-    setCurrentPage(1); // Reset current page when searching
+    setCurrentPage(1);
     setSearchTerm(event.target.value);
   };
 
-  // Function to handle pagination
-  const paginate = (pageNumber) => {
+  const paginateForInviteCode = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-
-  // Calculate total pages based on filtered items
+  const paginateForAdminLogs = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
   const totalPages = Math.ceil(
     secretCodeList.filter((code) =>
       code.email.toLowerCase().includes(searchTerm.toLowerCase()),
+    ).length / itemsPerPage,
+  );
+
+  const totalPagesForLogs = Math.ceil(
+    adminLogItems.filter((item) =>
+      item.user.toLowerCase().includes(searchTerm.toLowerCase()),
     ).length / itemsPerPage,
   );
 
@@ -222,6 +247,16 @@ export default function NotesPage() {
               onClick={() => handleTabClick("adminStats")}
             >
               Admin statistika
+            </button>
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "adminLogs"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
+              } w-full`}
+              onClick={() => handleTabClick("adminLogs")}
+            >
+              Veiksmų istorija
             </button>
           </div>
         </div>
@@ -1441,6 +1476,144 @@ export default function NotesPage() {
           </>
         ) : null}
 
+        {activeTab === "adminLogs" ? (
+          <>
+            <div className="flex flex-col w-full relative overflow-auto">
+              <div className="flex flex-col w-full bg-custom-100">
+                {/* HEADER FOR ADMIN PANEL */}
+                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
+                  <div className="flex items-center justify-between">
+                    <div className="pt-6 pl-6 pb-6">
+                      <h1 className="text-2xl text-bold font-bold">
+                        Veiksmų istorija
+                      </h1>
+                    </div>
+
+                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
+                      <Link to="/dashboard" className="btn btn-primary">
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span style={{ marginRight: "0.5rem" }}>
+                            Grįžti atgal
+                          </span>
+                          <img
+                            className="w-4 h-4"
+                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
+                            alt="ggwp"
+                          />
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                {/* END OF HEADER FOR ADMIN PANEL */}
+                <div className="flex flex-col w-[98,3%] ml-3 mt-3 mr-8">
+                  <div className="p-6 bg-custom-200 text-medium w-full ml-3 mt-3 mr-3 mb-5">
+                    <h1 className="text-3xl font-mono font-font-extralight pb-2">
+                      Administratorių veiksmų istorija
+                    </h1>
+                    <div className="">
+                      <table className="min-w-full text-center text-sm font-light">
+                        <thead className="border-b bg-neutral-50 font-medium">
+                          <tr>
+                            <th className="px-6 py-4 w-16">#</th>
+                            <th className="px-6 py-4 w-1/6">Vartotojas</th>
+                            <th className="px-6 py-4 w-1/2">Informacija</th>
+                            <th className="px-6 py-4 w-1/6">Sukūrimo data</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {currentAdminLogItems.map((adminItem, index) => (
+                            <tr key={index}>
+                              <td className="px-6 py-4">
+                                {indexOfFirstItem + index + 1}
+                              </td>
+                              <td className="px-6 py-4">{adminItem.user}</td>
+                              <td className="px-6 py-4">
+                                {adminItem.information}
+                              </td>
+                              <td className="px-6 py-4">
+                                {adminItem.createdAt
+                                  ? new Date(adminItem.createdAt)
+                                      .toLocaleDateString("en-CA", {
+                                        year: "numeric",
+                                        month: "2-digit",
+                                        day: "2-digit",
+                                      })
+                                      .replace(/\//g, "-") +
+                                    ", " +
+                                    new Date(
+                                      adminItem.createdAt,
+                                    ).toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: false,
+                                    })
+                                  : null}
+                              </td>
+                            </tr>
+                          ))}
+                          {/* Fill empty rows if necessary */}
+                          {Array.from({
+                            length: itemsPerPage - currentAdminLogItems.length,
+                          }).map((_, index) => (
+                            <tr key={`empty-${index}`}>
+                              <td className="px-6 py-4">&nbsp;</td>
+                              <td className="px-6 py-4">&nbsp;</td>
+                              <td className="px-6 py-4">&nbsp;</td>
+                              <td className="px-6 py-4">&nbsp;</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+
+                      <div className="mt-4">
+                        <ul className="flex justify-center">
+                          {totalPagesForLogs > 1
+                            ? Array.from({ length: totalPagesForLogs }).map(
+                                (_, index) => (
+                                  <li key={index} className="mx-1">
+                                    <button
+                                      className={`px-3 py-1 rounded ${
+                                        currentPage === index + 1
+                                          ? "bg-custom-850 text-white"
+                                          : "bg-custom-800 text-white"
+                                      }`}
+                                      onClick={() =>
+                                        paginateForAdminLogs(index + 1)
+                                      }
+                                    >
+                                      {index + 1}
+                                    </button>
+                                  </li>
+                                ),
+                              )
+                            : null}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : null}
+
         {activeTab === "InviteCode" ? (
           <>
             <div className="flex flex-col w-full relative overflow-auto">
@@ -1710,7 +1883,9 @@ export default function NotesPage() {
                         <tbody>
                           {currentItems.map((code, index) => (
                             <tr key={index}>
-                              <td className="px-6 py-4">{index + 1}</td>
+                              <td className="px-6 py-4">
+                                {indexOfFirstItem + index + 1}
+                              </td>
                               <td className="px-6 py-4">{code.customName}</td>
                               <td className="px-6 py-4">{code.email}</td>
                               <td className="px-6 py-4">{code.role}</td>
@@ -1760,6 +1935,7 @@ export default function NotesPage() {
                               </td>
                             </tr>
                           ))}
+
                           {currentItems.length < itemsPerPage
                             ? Array(itemsPerPage - currentItems.length)
                                 .fill(null)
@@ -1789,7 +1965,9 @@ export default function NotesPage() {
                                           ? "bg-custom-850 text-white"
                                           : "bg-custom-800 text-white"
                                       }`}
-                                      onClick={() => paginate(index + 1)}
+                                      onClick={() =>
+                                        paginateForInviteCode(index + 1)
+                                      }
                                     >
                                       {index + 1}
                                     </button>
