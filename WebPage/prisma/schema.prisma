@@ -33,6 +33,7 @@ model User {
   createdOrders  Order[]  @relation("CreatedBy")
   workingOrders  Order[]  @relation("Worker")
   role String
+  percentage String?
 
   warningAmount String
   firstWarning String?
@@ -78,6 +79,7 @@ model SecretCodeAdmin {
   email String
   contractNumber String
   role String
+  percentage String?
 
   CreationData DateTime @default(now())
   ExpirationDate DateTime @default(now())

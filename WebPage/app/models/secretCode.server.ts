@@ -17,7 +17,8 @@ export async function createCode(
   emailAdress: string,
   contractNumber: string,
   roleSelection: string,
-  time: string
+  time: string,
+  selectedPercentage: string
 ) {
   const existingCode = await prisma.secretCodeAdmin.findFirst({
     where: {
@@ -101,6 +102,10 @@ export async function createCode(
     role = "Klientas";
   }
 
+  if (selectedPercentage === "holder") {
+    return null;
+  }
+
   const nowdate = new Date();
   if (
     customName === "" ||
@@ -122,7 +127,8 @@ export async function createCode(
         ExpirationDate: currentDate,
         Used: false,
         role: role,
-        secretCode: secretCode
+        secretCode: secretCode,
+        percentage: selectedPercentage
       }
     });
 
@@ -183,5 +189,31 @@ export async function changeCodeExpiring(emailtest: string, date: Date) {
     return updatedCode;
   } else {
     throw new Error(`Code with email ${emailtest} not found.`);
+  }
+}
+
+export async function changeCodePercentage(
+  emailID: string,
+  percentageChange: string
+) {
+  const code = await prisma.secretCodeAdmin.findFirst({
+    where: {
+      email: emailID
+    }
+  });
+
+  if (code) {
+    const updatedCode = await prisma.secretCodeAdmin.update({
+      where: {
+        id: code.id // Use the code's id to uniquely identify it
+      },
+      data: {
+        percentage: percentageChange
+      }
+    });
+
+    return updatedCode;
+  } else {
+    throw new Error(`Code with email ${emailID} not found.`);
   }
 }

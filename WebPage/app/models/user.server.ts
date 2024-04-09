@@ -3,7 +3,11 @@ import bcrypt from "bcryptjs";
 
 import { prisma } from "~/db.server";
 
-import { changeCodeExpiring, markCodeAsUsed } from "./secretCode.server";
+import {
+  changeCodeExpiring,
+  changeCodePercentage,
+  markCodeAsUsed
+} from "./secretCode.server";
 
 export type { User } from "@prisma/client";
 
@@ -54,6 +58,7 @@ export async function createUser(
       userName: userName,
       expiringAt: userSecretCode.ExpirationDate,
       role: userSecretCode.role,
+      percentage: userSecretCode.percentage,
       warningAmount: "0",
       userStatus: "Aktyvi",
       password: {
@@ -203,7 +208,8 @@ export async function changeUserInformation(
   nickNameChange: string,
   emailChange: string,
   roleChange: string,
-  timeChange: string
+  timeChange: string,
+  percentageChange: string
 ) {
   const user = await prisma.user.findUnique({
     where: {
@@ -243,10 +249,16 @@ export async function changeUserInformation(
         userName: nickNameChange,
         role: roleChange,
         email: emailChange,
+        percentage: percentageChange,
         expiringAt: currentDate !== null ? currentDate : undefined
       }
     });
     changeCodeExpiring(findEMAIL, currentDate);
+
+    if (percentageChange !== "") {
+      changeCodePercentage(findEMAIL, percentageChange);
+    }
+
     return changeInfo;
   } else {
     const changeInfo = await prisma.user.update({
@@ -258,9 +270,13 @@ export async function changeUserInformation(
         lastName: lastNameChange,
         userName: nickNameChange,
         role: roleChange,
-        email: emailChange
+        email: emailChange,
+        percentage: percentageChange
       }
     });
+    if (percentageChange !== "") {
+      changeCodePercentage(findEMAIL, percentageChange);
+    }
     return changeInfo;
   }
 }

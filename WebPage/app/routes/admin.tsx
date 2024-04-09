@@ -41,12 +41,14 @@ export const action = async (actionArg) => {
     const contractNumber = String(formData.get("contractNumber"));
     const roleSelection = String(formData.get("roleSelection"));
     const code = String(formData.get("selectedTime"));
+    const selectedPercentage = String(formData.get("selectedPercentage"));
     const createdCode = await createCode(
       customName,
       email,
       contractNumber,
       roleSelection,
-      code
+      code,
+      selectedPercentage
     );
     const secretCode = createdCode ? createdCode.secretCode : null;
     return json(secretCode);
@@ -73,6 +75,7 @@ export const action = async (actionArg) => {
     const emailChange = formData.get("changeEmail");
     const roleChange = formData.get("changeRole");
     const timeChange = formData.get("changeTime");
+    const percentage = formData.get("changePercentage");
     return changeUserInformation(
       emailID,
       firstNameChange,
@@ -80,7 +83,8 @@ export const action = async (actionArg) => {
       nickNameChange,
       emailChange,
       roleChange,
-      timeChange
+      timeChange,
+      percentage
     );
   } else {
     return null;
@@ -151,6 +155,8 @@ export default function NotesPage() {
       code.email.toLowerCase().includes(searchTerm.toLowerCase())
     ).length / itemsPerPage
   );
+
+  const [roleSelection, setRoleSelection] = useState("holder");
 
   return (
     <div className="flex flex-grow h-screen flex-col relative">
@@ -521,6 +527,19 @@ export default function NotesPage() {
                                             <h1 className="mr-2">Rolė:</h1>
                                             <h1>{userShitNahui?.role}</h1>
                                           </div>
+
+                                          {userShitNahui?.percentage ? (
+                                            <div className="flex mb-5">
+                                              <h1 className="mr-2">
+                                                Atlygis nuo vartotojo:
+                                              </h1>
+                                              <h1>
+                                                {userShitNahui?.percentage}
+                                              </h1>
+                                            </div>
+                                          ) : (
+                                            <p></p>
+                                          )}
                                           <div className="flex mb-5">
                                             <h1 className="mr-2">
                                               Slapyvardis:
@@ -795,6 +814,59 @@ export default function NotesPage() {
                                                       userShitNahui?.userName
                                                     }
                                                   />
+                                                  {userShitNahui?.role ===
+                                                  "Darbuotojas" ? (
+                                                    <>
+                                                      <label
+                                                        htmlFor="changePercentage"
+                                                        className="text-sm text-black"
+                                                      >
+                                                        Atlygis nuo vartotojo
+                                                      </label>
+                                                      <select
+                                                        id="changePercentage"
+                                                        name="changePercentage"
+                                                        className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                                                        defaultValue={
+                                                          userShitNahui?.percentage ||
+                                                          "Nežinomas"
+                                                        }
+                                                      >
+                                                        {userShitNahui?.percentage ? (
+                                                          <>
+                                                            <option value="1%">
+                                                              1%
+                                                            </option>
+                                                            <option value="5%">
+                                                              5%
+                                                            </option>
+                                                            <option value="10%">
+                                                              10%
+                                                            </option>
+                                                            <option value="12%">
+                                                              12%
+                                                            </option>
+                                                            <option value="15%">
+                                                              15%
+                                                            </option>
+                                                            <option value="20%">
+                                                              20%
+                                                            </option>
+                                                            <option value="25%">
+                                                              25%
+                                                            </option>
+                                                            <option value="30%">
+                                                              30%
+                                                            </option>
+                                                          </>
+                                                        ) : (
+                                                          <option value="Nežinomas">
+                                                            Nežinomas
+                                                          </option>
+                                                        )}
+                                                      </select>
+                                                    </>
+                                                  ) : null}
                                                 </div>
                                               </div>
                                               <div className="w-full lg:w-1/2 px-10 order-1 lg:order-2">
@@ -1487,6 +1559,10 @@ export default function NotesPage() {
                                 id="roleSelection"
                                 name="roleSelection"
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                                value={roleSelection}
+                                onChange={(e) =>
+                                  setRoleSelection(e.target.value)
+                                }
                               >
                                 <option value="holder">Pasirinkti rolę</option>
                                 <option value="worker">Darbuotojas</option>
@@ -1495,6 +1571,31 @@ export default function NotesPage() {
                             </div>
                           </div>
                         </div>
+                        {roleSelection === "worker" ? (
+                          <div className="w-full md:w-1/2 px-3">
+                            <div className="flex flex-col">
+                              <div className="relative">
+                                <select
+                                  id="selectedPercentage"
+                                  name="selectedPercentage"
+                                  className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                                >
+                                  <option value="holder">
+                                    Pasirinkti atlygi kurį gauna svetainė
+                                  </option>
+                                  <option value="1%">1%</option>
+                                  <option value="5%">5%</option>
+                                  <option value="10%">10%</option>
+                                  <option value="12%">12%</option>
+                                  <option value="15%">15%</option>
+                                  <option value="20%">20%</option>
+                                  <option value="25%">25%</option>
+                                  <option value="30%">30%</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
 
                       <button
