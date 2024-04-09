@@ -16,6 +16,15 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum NotificationTypes {
+  ORDER_ASSIGNED
+  ORDER_COMPLETED
+  ORDER_ACCEPTED
+  ORDER_DECLINED
+  ORDER_IN_PROGRESS
+  FRIEND_REQUEST
+}
+
 model User {
   id             String    @id @default(cuid())
 
@@ -30,6 +39,7 @@ model User {
 
   password       Password?
   notes Note[]
+  notifications Notification[] @relation("Recipient")
   createdOrders  Order[]  @relation("CreatedBy")
   workingOrders  Order[]  @relation("Worker")
   role String
@@ -82,6 +92,19 @@ model SecretCodeAdmin {
   CreationData DateTime @default(now())
   ExpirationDate DateTime @default(now())
   Used Boolean @default(false)
+}
+
+model Notification {
+  id String @id @default(cuid())
+
+  recipient User @relation("Recipient", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+
+  notificationType NotificationTypes
+  isSeen Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Note {

@@ -1,5 +1,4 @@
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import React from "react";
 
 import Header from "~/components/common/header/header";
 import { getNoteListItems } from "~/models/note.server";
@@ -20,14 +19,14 @@ const Dashboard = () => {
       style={{
         display: "grid",
         gridTemplate: "auto 1fr auto / 10% 1fr auto",
-        minHeight: "100vh"
+        minHeight: "100vh",
       }}
     >
       {/* Header */}
       <header
         style={{
           borderBottom: "1px solid #ccc",
-          gridColumn: "1 / 4"
+          gridColumn: "1 / 4",
         }}
       >
         <Header
@@ -41,7 +40,7 @@ const Dashboard = () => {
         style={{
           borderRight: "1px solid #000000",
           backgroundColor: "#bdbdbd",
-          gridColumn: "1 / 2"
+          gridColumn: "1 / 2",
         }}
       >
         <nav>
@@ -51,7 +50,7 @@ const Dashboard = () => {
               textAlign: "left",
               marginLeft: "20px",
               marginTop: "10px",
-              fontWeight: "bold"
+              fontWeight: "bold",
             }}
           >
             Navigation
@@ -68,7 +67,7 @@ const Dashboard = () => {
           gap: "20px",
           marginTop: "10px",
           marginBottom: "5px",
-          marginRight: "10px"
+          marginRight: "10px",
         }}
       >
         {/* Box 1 */}
@@ -78,7 +77,7 @@ const Dashboard = () => {
             padding: "20px",
             paddingBottom: "10%",
             borderRadius: "5px",
-            marginLeft: "10%"
+            marginLeft: "10%",
           }}
         >
           {/* Box 1 content */}
@@ -90,7 +89,7 @@ const Dashboard = () => {
           style={{
             backgroundColor: "#9575cd",
             padding: "20px",
-            borderRadius: "5px"
+            borderRadius: "5px",
           }}
         >
           {/* Box 2 content */}
@@ -102,7 +101,7 @@ const Dashboard = () => {
           style={{
             backgroundColor: "#5c6bc0",
             padding: "20px",
-            borderRadius: "5px"
+            borderRadius: "5px",
           }}
         >
           {/* Box 3 content */}
@@ -117,7 +116,7 @@ const Dashboard = () => {
             backgroundColor: "#aed581",
             padding: "20px",
             paddingBottom: "100%",
-            borderRadius: "5px"
+            borderRadius: "5px",
           }}
         >
           {/* Box 4 and 8 content */}
@@ -134,7 +133,7 @@ const Dashboard = () => {
             paddingTop: "10%",
             paddingRight: "144%",
             borderRadius: "5px",
-            marginLeft: "5%"
+            marginLeft: "5%",
           }}
         >
           {/* Box 5, 6, and 7 content */}
@@ -149,14 +148,14 @@ const Dashboard = () => {
           borderTop: "1px solid black",
           backgroundColor: "black",
           color: "white",
-          gridColumn: "1 / 4"
+          gridColumn: "1 / 4",
         }}
       >
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            padding: "20px"
+            padding: "20px",
           }}
         >
           {/* Footer Section 1 */}
@@ -165,7 +164,7 @@ const Dashboard = () => {
               flex: 1,
               padding: "20px",
               backgroundColor: "#000000",
-              textAlign: "left"
+              textAlign: "left",
             }}
           >
             <a
@@ -173,7 +172,7 @@ const Dashboard = () => {
                 color: "red",
                 textAlign: "left",
                 marginLeft: "20px",
-                fontWeight: "bold"
+                fontWeight: "bold",
               }}
               href="https://www.vectorstock.com/royalty-free-vector/jco-letter-logo-design-on-black-background-vector-41865826"
             >
@@ -185,7 +184,7 @@ const Dashboard = () => {
                 marginLeft: "20px",
                 marginTop: "10px",
                 maxWidth: "calc(100% - 20px)",
-                wordWrap: "break-word"
+                wordWrap: "break-word",
               }}
             >
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean
@@ -198,7 +197,7 @@ const Dashboard = () => {
                 textAlign: "left",
                 marginLeft: "20px",
                 marginTop: "10px",
-                fontWeight: "bold"
+                fontWeight: "bold",
               }}
             >
               We Accept
@@ -212,7 +211,7 @@ const Dashboard = () => {
                 color: "white",
                 textAlign: "left",
                 marginLeft: "20px",
-                fontWeight: "bold"
+                fontWeight: "bold",
               }}
             >
               Text
@@ -222,7 +221,7 @@ const Dashboard = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -232,7 +231,7 @@ const Dashboard = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -242,7 +241,7 @@ const Dashboard = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -252,7 +251,7 @@ const Dashboard = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -262,7 +261,7 @@ const Dashboard = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -276,7 +275,7 @@ const Dashboard = () => {
                 color: "white",
                 textAlign: "left",
                 marginLeft: "20px",
-                fontWeight: "bold"
+                fontWeight: "bold",
               }}
             >
               Text
@@ -286,7 +285,7 @@ const Dashboard = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -296,7 +295,7 @@ const Dashboard = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -306,7 +305,7 @@ const Dashboard = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -316,7 +315,7 @@ const Dashboard = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -326,7 +325,7 @@ const Dashboard = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text

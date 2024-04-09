@@ -43,7 +43,7 @@ export default function WorkPage() {
   const [worker, setWorker] = useState(false);
 
   useEffect(() => {
-    if (user && (user.role === "worker" || user.role === "Super Admin")) {
+    if (user && user.role === "worker") {
       setWorker(true);
     }
   }, [user]);

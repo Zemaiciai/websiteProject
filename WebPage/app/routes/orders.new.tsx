@@ -1,7 +1,9 @@
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
-import { ChangeEvent, forwardRef, useRef, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import OrderDatePicker from "~/components/common/OrderPage/OrderDatePicker";
+import { prisma } from "~/db.server";
+import { sendNotification } from "~/models/notification.server";
 import { createOrder } from "~/models/order.server";
 import { getUserByEmail, getUserById } from "~/models/user.server";
 import { requireUserId } from "~/session.server";
@@ -34,7 +36,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (revisionDays > 0) {
     revisionDate.setDate(revisionDate.getDate() + revisionDays);
   }
-  console.log(completionDate);
 
   const description = String(formData.get("description"));
   const footageLink = String(formData.get("footageLink"));
@@ -84,6 +85,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     footageLink,
   );
 
+  await sendNotification(worker!.id, "ORDER_ASSIGNED");
   return redirect("/orders");
 };
 
