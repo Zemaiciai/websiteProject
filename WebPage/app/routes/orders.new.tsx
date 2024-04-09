@@ -2,7 +2,6 @@ import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { ChangeEvent, useState } from "react";
 import OrderDatePicker from "~/components/common/OrderPage/OrderDatePicker";
-import { prisma } from "~/db.server";
 import { sendNotification } from "~/models/notification.server";
 import { createOrder } from "~/models/order.server";
 import { getUserByEmail, getUserById } from "~/models/user.server";
