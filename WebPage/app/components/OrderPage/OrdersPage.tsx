@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import OrdersTable from "../common/OrderPage/OrdersTable";
-import { Link, Outlet, useLocation } from "@remix-run/react";
+import { Link, Outlet } from "@remix-run/react";
 import { Order } from "@prisma/client";
 
 interface OrdersPageProps {
