@@ -1,7 +1,7 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 
-import { getUserByEmail, verifyLogin, type User } from "~/models/user.server";
+import { getUserByEmail, verifyLogin, User } from "~/models/user.server";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -14,7 +14,7 @@ const DEFAULT_REDIRECT = "/";
  */
 export function safeRedirect(
   to: FormDataEntryValue | string | null | undefined,
-  defaultRedirect: string = DEFAULT_REDIRECT
+  defaultRedirect: string = DEFAULT_REDIRECT,
 ) {
   if (!to || typeof to !== "string") {
     return defaultRedirect;
@@ -34,12 +34,12 @@ export function safeRedirect(
  * @returns {JSON|undefined} The router data or undefined if not found
  */
 export function useMatchesData(
-  id: string
+  id: string,
 ): Record<string, unknown> | undefined {
   const matchingRoutes = useMatches();
   const route = useMemo(
     () => matchingRoutes.find((route) => route.id === id),
-    [matchingRoutes, id]
+    [matchingRoutes, id],
   );
   return route?.data as Record<string, unknown>;
 }
@@ -65,7 +65,7 @@ export function useUser(): User {
   const maybeUser = useOptionalUser();
   if (!maybeUser) {
     throw new Error(
-      "No user found in root loader, but user is required by useUser. If user is optional, try useOptionalUser instead."
+      "No user found in root loader, but user is required by useUser. If user is optional, try useOptionalUser instead.",
     );
   }
   return maybeUser;
@@ -74,7 +74,20 @@ export function useUser(): User {
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
 }
-interface Errors {
+
+export function validateDate(date: unknown): date is Date {
+  const currentDate = new Date();
+
+  return date instanceof Date && date >= currentDate;
+}
+function validateUrl(url: unknown): url is string {
+  if (typeof url !== "string") return false;
+
+  const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
+
+  return urlRegex.test(url);
+}
+interface RegisterErrors {
   email?: string;
   password?: string;
   firstname?: string;
@@ -93,8 +106,8 @@ export async function validateRegistrationCredentials(
   secretCode: unknown,
   email: unknown,
   password: unknown,
-  errors: Errors
-): Promise<Errors | null> {
+  errors: RegisterErrors,
+): Promise<RegisterErrors | null> {
   if (typeof firstname !== "string" || firstname === "") {
     errors.firstname = "Vardas privalomas";
   }
@@ -110,7 +123,6 @@ export async function validateRegistrationCredentials(
     errors.email = "El. pašto adresas netinkamas";
   } else {
     const existingUser = await getUserByEmail(email);
-    console.log(existingUser);
     if (existingUser) {
       errors.existingUser = "Vartotojas su tuo pačiu el. paštu jau egzistuoja";
     }
@@ -135,7 +147,7 @@ export async function validateRegistrationCredentials(
 export async function validateLoginCredentials(
   email: unknown,
   password: unknown,
-  errors: Errors
+  errors: RegisterErrors,
 ): Promise<User | null> {
   if (typeof email !== "string") {
     errors.email = "El. pašto adresas privalomas";
@@ -159,4 +171,64 @@ export async function validateLoginCredentials(
   }
 
   return user;
+}
+
+interface OrderErrors {
+  revisionDays?: string;
+  orderName?: string;
+  completionDate?: string;
+  workerEmail?: string;
+  description?: string;
+  footageLink?: string;
+}
+
+export async function validateOrderData(
+  revisionDays: unknown,
+  orderName: unknown,
+  completionDate: unknown,
+  workerEmail: unknown,
+  description: unknown,
+  footageLink: unknown,
+): Promise<OrderErrors | null> {
+  const errors: OrderErrors = {};
+  const currentDate = new Date();
+
+  if (typeof revisionDays !== "number") {
+    errors.revisionDays = "Revizijos dienos turi buti skaicius";
+  }
+
+  if (!(completionDate instanceof Date)) {
+    errors.completionDate = "Pabaigos data neteisingo formato";
+  } else if (
+    completionDate.getFullYear() === currentDate.getFullYear() &&
+    completionDate.getMonth() === currentDate.getMonth() &&
+    completionDate.getDate() === currentDate.getDate()
+  ) {
+    errors.completionDate = "Pabaigos data privaloma";
+  } else if (!validateDate(completionDate)) {
+    errors.completionDate = "Negalima pabaigos data";
+  }
+
+  if (typeof workerEmail === "string" && workerEmail.length <= 0) {
+    errors.workerEmail = "Darbuotojo el. paštas privalomas";
+  } else if (!validateEmail(workerEmail))
+    errors.workerEmail = "Neteisingas darbuotojo el. paštas";
+
+  if (typeof description !== "string")
+    errors.description = "Aprašymo tipas neteisingas";
+  else if (description.length > 500) errors.description = "Aprašymas per ilgas";
+
+  if (typeof footageLink === "string" && footageLink.length <= 0)
+    errors.footageLink = "Nuoroda privaloma";
+  else if (!validateUrl(footageLink))
+    errors.footageLink = "Nuorodos formatas neteisingas";
+
+  if (typeof orderName !== "string" || orderName.length <= 0)
+    errors.orderName = "Užsakymo pavadinimas privalomas";
+
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+
+  return null;
 }
