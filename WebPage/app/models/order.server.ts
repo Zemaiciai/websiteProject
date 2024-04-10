@@ -47,7 +47,9 @@ export async function checkOrders() {
   const orders = await prisma.order.findMany({
     where: {
       completionDate: { lte: currentDate },
-      orderStatus: { not: OrderStatus.COMPLETED },
+      orderStatus: {
+        in: [OrderStatus.PLACED, OrderStatus.IN_PROGRESS, OrderStatus.ACCEPTED],
+      },
     },
   });
 
