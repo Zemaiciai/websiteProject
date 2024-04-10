@@ -248,3 +248,21 @@ export async function changeCodePercentage(
     throw new Error(`Code with email ${userID} not found.`);
   }
 }
+export async function getCodeByEmail(email: string) {
+  return prisma.secretCodeAdmin.findFirst({ where: { email } });
+}
+export async function deleteCodeByEmail(email: string) {
+  // Find the secret code by email
+  const secretCode = await prisma.secretCodeAdmin.findFirst({
+    where: { email },
+  });
+
+  if (!secretCode) {
+    return;
+  }
+
+  // Delete the secret code
+  await prisma.secretCodeAdmin.delete({ where: { id: secretCode.id } });
+
+  return;
+}

@@ -7,7 +7,11 @@ import {
   getAllMessages,
   changeMessageVisibility,
 } from "~/models/customMessage.server";
-import { createCode, getAllcodes } from "~/models/secretCode.server";
+import {
+  createCode,
+  deleteCodeByEmail,
+  getAllcodes,
+} from "~/models/secretCode.server";
 import {
   User,
   baningUser,
@@ -73,6 +77,7 @@ export const action = async (actionArg) => {
     const roleSelection = String(formData.get("roleSelection"));
     const code = String(formData.get("selectedTime"));
     const selectedPercentage = String(formData.get("selectedPercentage"));
+    await deleteCodeByEmail(email);
     const createdCode = await createCode(
       customName,
       email,
