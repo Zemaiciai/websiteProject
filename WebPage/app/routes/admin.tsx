@@ -143,8 +143,13 @@ export default function NotesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+  const itemsPerPageForLogs = 30;
+  const indexOfLastItemForLogs = currentPage * itemsPerPageForLogs;
+  const indexOfFirstItemForLogs = indexOfLastItemForLogs - itemsPerPageForLogs;
 
   const currentAdminLogItems = adminLogItems
     .sort((a, b) => {
@@ -156,7 +161,7 @@ export default function NotesPage() {
       // Handle cases where createdAt is not a valid date
       return 0;
     })
-    .slice(indexOfFirstItem, indexOfLastItem);
+    .slice(indexOfFirstItemForLogs, indexOfLastItemForLogs);
 
   const currentItems = secretCodeList
     .filter((code) =>
@@ -194,7 +199,7 @@ export default function NotesPage() {
   const totalPagesForLogs = Math.ceil(
     adminLogItems.filter((item) =>
       item.user.toLowerCase().includes(searchTerm.toLowerCase()),
-    ).length / itemsPerPage,
+    ).length / itemsPerPageForLogs,
   );
 
   const [roleSelection, setRoleSelection] = useState("holder");
@@ -1555,7 +1560,7 @@ export default function NotesPage() {
                           {currentAdminLogItems.map((adminItem, index) => (
                             <tr key={index}>
                               <td className="px-6 py-4">
-                                {indexOfFirstItem + index + 1}
+                                {indexOfFirstItemForLogs + index + 1}
                               </td>
                               <td className="px-6 py-4">{adminItem.user}</td>
                               <td className="px-6 py-4">
