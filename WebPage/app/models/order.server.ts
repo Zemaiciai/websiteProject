@@ -6,7 +6,7 @@ import {
 } from "@prisma/client";
 
 import { prisma } from "~/db.server";
-import { getUserByEmail, getUserById } from "./user.server";
+import { getUserByEmail } from "./user.server";
 import { sendNotification } from "./notification.server";
 
 export type { Order } from "@prisma/client";
@@ -45,27 +45,23 @@ export async function checkOrders() {
   const currentDate = new Date();
 
   const orders = await prisma.order.findMany({
-    where: { completionDate: { lte: currentDate } },
+    where: {
+      completionDate: { lte: currentDate },
+      orderStatus: { not: OrderStatus.COMPLETED },
+    },
   });
 
   await Promise.all(
-    orders
-      .filter((order) => order.orderStatus !== OrderStatus.COMPLETED)
-      .map(async (order) => {
-        console.log(
-          `Sending notifications and updating status for ${order.id}`,
-        );
+    orders.map(async (order) => {
+      console.log(`Sending notifications and updating status for ${order.id}`);
 
-        await sendNotification(
-          order.customerId,
-          NotificationTypes.ORDER_COMPLETED,
-        );
-        await sendNotification(
-          order.workerId,
-          NotificationTypes.ORDER_COMPLETED,
-        );
-        await updateOrderStatus(OrderStatus.COMPLETED, order.id);
-      }),
+      await sendNotification(
+        order.customerId,
+        NotificationTypes.ORDER_COMPLETED,
+      );
+      await sendNotification(order.workerId, NotificationTypes.ORDER_COMPLETED);
+      await updateOrderStatus(OrderStatus.COMPLETED, order.id);
+    }),
   );
 }
 

@@ -1,8 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import {
-  Form,
-} from "@remix-run/react";
+import { Form } from "@remix-run/react";
 import { useState } from "react";
 
 import { requireUser } from "~/session.server";

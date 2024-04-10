@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import OrdersTable from "../common/OrderPage/OrdersTable";
-import NavBar from "../common/NavBar/NavBar";
-import NavBarHeader from "../common/NavBar/NavBarHeader";
 import { Link, Outlet, useLocation } from "@remix-run/react";
 import { Order } from "@prisma/client";
 

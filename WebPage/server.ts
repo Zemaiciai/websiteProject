@@ -117,6 +117,28 @@ async function run() {
     console.log(`✅ metrics ready: http://localhost:${metricsPort}/metrics`);
   });
 
+  CronJob.prototype.stop();
+
+  const cronJob = new CronJob(
+    "0 0 * * * *",
+    () => {
+      console.log(
+        "Running checkOrders() to check if any orders have completed",
+      );
+      checkOrders();
+    },
+    null,
+    false,
+    "UTC",
+  );
+
+  if (!cronJob.running) {
+    cronJob.start();
+    console.log(
+      "✅ started cron job to check every hour if any orders have finished",
+    );
+  }
+
   async function reimportServer(): Promise<ServerBuild> {
     // cjs: manually remove the server build from the require cache
     Object.keys(require.cache).forEach((key) => {
@@ -129,22 +151,6 @@ async function run() {
 
     // convert build path to URL for Windows compatibility with dynamic `import`
     const BUILD_URL = url.pathToFileURL(BUILD_PATH).href;
-
-    new CronJob(
-      "0 0 * * * *",
-      () => {
-        console.log(
-          "Running checkOrders() to check if any orders have completed",
-        );
-        checkOrders();
-      },
-      null,
-      true,
-      "UTC",
-    );
-    console.log(
-      "✅ started cron job to check every hour if any orders have finished",
-    );
 
     // use a timestamp query parameter to bust the import cache
     return import(BUILD_URL + "?t=" + stat.mtimeMs);
