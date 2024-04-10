@@ -18,6 +18,36 @@ export async function createMessage(
   });
 }
 
+export async function changeMessageVisibility(index: string) {
+  const messageget = await prisma.customMessage.findUnique({
+    where: {
+      id: index,
+    },
+  });
+
+  if (messageget?.visibility === true) {
+    const updatedMessage = await prisma.customMessage.update({
+      where: {
+        id: index,
+      },
+      data: {
+        visibility: false,
+      },
+    });
+    return updatedMessage;
+  } else {
+    const updatedMessage = await prisma.customMessage.update({
+      where: {
+        id: index,
+      },
+      data: {
+        visibility: true,
+      },
+    });
+    return updatedMessage;
+  }
+}
+
 export async function getAllMessages() {
   return prisma.customMessage.findMany();
 }

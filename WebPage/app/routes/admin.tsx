@@ -2,8 +2,11 @@ import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
 import { getAllLogs } from "~/models/adminLogs.server";
-import { createMessage, getAllMessages } from "~/models/customMessage.server";
-
+import {
+  createMessage,
+  getAllMessages,
+  changeMessageVisibility,
+} from "~/models/customMessage.server";
 import { createCode, getAllcodes } from "~/models/secretCode.server";
 import {
   User,
@@ -41,7 +44,7 @@ interface CustomMessage {
   priority: string;
   message: string;
   createdAt: string;
-  visibility: Boolean;
+  visibility: boolean;
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -86,6 +89,9 @@ export const action = async (actionArg) => {
     const email = String(formData.get("findingUserEmail"));
     const user = await getUserByEmail(email);
     return json(user);
+  } else if (formId === "changingVisability") {
+    const messageID = String(formData.get("messageID"));
+    return changeMessageVisibility(messageID);
   } else if (formId === "baningUser") {
     const emailID = formData.get("email-id");
     const banReason = String(formData.get("baningUserReason"));
@@ -140,13 +146,11 @@ export default function NotesPage() {
 
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
-    console.log(tab);
   };
   // Admin page user page tabs
   const [activeTabUsers, setActiveTabUsers] = useState("userInformation");
   const handleTabClickUser = (tab: string) => {
     setActiveTabUsers(tab);
-    console.log(tab);
   };
 
   const togglePopup = () => {
@@ -187,13 +191,6 @@ export default function NotesPage() {
 
   const currentCustomMessagesItems = customMessagesItems
     .sort((a, b) => {
-      // Sort by visibility first
-      if (a.visibility !== b.visibility) {
-        // Sort visible items before non-visible ones
-        return a.visibility ? -1 : 1;
-      }
-
-      // If visibility is the same, sort by createdAt
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
       if (!isNaN(dateA) && !isNaN(dateB)) {
@@ -247,6 +244,7 @@ export default function NotesPage() {
   const paginateForCustomMessages = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+
   const totalPages = Math.ceil(
     secretCodeList.filter((code) =>
       code.email.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -261,7 +259,7 @@ export default function NotesPage() {
 
   const totalPagesForCustomMessages = Math.ceil(
     customMessagesItems.filter((item) =>
-      item.message.toLowerCase().includes(searchTerm.toLowerCase()),
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()),
     ).length / itemsPerPageForMessages,
   );
 
@@ -1587,17 +1585,25 @@ export default function NotesPage() {
                               </td>
                             </tr>
                           ))}
-                          {/* Fill empty rows if necessary */}
-                          {Array.from({
-                            length: itemsPerPage - currentAdminLogItems.length,
-                          }).map((_, index) => (
-                            <tr key={`empty-${index}`}>
-                              <td className="px-6 py-4">&nbsp;</td>
-                              <td className="px-6 py-4">&nbsp;</td>
-                              <td className="px-6 py-4">&nbsp;</td>
-                              <td className="px-6 py-4">&nbsp;</td>
-                            </tr>
-                          ))}
+                          {currentAdminLogItems.length < itemsPerPageForLogs
+                            ? Array(
+                                itemsPerPageForLogs -
+                                  currentAdminLogItems.length,
+                              )
+                                .fill(null)
+                                .map((_, index) => (
+                                  <tr key={`empty-${index}`}>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    {/* Empty column for alignment */}
+                                  </tr>
+                                ))
+                            : null}
                         </tbody>
                       </table>
 
@@ -2154,7 +2160,7 @@ export default function NotesPage() {
                       </ul>
                       <button
                         type="submit"
-                        className="w-full rounded bg-custom-800  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                        className="w-full rounded bg-custom-800 font-bold  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
                       >
                         Sukurti pranešimą
                       </button>
@@ -2166,7 +2172,7 @@ export default function NotesPage() {
                       Sistemoje esantys pranešimai
                     </h1>
                     <table className="min-w-full text-center text-sm font-light">
-                      <thead className="border-b bg-neutral-50 font-medium ">
+                      <thead className="border-b bg-neutral-50 font-medium">
                         <tr>
                           <th className="px-6 py-4 w-16">#</th>
                           <th className="px-6 py-4 w-1/6">Pavadinimas</th>
@@ -2174,6 +2180,8 @@ export default function NotesPage() {
                           <th className="px-6 py-4 w-1/6">Svarbumas</th>
                           <th className="px-6 py-4 w-1/6">Sukūrimo data</th>
                           <th className="px-6 py-4 w-1/6">Matomumas</th>
+                          <th className="px-6 py-4 w-1/6">Veiksmai</th>
+                          {/* Add this table header */}
                         </tr>
                       </thead>
                       <tbody>
@@ -2208,9 +2216,31 @@ export default function NotesPage() {
                             <td className="px-6 py-4">
                               {code.visibility ? "Rodomas" : "Paslėptas"}
                             </td>
+                            <td className="px-6 py-4">
+                              <Form
+                                method="post"
+                                className="flex justify-center"
+                              >
+                                <input
+                                  name="form-id"
+                                  hidden
+                                  defaultValue="changingVisability"
+                                />
+                                <input
+                                  name="messageID"
+                                  hidden
+                                  defaultValue={code.id}
+                                />
+                                <input
+                                  type="submit"
+                                  name="action"
+                                  value="Pakeisti matomumą"
+                                  className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-4 rounded"
+                                />
+                              </Form>
+                            </td>
                           </tr>
                         ))}
-
                         {currentCustomMessagesItems.length <
                         itemsPerPageForMessages
                           ? Array(
@@ -2224,13 +2254,13 @@ export default function NotesPage() {
                                   <td className="px-6 py-4">&nbsp;</td>
                                   <td className="px-6 py-4">&nbsp;</td>
                                   <td className="px-6 py-4">&nbsp;</td>
-                                  <td className="px-6 py-4">&nbsp;</td>
-                                  <td className="px-6 py-4">&nbsp;</td>
+                                  {/* Empty column for alignment */}
                                 </tr>
                               ))
                           : null}
                       </tbody>
                     </table>
+
                     <div className="mt-4">
                       <ul className="flex justify-center">
                         {totalPagesForCustomMessages > 1
