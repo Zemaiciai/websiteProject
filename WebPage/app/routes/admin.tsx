@@ -31,7 +31,7 @@ interface AdminLogs {
   id: string;
   user: string;
   information: string;
-  createdAt: Date; // Change the type to Date
+  createdAt: string; // Change the type to Date
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -63,6 +63,7 @@ export const action = async (actionArg) => {
       adminUserName,
     );
     const secretCode = createdCode ? createdCode.secretCode : null;
+    const secretCodeList = await getAllcodes();
     return json(secretCode);
   } else if (formId === "findingUser") {
     const email = String(formData.get("findingUserEmail"));
@@ -161,6 +162,16 @@ export default function NotesPage() {
     .filter((code) =>
       code.email.toLowerCase().includes(searchTerm.toLowerCase()),
     )
+    .sort((a, b) => {
+      // Assuming createdAt exists in your secretCodeList items
+      const dateA = new Date(a.CreationData).getTime();
+      const dateB = new Date(b.CreationData).getTime();
+      if (!isNaN(dateA) && !isNaN(dateB)) {
+        return dateB - dateA;
+      }
+      // Handle cases where createdAt is not a valid date
+      return 0;
+    })
     .slice(indexOfFirstItem, indexOfLastItem);
 
   const handleSearch = (event) => {
@@ -568,18 +579,29 @@ export default function NotesPage() {
                                             <h1>{userShitNahui?.role}</h1>
                                           </div>
 
-                                          {userShitNahui?.percentage ? (
-                                            <div className="flex mb-5">
-                                              <h1 className="mr-2">
-                                                Atlygis nuo vartotojo:
-                                              </h1>
-                                              <h1>
-                                                {userShitNahui?.percentage}
-                                              </h1>
-                                            </div>
-                                          ) : (
-                                            <p></p>
-                                          )}
+                                          {userShitNahui?.role ===
+                                          "Darbuotojas" ? (
+                                            userShitNahui?.percentage !== "" ? (
+                                              <div className="flex mb-5">
+                                                <h1 className="mr-2">
+                                                  Atlygis nuo vartotojo:
+                                                </h1>
+                                                <h1>
+                                                  {userShitNahui?.percentage}
+                                                </h1>
+                                              </div>
+                                            ) : (
+                                              <div className="flex mb-5">
+                                                <h1 className="mr-2">
+                                                  Atlygis nuo vartotojo:
+                                                </h1>
+                                                <h1 className="text-red-600">
+                                                  NUSTATYKITE!!
+                                                </h1>
+                                              </div>
+                                            )
+                                          ) : null}
+
                                           <div className="flex mb-5">
                                             <h1 className="mr-2">
                                               Slapyvardis:
@@ -886,38 +908,30 @@ export default function NotesPage() {
                                                           "Nežinomas"
                                                         }
                                                       >
-                                                        {userShitNahui?.percentage ? (
-                                                          <>
-                                                            <option value="1%">
-                                                              1%
-                                                            </option>
-                                                            <option value="5%">
-                                                              5%
-                                                            </option>
-                                                            <option value="10%">
-                                                              10%
-                                                            </option>
-                                                            <option value="12%">
-                                                              12%
-                                                            </option>
-                                                            <option value="15%">
-                                                              15%
-                                                            </option>
-                                                            <option value="20%">
-                                                              20%
-                                                            </option>
-                                                            <option value="25%">
-                                                              25%
-                                                            </option>
-                                                            <option value="30%">
-                                                              30%
-                                                            </option>
-                                                          </>
-                                                        ) : (
-                                                          <option value="Nežinomas">
-                                                            Nežinomas
-                                                          </option>
-                                                        )}
+                                                        <option value="1%">
+                                                          1%
+                                                        </option>
+                                                        <option value="5%">
+                                                          5%
+                                                        </option>
+                                                        <option value="10%">
+                                                          10%
+                                                        </option>
+                                                        <option value="12%">
+                                                          12%
+                                                        </option>
+                                                        <option value="15%">
+                                                          15%
+                                                        </option>
+                                                        <option value="20%">
+                                                          20%
+                                                        </option>
+                                                        <option value="25%">
+                                                          25%
+                                                        </option>
+                                                        <option value="30%">
+                                                          30%
+                                                        </option>
                                                       </select>
                                                     </>
                                                   ) : null}
@@ -1812,44 +1826,9 @@ export default function NotesPage() {
                       <button
                         type="submit"
                         className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
-                        onClick={togglePopup}
                       >
                         Sukurti kodą
                       </button>
-
-                      {popupOpen ? (
-                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
-                          <div className="bg-white p-8 rounded-lg shadow-md text-center">
-                            <p id="secretCode">
-                              {secretCodeList && secretCodeList.length > 0 ? (
-                                <>
-                                  Sugeneruotas kodas:{" "}
-                                  <strong>
-                                    {
-                                      secretCodeList[secretCodeList.length - 1]
-                                        .secretCode
-                                    }
-                                  </strong>
-                                </>
-                              ) : (
-                                <p id="secretCode">test</p>
-                              )}
-                            </p>
-
-                            <p className="text-red-500 mt-4">
-                              Uždarius šią lentelę, Jūs nebegalėsite matyti kodo
-                            </p>
-                            <div className="mt-4">
-                              <button
-                                className="px-4 py-2 bg-custom-800 text-white rounded-md hover:bg-custom-850 transition duration-300 ease-in-out"
-                                onClick={togglePopup}
-                              >
-                                Uždaryti
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ) : null}
                     </Form>
                   </div>
 
@@ -1873,6 +1852,7 @@ export default function NotesPage() {
                             <th className="px-6 py-4 w-16">#</th>
                             <th className="px-6 py-4 w-1/6">Pavadinimas</th>
                             <th className="px-6 py-4 w-1/6">El. paštas</th>
+                            <th className="px-6 py-4 w-1/6">Kodas</th>
                             <th className="px-6 py-4 w-1/6">Rolė</th>
                             <th className="px-6 py-4 w-1/6">Kontrakto nr.</th>
                             <th className="px-6 py-4 w-1/6">Sukūrimo data</th>
@@ -1888,6 +1868,7 @@ export default function NotesPage() {
                               </td>
                               <td className="px-6 py-4">{code.customName}</td>
                               <td className="px-6 py-4">{code.email}</td>
+                              <td className="px-6 py-4">{code.secretCode}</td>
                               <td className="px-6 py-4">{code.role}</td>
                               <td className="px-6 py-4">
                                 {code.contractNumber}

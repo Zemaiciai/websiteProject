@@ -10,6 +10,7 @@ import {
   createWarningLog,
 } from "./adminLogs.server";
 import {
+  changeCodeEmail,
   changeCodeExpiring,
   changeCodePercentage,
   markCodeAsUsed,
@@ -221,6 +222,225 @@ export async function warningUser(
   return user;
 }
 
+// export async function changeUserInformation(
+//   findEMAIL: string,
+//   firstNameChange: string,
+//   lastNameChange: string,
+//   nickNameChange: string,
+//   emailChange: string,
+//   roleChange: string,
+//   timeChange: string,
+//   percentageChange: string,
+//   admin: string,
+// ) {
+//   const user = await prisma.user.findUnique({
+//     where: {
+//       email: findEMAIL,
+//     },
+//   });
+
+//   let currentDate: Date | null = user?.expiringAt ?? null;
+
+//   if (currentDate !== null && timeChange !== "holder") {
+//     if (timeChange === "oneMonth") {
+//       currentDate = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+//       createInfoChangeLog(findEMAIL, admin, "galiojimas", "", "");
+//     } else if (timeChange === "threeMonths") {
+//       const currentMonth = currentDate.getMonth();
+//       currentDate.setMonth(currentMonth + 3);
+//       createInfoChangeLog(findEMAIL, admin, "galiojimas", "", "");
+//     } else if (timeChange === "sixMonths") {
+//       const currentMonth = currentDate.getMonth();
+//       currentDate.setMonth(currentMonth + 6);
+//       createInfoChangeLog(findEMAIL, admin, "galiojimas", "", "");
+//     } else if (timeChange === "nineMonths") {
+//       const currentMonth = currentDate.getMonth();
+//       currentDate.setMonth(currentMonth + 9);
+//       createInfoChangeLog(findEMAIL, admin, "galiojimas", "", "");
+//     } else if (timeChange === "oneYear") {
+//       const currentMonth = currentDate.getMonth();
+//       currentDate.setMonth(currentMonth + 12);
+//       createInfoChangeLog(findEMAIL, admin, "galiojimas", "", "");
+//     } else if (timeChange === "twoYears") {
+//       const currentMonth = currentDate.getMonth();
+//       currentDate.setMonth(currentMonth + 24);
+//       createInfoChangeLog(findEMAIL, admin, "galiojimas", "", "");
+//     }
+
+//     if (
+//       firstNameChange &&
+//       user?.firstName &&
+//       firstNameChange !== user.firstName
+//     ) {
+//       const what = user.firstName;
+//       createInfoChangeLog(
+//         findEMAIL,
+//         admin,
+//         "varda",
+//         user.firstName,
+//         firstNameChange,
+//       );
+//     }
+//     if (lastNameChange && user?.lastName && lastNameChange !== user.lastName) {
+//       createInfoChangeLog(
+//         findEMAIL,
+//         admin,
+//         "pavarde",
+//         user.lastName,
+//         lastNameChange,
+//       );
+//     }
+
+//     if (nickNameChange && user?.userName && nickNameChange !== user.userName) {
+//       createInfoChangeLog(
+//         findEMAIL,
+//         admin,
+//         "slapyvardi",
+//         user.userName,
+//         nickNameChange,
+//       );
+//     }
+
+//     if (
+//       percentageChange &&
+//       user?.percentage &&
+//       percentageChange !== user.percentage &&
+//       percentageChange !== ""
+//     ) {
+//       changeCodePercentage(findEMAIL, percentageChange);
+//       createInfoChangeLog(
+//         findEMAIL,
+//         admin,
+//         "atlygis nuo vartotojo",
+//         user.percentage,
+//         percentageChange,
+//       );
+//     }
+
+//     if (emailChange && user?.email && emailChange !== user.email) {
+//       createInfoChangeLog(
+//         findEMAIL,
+//         admin,
+//         "el. paštą",
+//         user.email,
+//         emailChange,
+//       );
+//     }
+
+//     if (roleChange && user?.role && roleChange !== user.role) {
+//       createInfoChangeLog(findEMAIL, admin, "rolę", user.role, roleChange);
+//     }
+
+//     const changeInfo = await prisma.user.update({
+//       where: {
+//         email: findEMAIL,
+//       },
+//       data: {
+//         firstName: firstNameChange,
+//         lastName: lastNameChange,
+//         userName: nickNameChange,
+//         role: roleChange,
+//         email: emailChange,
+//         percentage: percentageChange,
+//         expiringAt: currentDate !== null ? currentDate : undefined,
+//       },
+//     });
+//     changeCodeExpiring(findEMAIL, currentDate);
+
+//     if (percentageChange !== "") {
+//       changeCodePercentage(findEMAIL, percentageChange);
+//     }
+
+//     return changeInfo;
+//   } else {
+//     if (
+//       firstNameChange &&
+//       user?.firstName &&
+//       firstNameChange !== user.firstName
+//     ) {
+//       const what = user.firstName;
+//       createInfoChangeLog(
+//         findEMAIL,
+//         admin,
+//         "varda",
+//         user.firstName,
+//         firstNameChange,
+//       );
+//     }
+//     if (lastNameChange && user?.lastName && lastNameChange !== user.lastName) {
+//       createInfoChangeLog(
+//         findEMAIL,
+//         admin,
+//         "pavarde",
+//         user.lastName,
+//         lastNameChange,
+//       );
+//     }
+
+//     if (nickNameChange && user?.userName && nickNameChange !== user.userName) {
+//       createInfoChangeLog(
+//         findEMAIL,
+//         admin,
+//         "slapyvardi",
+//         user.userName,
+//         nickNameChange,
+//       );
+//     }
+
+//     if (
+//       percentageChange &&
+//       user?.percentage &&
+//       percentageChange !== user.percentage &&
+//       percentageChange !== ""
+//     ) {
+//       changeCodePercentage(findEMAIL, percentageChange);
+//       createInfoChangeLog(
+//         findEMAIL,
+//         admin,
+//         "atlygis nuo vartotojo",
+//         user.percentage,
+//         percentageChange,
+//       );
+//     }
+
+//     if (emailChange && user?.email && emailChange !== user.email) {
+//       createInfoChangeLog(
+//         findEMAIL,
+//         admin,
+//         "el. paštą",
+//         user.email,
+//         emailChange,
+//       );
+//     }
+
+//     const changeInfo = await prisma.user.update({
+//       where: {
+//         email: findEMAIL,
+//       },
+//       data: {
+//         firstName: firstNameChange,
+//         lastName: lastNameChange,
+//         userName: nickNameChange,
+//         role: roleChange,
+//         email: emailChange,
+//         percentage: percentageChange,
+//       },
+//     });
+
+//     if (emailChange && user?.email && emailChange !== user.email) {
+//       createInfoChangeLog(
+//         findEMAIL,
+//         admin,
+//         "el. paštą",
+//         user.email,
+//         emailChange,
+//       );
+//     }
+
+//     return changeInfo;
+//   }
+// }
+
 export async function changeUserInformation(
   findEMAIL: string,
   firstNameChange: string,
@@ -237,205 +457,286 @@ export async function changeUserInformation(
       email: findEMAIL,
     },
   });
+  //Checking if we need to change the first name
+  if (
+    user?.firstName !== firstNameChange &&
+    firstNameChange !== "" &&
+    user?.firstName
+  ) {
+    await changeFirstName(user.id, firstNameChange, admin, user.firstName);
+  }
+  //Checking if we need to change the last name
+  if (
+    user?.lastName !== lastNameChange &&
+    lastNameChange !== "" &&
+    user?.lastName
+  ) {
+    await changeLastName(user.id, lastNameChange, admin, user.lastName);
+  }
+  //Checking if we need to change the username
+  if (
+    user?.userName !== nickNameChange &&
+    nickNameChange !== "" &&
+    user?.userName
+  ) {
+    await changeUserName(user.id, nickNameChange, admin, user.userName);
+  }
 
+  //Checking if we need to change the percentage
+  if (
+    user?.percentage !== percentageChange &&
+    percentageChange !== "" &&
+    user?.role === "Darbuotojas"
+  ) {
+    if (user?.percentage) {
+      console.log(percentageChange);
+      console.log(user.percentage);
+      await changePercentage(user.id, percentageChange, admin, user.percentage);
+      await changeCodePercentage(user.id, percentageChange);
+    } else if (user?.id) {
+      console.log(percentageChange);
+      console.log(user.percentage);
+      await changePercentage(user.id, percentageChange, admin, "neegzistavo");
+      await changeCodePercentage(user.id, percentageChange);
+    }
+  }
+
+  //Checking if we need to change the role
+  if (user?.role !== roleChange && roleChange !== "" && user?.role) {
+    await changeRole(user.id, roleChange, admin, user.role);
+  }
+
+  //Checking if we need to change the expiration date
   let currentDate: Date | null = user?.expiringAt ?? null;
 
-  if (currentDate !== null && timeChange !== "holder") {
+  if (currentDate !== null && timeChange !== "holder" && user?.id) {
     if (timeChange === "oneMonth") {
       currentDate = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000);
-      createInfoChangeLog(findEMAIL, admin, "galiojimas", "", "");
+      changeDate(user?.id, currentDate);
+      createInfoChangeLog(
+        user.email,
+        admin,
+        "galiojimas vienam mėnesiui",
+        "",
+        "",
+      );
     } else if (timeChange === "threeMonths") {
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 3);
-      createInfoChangeLog(findEMAIL, admin, "galiojimas", "", "");
+      changeDate(user?.id, currentDate);
+      createInfoChangeLog(
+        user.email,
+        admin,
+        "galiojimas triems mėnesiams",
+        "",
+        "",
+      );
     } else if (timeChange === "sixMonths") {
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 6);
-      createInfoChangeLog(findEMAIL, admin, "galiojimas", "", "");
+      changeDate(user?.id, currentDate);
+      createInfoChangeLog(
+        user.email,
+        admin,
+        "galiojimas šešiem mėnesiam",
+        "",
+        "",
+      );
     } else if (timeChange === "nineMonths") {
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 9);
-      createInfoChangeLog(findEMAIL, admin, "galiojimas", "", "");
+      changeDate(user?.id, currentDate);
+      createInfoChangeLog(
+        user.email,
+        admin,
+        "galiojimas deviniem mėnesiam",
+        "",
+        "",
+      );
     } else if (timeChange === "oneYear") {
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 12);
-      createInfoChangeLog(findEMAIL, admin, "galiojimas", "", "");
+      changeDate(user?.id, currentDate);
+      createInfoChangeLog(user.email, admin, "galiojimas metams", "", "");
     } else if (timeChange === "twoYears") {
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 24);
-      createInfoChangeLog(findEMAIL, admin, "galiojimas", "", "");
+      changeDate(user?.id, currentDate);
+      createInfoChangeLog(user.email, admin, "galiojimas dviem metais", "", "");
     }
-
-    if (
-      firstNameChange &&
-      user?.firstName &&
-      firstNameChange !== user.firstName
-    ) {
-      const what = user.firstName;
-      createInfoChangeLog(
-        findEMAIL,
-        admin,
-        "varda",
-        user.firstName,
-        firstNameChange,
-      );
-    }
-    if (lastNameChange && user?.lastName && lastNameChange !== user.lastName) {
-      createInfoChangeLog(
-        findEMAIL,
-        admin,
-        "pavarde",
-        user.lastName,
-        lastNameChange,
-      );
-    }
-
-    if (nickNameChange && user?.userName && nickNameChange !== user.userName) {
-      createInfoChangeLog(
-        findEMAIL,
-        admin,
-        "slapyvardi",
-        user.userName,
-        nickNameChange,
-      );
-    }
-
-    if (
-      percentageChange &&
-      user?.percentage &&
-      percentageChange !== user.percentage &&
-      percentageChange !== ""
-    ) {
-      changeCodePercentage(findEMAIL, percentageChange);
-      createInfoChangeLog(
-        findEMAIL,
-        admin,
-        "atlygis nuo vartotojo",
-        user.percentage,
-        percentageChange,
-      );
-    }
-
-    if (emailChange && user?.email && emailChange !== user.email) {
-      createInfoChangeLog(
-        findEMAIL,
-        admin,
-        "el. paštą",
-        user.email,
-        emailChange,
-      );
-    }
-
-    if (roleChange && user?.role && roleChange !== user.role) {
-      createInfoChangeLog(findEMAIL, admin, "rolę", user.role, roleChange);
-    }
-
-    const changeInfo = await prisma.user.update({
-      where: {
-        email: findEMAIL,
-      },
-      data: {
-        firstName: firstNameChange,
-        lastName: lastNameChange,
-        userName: nickNameChange,
-        role: roleChange,
-        email: emailChange,
-        percentage: percentageChange,
-        expiringAt: currentDate !== null ? currentDate : undefined,
-      },
-    });
-    changeCodeExpiring(findEMAIL, currentDate);
-
-    if (percentageChange !== "") {
-      changeCodePercentage(findEMAIL, percentageChange);
-    }
-
-    return changeInfo;
-  } else {
-    if (
-      firstNameChange &&
-      user?.firstName &&
-      firstNameChange !== user.firstName
-    ) {
-      const what = user.firstName;
-      createInfoChangeLog(
-        findEMAIL,
-        admin,
-        "varda",
-        user.firstName,
-        firstNameChange,
-      );
-    }
-    if (lastNameChange && user?.lastName && lastNameChange !== user.lastName) {
-      createInfoChangeLog(
-        findEMAIL,
-        admin,
-        "pavarde",
-        user.lastName,
-        lastNameChange,
-      );
-    }
-
-    if (nickNameChange && user?.userName && nickNameChange !== user.userName) {
-      createInfoChangeLog(
-        findEMAIL,
-        admin,
-        "slapyvardi",
-        user.userName,
-        nickNameChange,
-      );
-    }
-
-    if (
-      percentageChange &&
-      user?.percentage &&
-      percentageChange !== user.percentage &&
-      percentageChange !== ""
-    ) {
-      changeCodePercentage(findEMAIL, percentageChange);
-      createInfoChangeLog(
-        findEMAIL,
-        admin,
-        "atlygis nuo vartotojo",
-        user.percentage,
-        percentageChange,
-      );
-    }
-
-    if (emailChange && user?.email && emailChange !== user.email) {
-      createInfoChangeLog(
-        findEMAIL,
-        admin,
-        "el. paštą",
-        user.email,
-        emailChange,
-      );
-    }
-
-    const changeInfo = await prisma.user.update({
-      where: {
-        email: findEMAIL,
-      },
-      data: {
-        firstName: firstNameChange,
-        lastName: lastNameChange,
-        userName: nickNameChange,
-        role: roleChange,
-        email: emailChange,
-        percentage: percentageChange,
-      },
-    });
-
-    if (emailChange && user?.email && emailChange !== user.email) {
-      createInfoChangeLog(
-        findEMAIL,
-        admin,
-        "el. paštą",
-        user.email,
-        emailChange,
-      );
-    }
-
-    return changeInfo;
   }
+
+  //Checking if we need to change the email
+  if (user?.email !== emailChange && emailChange !== "" && user?.email) {
+    await changeCodeEmail(user.email, emailChange);
+    await changeUserEmail(user.id, emailChange, admin, user.email);
+  }
+
+  return user;
+}
+
+async function changeFirstName(
+  userID: string,
+  firstNameChange: string,
+  admin: string,
+  originalName: string,
+) {
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      firstName: firstNameChange,
+    },
+  });
+  createInfoChangeLog(
+    changeInfo.email,
+    admin,
+    "varda",
+    originalName,
+    firstNameChange,
+  );
+  return changeInfo;
+}
+
+async function changeLastName(
+  userID: string,
+  lastNameChange: string,
+  admin: string,
+  originalName: string,
+) {
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      lastName: lastNameChange,
+    },
+  });
+  createInfoChangeLog(
+    changeInfo.email,
+    admin,
+    "pavarde",
+    originalName,
+    lastNameChange,
+  );
+  return changeInfo;
+}
+
+async function changeUserName(
+  userID: string,
+  userNameChange: string,
+  admin: string,
+  originalName: string,
+) {
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      userName: userNameChange,
+    },
+  });
+  createInfoChangeLog(
+    changeInfo.email,
+    admin,
+    "slapyvardi",
+    originalName,
+    userNameChange,
+  );
+  return changeInfo;
+}
+
+async function changeUserEmail(
+  userID: string,
+  emailChange: string,
+  admin: string,
+  originalName: string,
+) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userID,
+    },
+  });
+
+  if (user?.email) {
+    createInfoChangeLog(
+      user?.email,
+      admin,
+      "el. pašta",
+      originalName,
+      emailChange,
+    );
+  }
+
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      email: emailChange,
+    },
+  });
+  return changeInfo;
+}
+
+async function changeRole(
+  userID: string,
+  roleChange: string,
+  admin: string,
+  originalName: string,
+) {
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      role: roleChange,
+    },
+  });
+  createInfoChangeLog(
+    changeInfo.email,
+    admin,
+    "role",
+    originalName,
+    roleChange,
+  );
+  return changeInfo;
+}
+
+async function changePercentage(
+  userID: string,
+  percentageChange: string,
+  admin: string,
+  originalName: string,
+) {
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      percentage: percentageChange,
+    },
+  });
+  createInfoChangeLog(
+    changeInfo.email,
+    admin,
+    "atlygis nuo vartotojo",
+    originalName,
+    percentageChange,
+  );
+  return changeInfo;
+}
+
+async function changeDate(userID: string, dateChange: Date) {
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      expiringAt: dateChange,
+    },
+  });
+
+  return changeInfo;
 }

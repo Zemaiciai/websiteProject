@@ -195,13 +195,41 @@ export async function changeCodeExpiring(emailtest: string, date: Date) {
   }
 }
 
-export async function changeCodePercentage(
-  emailID: string,
-  percentageChange: string,
-) {
+export async function changeCodeEmail(emailtest: string, newEmail: string) {
   const code = await prisma.secretCodeAdmin.findFirst({
     where: {
-      email: emailID,
+      email: emailtest,
+    },
+  });
+
+  if (code) {
+    const updatedCode = await prisma.secretCodeAdmin.update({
+      where: {
+        id: code.id,
+      },
+      data: {
+        email: newEmail,
+      },
+    });
+
+    return updatedCode;
+  } else {
+    throw new Error(`Code with email ${emailtest} not found.`);
+  }
+}
+
+export async function changeCodePercentage(
+  userID: string,
+  percentageChange: string,
+) {
+  const user = await prisma.user.findFirst({
+    where: {
+      id: userID,
+    },
+  });
+  const code = await prisma.secretCodeAdmin.findFirst({
+    where: {
+      email: user?.email,
     },
   });
 
@@ -217,6 +245,6 @@ export async function changeCodePercentage(
 
     return updatedCode;
   } else {
-    throw new Error(`Code with email ${emailID} not found.`);
+    throw new Error(`Code with email ${userID} not found.`);
   }
 }

@@ -81,7 +81,13 @@ export async function createInfoChangeLog(
       " į " +
       changedTo;
   } else {
-    info = "Vartotojui " + userWhichWasChanged + " buvo pakeistas " + changes;
+    info =
+      "Vartotojui " +
+      userWhichWasChanged +
+      " buvo pratestas " +
+      changes +
+      " " +
+      previous;
   }
 
   return prisma.adminLogs.create({
