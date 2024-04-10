@@ -105,3 +105,12 @@ model AdminLogs{
 
   createdAt DateTime @default(now())
 }
+
+model CustomMessage{
+  id    String @id @default(cuid())
+  name String
+  priority String
+  message String
+  createdAt DateTime @default(now())
+  visibility Boolean
+}

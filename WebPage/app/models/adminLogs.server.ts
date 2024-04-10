@@ -98,6 +98,19 @@ export async function createInfoChangeLog(
   });
 }
 
+export async function createCustomMessageLog(
+  messageName: string,
+  admin: string,
+) {
+  const info = "Sukūrė svetainės pranešima kurios pavadinimas: " + messageName;
+  return prisma.adminLogs.create({
+    data: {
+      user: admin,
+      information: info,
+    },
+  });
+}
+
 export async function getAllLogs() {
   return prisma.adminLogs.findMany();
 }

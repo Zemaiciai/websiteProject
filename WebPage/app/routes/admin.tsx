@@ -2,6 +2,7 @@ import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
 import { getAllLogs } from "~/models/adminLogs.server";
+import { createMessage } from "~/models/customMessage.server";
 
 import { createCode, getAllcodes } from "~/models/secretCode.server";
 import {
@@ -98,6 +99,17 @@ export const action = async (actionArg) => {
       roleChange,
       timeChange,
       percentage,
+      adminUserName,
+    );
+  } else if (formId === "websiteMessageCreation") {
+    const customNameForMessages = formData.get("customName");
+    const importanceForMessages = formData.get("importance");
+    const customMessageForMessages = formData.get("customMessage");
+
+    return createMessage(
+      customNameForMessages,
+      importanceForMessages,
+      customMessageForMessages,
       adminUserName,
     );
   } else {
@@ -256,16 +268,6 @@ export default function NotesPage() {
             </button>
             <button
               className={`inline-flex justify-center px-4 py-3 ${
-                activeTab === "adminStats"
-                  ? "text-white bg-custom-850"
-                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
-              } w-full`}
-              onClick={() => handleTabClick("adminStats")}
-            >
-              Admin statistika
-            </button>
-            <button
-              className={`inline-flex justify-center px-4 py-3 ${
                 activeTab === "adminLogs"
                   ? "text-white bg-custom-850"
                   : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
@@ -273,6 +275,16 @@ export default function NotesPage() {
               onClick={() => handleTabClick("adminLogs")}
             >
               Veiksmų istorija
+            </button>
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "websiteMessages"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
+              } w-full`}
+              onClick={() => handleTabClick("websiteMessages")}
+            >
+              Svetainės pranešimai
             </button>
           </div>
         </div>
@@ -1430,71 +1442,6 @@ export default function NotesPage() {
           </>
         ) : null}
 
-        {activeTab === "adminStats" ? (
-          <>
-            <div className="flex flex-col w-full relative overflow-auto">
-              <div className="flex flex-col w-full bg-custom-100">
-                {/* HEADER FOR ADMIN PANEL */}
-                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
-                  <div className="flex items-center justify-between">
-                    <div className="pt-6 pl-6 pb-6">
-                      <h1 className="text-2xl text-bold font-bold">
-                        Admin statistika
-                      </h1>
-                    </div>
-
-                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
-                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
-                        <Link to="/dashboard" className="btn btn-primary">
-                          <div
-                            style={{ display: "flex", alignItems: "center" }}
-                          >
-                            <span style={{ marginRight: "0.5rem" }}>
-                              Vardas pavardė
-                            </span>
-                            <img
-                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
-                              alt="Profile"
-                              className="h-10 w-10 rounded-full cursor-pointer"
-                            />
-                          </div>
-                        </Link>
-                      </div>
-                      <Link to="/dashboard" className="btn btn-primary">
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <span style={{ marginRight: "0.5rem" }}>
-                            Grįžti atgal
-                          </span>
-                          <img
-                            className="w-4 h-4"
-                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
-                            alt="ggwp"
-                          />
-                        </div>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-                {/* END OF HEADER FOR ADMIN PANEL */}
-                <div className="flex flex-col w-[98,3%] ml-3 mt-3 mr-8">
-                  <div className="p-6 bg-custom-200 text-medium   w-full h-[450px] ml-3 mt-3 mr-3">
-                    <h1 className="text-3xl font-mono font-font-extralight">
-                      Admin stats
-                    </h1>
-                  </div>
-
-                  <div className="p-6 bg-custom-200 text-medium   w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
-                    <h1 className="text-3xl font-mono font-font-extralight">
-                      Placeholder
-                    </h1>
-                    <div className=""></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
-        ) : null}
-
         {activeTab === "adminLogs" ? (
           <>
             <div className="flex flex-col w-full relative overflow-auto">
@@ -1551,7 +1498,9 @@ export default function NotesPage() {
                         <thead className="border-b bg-neutral-50 font-medium">
                           <tr>
                             <th className="px-6 py-4 w-16">#</th>
-                            <th className="px-6 py-4 w-1/6">Vartotojas</th>
+                            <th className="px-6 py-4 w-1/6">
+                              Administratorius
+                            </th>
                             <th className="px-6 py-4 w-1/2">Informacija</th>
                             <th className="px-6 py-4 w-1/6">Sukūrimo data</th>
                           </tr>
@@ -2007,6 +1956,161 @@ export default function NotesPage() {
                   </div>
 
                   {/*  */}
+                </div>
+              </div>
+            </div>
+          </>
+        ) : null}
+        {activeTab === "websiteMessages" ? (
+          <>
+            <div className="flex flex-col w-full relative overflow-auto">
+              <div className="flex flex-col w-full bg-custom-100">
+                {/* HEADER FOR ADMIN PANEL */}
+                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
+                  <div className="flex items-center justify-between">
+                    <div className="pt-6 pl-6 pb-6">
+                      <h1 className="text-2xl text-bold font-bold">
+                        Svetainės pranešimai
+                      </h1>
+                    </div>
+
+                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
+                      <Link to="/dashboard" className="btn btn-primary">
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span style={{ marginRight: "0.5rem" }}>
+                            Grįžti atgal
+                          </span>
+                          <img
+                            className="w-4 h-4"
+                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
+                            alt="ggwp"
+                          />
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col ml-3 mt-3 mr-8">
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[430px] ml-3 mt-3 mr-3 ">
+                    <h1 className="text-3xl font-mono font-font-extralight pb-3">
+                      Pranešimo kūrimas (NOT IMPLEMENTED)
+                    </h1>
+                    <Form method="post">
+                      <div className="flex flex-wrap -mx-3 mb-4">
+                        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                          <div className="flex flex-col">
+                            <div className="relative">
+                              <input
+                                name="form-id"
+                                hidden
+                                defaultValue="websiteMessageCreation"
+                              />
+                              <input
+                                name="adminUserName"
+                                hidden
+                                defaultValue={data.user.userName}
+                              />
+                              <input
+                                id="customName"
+                                name="customName"
+                                type="text"
+                                ref={customNameRef}
+                                autoComplete="on"
+                                aria-describedby="email-error"
+                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                                placeholder="Pavadinimas"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="w-full md:w-1/2 px-3">
+                          <div className="flex flex-col">
+                            <div className="relative">
+                              <select
+                                id="importance"
+                                name="importance"
+                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                              >
+                                <option value="holder">Svarbumas</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="w-full px-3 mt-3">
+                          <div className="flex flex-col">
+                            <div className="relative">
+                              <textarea
+                                id="customMessage"
+                                name="customMessage"
+                                autoComplete="on"
+                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                                placeholder="Jūsų pranešimas"
+                                style={{ resize: "none" }} // Disable resizing
+                                rows={3} // You can adjust the number of rows as needed
+                              ></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <h1>Informacija apie svarbumo skaičius</h1>
+                      <ul className="list-disc ml-8 mb-4">
+                        <li className="text-green-600">
+                          1-2: Žalias pranešimas ir jis nebus rodomas jeigu
+                          egzistuoja žinučių su 3-5 svarbumais. Šis tipas
+                          pasirenkamas tuo atvėju jeigu žinutė yra pvž.: įvyko
+                          svetainės atnaujinimas.
+                        </li>
+                        <li className="text-yellow-400">
+                          3-4: Geltonas pranešimas ir jis nebus rodomas jeigu
+                          egzistuoja žinučių su 5 svarbumu. Šis tipas
+                          pasirenkamas tuo atvėju jeigu žinutė yra pvž.:
+                          neatlikta klausimanija arba informuoti dėl didelio
+                          svetainės pakeitimo.
+                        </li>
+                        <li className="text-red-600">
+                          5: Raudonas pranešimas ir jis bus visada
+                          atvaizduojamas pirmiausiai. Šis tipas pasirenkamas tuo
+                          atvėju jeigu žinutė yra pvž.: svėtainės apmokėjimo
+                          sistema neveikia.
+                        </li>
+                      </ul>
+                      <button
+                        type="submit"
+                        className="w-full rounded bg-custom-800  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                      >
+                        Sukurti pranešimą
+                      </button>
+                    </Form>
+                  </div>
+
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
+                    <h1 className="text-3xl font-mono font-font-extralight">
+                      Placeholder
+                    </h1>
+                    <div className=""></div>
+                  </div>
                 </div>
               </div>
             </div>
