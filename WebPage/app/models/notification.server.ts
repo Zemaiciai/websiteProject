@@ -1,4 +1,4 @@
-import type { User, NotificationTypes } from "@prisma/client";
+import { User, NotificationTypes } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 import { getUserById } from "./user.server";

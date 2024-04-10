@@ -1,3 +1,4 @@
+import { NotificationTypes } from "@prisma/client";
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { ChangeEvent, useState } from "react";
@@ -84,7 +85,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     footageLink,
   );
 
-  await sendNotification(worker!.id, "ORDER_ASSIGNED");
+  // Create a notification for the worker
+  await sendNotification(worker!.id, NotificationTypes.ORDER_ASSIGNED);
+
   return redirect("/orders");
 };
 

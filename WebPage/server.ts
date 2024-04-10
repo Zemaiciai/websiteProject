@@ -11,6 +11,8 @@ import type { RequestHandler } from "express";
 import express from "express";
 import morgan from "morgan";
 import sourceMapSupport from "source-map-support";
+import { CronJob } from "cron";
+import { checkOrders } from "~/models/order.server";
 
 sourceMapSupport.install();
 installGlobals();
@@ -127,6 +129,22 @@ async function run() {
 
     // convert build path to URL for Windows compatibility with dynamic `import`
     const BUILD_URL = url.pathToFileURL(BUILD_PATH).href;
+
+    new CronJob(
+      "0 0 * * * *",
+      () => {
+        console.log(
+          "Running checkOrders() to check if any orders have completed",
+        );
+        checkOrders();
+      },
+      null,
+      true,
+      "UTC",
+    );
+    console.log(
+      "✅ started cron job to check every hour if any orders have finished",
+    );
 
     // use a timestamp query parameter to bust the import cache
     return import(BUILD_URL + "?t=" + stat.mtimeMs);
