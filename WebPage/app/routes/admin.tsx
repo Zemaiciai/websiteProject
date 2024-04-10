@@ -2007,12 +2007,12 @@ export default function NotesPage() {
                   </div>
                 </div>
                 <div className="flex flex-col ml-3 mt-3 mr-8">
-                  <div className="p-6 bg-custom-200 text-medium w-full h-[430px] ml-3 mt-3 mr-3 ">
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[450px] ml-3 mt-3 mr-3 ">
                     <h1 className="text-3xl font-mono font-font-extralight pb-3">
-                      Pranešimo kūrimas (NOT IMPLEMENTED)
+                      Pranešimo kūrimas
                     </h1>
                     <Form method="post">
-                      <div className="flex flex-wrap -mx-3 mb-4">
+                      <div className="flex flex-wrap -mx-3">
                         <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                           <div className="flex flex-col">
                             <div className="relative">
@@ -2074,7 +2074,12 @@ export default function NotesPage() {
                         </div>
                       </div>
 
-                      <h1>Informacija apie svarbumo skaičius</h1>
+                      <h1 className="text-red-600 mb-2">
+                        Sukūrus pranešima jis iškarto bus rodomas svetainėje!
+                      </h1>
+                      <h1 className="text-xl font-semibold">
+                        Informacija apie svarbumo skaičius
+                      </h1>
                       <ul className="list-disc ml-8 mb-4">
                         <li className="text-green-600">
                           1-2: Žalias pranešimas ir jis nebus rodomas jeigu
