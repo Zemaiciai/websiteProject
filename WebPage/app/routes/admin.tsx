@@ -2,7 +2,7 @@ import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
 import { getAllLogs } from "~/models/adminLogs.server";
-import { createMessage } from "~/models/customMessage.server";
+import { createMessage, getAllMessages } from "~/models/customMessage.server";
 
 import { createCode, getAllcodes } from "~/models/secretCode.server";
 import {
@@ -35,12 +35,28 @@ interface AdminLogs {
   createdAt: string; // Change the type to Date
 }
 
+interface CustomMessage {
+  id: string;
+  name: string;
+  priority: string;
+  message: string;
+  createdAt: string;
+  visibility: Boolean;
+}
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const secretCodeList = await getAllcodes();
   const userList = await getAllusers();
   const user = await requireUser(request);
   const logsOfAdmin = await getAllLogs();
-  return json({ secretCodeList, userList, user, logsOfAdmin });
+  const customMessageList = await getAllMessages();
+  return json({
+    secretCodeList,
+    userList,
+    user,
+    logsOfAdmin,
+    customMessageList,
+  });
 };
 
 export const action = async (actionArg) => {
@@ -148,6 +164,7 @@ export default function NotesPage() {
 
   const secretCodeList = data.secretCodeList;
   const adminLogItems: AdminLogs[] = data.logsOfAdmin;
+  const customMessagesItems: CustomMessage[] = data.customMessageList;
 
   const userShitNahui = useActionData<User>();
   const userList = useLoaderData<{ userList: User[] }>().userList;
@@ -162,6 +179,30 @@ export default function NotesPage() {
   const itemsPerPageForLogs = 30;
   const indexOfLastItemForLogs = currentPage * itemsPerPageForLogs;
   const indexOfFirstItemForLogs = indexOfLastItemForLogs - itemsPerPageForLogs;
+
+  const itemsPerPageForMessages = 10;
+  const indexOfLastItemForMessages = currentPage * itemsPerPageForMessages;
+  const indexOfFirstItemForMessages =
+    indexOfLastItemForMessages - itemsPerPageForMessages;
+
+  const currentCustomMessagesItems = customMessagesItems
+    .sort((a, b) => {
+      // Sort by visibility first
+      if (a.visibility !== b.visibility) {
+        // Sort visible items before non-visible ones
+        return a.visibility ? -1 : 1;
+      }
+
+      // If visibility is the same, sort by createdAt
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      if (!isNaN(dateA) && !isNaN(dateB)) {
+        return dateB - dateA;
+      }
+      // Handle cases where createdAt is not a valid date
+      return 0;
+    })
+    .slice(indexOfFirstItemForMessages, indexOfLastItemForMessages);
 
   const currentAdminLogItems = adminLogItems
     .sort((a, b) => {
@@ -202,6 +243,10 @@ export default function NotesPage() {
   const paginateForAdminLogs = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+
+  const paginateForCustomMessages = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
   const totalPages = Math.ceil(
     secretCodeList.filter((code) =>
       code.email.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -212,6 +257,12 @@ export default function NotesPage() {
     adminLogItems.filter((item) =>
       item.user.toLowerCase().includes(searchTerm.toLowerCase()),
     ).length / itemsPerPageForLogs,
+  );
+
+  const totalPagesForCustomMessages = Math.ceil(
+    customMessagesItems.filter((item) =>
+      item.message.toLowerCase().includes(searchTerm.toLowerCase()),
+    ).length / itemsPerPageForMessages,
   );
 
   const [roleSelection, setRoleSelection] = useState("holder");
@@ -1490,7 +1541,7 @@ export default function NotesPage() {
                 {/* END OF HEADER FOR ADMIN PANEL */}
                 <div className="flex flex-col w-[98,3%] ml-3 mt-3 mr-8">
                   <div className="p-6 bg-custom-200 text-medium w-full ml-3 mt-3 mr-3 mb-5">
-                    <h1 className="text-3xl font-mono font-font-extralight pb-2">
+                    <h1 className="text-3xl font-mono font-font-extralight pb-2 mb-3">
                       Administratorių veiksmų istorija
                     </h1>
                     <div className="">
@@ -2110,11 +2161,100 @@ export default function NotesPage() {
                     </Form>
                   </div>
 
-                  <div className="p-6 bg-custom-200 text-medium w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
-                    <h1 className="text-3xl font-mono font-font-extralight">
-                      Placeholder
+                  <div className="p-6 bg-custom-200 text-medium w-full  ml-3 mt-3 mr-3 mb-5">
+                    <h1 className="text-3xl font-mono font-font-extralight mb-5">
+                      Sistemoje esantys pranešimai
                     </h1>
-                    <div className=""></div>
+                    <table className="min-w-full text-center text-sm font-light">
+                      <thead className="border-b bg-neutral-50 font-medium ">
+                        <tr>
+                          <th className="px-6 py-4 w-16">#</th>
+                          <th className="px-6 py-4 w-1/6">Pavadinimas</th>
+                          <th className="px-6 py-4 w-1/6">Žinutė</th>
+                          <th className="px-6 py-4 w-1/6">Svarbumas</th>
+                          <th className="px-6 py-4 w-1/6">Sukūrimo data</th>
+                          <th className="px-6 py-4 w-1/6">Matomumas</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentCustomMessagesItems.map((code, index) => (
+                          <tr key={index}>
+                            <td className="px-6 py-4">
+                              {indexOfFirstItemForMessages + index + 1}
+                            </td>
+                            <td className="px-6 py-4">{code.name}</td>
+                            <td className="px-6 py-4">{code.message}</td>
+                            <td className="px-6 py-4">{code.priority}</td>
+                            <td className="px-6 py-4">
+                              {code.createdAt
+                                ? new Date(code.createdAt)
+                                    .toLocaleDateString("en-CA", {
+                                      year: "numeric",
+                                      month: "2-digit",
+                                      day: "2-digit",
+                                    })
+                                    .replace(/\//g, "-") +
+                                  ", " +
+                                  new Date(code.createdAt).toLocaleTimeString(
+                                    [],
+                                    {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: false,
+                                    },
+                                  )
+                                : null}
+                            </td>
+                            <td className="px-6 py-4">
+                              {code.visibility ? "Rodomas" : "Paslėptas"}
+                            </td>
+                          </tr>
+                        ))}
+
+                        {currentCustomMessagesItems.length <
+                        itemsPerPageForMessages
+                          ? Array(
+                              itemsPerPageForMessages -
+                                currentCustomMessagesItems.length,
+                            )
+                              .fill(null)
+                              .map((_, index) => (
+                                <tr key={`empty-${index}`}>
+                                  <td className="px-6 py-4">&nbsp;</td>
+                                  <td className="px-6 py-4">&nbsp;</td>
+                                  <td className="px-6 py-4">&nbsp;</td>
+                                  <td className="px-6 py-4">&nbsp;</td>
+                                  <td className="px-6 py-4">&nbsp;</td>
+                                  <td className="px-6 py-4">&nbsp;</td>
+                                </tr>
+                              ))
+                          : null}
+                      </tbody>
+                    </table>
+                    <div className="mt-4">
+                      <ul className="flex justify-center">
+                        {totalPagesForCustomMessages > 1
+                          ? Array.from({
+                              length: totalPagesForCustomMessages,
+                            }).map((_, index) => (
+                              <li key={index} className="mx-1">
+                                <button
+                                  className={`px-3 py-1 rounded ${
+                                    currentPage === index + 1
+                                      ? "bg-custom-850 text-white"
+                                      : "bg-custom-800 text-white"
+                                  }`}
+                                  onClick={() =>
+                                    paginateForCustomMessages(index + 1)
+                                  }
+                                >
+                                  {index + 1}
+                                </button>
+                              </li>
+                            ))
+                          : null}
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>

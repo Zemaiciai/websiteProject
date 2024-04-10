@@ -17,3 +17,7 @@ export async function createMessage(
     },
   });
 }
+
+export async function getAllMessages() {
+  return prisma.customMessage.findMany();
+}
