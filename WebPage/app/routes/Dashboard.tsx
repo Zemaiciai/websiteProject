@@ -24,7 +24,6 @@ const Dashboard = () => {
     name: string;
     priority: string;
     message: string;
-    createdAt: Date;
     visibility: boolean;
   }[] = useLoaderData<typeof loader>().sort(
     (a, b) => parseInt(b.priority) - parseInt(a.priority),
@@ -74,73 +73,6 @@ const Dashboard = () => {
               </div>
             ),
         )}
-
-        {/* <div
-          id="alert-border-2"
-          className="flex items-center p-4 mb-4 text-red-800 border-2 border-warnings-350 bg-warnings-300"
-          role="alert"
-        >
-          <svg
-            className="flex-shrink-0 w-4 h-4"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-          </svg>
-          <div className="ms-3 text-sm font-medium">
-            A simple danger alert with an{" "}
-            <a href="#" className="font-semibold underline hover:no-underline">
-              example link
-            </a>
-            . Give it a click if you like.
-          </div>
-        </div>
-        <div
-          id="alert-border-3"
-          className="flex items-center p-4 mb-4 text-green-800 border-2 border-warnings-150 bg-warnings-100"
-          role="alert"
-        >
-          <svg
-            className="flex-shrink-0 w-4 h-4"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-          </svg>
-          <div className="ms-3 text-sm font-medium">
-            A simple success alert with an{" "}
-            <a href="#" className="font-semibold underline hover:no-underline">
-              example link
-            </a>
-            . Give it a click if you like.
-          </div>
-        </div>
-        <div
-          id="alert-border-4"
-          className="flex items-center p-4 mb-4 text-yellow-800 border-2 border-warnings-250 bg-warnings-200"
-          role="alert"
-        >
-          <svg
-            className="flex-shrink-0 w-4 h-4"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-          </svg>
-          <div className="ms-3 text-sm font-medium">
-            A simple danger alert with an{" "}
-            <a href="#" className="font-semibold underline hover:no-underline">
-              example link
-            </a>
-            . Give it a click if you like.
-          </div>
-        </div> */}
 
         <div className="grid grid-cols-4 col-span-1 gap-4 mt-4 mb-2 mr-10">
           {/* Box 1 */}
