@@ -26,7 +26,9 @@ const Dashboard = () => {
     message: string;
     createdAt: Date;
     visibility: boolean;
-  }[] = useLoaderData<typeof loader>();
+  }[] = useLoaderData<typeof loader>().sort(
+    (a, b) => parseInt(b.priority) - parseInt(a.priority),
+  );
 
   const user = useUser();
   const [activeTab, setActiveTab] = useState("");
