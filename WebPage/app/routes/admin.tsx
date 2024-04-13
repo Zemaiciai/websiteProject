@@ -330,35 +330,115 @@ export default function NotesPage() {
           </div>
         </div>
 
-        <div className="flex flex-col w-full relative overflow-auto">
-          <NavBarHeader title={activeTab} />
-
-          {activeTab === "Dashboard" ? (
-            <>
-              <div className="flex flex-col w-full relative overflow-auto">
-                <div className="flex flex-col w-full bg-custom-100">
-                  <div className="flex flex-col ml-3 mt-3 mr-8">
-                    <div className="p-6 bg-custom-200 text-medium w-full h-[450px] ml-3 mt-3 mr-3">
-                      <h1 className="text-3xl font-mono font-font-extralight">
-                        Dashboard
+        {activeTab === "Dashboard" ? (
+          <>
+            <div className="flex flex-col w-full relative overflow-auto">
+              <div className="flex flex-col w-full bg-custom-100">
+                {/* HEADER FOR ADMIN PANEL */}
+                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
+                  <div className="flex items-center justify-between">
+                    <div className="pt-6 pl-6 pb-6">
+                      <h1 className="text-2xl text-bold font-bold">
+                        Titulinis
                       </h1>
                     </div>
-                    <div className="p-6 bg-custom-200 text-medium w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
-                      <h1 className="text-3xl font-mono font-font-extralight">
-                        Placeholder
-                      </h1>
-                      <div className=""></div>
+
+                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
+                      <Link to="/dashboard" className="btn btn-primary">
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span style={{ marginRight: "0.5rem" }}>
+                            Grįžti atgal
+                          </span>
+                          <img
+                            className="w-4 h-4"
+                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
+                            alt="ggwp"
+                          />
+                        </div>
+                      </Link>
                     </div>
                   </div>
                 </div>
-              </div>
-            </>
-          ) : null}
+                <div className="flex flex-col ml-3 mt-3 mr-8">
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[450px] ml-3 mt-3 mr-3">
+                    <h1 className="text-3xl font-mono font-font-extralight">
+                      Dashboard
+                    </h1>
+                  </div>
 
-          {activeTab === "Users" ? (
-            <>
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
+                    <h1 className="text-3xl font-mono font-font-extralight">
+                      Placeholder
+                    </h1>
+                    <div className=""></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : null}
+
+        {activeTab === "Users" ? (
+          <>
+            <div className="flex flex-col w-full relative overflow-auto bg-custom-100">
               <div className="flex flex-col w-full bg-custom-100">
                 {/* HEADER FOR ADMIN PANEL */}
+                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
+                  <div className="flex items-center justify-between">
+                    <div className="pt-6 pl-6 pb-6">
+                      <h1 className="text-2xl text-bold font-bold">
+                        Naudotojai
+                      </h1>
+                    </div>
+
+                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
+                      <Link to="/dashboard" className="btn btn-primary">
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span style={{ marginRight: "0.5rem" }}>
+                            Grįžti atgal
+                          </span>
+                          <img
+                            className="w-4 h-4"
+                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
+                            alt="ggwp"
+                          />
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
                 {/* END OF HEADER FOR ADMIN PANEL */}
                 <div className="flex flex-col ml-3 mt-3 mr-8">
                   <div className="p-6 bg-custom-200 text-medium w-full h-[230px] ml-3 mr-3 mb-6 ">
@@ -1336,13 +1416,53 @@ export default function NotesPage() {
                   </div>
                 </div>
               </div>
-            </>
-          ) : null}
+            </div>
+          </>
+        ) : null}
 
-          {activeTab === "Reports" ? (
-            <>
-              <div className="flex flex-col w-full relative overflow-auto">
-                <div className="flex flex-col w-full bg-custom-100">
+        {activeTab === "Reports" ? (
+          <>
+            <div className="flex flex-col w-full relative overflow-auto">
+              <div className="flex flex-col w-full bg-custom-100">
+                {/* HEADER FOR ADMIN PANEL */}
+                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
+                  <div className="flex items-center justify-between">
+                    <div className="pt-6 pl-6 pb-6">
+                      <h1 className="text-2xl text-bold font-bold">Reportai</h1>
+                    </div>
+
+                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
+                      <Link to="/dashboard" className="btn btn-primary">
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span style={{ marginRight: "0.5rem" }}>
+                            Grįžti atgal
+                          </span>
+                          <img
+                            className="w-4 h-4"
+                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
+                            alt="ggwp"
+                          />
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
                 {/* END OF HEADER FOR ADMIN PANEL */}
                 <div className="flex flex-col ml-3 mt-3 mr-8">
                   <div className="p-6 bg-custom-200 text-medium   w-full h-[450px] ml-3 mt-3 mr-3">
@@ -1358,10 +1478,10 @@ export default function NotesPage() {
                     <div className=""></div>
                   </div>
                 </div>
-                </div>
               </div>
-            </>
-          ) : null}
+            </div>
+          </>
+        ) : null}
 
         {activeTab === "adminLogs" ? (
           <>
@@ -1376,11 +1496,35 @@ export default function NotesPage() {
                       </h1>
                     </div>
 
-                    <div className="p-6 bg-custom-200 text-medium   w-full h-[400px] ml-3 mt-3 mr-3 mb-5">
-                      <h1 className="text-3xl font-mono font-font-extralight">
-                        Placeholder
-                      </h1>
-                      <div className=""></div>
+                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
+                      <Link to="/dashboard" className="btn btn-primary">
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span style={{ marginRight: "0.5rem" }}>
+                            Grįžti atgal
+                          </span>
+                          <img
+                            className="w-4 h-4"
+                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
+                            alt="ggwp"
+                          />
+                        </div>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1483,13 +1627,57 @@ export default function NotesPage() {
                   </div>
                 </div>
               </div>
-            </>
-          ) : null}
+            </div>
+          </>
+        ) : null}
 
-          {activeTab === "InviteCode" ? (
-            <>
-              <div className="flex flex-col w-full relative overflow-auto">
-                <div className="flex flex-col w-full bg-custom-100">
+        {activeTab === "InviteCode" ? (
+          <>
+            <div className="flex flex-col w-full relative overflow-auto">
+              <div className="flex flex-col w-full bg-custom-100">
+                {/* HEADER FOR ADMIN PANEL */}
+                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
+                  <div className="flex items-center justify-between">
+                    <div className="pt-6 pl-6 pb-6">
+                      <h1 className="text-2xl text-bold font-bold">
+                        Pakvietimo kodai
+                      </h1>
+                    </div>
+
+                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
+                      <Link to="/dashboard" className="btn btn-primary">
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span style={{ marginRight: "0.5rem" }}>
+                            Grįžti atgal
+                          </span>
+                          <img
+                            className="w-4 h-4"
+                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
+                            alt="ggwp"
+                          />
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                {/* END OF HEADER FOR ADMIN PANEL */}
+
                 <div className="flex flex-col ml-3 mt-3 mr-8 ">
                   <div className="p-6 bg-custom-200 text-medium w-full h-[300px] ml-3 mt-3 mr-3 ">
                     <h1 className="text-3xl font-mono font-font-extralight pb-3">
@@ -1817,7 +2005,6 @@ export default function NotesPage() {
                   </div>
 
                   {/*  */}
-                </div>
                 </div>
               </div>
             </div>
