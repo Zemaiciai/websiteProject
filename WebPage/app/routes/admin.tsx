@@ -1,10 +1,17 @@
-import { json } from "@remix-run/node";
+import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
-import NavBar from "~/components/common/NavBar/NavBar";
-import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
-
-import { createCode, getAllcodes } from "~/models/secretCode.server";
+import { getAllLogs } from "~/models/adminLogs.server";
+import {
+  createMessage,
+  getAllMessages,
+  changeMessageVisibility,
+} from "~/models/customMessage.server";
+import {
+  createCode,
+  deleteCodeByEmail,
+  getAllcodes,
+} from "~/models/secretCode.server";
 import {
   User,
   baningUser,
@@ -14,6 +21,7 @@ import {
   unBaningUser,
   warningUser,
 } from "~/models/user.server";
+import { requireUser } from "~/session.server";
 
 interface SecretCode {
   id: string;
@@ -27,46 +35,79 @@ interface SecretCode {
   Used: boolean;
 }
 
-export const loader = async () => {
+interface AdminLogs {
+  id: string;
+  user: string;
+  information: string;
+  createdAt: string; // Change the type to Date
+}
+
+interface CustomMessage {
+  id: string;
+  name: string;
+  priority: string;
+  message: string;
+  createdAt: string;
+  visibility: boolean;
+}
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const secretCodeList = await getAllcodes();
   const userList = await getAllusers();
-  return json({ secretCodeList, userList });
+  const user = await requireUser(request);
+  const logsOfAdmin = await getAllLogs();
+  const customMessageList = await getAllMessages();
+  return json({
+    secretCodeList,
+    userList,
+    user,
+    logsOfAdmin,
+    customMessageList,
+  });
 };
 
 export const action = async (actionArg) => {
   const formData = await actionArg.request.formData();
   const formId = formData.get("form-id");
-
+  const adminUserName = formData.get("adminUserName");
   if (formId === "codeGeneration") {
     const email = String(formData.get("emailAdress"));
     const customName = String(formData.get("customName"));
     const contractNumber = String(formData.get("contractNumber"));
     const roleSelection = String(formData.get("roleSelection"));
     const code = String(formData.get("selectedTime"));
+    const selectedPercentage = String(formData.get("selectedPercentage"));
+    await deleteCodeByEmail(email);
     const createdCode = await createCode(
       customName,
       email,
       contractNumber,
       roleSelection,
       code,
+      selectedPercentage,
+      adminUserName,
     );
     const secretCode = createdCode ? createdCode.secretCode : null;
+    const secretCodeList = await getAllcodes();
     return json(secretCode);
   } else if (formId === "findingUser") {
     const email = String(formData.get("findingUserEmail"));
     const user = await getUserByEmail(email);
     return json(user);
+  } else if (formId === "changingVisability") {
+    const messageID = String(formData.get("messageID"));
+    return changeMessageVisibility(messageID);
   } else if (formId === "baningUser") {
     const emailID = formData.get("email-id");
     const banReason = String(formData.get("baningUserReason"));
-    return baningUser(emailID, banReason);
+    return baningUser(emailID, banReason, adminUserName);
   } else if (formId === "unbaningUser") {
     const emailID = formData.get("email-id");
-    return unBaningUser(emailID);
+    return unBaningUser(emailID, adminUserName);
   } else if (formId === "warningUser") {
     const emailID = formData.get("email-id");
     const warningReason = String(formData.get("warningReason"));
-    return warningUser(emailID, warningReason);
+    return warningUser(emailID, warningReason, adminUserName);
   } else if (formId === "changingUserInformationAdmin") {
     const emailID = formData.get("email-id");
     const firstNameChange = formData.get("changeFirstName");
@@ -75,6 +116,7 @@ export const action = async (actionArg) => {
     const emailChange = formData.get("changeEmail");
     const roleChange = formData.get("changeRole");
     const timeChange = formData.get("changeTime");
+    const percentage = formData.get("changePercentage");
     return changeUserInformation(
       emailID,
       firstNameChange,
@@ -83,6 +125,19 @@ export const action = async (actionArg) => {
       emailChange,
       roleChange,
       timeChange,
+      percentage,
+      adminUserName,
+    );
+  } else if (formId === "websiteMessageCreation") {
+    const customNameForMessages = formData.get("customName");
+    const importanceForMessages = formData.get("importance");
+    const customMessageForMessages = formData.get("customMessage");
+
+    return createMessage(
+      customNameForMessages,
+      importanceForMessages,
+      customMessageForMessages,
+      adminUserName,
     );
   } else {
     return null;
@@ -96,18 +151,18 @@ export default function NotesPage() {
 
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
-    console.log(tab);
   };
   // Admin page user page tabs
   const [activeTabUsers, setActiveTabUsers] = useState("userInformation");
   const handleTabClickUser = (tab: string) => {
     setActiveTabUsers(tab);
-    console.log(tab);
   };
 
   const togglePopup = () => {
     setPopupOpen(!popupOpen);
   };
+
+  const data = useLoaderData<typeof loader>();
 
   const emailRef = useRef<HTMLInputElement>(null);
   const customNameRef = useRef<HTMLInputElement>(null);
@@ -116,60 +171,164 @@ export default function NotesPage() {
   const findingUserEmailRef = useRef<HTMLInputElement>(null);
   const baningUserReasonRef = useRef<HTMLInputElement>(null);
 
-  // Move the declaration of secretCodeList here
-  const loaderData = useLoaderData(); // No type provided
-  const secretCodeList = (loaderData as { secretCodeList: SecretCode[] })
-    .secretCodeList;
+  const secretCodeList = data.secretCodeList;
+  const adminLogItems: AdminLogs[] = data.logsOfAdmin;
+  const customMessagesItems: CustomMessage[] = data.customMessageList;
 
   const userShitNahui = useActionData<User>();
-  const loaderData2 = useLoaderData<{ userList: User[] }>();
-  const userList = loaderData2.userList;
+  const userList = useLoaderData<{ userList: User[] }>().userList;
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+  const itemsPerPageForLogs = 30;
+  const indexOfLastItemForLogs = currentPage * itemsPerPageForLogs;
+  const indexOfFirstItemForLogs = indexOfLastItemForLogs - itemsPerPageForLogs;
+
+  const currentCustomMessagesItems = customMessagesItems.sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    if (!isNaN(dateA) && !isNaN(dateB)) {
+      return dateB - dateA;
+    }
+    // Handle cases where createdAt is not a valid date
+    return 0;
+  });
+
+  const currentAdminLogItems = adminLogItems
+    .sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      if (!isNaN(dateA) && !isNaN(dateB)) {
+        return dateB - dateA;
+      }
+      // Handle cases where createdAt is not a valid date
+      return 0;
+    })
+    .slice(indexOfFirstItemForLogs, indexOfLastItemForLogs);
+
   const currentItems = secretCodeList
     .filter((code) =>
       code.email.toLowerCase().includes(searchTerm.toLowerCase()),
     )
+    .sort((a, b) => {
+      // Assuming createdAt exists in your secretCodeList items
+      const dateA = new Date(a.CreationData).getTime();
+      const dateB = new Date(b.CreationData).getTime();
+      if (!isNaN(dateA) && !isNaN(dateB)) {
+        return dateB - dateA;
+      }
+      // Handle cases where createdAt is not a valid date
+      return 0;
+    })
     .slice(indexOfFirstItem, indexOfLastItem);
 
-  // Function to handle input change and update the searchTerm state
   const handleSearch = (event) => {
-    setCurrentPage(1); // Reset current page when searching
+    setCurrentPage(1);
     setSearchTerm(event.target.value);
   };
 
-  // Function to handle pagination
-  const paginate = (pageNumber) => {
+  const paginateForInviteCode = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  const paginateForAdminLogs = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // Calculate total pages based on filtered items
+  const paginateForCustomMessages = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   const totalPages = Math.ceil(
     secretCodeList.filter((code) =>
       code.email.toLowerCase().includes(searchTerm.toLowerCase()),
     ).length / itemsPerPage,
   );
 
+  const totalPagesForLogs = Math.ceil(
+    adminLogItems.filter((item) =>
+      item.user.toLowerCase().includes(searchTerm.toLowerCase()),
+    ).length / itemsPerPageForLogs,
+  );
+
+  const [roleSelection, setRoleSelection] = useState("holder");
+
   return (
     <div className="flex flex-grow h-screen flex-col relative">
       <main className="flex h-screen bg-white">
-        <NavBar
-        title={"Admin"}
-        handleTabClick={handleTabClick}
-        redirectTo={"admin"}
-        activeTab={activeTab}
-        tabTitles={[
-          "Dashboard",
-          "InviteCode",
-          "Users",
-          "Reports",
-          "adminStats"
-        ]}
-      />
+        <div className="flex flex-col flex-grow w-80 border-r-2 border-black bg-custom-900 h-screen overflow-auto">
+          <div className="h-32 flex justify-center items-center">
+            <a href="/admin" className="text-4xl text-white">
+              Admin
+            </a>
+          </div>
+          <div className="flex-grow">
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "Dashboard"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
+              } w-full`}
+              onClick={() => handleTabClick("Dashboard")}
+            >
+              Titulinis
+            </button>
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "InviteCode"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
+              } w-full`}
+              onClick={() => handleTabClick("InviteCode")}
+            >
+              Pakvietimo kodai
+            </button>
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "Users"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
+              } w-full`}
+              onClick={() => handleTabClick("Users")}
+            >
+              Naudotojai
+            </button>
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "Reports"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
+              } w-full`}
+              onClick={() => handleTabClick("Reports")}
+            >
+              Reports
+            </button>
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "adminLogs"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
+              } w-full`}
+              onClick={() => handleTabClick("adminLogs")}
+            >
+              Veiksmų istorija
+            </button>
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "websiteMessages"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
+              } w-full`}
+              onClick={() => handleTabClick("websiteMessages")}
+            >
+              Svetainės pranešimai
+            </button>
+          </div>
+        </div>
 
         <div className="flex flex-col w-full relative overflow-auto">
           <NavBarHeader title={activeTab} />
@@ -397,6 +556,30 @@ export default function NotesPage() {
                                             <h1 className="mr-2">Rolė:</h1>
                                             <h1>{userShitNahui?.role}</h1>
                                           </div>
+
+                                          {userShitNahui?.role ===
+                                          "Darbuotojas" ? (
+                                            userShitNahui?.percentage !== "" ? (
+                                              <div className="flex mb-5">
+                                                <h1 className="mr-2">
+                                                  Atlygis nuo vartotojo:
+                                                </h1>
+                                                <h1>
+                                                  {userShitNahui?.percentage}
+                                                </h1>
+                                              </div>
+                                            ) : (
+                                              <div className="flex mb-5">
+                                                <h1 className="mr-2">
+                                                  Atlygis nuo vartotojo:
+                                                </h1>
+                                                <h1 className="text-red-600">
+                                                  NUSTATYKITE!!
+                                                </h1>
+                                              </div>
+                                            )
+                                          ) : null}
+
                                           <div className="flex mb-5">
                                             <h1 className="mr-2">
                                               Slapyvardis:
@@ -551,6 +734,13 @@ export default function NotesPage() {
                                                       defaultValue="baningUser"
                                                     />
                                                     <input
+                                                      name="adminUserName"
+                                                      hidden
+                                                      defaultValue={
+                                                        data.user.userName
+                                                      }
+                                                    />
+                                                    <input
                                                       name="email-id"
                                                       hidden
                                                       defaultValue={
@@ -609,6 +799,13 @@ export default function NotesPage() {
                                                     name="form-id"
                                                     hidden
                                                     defaultValue="changingUserInformationAdmin"
+                                                  />
+                                                  <input
+                                                    name="adminUserName"
+                                                    hidden
+                                                    defaultValue={
+                                                      data.user.userName
+                                                    }
                                                   />
                                                   <input
                                                     name="email-id"
@@ -671,6 +868,51 @@ export default function NotesPage() {
                                                       userShitNahui?.userName
                                                     }
                                                   />
+                                                  {userShitNahui?.role ===
+                                                  "Darbuotojas" ? (
+                                                    <>
+                                                      <label
+                                                        htmlFor="changePercentage"
+                                                        className="text-sm text-black"
+                                                      >
+                                                        Atlygis nuo vartotojo
+                                                      </label>
+                                                      <select
+                                                        id="changePercentage"
+                                                        name="changePercentage"
+                                                        className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                                                        defaultValue={
+                                                          userShitNahui?.percentage ||
+                                                          "Nežinomas"
+                                                        }
+                                                      >
+                                                        <option value="1%">
+                                                          1%
+                                                        </option>
+                                                        <option value="5%">
+                                                          5%
+                                                        </option>
+                                                        <option value="10%">
+                                                          10%
+                                                        </option>
+                                                        <option value="12%">
+                                                          12%
+                                                        </option>
+                                                        <option value="15%">
+                                                          15%
+                                                        </option>
+                                                        <option value="20%">
+                                                          20%
+                                                        </option>
+                                                        <option value="25%">
+                                                          25%
+                                                        </option>
+                                                        <option value="30%">
+                                                          30%
+                                                        </option>
+                                                      </select>
+                                                    </>
+                                                  ) : null}
                                                 </div>
                                               </div>
                                               <div className="w-full lg:w-1/2 px-10 order-1 lg:order-2">
@@ -809,6 +1051,13 @@ export default function NotesPage() {
                                                       defaultValue="unbaningUser"
                                                     />
                                                     <input
+                                                      name="adminUserName"
+                                                      hidden
+                                                      defaultValue={
+                                                        data.user.userName
+                                                      }
+                                                    />
+                                                    <input
                                                       name="email-id"
                                                       hidden
                                                       defaultValue={
@@ -866,6 +1115,13 @@ export default function NotesPage() {
                                                       name="form-id"
                                                       hidden
                                                       defaultValue="warningUser"
+                                                    />
+                                                    <input
+                                                      name="adminUserName"
+                                                      hidden
+                                                      defaultValue={
+                                                        data.user.userName
+                                                      }
                                                     />
                                                     <input
                                                       name="email-id"
@@ -1107,17 +1363,16 @@ export default function NotesPage() {
             </>
           ) : null}
 
-          {activeTab === "adminStats" ? (
-            <>
-              <div className="flex flex-col w-full relative overflow-auto">
-                <div className="flex flex-col w-full bg-custom-100">
-                  {/* HEADER FOR ADMIN PANEL */}
-
-                  {/* END OF HEADER FOR ADMIN PANEL */}
-                  <div className="flex flex-col w-[98,3%] ml-3 mt-3 mr-8">
-                    <div className="p-6 bg-custom-200 text-medium   w-full h-[450px] ml-3 mt-3 mr-3">
-                      <h1 className="text-3xl font-mono font-font-extralight">
-                        Admin stats
+        {activeTab === "adminLogs" ? (
+          <>
+            <div className="flex flex-col w-full relative overflow-auto">
+              <div className="flex flex-col w-full bg-custom-100">
+                {/* HEADER FOR ADMIN PANEL */}
+                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
+                  <div className="flex items-center justify-between">
+                    <div className="pt-6 pl-6 pb-6">
+                      <h1 className="text-2xl text-bold font-bold">
+                        Veiksmų istorija
                       </h1>
                     </div>
 
@@ -1126,6 +1381,104 @@ export default function NotesPage() {
                         Placeholder
                       </h1>
                       <div className=""></div>
+                    </div>
+                  </div>
+                </div>
+                {/* END OF HEADER FOR ADMIN PANEL */}
+                <div className="flex flex-col w-[98,3%] ml-3 mt-3 mr-8">
+                  <div className="p-6 bg-custom-200 text-medium w-full ml-3 mt-3 mr-3 mb-5">
+                    <h1 className="text-3xl font-mono font-font-extralight pb-2 mb-3">
+                      Administratorių veiksmų istorija
+                    </h1>
+                    <div className="">
+                      <table className="min-w-full text-center text-sm font-light">
+                        <thead className="border-b bg-neutral-50 font-medium">
+                          <tr>
+                            <th className="px-6 py-4 w-16">#</th>
+                            <th className="px-6 py-4 w-1/6">
+                              Administratorius
+                            </th>
+                            <th className="px-6 py-4 w-1/2">Informacija</th>
+                            <th className="px-6 py-4 w-1/6">Sukūrimo data</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {currentAdminLogItems.map((adminItem, index) => (
+                            <tr key={index}>
+                              <td className="px-6 py-4">
+                                {indexOfFirstItemForLogs + index + 1}
+                              </td>
+                              <td className="px-6 py-4">{adminItem.user}</td>
+                              <td className="px-6 py-4">
+                                {adminItem.information}
+                              </td>
+                              <td className="px-6 py-4">
+                                {adminItem.createdAt
+                                  ? new Date(adminItem.createdAt)
+                                      .toLocaleDateString("en-CA", {
+                                        year: "numeric",
+                                        month: "2-digit",
+                                        day: "2-digit",
+                                      })
+                                      .replace(/\//g, "-") +
+                                    ", " +
+                                    new Date(
+                                      adminItem.createdAt,
+                                    ).toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: false,
+                                    })
+                                  : null}
+                              </td>
+                            </tr>
+                          ))}
+                          {currentAdminLogItems.length < itemsPerPageForLogs
+                            ? Array(
+                                itemsPerPageForLogs -
+                                  currentAdminLogItems.length,
+                              )
+                                .fill(null)
+                                .map((_, index) => (
+                                  <tr key={`empty-${index}`}>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    <td className="px-6 py-4">&nbsp;</td>
+                                    {/* Empty column for alignment */}
+                                  </tr>
+                                ))
+                            : null}
+                        </tbody>
+                      </table>
+
+                      <div className="mt-4">
+                        <ul className="flex justify-center">
+                          {totalPagesForLogs > 1
+                            ? Array.from({ length: totalPagesForLogs }).map(
+                                (_, index) => (
+                                  <li key={index} className="mx-1">
+                                    <button
+                                      className={`px-3 py-1 rounded ${
+                                        currentPage === index + 1
+                                          ? "bg-custom-850 text-white"
+                                          : "bg-custom-800 text-white"
+                                      }`}
+                                      onClick={() =>
+                                        paginateForAdminLogs(index + 1)
+                                      }
+                                    >
+                                      {index + 1}
+                                    </button>
+                                  </li>
+                                ),
+                              )
+                            : null}
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1197,6 +1550,11 @@ export default function NotesPage() {
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                                 placeholder="Kontrakto numeris"
                               />
+                              <input
+                                name="adminUserName"
+                                hidden
+                                defaultValue={data.user.userName}
+                              />
                             </div>
                           </div>
                         </div>
@@ -1241,6 +1599,10 @@ export default function NotesPage() {
                                 id="roleSelection"
                                 name="roleSelection"
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                                value={roleSelection}
+                                onChange={(e) =>
+                                  setRoleSelection(e.target.value)
+                                }
                               >
                                 <option value="holder">Pasirinkti rolę</option>
                                 <option value="worker">Darbuotojas</option>
@@ -1249,49 +1611,39 @@ export default function NotesPage() {
                             </div>
                           </div>
                         </div>
+                        {roleSelection === "worker" ? (
+                          <div className="w-full md:w-1/2 px-3">
+                            <div className="flex flex-col">
+                              <div className="relative">
+                                <select
+                                  id="selectedPercentage"
+                                  name="selectedPercentage"
+                                  className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                                >
+                                  <option value="holder">
+                                    Pasirinkti atlygi kurį gauna svetainė
+                                  </option>
+                                  <option value="1%">1%</option>
+                                  <option value="5%">5%</option>
+                                  <option value="10%">10%</option>
+                                  <option value="12%">12%</option>
+                                  <option value="15%">15%</option>
+                                  <option value="20%">20%</option>
+                                  <option value="25%">25%</option>
+                                  <option value="30%">30%</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
 
                       <button
                         type="submit"
                         className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
-                        onClick={togglePopup}
                       >
                         Sukurti kodą
                       </button>
-
-                      {popupOpen ? (
-                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
-                          <div className="bg-white p-8 rounded-lg shadow-md text-center">
-                            <p id="secretCode">
-                              {secretCodeList && secretCodeList.length > 0 ? (
-                                <>
-                                  Sugeneruotas kodas:{" "}
-                                  <strong>
-                                    {
-                                      secretCodeList[secretCodeList.length - 1]
-                                        .secretCode
-                                    }
-                                  </strong>
-                                </>
-                              ) : (
-                                <p id="secretCode">test</p>
-                              )}
-                            </p>
-
-                            <p className="text-red-500 mt-4">
-                              Uždarius šią lentelę, Jūs nebegalėsite matyti kodo
-                            </p>
-                            <div className="mt-4">
-                              <button
-                                className="px-4 py-2 bg-custom-800 text-white rounded-md hover:bg-custom-850 transition duration-300 ease-in-out"
-                                onClick={togglePopup}
-                              >
-                                Uždaryti
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ) : null}
                     </Form>
                   </div>
 
@@ -1315,6 +1667,7 @@ export default function NotesPage() {
                             <th className="px-6 py-4 w-16">#</th>
                             <th className="px-6 py-4 w-1/6">Pavadinimas</th>
                             <th className="px-6 py-4 w-1/6">El. paštas</th>
+                            <th className="px-6 py-4 w-1/6">Kodas</th>
                             <th className="px-6 py-4 w-1/6">Rolė</th>
                             <th className="px-6 py-4 w-1/6">Kontrakto nr.</th>
                             <th className="px-6 py-4 w-1/6">Sukūrimo data</th>
@@ -1325,9 +1678,12 @@ export default function NotesPage() {
                         <tbody>
                           {currentItems.map((code, index) => (
                             <tr key={index}>
-                              <td className="px-6 py-4">{index + 1}</td>
+                              <td className="px-6 py-4">
+                                {indexOfFirstItem + index + 1}
+                              </td>
                               <td className="px-6 py-4">{code.customName}</td>
                               <td className="px-6 py-4">{code.email}</td>
+                              <td className="px-6 py-4">{code.secretCode}</td>
                               <td className="px-6 py-4">{code.role}</td>
                               <td className="px-6 py-4">
                                 {code.contractNumber}
@@ -1375,6 +1731,7 @@ export default function NotesPage() {
                               </td>
                             </tr>
                           ))}
+
                           {currentItems.length < itemsPerPage
                             ? Array(itemsPerPage - currentItems.length)
                                 .fill(null)
@@ -1404,7 +1761,9 @@ export default function NotesPage() {
                                           ? "bg-custom-850 text-white"
                                           : "bg-custom-800 text-white"
                                       }`}
-                                      onClick={() => paginate(index + 1)}
+                                      onClick={() =>
+                                        paginateForInviteCode(index + 1)
+                                      }
                                     >
                                       {index + 1}
                                     </button>
@@ -1461,9 +1820,236 @@ export default function NotesPage() {
                 </div>
                 </div>
               </div>
-            </>
-          ) : null}
-        </div>
+            </div>
+          </>
+        ) : null}
+        {activeTab === "websiteMessages" ? (
+          <>
+            <div className="flex flex-col w-full relative overflow-auto">
+              <div className="flex flex-col w-full bg-custom-100">
+                {/* HEADER FOR ADMIN PANEL */}
+                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
+                  <div className="flex items-center justify-between">
+                    <div className="pt-6 pl-6 pb-6">
+                      <h1 className="text-2xl text-bold font-bold">
+                        Svetainės pranešimai
+                      </h1>
+                    </div>
+
+                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
+                      <Link to="/dashboard" className="btn btn-primary">
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span style={{ marginRight: "0.5rem" }}>
+                            Grįžti atgal
+                          </span>
+                          <img
+                            className="w-4 h-4"
+                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
+                            alt="ggwp"
+                          />
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col ml-3 mt-3 mr-8">
+                  <div className="p-6 bg-custom-200 text-medium w-full h-[450px] ml-3 mt-3 mr-3 ">
+                    <h1 className="text-3xl font-mono font-font-extralight pb-3">
+                      Pranešimo kūrimas
+                    </h1>
+                    <Form method="post">
+                      <div className="flex flex-wrap -mx-3">
+                        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                          <div className="flex flex-col">
+                            <div className="relative">
+                              <input
+                                name="form-id"
+                                hidden
+                                defaultValue="websiteMessageCreation"
+                              />
+                              <input
+                                name="adminUserName"
+                                hidden
+                                defaultValue={data.user.userName}
+                              />
+                              <input
+                                id="customName"
+                                name="customName"
+                                type="text"
+                                ref={customNameRef}
+                                autoComplete="on"
+                                aria-describedby="email-error"
+                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                                placeholder="Pavadinimas"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="w-full md:w-1/2 px-3">
+                          <div className="flex flex-col">
+                            <div className="relative">
+                              <select
+                                id="importance"
+                                name="importance"
+                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                              >
+                                <option value="holder">Svarbumas</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="w-full px-3 mt-3">
+                          <div className="flex flex-col">
+                            <div className="relative">
+                              <textarea
+                                id="customMessage"
+                                name="customMessage"
+                                autoComplete="on"
+                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                                placeholder="Jūsų pranešimas"
+                                style={{ resize: "none" }} // Disable resizing
+                                rows={3} // You can adjust the number of rows as needed
+                              ></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <h1 className="text-red-600 mb-2">
+                        Sukūrus pranešima jis iškarto bus rodomas svetainėje!
+                      </h1>
+                      <h1 className="text-xl font-semibold">
+                        Informacija apie svarbumo skaičius
+                      </h1>
+                      <ul className="list-disc ml-8 mb-4">
+                        <li className="text-green-600">
+                          1: Žalias pranešimas ir jis nebus rodomas jeigu
+                          egzistuoja žinučių su 2-3 svarbumais. Šis tipas
+                          pasirenkamas tuo atvėju jeigu žinutė yra pvž.: įvyko
+                          svetainės atnaujinimas.
+                        </li>
+                        <li className="text-yellow-400">
+                          2: Geltonas pranešimas ir jis nebus rodomas jeigu
+                          egzistuoja žinučių su 3 svarbumu. Šis tipas
+                          pasirenkamas tuo atvėju jeigu žinutė yra pvž.:
+                          neatlikta klausimanija arba informuoti dėl didelio
+                          svetainės pakeitimo.
+                        </li>
+                        <li className="text-red-600">
+                          3: Raudonas pranešimas ir jis bus visada
+                          atvaizduojamas pirmiausiai. Šis tipas pasirenkamas tuo
+                          atvėju jeigu žinutė yra pvž.: svėtainės apmokėjimo
+                          sistema neveikia.
+                        </li>
+                      </ul>
+                      <button
+                        type="submit"
+                        className="w-full rounded bg-custom-800 font-bold  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                      >
+                        Sukurti pranešimą
+                      </button>
+                    </Form>
+                  </div>
+
+                  <div className="p-6 bg-custom-200 text-medium w-full  ml-3 mt-3 mr-3 mb-5">
+                    <h1 className="text-3xl font-mono font-font-extralight mb-5">
+                      Sistemoje esantys pranešimai
+                    </h1>
+                    <table className="min-w-full text-center text-sm font-light">
+                      <thead className="border-b bg-neutral-50 font-medium">
+                        <tr>
+                          <th className="px-6 py-4 w-16">#</th>
+                          <th className="px-6 py-4 w-1/6">Pavadinimas</th>
+                          <th className="px-6 py-4 w-1/6">Žinutė</th>
+                          <th className="px-6 py-4 w-1/6">Svarbumas</th>
+                          <th className="px-6 py-4 w-1/6">Sukūrimo data</th>
+                          <th className="px-6 py-4 w-1/6">Matomumas</th>
+                          <th className="px-6 py-4 w-1/6">Veiksmai</th>
+                          {/* Add this table header */}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentCustomMessagesItems.map((code, index) => (
+                          <tr key={index}>
+                            <td className="px-6 py-4">{index + 1}</td>
+                            <td className="px-6 py-4">{code.name}</td>
+                            <td className="px-6 py-4">{code.message}</td>
+                            <td className="px-6 py-4">{code.priority}</td>
+                            <td className="px-6 py-4">
+                              {code.createdAt
+                                ? new Date(code.createdAt)
+                                    .toLocaleDateString("en-CA", {
+                                      year: "numeric",
+                                      month: "2-digit",
+                                      day: "2-digit",
+                                    })
+                                    .replace(/\//g, "-") +
+                                  ", " +
+                                  new Date(code.createdAt).toLocaleTimeString(
+                                    [],
+                                    {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: false,
+                                    },
+                                  )
+                                : null}
+                            </td>
+                            <td className="px-6 py-4">
+                              {code.visibility ? "Rodomas" : "Paslėptas"}
+                            </td>
+                            <td className="px-6 py-4">
+                              <Form
+                                method="post"
+                                className="flex justify-center"
+                              >
+                                <input
+                                  name="form-id"
+                                  hidden
+                                  defaultValue="changingVisability"
+                                />
+                                <input
+                                  name="messageID"
+                                  hidden
+                                  defaultValue={code.id}
+                                />
+                                <input
+                                  type="submit"
+                                  name="action"
+                                  value="Pakeisti matomumą"
+                                  className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-4 rounded"
+                                />
+                              </Form>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : null}
       </main>
     </div>
   );

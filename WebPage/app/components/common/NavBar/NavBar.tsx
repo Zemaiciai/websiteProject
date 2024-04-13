@@ -49,6 +49,7 @@ export default function NavBar({
         <div className="flex-grow">
           {Array.from({ length: tabTitles.length }).map((_, index) => (
             <NavBarButton
+              key={index}
               title={tabTitles[index]}
               activeTab={activeTab}
               handleTabClick={handleTabClick}

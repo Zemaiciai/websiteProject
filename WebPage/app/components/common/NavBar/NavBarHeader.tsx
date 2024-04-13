@@ -7,7 +7,6 @@ interface NavBarHeaderProps {
 
 export default function NavBarHeader({ title }: NavBarHeaderProps) {
   const user = useUser();
-
   return (
     <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
       <div className="flex items-center justify-between">

@@ -24,7 +24,9 @@ function OrderTableHeaderCell({
         {title}
         <div className="icon-wrapper flex flex-row items-center justify-center cursor-pointer pl-2">
           <Arrow
-            className={`h-3 w-3 absolute ${sortColumn !== column && "hidden"} ${sortOrder === "asc" && "rotate-180"}`}
+            className={`h-3 w-3 absolute ${sortColumn !== column && "hidden"} ${
+              sortOrder === "asc" && "rotate-180"
+            }`}
           />
         </div>
       </span>
@@ -44,7 +46,7 @@ export default function OrderTableHeader({
   sortColumn,
 }: OrderTableHeaderProps) {
   return (
-    <thead className="expanded-content-table-header bg-white">
+    <thead className="table-header bg-white">
       <tr>
         <OrderTableHeaderCell
           column="orderedBy"

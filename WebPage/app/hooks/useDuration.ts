@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 export default function useDuration(completionDate: Date) {
   const calculateTimeRemaining = () => {
-    const endInMs = completionDate.getTime() - Date.now();
+    const endInMs = completionDate.getTime() - new Date().getTime();
 
     let seconds = Math.trunc(Math.abs(endInMs) / 1000);
 
