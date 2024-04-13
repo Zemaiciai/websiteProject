@@ -189,22 +189,15 @@ export default function NotesPage() {
   const indexOfLastItemForLogs = currentPage * itemsPerPageForLogs;
   const indexOfFirstItemForLogs = indexOfLastItemForLogs - itemsPerPageForLogs;
 
-  const itemsPerPageForMessages = 10;
-  const indexOfLastItemForMessages = currentPage * itemsPerPageForMessages;
-  const indexOfFirstItemForMessages =
-    indexOfLastItemForMessages - itemsPerPageForMessages;
-
-  const currentCustomMessagesItems = customMessagesItems
-    .sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      if (!isNaN(dateA) && !isNaN(dateB)) {
-        return dateB - dateA;
-      }
-      // Handle cases where createdAt is not a valid date
-      return 0;
-    })
-    .slice(indexOfFirstItemForMessages, indexOfLastItemForMessages);
+  const currentCustomMessagesItems = customMessagesItems.sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    if (!isNaN(dateA) && !isNaN(dateB)) {
+      return dateB - dateA;
+    }
+    // Handle cases where createdAt is not a valid date
+    return 0;
+  });
 
   const currentAdminLogItems = adminLogItems
     .sort((a, b) => {
@@ -260,12 +253,6 @@ export default function NotesPage() {
     adminLogItems.filter((item) =>
       item.user.toLowerCase().includes(searchTerm.toLowerCase()),
     ).length / itemsPerPageForLogs,
-  );
-
-  const totalPagesForCustomMessages = Math.ceil(
-    customMessagesItems.filter((item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()),
-    ).length / itemsPerPageForMessages,
   );
 
   const [roleSelection, setRoleSelection] = useState("holder");
@@ -2113,8 +2100,6 @@ export default function NotesPage() {
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                                 <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
                               </select>
                             </div>
                           </div>
@@ -2144,20 +2129,20 @@ export default function NotesPage() {
                       </h1>
                       <ul className="list-disc ml-8 mb-4">
                         <li className="text-green-600">
-                          1-2: Žalias pranešimas ir jis nebus rodomas jeigu
-                          egzistuoja žinučių su 3-5 svarbumais. Šis tipas
+                          1: Žalias pranešimas ir jis nebus rodomas jeigu
+                          egzistuoja žinučių su 2-3 svarbumais. Šis tipas
                           pasirenkamas tuo atvėju jeigu žinutė yra pvž.: įvyko
                           svetainės atnaujinimas.
                         </li>
                         <li className="text-yellow-400">
-                          3-4: Geltonas pranešimas ir jis nebus rodomas jeigu
-                          egzistuoja žinučių su 5 svarbumu. Šis tipas
+                          2: Geltonas pranešimas ir jis nebus rodomas jeigu
+                          egzistuoja žinučių su 3 svarbumu. Šis tipas
                           pasirenkamas tuo atvėju jeigu žinutė yra pvž.:
                           neatlikta klausimanija arba informuoti dėl didelio
                           svetainės pakeitimo.
                         </li>
                         <li className="text-red-600">
-                          5: Raudonas pranešimas ir jis bus visada
+                          3: Raudonas pranešimas ir jis bus visada
                           atvaizduojamas pirmiausiai. Šis tipas pasirenkamas tuo
                           atvėju jeigu žinutė yra pvž.: svėtainės apmokėjimo
                           sistema neveikia.
@@ -2192,9 +2177,7 @@ export default function NotesPage() {
                       <tbody>
                         {currentCustomMessagesItems.map((code, index) => (
                           <tr key={index}>
-                            <td className="px-6 py-4">
-                              {indexOfFirstItemForMessages + index + 1}
-                            </td>
+                            <td className="px-6 py-4">{index + 1}</td>
                             <td className="px-6 py-4">{code.name}</td>
                             <td className="px-6 py-4">{code.message}</td>
                             <td className="px-6 py-4">{code.priority}</td>
@@ -2246,50 +2229,8 @@ export default function NotesPage() {
                             </td>
                           </tr>
                         ))}
-                        {currentCustomMessagesItems.length <
-                        itemsPerPageForMessages
-                          ? Array(
-                              itemsPerPageForMessages -
-                                currentCustomMessagesItems.length,
-                            )
-                              .fill(null)
-                              .map((_, index) => (
-                                <tr key={`empty-${index}`}>
-                                  <td className="px-6 py-4">&nbsp;</td>
-                                  <td className="px-6 py-4">&nbsp;</td>
-                                  <td className="px-6 py-4">&nbsp;</td>
-                                  <td className="px-6 py-4">&nbsp;</td>
-                                  {/* Empty column for alignment */}
-                                </tr>
-                              ))
-                          : null}
                       </tbody>
                     </table>
-
-                    <div className="mt-4">
-                      <ul className="flex justify-center">
-                        {totalPagesForCustomMessages > 1
-                          ? Array.from({
-                              length: totalPagesForCustomMessages,
-                            }).map((_, index) => (
-                              <li key={index} className="mx-1">
-                                <button
-                                  className={`px-3 py-1 rounded ${
-                                    currentPage === index + 1
-                                      ? "bg-custom-850 text-white"
-                                      : "bg-custom-800 text-white"
-                                  }`}
-                                  onClick={() =>
-                                    paginateForCustomMessages(index + 1)
-                                  }
-                                >
-                                  {index + 1}
-                                </button>
-                              </li>
-                            ))
-                          : null}
-                      </ul>
-                    </div>
                   </div>
                 </div>
               </div>
