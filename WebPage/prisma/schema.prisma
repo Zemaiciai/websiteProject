@@ -16,6 +16,13 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum GroupsRoles {
+  OWNER
+  MODERATOR
+  MEMBER
+  INVITED
+}
+
 model User {
   id             String    @id @default(cuid())
 
@@ -45,6 +52,7 @@ model User {
 
   userStatus String
   banReason String?
+  groups            GroupUser[]
 }
 
 model Password {
@@ -112,4 +120,22 @@ model CustomMessage{
   message String
   createdAt DateTime @default(now())
   visibility Boolean
+}
+
+model Groups{
+  id String @id @default(cuid())
+  groupName String
+  groupShortDescription String
+  groupFullDescription String
+  users                  GroupUser[]
+}
+
+model GroupUser {
+  id       String       @id @default(cuid())
+  user     User         @relation(fields: [userId], references: [id])
+  userId   String
+  group    Groups       @relation(fields: [groupId], references: [id])
+  groupId  String
+  role     GroupsRoles // Define the role of the user within the group
+  percentage String?
 }

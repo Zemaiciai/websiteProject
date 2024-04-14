@@ -2121,46 +2121,6 @@ export default function NotesPage() {
                     </div>
                   </div>
 
-                  {/* Deleting invite code */}
-                  <div className="p-6 bg-custom-200 text-medium w-full h-[230px] ml-3 mr-3 mb-6 ">
-                    <h1 className="text-3xl font-mono font-font-extralight pb-3">
-                      Pakvietimo kodo ištrynimas NOT IMPLEMENTED
-                    </h1>
-                    <Form method="post">
-                      <div className="flex flex-wrap -mx-3 mb-4">
-                        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                          <div className="flex flex-col">
-                            <label
-                              htmlFor="deletetionEmail"
-                              className="text-sm text-black"
-                            >
-                              El. paštas
-                            </label>
-                            <div className="relative">
-                              <input
-                                id="deletetionEmail"
-                                name="deletetionEmail"
-                                type="text"
-                                ref={deletetionEmailRef}
-                                autoComplete="on"
-                                aria-describedby="email-error"
-                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
-                        // onClick={togglePopup}
-                      >
-                        Ištrinti kodą
-                      </button>
-                    </Form>
-                  </div>
-
                   {/*  */}
                 </div>
               </div>

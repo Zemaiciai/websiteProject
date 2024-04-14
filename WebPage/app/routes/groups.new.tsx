@@ -1,37 +1,15 @@
 import { Form } from "@remix-run/react";
 import { useState } from "react";
+import GroupsCreationInformation from "~/components/Groups/groupsCreationInformation";
 
 export default function NewOrderPage() {
-  const [roleSelection, setRoleSelection] = useState("");
-
   return (
     <div className="flex-grow mr-6">
       <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3">
         <h1 className="text-3xl font-mono font-font-extralight pb-3">
           Informacija apie grupių kūrimus
         </h1>
-        <ul className="space-y-4 text-back list-disc list-inside ">
-          <li>
-            List item two
-            <ul className="ps-5 mt-2 space-y-1 list-disc list-inside">
-              <li>
-                I'm not sure if we'll bother styling more than two levels deep.
-              </li>
-              <li>
-                Two is already too much, three is guaranteed to be a bad idea.
-              </li>
-              <li>If you nest four levels deep you belong in prison.</li>
-            </ul>
-          </li>
-          <li>
-            List item three
-            <ul className="ps-5 mt-2 space-y-1 list-disc list-inside">
-              <li>Again please don't nest lists if you want</li>
-              <li>Nobody wants to look at this.</li>
-              <li>I'm upset that we even have to bother styling this.</li>
-            </ul>
-          </li>
-        </ul>
+        <GroupsCreationInformation></GroupsCreationInformation>
       </div>
       <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3 mb-5">
         <h1 className="text-3xl font-mono font-font-extralight pb-3">
@@ -67,13 +45,29 @@ export default function NewOrderPage() {
                 </div>
               </div>
             </div>
+            {/* New textarea field */}
+            <div className="w-full px-3 mt-3">
+              <div className="flex flex-col">
+                <div className="relative">
+                  <textarea
+                    id="groupDescription"
+                    name="groupDescription"
+                    autoComplete="on"
+                    className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black resize-none"
+                    placeholder="Grupės aprašymas"
+                    style={{ resize: "none" }} // Disable resizing
+                    rows={7}
+                  ></textarea>
+                </div>
+              </div>
+            </div>
           </div>
 
           <button
             type="submit"
             className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
           >
-            Sukurti kodą
+            Sukurti grupę
           </button>
         </Form>
       </div>
