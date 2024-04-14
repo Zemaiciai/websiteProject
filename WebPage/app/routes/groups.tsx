@@ -1,11 +1,9 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { Form, Link, Outlet, useLocation } from "@remix-run/react";
+import { Link, Outlet, useLocation } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 import NewFooter from "~/components/newFooter/NewFooter";
 
-import { getAllMessages } from "~/models/customMessage.server";
 import { useUser } from "~/utils";
 
 const Dashboard = () => {
@@ -40,7 +38,7 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="w-screen flex flex-col bg-custom-100 overflow-auto pb-3">
+      <div className="w-screen h-screen flex flex-grow flex-col bg-custom-100 pb-3">
         <NavBarHeader
           title={`${linkClicked ? "Grupės sukurimas" : "Grupės"}`}
         />
@@ -49,7 +47,7 @@ const Dashboard = () => {
             <Outlet />
           ) : (
             <>
-              <div className="p-6 bg-custom-200 text-medium mt-3 ml-3 overflow-auto  ">
+              <div className="p-6 bg-custom-200 text-medium mt-3 ml-3">
                 <ul className="flex flex-wrap -mb-px border-b border-gray-200">
                   <li className="me-2">
                     <button
@@ -91,7 +89,7 @@ const Dashboard = () => {
                   </>
                 ) : null}
               </div>
-              <div className="p-6 bg-custom-200 text-medium mt-3 mr-3 overflow-auto">
+              <div className="p-6 bg-custom-200 text-medium mt-3 mr-3">
                 <div className="flex justify-center">
                   <Link
                     className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-4 rounded"
@@ -105,7 +103,7 @@ const Dashboard = () => {
             </>
           )}
         </div>
-        <NewFooter></NewFooter>
+        <NewFooter />
       </div>
     </div>
   );
