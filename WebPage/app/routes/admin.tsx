@@ -2096,7 +2096,9 @@ export default function NotesPage() {
                                 name="importance"
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
                               >
-                                <option value="holder">Svarbumas</option>
+                                <option value="holder" selected hidden>
+                                  Svarbumas
+                                </option>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                                 <option value="3">3</option>
