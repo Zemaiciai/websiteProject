@@ -32,7 +32,9 @@ export default function UserInfo({ user }: UserInfoProps) {
           alt="Social Media 1"
           className="w-6 h-6"
         />
-        <h2 className="text-base font-semibold text-sky-500 w-[800px]">ROLE</h2>
+        <h2 className="text-base font-semibold text-sky-500 w-[800px]">
+          {user?.role}
+        </h2>
       </div>
       <div className="gmail pt-3 flex space-x-2 pl-[400px] w-[800px]">
         <img
