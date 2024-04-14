@@ -33,7 +33,7 @@ export default function NewOrderPage() {
           </li>
         </ul>
       </div>
-      <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3">
+      <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3 mb-5">
         <h1 className="text-3xl font-mono font-font-extralight pb-3">
           Grupės sukūrimas
         </h1>
