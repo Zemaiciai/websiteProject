@@ -330,3 +330,52 @@ export async function validateCustomMessage(
 
   return null;
 }
+interface ChangeUserInfoErrors {
+  firstNameValidation?: string;
+  lastNameValidation?: string;
+  userNameValidation?: string;
+  emailValidation?: string;
+  roleValidation?: string;
+  expirationDateValidation?: string;
+}
+export async function validateChangeUserInfo(
+  firstNameValidation: unknown,
+  lastNameValidation: unknown,
+  userNameValidation: unknown,
+  emailValidation: unknown,
+  roleValidation: unknown,
+  expirationDateValidation: unknown,
+  errors: ChangeUserInfoErrors,
+): Promise<ChangeUserInfoErrors | null> {
+  if (
+    typeof firstNameValidation !== "string" ||
+    firstNameValidation.length <= 0
+  ) {
+    errors.firstNameValidation = "Vardas yra privalomas";
+  }
+  if (
+    typeof lastNameValidation !== "string" ||
+    lastNameValidation.length <= 0
+  ) {
+    errors.lastNameValidation = "Pavardė yra privaloma";
+  }
+  if (
+    typeof userNameValidation !== "string" ||
+    userNameValidation.length <= 0
+  ) {
+    errors.userNameValidation = "Slapyvardis yra privalomas";
+  }
+  if (typeof emailValidation !== "string" || emailValidation === "") {
+    errors.emailValidation = "El. pašto adresas privalomas";
+  } else if (emailValidation.length < 3 || !emailValidation.includes("@")) {
+    errors.emailValidation = "El. pašto adresas netinkamas";
+  }
+  if (roleValidation === "holder") {
+    errors.roleValidation = "Privaloma pasirinkti rolę";
+  }
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+
+  return null;
+}

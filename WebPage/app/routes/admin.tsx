@@ -23,7 +23,11 @@ import {
   warningUser,
 } from "~/models/user.server";
 import { requireUser } from "~/session.server";
-import { validateCustomMessage, validateInviteCodeGeneration } from "~/utils";
+import {
+  validateChangeUserInfo,
+  validateCustomMessage,
+  validateInviteCodeGeneration,
+} from "~/utils";
 
 interface SecretCode {
   id: string;
@@ -80,8 +84,17 @@ interface Errors {
   customMessageMessage?: string;
   customMessagePriority?: string;
 }
+interface ChangeUserInfoErrors {
+  firstNameValidation?: string;
+  lastNameValidation?: string;
+  userNameValidation?: string;
+  emailValidation?: string;
+  roleValidation?: string;
+  expirationDateValidation?: string;
+}
 export const action = async (actionArg) => {
   const errors: Errors = {};
+  const changeUserInfoErrors: ChangeUserInfoErrors = {};
   const formData = await actionArg.request.formData();
   const formId = formData.get("form-id");
   const adminUserName = formData.get("adminUserName");
@@ -161,6 +174,20 @@ export const action = async (actionArg) => {
     const roleChange = formData.get("changeRole");
     const timeChange = formData.get("changeTime");
     const percentage = formData.get("changePercentage");
+
+    const UserInfoChangeValidation = await validateChangeUserInfo(
+      firstNameChange,
+      lastNameChange,
+      nickNameChange,
+      emailChange,
+      roleChange,
+      timeChange,
+      changeUserInfoErrors,
+    );
+    if (UserInfoChangeValidation !== null) {
+      return json(changeUserInfoErrors);
+    }
+
     return changeUserInformation(
       emailID,
       firstNameChange,
@@ -312,6 +339,7 @@ export default function NotesPage() {
   const [roleSelection, setRoleSelection] = useState("holder");
 
   const actionData = useActionData<Errors>();
+  const changeUserInfoErrors = useActionData<ChangeUserInfoErrors>();
 
   return (
     <div className="flex flex-grow h-screen flex-col relative">
@@ -980,6 +1008,16 @@ export default function NotesPage() {
                                                       userShitNahui?.firstName
                                                     }
                                                   />
+                                                  {changeUserInfoErrors?.firstNameValidation ? (
+                                                    <div
+                                                      className="pt-1 font-bold text-red-500"
+                                                      id="firstname-errorr"
+                                                    >
+                                                      {
+                                                        changeUserInfoErrors.firstNameValidation
+                                                      }
+                                                    </div>
+                                                  ) : null}
                                                   <label
                                                     htmlFor="changeLastName"
                                                     className="text-sm text-black"
