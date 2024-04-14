@@ -21,7 +21,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
         </div>
         <div className="flex items-center text-1xl text-bold font-bold pr-6 space-x-4">
           <div className="flex items-center text-1xl text-bold font-bold">
-            <Link to="/dashboard" className="btn btn-primary">
+            <Link to={"/profile/" + user.id} className="btn btn-primary">
               <div style={{ display: "flex", alignItems: "center" }}>
                 <span style={{ marginRight: "0.5rem" }}>
                   {user.firstName + " " + user.lastName}
@@ -69,7 +69,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
                     Profile
                   </button>
                 </Form>
-                <Form action="/logout" method="get">
+                <Form action="/logout" method="post">
                   <button
                     type="submit"
                     className="block w-full py-2 px-4 text-sm text-gray-800 hover:bg-gray-100 focus:outline-none"
