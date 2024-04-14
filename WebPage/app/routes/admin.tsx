@@ -23,7 +23,7 @@ import {
   warningUser,
 } from "~/models/user.server";
 import { requireUser } from "~/session.server";
-import { validateInviteCodeGeneration } from "~/utils";
+import { validateCustomMessage, validateInviteCodeGeneration } from "~/utils";
 
 interface SecretCode {
   id: string;
@@ -76,6 +76,9 @@ interface Errors {
   notExpired?: string;
   selectedPercentage?: string;
   findingUserEmail?: string;
+  customMessageName?: string;
+  customMessageMessage?: string;
+  customMessagePriority?: string;
 }
 export const action = async (actionArg) => {
   const errors: Errors = {};
@@ -130,6 +133,10 @@ export const action = async (actionArg) => {
       return json(errors);
     }
     const user = await getUserByEmail(findingUserEmail);
+    if (!user) {
+      errors.findingUserEmail = "Vartotojas su tokiu el. paštu neegzistuoja";
+      return json(errors);
+    }
     return json(user);
   } else if (formId === "changingVisability") {
     const messageID = String(formData.get("messageID"));
@@ -169,6 +176,16 @@ export const action = async (actionArg) => {
     const customNameForMessages = formData.get("customName");
     const importanceForMessages = formData.get("importance");
     const customMessageForMessages = formData.get("customMessage");
+    const validationCustomMessagesErrors = await validateCustomMessage(
+      customNameForMessages,
+      customMessageForMessages,
+      importanceForMessages,
+      errors,
+    );
+
+    if (validationCustomMessagesErrors !== null) {
+      return json(errors);
+    }
 
     return createMessage(
       customNameForMessages,
@@ -509,7 +526,7 @@ export default function NotesPage() {
                                 aria-describedby="email-errorr"
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
                               />
-                              {userShitNahui ? (
+                              {actionData?.findingUserEmail ? (
                                 <div
                                   className="pt-1 font-bold text-red-500"
                                   id="firstname-error"
@@ -525,7 +542,11 @@ export default function NotesPage() {
                       <button
                         type="submit"
                         className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
-                        onClick={togglePopup}
+                        onClick={
+                          actionData && !actionData.findingUserEmail
+                            ? togglePopup
+                            : undefined
+                        }
                       >
                         Ieškoti
                       </button>
@@ -2183,6 +2204,14 @@ export default function NotesPage() {
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                                 placeholder="Pavadinimas"
                               />
+                              {actionData?.customMessageName ? (
+                                <div
+                                  className="pt-1 font-bold text-red-500"
+                                  id="firstname-error"
+                                >
+                                  {actionData.customMessageName}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         </div>
@@ -2199,6 +2228,14 @@ export default function NotesPage() {
                                 <option value="2">2</option>
                                 <option value="3">3</option>
                               </select>
+                              {actionData?.customMessagePriority ? (
+                                <div
+                                  className="pt-1 font-bold text-red-500"
+                                  id="firstname-error"
+                                >
+                                  {actionData.customMessagePriority}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         </div>
@@ -2214,6 +2251,14 @@ export default function NotesPage() {
                                 style={{ resize: "none" }} // Disable resizing
                                 rows={3} // You can adjust the number of rows as needed
                               ></textarea>
+                              {actionData?.customMessageMessage ? (
+                                <div
+                                  className="pt-1 font-bold text-red-500"
+                                  id="firstname-error"
+                                >
+                                  {actionData.customMessageMessage}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         </div>

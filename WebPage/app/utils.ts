@@ -289,3 +289,36 @@ export async function validateInviteCodeGeneration(
 
   return null;
 }
+interface InviteCustomMessagesErrors {
+  customMessageName?: string;
+  customMessageMessage?: string;
+  customMessagePriority?: string;
+}
+export async function validateCustomMessage(
+  customMessageName: unknown,
+  customMessageMessage: unknown,
+  customMessagePriority: unknown,
+  errors: InviteCustomMessagesErrors,
+): Promise<InviteCustomMessagesErrors | null> {
+  //const errors: InviteCodeGenerationErrors = {};
+
+  if (typeof customMessageName !== "string" || customMessageName.length <= 0) {
+    errors.customMessageName = "Pavadinimas yra privalomas";
+  }
+  if (
+    typeof customMessageMessage !== "string" ||
+    customMessageMessage.length <= 0
+  ) {
+    errors.customMessageMessage = "Privaloma įvesti pranešimą";
+  } else if (customMessageMessage.length <= 9) {
+    errors.customMessageMessage = "Pranešimą turi sudaryti bent 10 simbolių";
+  }
+  if (customMessagePriority === "holder") {
+    errors.customMessagePriority = "Privaloma pasirinkti svarbumą";
+  }
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+
+  return null;
+}
