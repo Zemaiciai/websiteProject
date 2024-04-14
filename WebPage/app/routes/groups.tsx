@@ -55,7 +55,7 @@ const Dashboard = () => {
                     <button
                       className={`inline-block p-4  ${
                         activeTab === "myGroups"
-                          ? "border-sky-500 border-b-2 rounded-t-lg"
+                          ? "border-custom-800 border-b-2 rounded-t-lg"
                           : "hover:text-gray-600 hover:border-gray-300"
                       }`}
                       onClick={() => handleTabClick("myGroups")}
@@ -67,7 +67,7 @@ const Dashboard = () => {
                     <button
                       className={`inline-block p-4  ${
                         activeTab === "allGroups"
-                          ? "border-sky-500 border-b-2 rounded-t-lg"
+                          ? "border-custom-800 border-b-2 rounded-t-lg"
                           : "hover:text-gray-600 hover:border-gray-300"
                       }`}
                       onClick={() => handleTabClick("allGroups")}
