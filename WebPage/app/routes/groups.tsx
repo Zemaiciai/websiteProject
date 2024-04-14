@@ -42,7 +42,7 @@ const Dashboard = () => {
 
       <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto pb-3">
         <NavBarHeader
-          title={`${linkClicked ? "Užsakymo sukurimas" : "Grupės"}`}
+          title={`${linkClicked ? "Grupės sukurimas" : "Grupės"}`}
         />
         <div className="flex justify-between">
           {linkClicked ? (
