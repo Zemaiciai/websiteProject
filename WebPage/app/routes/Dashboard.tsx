@@ -1,16 +1,11 @@
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import React, { useEffect, useState } from "react";
-import GreenMessage from "~/components/DashBoardCustomMessagesDesign/GreenMessage";
-import RedMessage from "~/components/DashBoardCustomMessagesDesign/RedMessage";
-import YellowMessage from "~/components/DashBoardCustomMessagesDesign/YellowMessage";
+import { useState } from "react";
+import Message from "~/components/DashBoardCustomMessagesDesign/Message";
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 
-import Header from "~/components/common/header/header";
 import { getAllMessages } from "~/models/customMessage.server";
-import { getNoteListItems } from "~/models/note.server";
-import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -60,16 +55,7 @@ const Dashboard = () => {
             // Check if the message is visible
             message.visibility && (
               <div key={message.id}>
-                {/* Render different message components based on priority */}
-                {message.priority === "1" && (
-                  <GreenMessage msg={message.message} />
-                )}
-                {message.priority === "2" && (
-                  <YellowMessage msg={message.message} />
-                )}
-                {message.priority === "3" && (
-                  <RedMessage msg={message.message} />
-                )}
+                <Message msg={message.message} priority={message.priority} />
               </div>
             ),
         )}
