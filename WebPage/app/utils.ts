@@ -7,6 +7,10 @@ import {
   checkExpirationDateByEmail,
   getCodeByEmail,
 } from "./models/secretCode.server";
+import {
+  getCustomMessagesByMessage,
+  getCustomMessagesByName,
+} from "./models/customMessage.server";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -304,12 +308,16 @@ export async function validateCustomMessage(
 
   if (typeof customMessageName !== "string" || customMessageName.length <= 0) {
     errors.customMessageName = "Pavadinimas yra privalomas";
+  } else if (await getCustomMessagesByName(customMessageName)) {
+    errors.customMessageName = "Pranešimas su tokiu pavadinimu jau egzistuoja";
   }
   if (
     typeof customMessageMessage !== "string" ||
     customMessageMessage.length <= 0
   ) {
     errors.customMessageMessage = "Privaloma įvesti pranešimą";
+  } else if (await getCustomMessagesByMessage(customMessageMessage)) {
+    errors.customMessageMessage = "Pranešimas su tokia žinute jau egzistuoja";
   } else if (customMessageMessage.length <= 9) {
     errors.customMessageMessage = "Pranešimą turi sudaryti bent 10 simbolių";
   }

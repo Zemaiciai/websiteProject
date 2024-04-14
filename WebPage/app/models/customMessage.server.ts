@@ -51,3 +51,9 @@ export async function changeMessageVisibility(index: string) {
 export async function getAllMessages() {
   return prisma.customMessage.findMany();
 }
+export async function getCustomMessagesByName(name: string) {
+  return prisma.customMessage.findFirst({ where: { name } });
+}
+export async function getCustomMessagesByMessage(message: string) {
+  return prisma.customMessage.findFirst({ where: { message } });
+}
