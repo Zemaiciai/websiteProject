@@ -1,8 +1,38 @@
-import { Form } from "@remix-run/react";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { Form, json, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import GroupsCreationInformation from "~/components/Groups/groupsCreationInformation";
+import { createGroup } from "~/models/groups.server";
+import { requireUser } from "~/session.server";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const user = await requireUser(request);
+  console.log(user.email);
+  return json(user);
+};
+
+export const action = async (actionArg) => {
+  const formData = await actionArg.request.formData();
+  const formId = formData.get("form-id");
+  const ownerUserID = formData.get("owner");
+
+  const customName = String(formData.get("customName"));
+  const shortDescription = String(formData.get("shortDescription"));
+  const fullDescription = String(formData.get("fullDescription"));
+  const createdGroup = await createGroup(
+    customName,
+    shortDescription,
+    fullDescription,
+    ownerUserID,
+  );
+
+  // Return the created group or any other value you need
+  return createdGroup;
+};
 
 export default function NewOrderPage() {
+  const data = useLoaderData<typeof loader>();
+
   return (
     <div className="flex-grow mr-6">
       <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3">
@@ -13,13 +43,31 @@ export default function NewOrderPage() {
       </div>
       <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3 mb-5">
         <h1 className="text-3xl font-mono font-font-extralight pb-3">
-          Grupės sukūrimas
+          Grupės sukūrimas [NOT IMPLEMENTED]
         </h1>
         <Form method="post">
           <div className="flex flex-wrap -mx-3 mb-4">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <div className="flex flex-col">
                 <div className="relative">
+                  <input
+                    id="form-id"
+                    name="form-id"
+                    type="text"
+                    autoComplete="on"
+                    className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                    placeholder="test"
+                    hidden
+                  />
+                  <input
+                    id="owner"
+                    name="owner"
+                    type="text"
+                    autoComplete="on"
+                    className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                    value={data.id}
+                    hidden
+                  />
                   <input
                     id="customName"
                     name="customName"
@@ -35,8 +83,8 @@ export default function NewOrderPage() {
               <div className="flex flex-col">
                 <div className="relative">
                   <input
-                    id="emailAdress"
-                    name="emailAdress"
+                    id="shortDescription"
+                    name="shortDescription"
                     type="text"
                     autoComplete="on"
                     className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
@@ -50,8 +98,8 @@ export default function NewOrderPage() {
               <div className="flex flex-col">
                 <div className="relative">
                   <textarea
-                    id="groupDescription"
-                    name="groupDescription"
+                    id="fullDescription"
+                    name="fullDescription"
                     autoComplete="on"
                     className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black resize-none"
                     placeholder="Grupės aprašymas"

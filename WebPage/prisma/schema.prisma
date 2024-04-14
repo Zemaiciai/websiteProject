@@ -124,7 +124,7 @@ model CustomMessage{
 
 model Groups{
   id String @id @default(cuid())
-  groupName String
+  groupName String @unique
   groupShortDescription String
   groupFullDescription String
   users                  GroupUser[]
