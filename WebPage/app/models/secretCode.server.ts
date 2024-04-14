@@ -34,7 +34,7 @@ export async function createCode(
   if (existingCode) {
     // If code exists and is not expired, disallow creation
     if (existingCode.ExpirationDate > new Date()) {
-      throw new Error("Code already exists and is not expired.");
+      return;
     }
     // If code exists but is expired, proceed to create a new one
   }
@@ -262,7 +262,23 @@ export async function deleteCodeByEmail(email: string) {
   }
 
   // Delete the secret code
-  await prisma.secretCodeAdmin.delete({ where: { id: secretCode.id } });
+  if (secretCode.ExpirationDate < new Date())
+    await prisma.secretCodeAdmin.delete({ where: { id: secretCode.id } });
 
   return;
+}
+export async function checkExpirationDateByEmail(email: string) {
+  const secretCode = await prisma.secretCodeAdmin.findFirst({
+    where: { email },
+  });
+  if (
+    secretCode &&
+    secretCode.ExpirationDate &&
+    secretCode.ExpirationDate < new Date()
+  ) {
+    return false;
+  } else if (!secretCode) {
+    return false;
+  }
+  return true;
 }

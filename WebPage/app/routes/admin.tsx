@@ -1,5 +1,6 @@
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { error } from "console";
 import { useRef, useState } from "react";
 import { getAllLogs } from "~/models/adminLogs.server";
 import {
@@ -22,6 +23,7 @@ import {
   warningUser,
 } from "~/models/user.server";
 import { requireUser } from "~/session.server";
+import { validateInviteCodeGeneration } from "~/utils";
 
 interface SecretCode {
   id: string;
@@ -65,8 +67,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     customMessageList,
   });
 };
-
+interface Errors {
+  customName?: string;
+  contractNumber?: string;
+  roleSelection?: string;
+  email?: string;
+  code?: string;
+  notExpired?: string;
+  selectedPercentage?: string;
+  findingUserEmail?: string;
+}
 export const action = async (actionArg) => {
+  const errors: Errors = {};
   const formData = await actionArg.request.formData();
   const formId = formData.get("form-id");
   const adminUserName = formData.get("adminUserName");
@@ -77,6 +89,24 @@ export const action = async (actionArg) => {
     const roleSelection = String(formData.get("roleSelection"));
     const code = String(formData.get("selectedTime"));
     const selectedPercentage = String(formData.get("selectedPercentage"));
+
+    //INVITE CODE GENERATION VALIDATION
+
+    const validationErrors = await validateInviteCodeGeneration(
+      customName,
+      contractNumber,
+      roleSelection,
+      email,
+      code,
+      selectedPercentage,
+      errors,
+    );
+
+    if (validationErrors !== null) {
+      return json(errors);
+    }
+
+    //INVITE CODE CREATION
     await deleteCodeByEmail(email);
     const createdCode = await createCode(
       customName,
@@ -91,8 +121,15 @@ export const action = async (actionArg) => {
     const secretCodeList = await getAllcodes();
     return json(secretCode);
   } else if (formId === "findingUser") {
-    const email = String(formData.get("findingUserEmail"));
-    const user = await getUserByEmail(email);
+    const findingUserEmail = String(formData.get("findingUserEmail"));
+    if (typeof findingUserEmail !== "string" || findingUserEmail === "") {
+      errors.findingUserEmail = "El. pašto adresas privalomas";
+      return json(errors);
+    } else if (findingUserEmail.length < 3 || !findingUserEmail.includes("@")) {
+      errors.findingUserEmail = "El. pašto adresas netinkamas";
+      return json(errors);
+    }
+    const user = await getUserByEmail(findingUserEmail);
     return json(user);
   } else if (formId === "changingVisability") {
     const messageID = String(formData.get("messageID"));
@@ -256,6 +293,8 @@ export default function NotesPage() {
   );
 
   const [roleSelection, setRoleSelection] = useState("holder");
+
+  const actionData = useActionData<Errors>();
 
   return (
     <div className="flex flex-grow h-screen flex-col relative">
@@ -467,9 +506,17 @@ export default function NotesPage() {
                                 type="text"
                                 ref={findingUserEmailRef}
                                 autoComplete="on"
-                                aria-describedby="email-error"
+                                aria-describedby="email-errorr"
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
                               />
+                              {userShitNahui ? (
+                                <div
+                                  className="pt-1 font-bold text-red-500"
+                                  id="firstname-error"
+                                >
+                                  {actionData.findingUserEmail}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         </div>
@@ -484,12 +531,12 @@ export default function NotesPage() {
                       </button>
 
                       {popupOpen ? (
-                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10 overflow-y-auto">
                           <div className="bg-custom-100 p-3 rounded-lg shadow-md text-center">
                             {userList ? (
                               <>
                                 {/* Header for this popup to hold images */}
-                                <div className="bg-custom-200 h-50 w-full flex justify-center items-center p-5">
+                                <div className="bg-custom-200 h-50 w-full flex justify-center items-center p-5 mt-20">
                                   {/* Profile picture */}
                                   <div className="border border-custom-800">
                                     <h1 className="border-b border-custom-800 ">
@@ -1679,7 +1726,7 @@ export default function NotesPage() {
                 {/* END OF HEADER FOR ADMIN PANEL */}
 
                 <div className="flex flex-col ml-3 mt-3 mr-8 ">
-                  <div className="p-6 bg-custom-200 text-medium w-full h-[300px] ml-3 mt-3 mr-3 ">
+                  <div className="p-6 bg-custom-200 text-medium w-full  ml-3 mt-3 mr-3 ">
                     <h1 className="text-3xl font-mono font-font-extralight pb-3">
                       Pakvietimo kodo generavimas
                     </h1>
@@ -1703,6 +1750,14 @@ export default function NotesPage() {
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                                 placeholder="Pavadinimas"
                               />
+                              {actionData?.customName ? (
+                                <div
+                                  className="pt-1 font-bold text-red-500"
+                                  id="firstname-error"
+                                >
+                                  {actionData.customName}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         </div>
@@ -1719,6 +1774,14 @@ export default function NotesPage() {
                                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                                 placeholder="El. pašto adresas"
                               />
+                              {actionData?.email ? (
+                                <div
+                                  className="pt-1 font-bold text-red-500"
+                                  id="firstname-errorr"
+                                >
+                                  {actionData.email}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         </div>
@@ -1743,6 +1806,14 @@ export default function NotesPage() {
                                 hidden
                                 defaultValue={data.user.userName}
                               />
+                              {actionData?.contractNumber ? (
+                                <div
+                                  className="pt-1 font-bold text-red-500"
+                                  id="firstname-error"
+                                >
+                                  {actionData.contractNumber}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         </div>
@@ -1774,6 +1845,14 @@ export default function NotesPage() {
                                 <option value="oneYear">1 metai</option>
                                 <option value="twoYears">2 metai</option>
                               </select>
+                              {actionData?.code ? (
+                                <div
+                                  className="pt-1 font-bold text-red-500"
+                                  id="firstname-error"
+                                >
+                                  {actionData.code}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         </div>
@@ -1796,6 +1875,14 @@ export default function NotesPage() {
                                 <option value="worker">Darbuotojas</option>
                                 <option value="client">Klientas</option>
                               </select>
+                              {actionData?.roleSelection ? (
+                                <div
+                                  className="pt-1 font-bold text-red-500"
+                                  id="firstname-error"
+                                >
+                                  {actionData.roleSelection}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         </div>
@@ -1820,12 +1907,23 @@ export default function NotesPage() {
                                   <option value="25%">25%</option>
                                   <option value="30%">30%</option>
                                 </select>
+                                {actionData?.selectedPercentage ? (
+                                  <div
+                                    className="pt-1 font-bold text-red-500"
+                                    id="firstname-error"
+                                  >
+                                    {actionData.selectedPercentage}
+                                  </div>
+                                ) : null}
                               </div>
                             </div>
                           </div>
                         ) : null}
                       </div>
 
+                      {actionData?.notExpired ? (
+                        <p className="text-red-500">{actionData.notExpired}</p>
+                      ) : null}
                       <button
                         type="submit"
                         className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
@@ -2056,7 +2154,7 @@ export default function NotesPage() {
                   </div>
                 </div>
                 <div className="flex flex-col ml-3 mt-3 mr-8">
-                  <div className="p-6 bg-custom-200 text-medium w-full h-[450px] ml-3 mt-3 mr-3 ">
+                  <div className="p-6 bg-custom-200 text-medium w-full ml-3 mt-3 mr-3 ">
                     <h1 className="text-3xl font-mono font-font-extralight pb-3">
                       Pranešimo kūrimas
                     </h1>

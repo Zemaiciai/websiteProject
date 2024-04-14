@@ -58,7 +58,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
             {/* Dropdown menu */}
             {isDropdownOpen ? (
               <div
-                className="absolute mt-24 ml-32 bg-white divide-y divide-gray-100 border-gray-500 border rounded shadow"
+                className="absolute mt-24 ml-28 bg-white divide-y divide-gray-100 border-gray-500 border rounded shadow"
                 style={{ transform: "translateY(8px)" }}
               >
                 <Form action={"/profile/" + user.id} method="get">

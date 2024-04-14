@@ -2,6 +2,11 @@ import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 
 import { getUserByEmail, verifyLogin, User } from "~/models/user.server";
+import { prisma } from "./db.server";
+import {
+  checkExpirationDateByEmail,
+  getCodeByEmail,
+} from "./models/secretCode.server";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -225,6 +230,58 @@ export async function validateOrderData(
 
   if (typeof orderName !== "string" || orderName.length <= 0)
     errors.orderName = "Užsakymo pavadinimas privalomas";
+
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+
+  return null;
+}
+
+interface InviteCodeGenerationErrors {
+  customName?: string;
+  contractNumber?: string;
+  roleSelection?: string;
+  email?: string;
+  code?: string;
+  notExpired?: string;
+  selectedPercentage?: string;
+}
+export async function validateInviteCodeGeneration(
+  customName: unknown,
+  contractNumber: unknown,
+  roleSelection: unknown,
+  email: unknown,
+  code: unknown,
+  selectedPercentage: unknown,
+  errors: InviteCodeGenerationErrors,
+): Promise<InviteCodeGenerationErrors | null> {
+  //const errors: InviteCodeGenerationErrors = {};
+
+  if (typeof customName !== "string" || customName.length <= 0) {
+    errors.customName = "Pavadinimas yra privalomas";
+  }
+  if (typeof contractNumber !== "string" || contractNumber.length <= 0) {
+    errors.contractNumber = "Kontrakto numeris yra privalomas";
+  }
+  if (roleSelection === "holder") {
+    errors.roleSelection = "Role yra privaloma";
+  }
+  if (typeof email !== "string" || email === "") {
+    errors.email = "El. pašto adresas privalomas";
+  } else if (email.length < 3 || !email.includes("@")) {
+    errors.email = "El. pašto adresas netinkamas";
+  } else {
+    if ((await checkExpirationDateByEmail(email)) === true) {
+      errors.notExpired = "Kodo galiojimo laikas nėra pasibaiges";
+    }
+  }
+  if (code === "holder") {
+    errors.code = "Kodo galiojimas yra privalomas";
+  }
+  if (selectedPercentage === "holder" && roleSelection === "worker") {
+    errors.selectedPercentage = "Privaloma pasirinkti";
+  }
 
   if (Object.keys(errors).length > 0) {
     return errors;
