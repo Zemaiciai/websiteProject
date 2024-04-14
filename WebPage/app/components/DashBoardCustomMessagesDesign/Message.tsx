@@ -22,7 +22,7 @@ export default function Message({ msg, priority }: MessageProps) {
   return (
     <div
       id="alert-border-3"
-      className={`flex items-center p-4 mb-2 rounded-lg ${priorityClassName}`}
+      className={`flex items-center p-4 mb-2 rounded-lg m-2 ${priorityClassName}`}
       role="alert"
     >
       <svg
