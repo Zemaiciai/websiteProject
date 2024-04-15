@@ -120,60 +120,64 @@ const Dashboard = () => {
                           style={{ width: "80%" }} // Adjust the width as needed
                         />
                       </div>
-                      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                              <th scope="col" className="p-4">
-                                Group Name
-                              </th>
-                              <th scope="col" className="p-4">
-                                Short Description
-                              </th>
-                              <th scope="col" className="p-4">
-                                Owner
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {/* Map through filtered groups and render table rows */}
-                            {filteredGroupsMyGroups.map((group) => {
-                              // Find the owner of the current group from userGroupsOwners
-                              const ownerGroup = userGroupsOwners.find(
-                                (owner) => owner.group.id === group.id,
-                              );
+                      {filteredGroupsMyGroups.length === 0 ? (
+                        <p>Jūs nepriklausote jokiai grupei, prisijunkite!</p>
+                      ) : (
+                        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                              <tr>
+                                <th scope="col" className="p-4">
+                                  Group Name
+                                </th>
+                                <th scope="col" className="p-4">
+                                  Short Description
+                                </th>
+                                <th scope="col" className="p-4">
+                                  Owner
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {/* Map through filtered groups and render table rows */}
+                              {filteredGroupsMyGroups.map((group) => {
+                                // Find the owner of the current group from userGroupsOwners
+                                const ownerGroup = userGroupsOwners.find(
+                                  (owner) => owner.group.id === group.id,
+                                );
 
-                              return (
-                                <tr
-                                  key={group.id}
-                                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                                >
-                                  {/* Make each row clickable and redirect to a specific route */}
-                                  <td className="px-6 py-4 cursor-pointer">
-                                    <Link
-                                      to={`/group/${group.id}`}
-                                      className="font-medium text-gray-900 dark:text-white hover:underline"
-                                    >
-                                      {group.groupName}
-                                    </Link>
-                                  </td>
-                                  <td className="px-6 py-4">
-                                    {group.groupShortDescription}
-                                  </td>
-                                  <td className="px-6 py-4">
-                                    {/* Display the owner's information if ownerGroup is found */}
-                                    {ownerGroup
-                                      ? ownerGroup.owner.user
-                                        ? ownerGroup.owner.user.userName
-                                        : "Unknown"
-                                      : "Unknown"}
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
+                                return (
+                                  <tr
+                                    key={group.id}
+                                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                  >
+                                    {/* Make each row clickable and redirect to a specific route */}
+                                    <td className="px-6 py-4 cursor-pointer">
+                                      <Link
+                                        to={`/group/${group.id}`}
+                                        className="font-medium text-gray-900 dark:text-white hover:underline"
+                                      >
+                                        {group.groupName}
+                                      </Link>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      {group.groupShortDescription}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      {/* Display the owner's information if ownerGroup is found */}
+                                      {ownerGroup
+                                        ? ownerGroup.owner.user
+                                          ? ownerGroup.owner.user.userName
+                                          : "Unknown"
+                                        : "Unknown"}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </div>
                   </>
                 ) : null}
