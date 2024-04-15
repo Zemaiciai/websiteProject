@@ -69,12 +69,12 @@ const Dashboard = () => {
         <NavBarHeader
           title={`${linkClicked ? "Grupės sukurimas" : "Grupės"}`}
         />
-        <div className="flex justify-between">
+        <div className="flex justify-between pb-3">
           {linkClicked ? (
             <Outlet />
           ) : (
             <>
-              <div className="p-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
+              <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
                 {" "}
                 {/* Adjusted width */}
                 <ul className="flex flex-wrap -mb-px border-b border-gray-200">
@@ -124,8 +124,8 @@ const Dashboard = () => {
                         <p>Jūs nepriklausote jokiai grupei, prisijunkite!</p>
                       ) : (
                         <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                          <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
                               <tr>
                                 <th scope="col" className="p-4">
                                   Grupės pavadinimas
@@ -149,13 +149,13 @@ const Dashboard = () => {
                                 return (
                                   <tr
                                     key={group.id}
-                                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                    className="bg-white border-b  hover:bg-gray-50 "
                                   >
                                     {/* Make each row clickable and redirect to a specific route */}
                                     <td className="px-6 py-4 cursor-pointer">
                                       <Link
                                         to={"/groups/" + group.id}
-                                        className="font-medium text-gray-900 dark:text-white hover:underline"
+                                        className="font-medium text-gray-900  hover:underline"
                                       >
                                         {group.groupName}
                                       </Link>
@@ -199,8 +199,8 @@ const Dashboard = () => {
                         />
                       </div>
                       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                          <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
                             <tr>
                               <th scope="col" className="p-4">
                                 Grupės pavadinimas
@@ -224,13 +224,13 @@ const Dashboard = () => {
                               return (
                                 <tr
                                   key={group.id}
-                                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                  className="bg-white border-b  hover:bg-gray-50 "
                                 >
                                   {/* Make each row clickable and redirect to a specific route */}
                                   <td className="px-6 py-4 cursor-pointer">
                                     <Link
                                       to={"/groups/" + group.id}
-                                      className="font-medium text-gray-900 dark:text-white hover:underline"
+                                      className="font-medium text-gray-900  hover:underline"
                                     >
                                       {group.groupName}
                                     </Link>
