@@ -6,6 +6,7 @@ import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 import NewFooter from "~/components/newFooter/NewFooter";
 import {
   getAllGroups,
+  getAllGroupsAndOwners,
   getGroupByUserId,
   getGroupsOfUserOwners,
 } from "~/models/groups.server";
@@ -16,14 +17,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userGroups = await getGroupByUserId(user.id);
   const userGroupsOwners = await getGroupsOfUserOwners(user.id);
   const allGroups = await getAllGroups();
-  return json({ userGroups, userGroupsOwners, allGroups });
+  const allGGroupsOwners = await getAllGroupsAndOwners();
+  return json({ userGroups, userGroupsOwners, allGroups, allGGroupsOwners });
 };
 
 const Dashboard = () => {
-  const { userGroups, userGroupsOwners, allGroups } =
+  const { userGroups, userGroupsOwners, allGroups, allGGroupsOwners } =
     useLoaderData<typeof loader>();
   const [activeTab, setActiveTab] = useState("myGroups");
   const [linkClicked, setLinkClicked] = useState(false);
+  const [searchQueryMyGroups, setSearchQueryMyGroups] = useState(""); // Separate state for myGroups table
+  const [searchQueryAllGroups, setSearchQueryAllGroups] = useState(""); // Separate state for allGroups table
+
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
   };
@@ -39,18 +44,12 @@ const Dashboard = () => {
     }
   }, [location.pathname]);
 
-  const data = useLoaderData<typeof loader>();
+  const filteredGroupsMyGroups = userGroups.filter((group) =>
+    group.groupName.toLowerCase().includes(searchQueryMyGroups.toLowerCase()),
+  );
 
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // Function to handle search input change
-  const handleSearchInputChange = (event) => {
-    setSearchQuery(event.target.value);
-  };
-
-  // Filter groups based on search query
-  const filteredGroups = data.userGroups.filter((group) =>
-    group.groupName.toLowerCase().includes(searchQuery.toLowerCase()),
+  const filteredGroupsAllGroups = allGroups.filter((group) =>
+    group.groupName.toLowerCase().includes(searchQueryAllGroups.toLowerCase()),
   );
 
   return (
@@ -107,15 +106,16 @@ const Dashboard = () => {
                 {activeTab === "myGroups" ? (
                   <>
                     <div>
-                      <p>Mano grupės</p>
                       <div className="flex justify-between pb-5">
                         {/* Outlet or tab buttons */}
                         {/* Search input */}
                         <input
                           type="text"
                           placeholder="Ieškoti grupės pagal pavadinima"
-                          value={searchQuery}
-                          onChange={handleSearchInputChange}
+                          value={searchQueryMyGroups}
+                          onChange={(e) =>
+                            setSearchQueryMyGroups(e.target.value)
+                          }
                           className="p-2 mt-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-custom-800"
                           style={{ width: "80%" }} // Adjust the width as needed
                         />
@@ -137,7 +137,7 @@ const Dashboard = () => {
                           </thead>
                           <tbody>
                             {/* Map through filtered groups and render table rows */}
-                            {filteredGroups.map((group) => {
+                            {filteredGroupsMyGroups.map((group) => {
                               // Find the owner of the current group from userGroupsOwners
                               const ownerGroup = userGroupsOwners.find(
                                 (owner) => owner.group.id === group.id,
@@ -180,7 +180,74 @@ const Dashboard = () => {
                 {activeTab === "allGroups" ? (
                   <>
                     <div>
-                      <p>Visos grupės</p>
+                      <div className="flex justify-between pb-5">
+                        {/* Outlet or tab buttons */}
+                        {/* Search input */}
+                        <input
+                          type="text"
+                          placeholder="Ieškoti grupės pagal pavadinima"
+                          value={searchQueryAllGroups}
+                          onChange={(e) =>
+                            setSearchQueryAllGroups(e.target.value)
+                          }
+                          className="p-2 mt-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-custom-800"
+                          style={{ width: "80%" }} // Adjust the width as needed
+                        />
+                      </div>
+                      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                              <th scope="col" className="p-4">
+                                Group Name
+                              </th>
+                              <th scope="col" className="p-4">
+                                Short Description
+                              </th>
+                              <th scope="col" className="p-4">
+                                Owner
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {/* Map through all groups and render table rows */}
+                            {filteredGroupsAllGroups.map((group) => {
+                              // Find the owner of the current group from allGroupsOwners
+                              const ownerGroup = allGGroupsOwners.find(
+                                (owner) => owner.group.id === group.id,
+                              );
+
+                              return (
+                                <tr
+                                  key={group.id}
+                                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                >
+                                  {/* Make each row clickable and redirect to a specific route */}
+                                  <td className="px-6 py-4 cursor-pointer">
+                                    <Link
+                                      to={`/group/${group.id}`}
+                                      className="font-medium text-gray-900 dark:text-white hover:underline"
+                                    >
+                                      {group.groupName}
+                                    </Link>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    {group.groupShortDescription}
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    {/* Display the owner's information if ownerGroup is found */}
+                                    {ownerGroup
+                                      ? ownerGroup.owner.user
+                                        ? ownerGroup.owner.user.userName
+                                        : "Unknown"
+                                      : "Unknown"}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </>
                 ) : null}

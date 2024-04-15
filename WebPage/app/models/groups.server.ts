@@ -114,3 +114,49 @@ export async function getGroupsOfUserOwners(userId: string) {
     throw error;
   }
 }
+
+export async function getAllGroupsAndOwners() {
+  try {
+    // Fetch all groups
+    const allGroups = await prisma.groups.findMany();
+
+    const ownerGroups: OwnerGroup[] = [];
+
+    // Iterate through each group and find the owner
+    for (const group of allGroups) {
+      // Get the owner information
+      const owner = await prisma.groupUser.findFirst({
+        where: {
+          groupId: group.id,
+          role: GroupsRoles.OWNER,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+      // If owner is found, push the group and owner to the ownerGroups array
+      if (owner) {
+        ownerGroups.push({
+          group,
+          owner,
+        });
+      }
+    }
+
+    // Fetch the username for each owner
+    for (const ownerGroup of ownerGroups) {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: ownerGroup.owner.userId,
+        },
+      });
+      ownerGroup.owner.user = user; // Update the owner object with the user information
+    }
+
+    return ownerGroups;
+  } catch (error) {
+    console.error("Error fetching groups and owners:", error);
+    throw error;
+  }
+}
