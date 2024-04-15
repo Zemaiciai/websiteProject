@@ -160,3 +160,24 @@ export async function getAllGroupsAndOwners() {
     throw error;
   }
 }
+export async function getAllGroupUsers(groupName: string) {
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupName,
+    },
+  });
+
+  const groupUsers = await prisma.groupUser.findMany({
+    where: {
+      groupId: group?.id,
+    },
+    include: {
+      user: true,
+    },
+  });
+
+  return groupUsers.map((groupUser) => ({
+    ...groupUser.user,
+    role: groupUser.role, // Include the role directly from groupUser
+  }));
+}
