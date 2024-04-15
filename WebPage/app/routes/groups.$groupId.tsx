@@ -77,6 +77,14 @@ const GroupDetailPage = () => {
       (user.role === GroupsRoles.MEMBER || user.role === GroupsRoles.MODERATOR),
   );
 
+  const abilityToViewGroupAsMember = groupUsers.some(
+    (user) =>
+      user.id === userUsingRN.id &&
+      (user.role === GroupsRoles.MEMBER ||
+        user.role === GroupsRoles.MODERATOR ||
+        user.role === GroupsRoles.OWNER),
+  );
+
   const OwnerPermissions = groupUsers.some(
     (user) => user.id === userUsingRN.id && user.role === GroupsRoles.OWNER,
   );
@@ -184,6 +192,28 @@ const GroupDetailPage = () => {
             </div>
           </>
         ) : null}
+
+        {activeTabUsers === "viewBalance" ? (
+          <div className="flex flex-col items-center">
+            {" "}
+            {/* Center the content vertically */}
+            <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow mt-5">
+              <div className="flex flex-col items-center pb-10">
+                <h5 className="mb-1 text-2xl font-medium text-gray-900 pt-5">
+                  Balansas
+                </h5>
+                <span className="text-5xl text-green-500">
+                  {groupInfo?.balance}€
+                </span>
+              </div>
+            </div>
+            <div className="mt-5 text-left">
+              <h1 className="font-bold text-2xl">
+                Balanso pokyčiai: [NOT IMPLEMENTED]
+              </h1>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className="p-6 bg-custom-200 text-medium mt-3 mr-3 ">
@@ -239,6 +269,22 @@ const GroupDetailPage = () => {
             </div>
           </>
         )}
+        {abilityToViewGroupAsMember && (
+          <>
+            <div className="flex justify-center pb-2">
+              <button
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                  activeTabUsers === "viewBalance"
+                    ? "text-white  py-2 bg-custom-900  border-black "
+                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                } w-full`}
+                onClick={() => handleTabClickUser("viewBalance")}
+              >
+                Peržiūrėti balansą
+              </button>
+            </div>
+          </>
+        )}
 
         {OwnerPermissions && (
           <>
@@ -254,7 +300,7 @@ const GroupDetailPage = () => {
                       : "bg-custom-800  transition duration-300 ease-in-out border-black"
                   }`}
                 >
-                  Ištrinti grupę
+                  Ištrinti šią grupę
                 </button>
               </Form>
             </div>
