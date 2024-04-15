@@ -1,7 +1,11 @@
-import { GroupsRoles, User } from "@prisma/client";
-import { prisma } from "~/db.server";
-import { getUserById } from "./user.server";
+import { GroupUser, Groups, GroupsRoles, User } from "@prisma/client";
 
+import { getUserById } from "./user.server";
+import { prisma } from "~/db.server";
+interface OwnerGroup {
+  group: Groups;
+  owner: GroupUser & { user: User | null };
+}
 export async function createGroup(
   groupNameFromForm: string,
   groupShortDescriptionFromForm: string,
@@ -37,4 +41,76 @@ export async function createGroup(
 }
 export async function getGroupByName(groupName: string) {
   return prisma.groups.findFirst({ where: { groupName } });
+}
+
+export async function getAllGroups() {
+  return prisma.groups.findMany();
+}
+
+export async function getGroupByUserId(userId: string) {
+  return prisma.groups.findMany({
+    where: {
+      users: {
+        some: {
+          userId,
+        },
+      },
+    },
+  });
+}
+
+export async function getGroupsOfUserOwners(userId: string) {
+  try {
+    // Fetch all groups that the user is in
+    const userGroups = await prisma.groupUser.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        group: true,
+      },
+    });
+
+    const ownerGroups: OwnerGroup[] = [];
+
+    // Iterate through each userGroup and find the owner for the group
+    for (const userGroup of userGroups) {
+      // Check if the user has the role of 'OWNER' for this group
+      if (userGroup.role === GroupsRoles.OWNER) {
+        // Get the owner information
+        const owner = await prisma.groupUser.findFirst({
+          where: {
+            groupId: userGroup.groupId,
+            role: GroupsRoles.OWNER,
+          },
+          include: {
+            user: true,
+          },
+        });
+
+        // If owner is found, push the group and owner to the ownerGroups array
+        if (owner) {
+          ownerGroups.push({
+            group: userGroup.group,
+            owner,
+          });
+        }
+      }
+    }
+
+    // Fetch the username for each owner
+    for (const ownerGroup of ownerGroups) {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: ownerGroup.owner.userId,
+        },
+      });
+      ownerGroup.owner.user = user; // Update the owner object with the user information
+    }
+
+    return ownerGroups;
+  } catch (error) {
+    console.error("Error fetching owner groups:", error);
+    throw error;
+  }
 }

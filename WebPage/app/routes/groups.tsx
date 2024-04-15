@@ -1,13 +1,27 @@
-import { Link, Outlet, useLocation } from "@remix-run/react";
+import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { Link, Outlet, useLoaderData, useLocation } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 import NewFooter from "~/components/newFooter/NewFooter";
+import {
+  getAllGroups,
+  getGroupByUserId,
+  getGroupsOfUserOwners,
+} from "~/models/groups.server";
+import { requireUser } from "~/session.server";
 
-import { useUser } from "~/utils";
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const user = await requireUser(request);
+  const userGroups = await getGroupByUserId(user.id);
+  const userGroupsOwners = await getGroupsOfUserOwners(user.id);
+  const allGroups = await getAllGroups();
+  return json({ userGroups, userGroupsOwners, allGroups });
+};
 
 const Dashboard = () => {
-  const user = useUser();
+  const { userGroups, userGroupsOwners, allGroups } =
+    useLoaderData<typeof loader>();
   const [activeTab, setActiveTab] = useState("myGroups");
   const [linkClicked, setLinkClicked] = useState(false);
   const handleTabClick = (tab: string) => {
@@ -24,6 +38,20 @@ const Dashboard = () => {
       setLinkClicked(false);
     }
   }, [location.pathname]);
+
+  const data = useLoaderData<typeof loader>();
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Function to handle search input change
+  const handleSearchInputChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Filter groups based on search query
+  const filteredGroups = data.userGroups.filter((group) =>
+    group.groupName.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   return (
     <div className="flex  bg-custom-100">
@@ -47,7 +75,9 @@ const Dashboard = () => {
             <Outlet />
           ) : (
             <>
-              <div className="p-6 bg-custom-200 text-medium mt-3 ml-3">
+              <div className="p-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
+                {" "}
+                {/* Adjusted width */}
                 <ul className="flex flex-wrap -mb-px border-b border-gray-200">
                   <li className="me-2">
                     <button
@@ -76,23 +106,91 @@ const Dashboard = () => {
                 </ul>
                 {activeTab === "myGroups" ? (
                   <>
-                    <div className="w-[1000px]">
+                    <div>
                       <p>Mano grupės</p>
+                      <div className="flex justify-between pb-5">
+                        {/* Outlet or tab buttons */}
+                        {/* Search input */}
+                        <input
+                          type="text"
+                          placeholder="Ieškoti grupės pagal pavadinima"
+                          value={searchQuery}
+                          onChange={handleSearchInputChange}
+                          className="p-2 mt-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-custom-800"
+                          style={{ width: "80%" }} // Adjust the width as needed
+                        />
+                      </div>
+                      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                              <th scope="col" className="p-4">
+                                Group Name
+                              </th>
+                              <th scope="col" className="p-4">
+                                Short Description
+                              </th>
+                              <th scope="col" className="p-4">
+                                Owner
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {/* Map through filtered groups and render table rows */}
+                            {filteredGroups.map((group) => {
+                              // Find the owner of the current group from userGroupsOwners
+                              const ownerGroup = userGroupsOwners.find(
+                                (owner) => owner.group.id === group.id,
+                              );
+
+                              return (
+                                <tr
+                                  key={group.id}
+                                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                >
+                                  {/* Make each row clickable and redirect to a specific route */}
+                                  <td className="px-6 py-4 cursor-pointer">
+                                    <Link
+                                      to={`/group/${group.id}`}
+                                      className="font-medium text-gray-900 dark:text-white hover:underline"
+                                    >
+                                      {group.groupName}
+                                    </Link>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    {group.groupShortDescription}
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    {/* Display the owner's information if ownerGroup is found */}
+                                    {ownerGroup
+                                      ? ownerGroup.owner.user
+                                        ? ownerGroup.owner.user.userName
+                                        : "Unknown"
+                                      : "Unknown"}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </>
                 ) : null}
                 {activeTab === "allGroups" ? (
                   <>
-                    <div className="w-[1000px]">
+                    <div>
                       <p>Visos grupės</p>
                     </div>
                   </>
                 ) : null}
               </div>
-              <div className="p-6 bg-custom-200 text-medium mt-3 mr-3">
+              <div className="p-6 bg-custom-200 text-medium mt-3 mr-3 hidden md:block">
+                {" "}
+                {/* Hide the button on small screens */}
                 <div className="flex justify-center">
                   <Link
-                    className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-4 rounded"
+                    className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-10 rounded whitespace-nowrap" // Added whitespace-nowrap class
                     to={"new"}
                     onClick={handleLinkClick}
                   >
@@ -103,7 +201,7 @@ const Dashboard = () => {
             </>
           )}
         </div>
-        <NewFooter />
+        <NewFooter></NewFooter>
       </div>
     </div>
   );
