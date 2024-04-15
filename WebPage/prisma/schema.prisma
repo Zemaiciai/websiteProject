@@ -53,6 +53,9 @@ model User {
   userStatus String
   banReason String?
   groups            GroupUser[]
+
+  requestedFriendships FriendshipRequest[] @relation("RequestedFriendships")
+  receivedFriendships  FriendshipRequest[]  @relation("ReceivedFriendships")
 }
 
 model Password {
@@ -78,6 +81,7 @@ model Order {
   orderStatus OrderStatus
   description String?
   footageLink String
+  
 }
 
 model SecretCodeAdmin {
@@ -139,4 +143,23 @@ model GroupUser {
   groupId  String
   role     GroupsRoles // Define the role of the user within the group
   percentage String?
+}
+
+
+
+model FriendshipRequest {
+  id            String   @id @default(cuid())
+  requester     User     @relation("RequestedFriendships", fields: [requesterId], references: [id])
+  requesterId   String
+  requestedUser User     @relation("ReceivedFriendships", fields: [requestedUserId], references: [id])
+  requestedUserId String
+  status        FriendshipRequestStatus
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum FriendshipRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
