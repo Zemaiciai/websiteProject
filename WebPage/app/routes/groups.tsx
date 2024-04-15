@@ -128,13 +128,13 @@ const Dashboard = () => {
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                               <tr>
                                 <th scope="col" className="p-4">
-                                  Group Name
+                                  Grupės pavadinimas
                                 </th>
                                 <th scope="col" className="p-4">
-                                  Short Description
+                                  Grupės apibūdinimas
                                 </th>
                                 <th scope="col" className="p-4">
-                                  Owner
+                                  Grupė priklauso
                                 </th>
                               </tr>
                             </thead>
@@ -203,13 +203,13 @@ const Dashboard = () => {
                           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
                               <th scope="col" className="p-4">
-                                Group Name
+                                Grupės pavadinimas
                               </th>
                               <th scope="col" className="p-4">
-                                Short Description
+                                Grupės apibūdinimas
                               </th>
                               <th scope="col" className="p-4">
-                                Owner
+                                Grupė priklauso
                               </th>
                             </tr>
                           </thead>
