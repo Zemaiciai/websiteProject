@@ -77,7 +77,7 @@ export default function WorkPage() {
   };
 
   useEffect(() => {
-    if (user && (user.role === "worker" || user.role == "Super Admin")) {
+    if (user && user.role === "Darbuotojas") {
       setWorker(true);
     }
   }, [user]);
