@@ -49,6 +49,7 @@
     "morgan": "^1.10.0",
     "prom-client": "^15.0.0",
     "react": "^18.2.0",
+    "react-calendar": "^4.8.0",
     "react-dom": "^18.2.0",
     "remix-typedjson": "^0.4.1",
     "source-map-support": "^0.5.21",
