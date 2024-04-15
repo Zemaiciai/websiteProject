@@ -45,6 +45,11 @@ model User {
 
   userStatus String
   banReason String?
+
+  // New fields for skills
+  programSkills   ProgramSkill[]
+  workHours       Int?
+  otherSkills     String[]
 }
 
 model Password {
@@ -112,4 +117,12 @@ model CustomMessage{
   message String
   createdAt DateTime @default(now())
   visibility Boolean
+}
+model ProgramSkill {
+  id         String   @id @default(cuid())
+  program    String
+  experience Int      // Experience in years
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId     String
 }
