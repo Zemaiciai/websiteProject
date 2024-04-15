@@ -208,6 +208,18 @@ export async function invitingUserToGroup(
     throw new Error(`User with username ${inviteUserName} not found.`);
   }
 
+  // Check if the user has already been invited to the group
+  const existingInvite = await prisma.groupUser.findFirst({
+    where: {
+      userId: user.id,
+      groupId: group.id,
+    },
+  });
+
+  if (existingInvite) {
+    return null;
+  }
+
   // Create a new GroupUser entry with the INVITED role
   return await prisma.groupUser.create({
     data: {
