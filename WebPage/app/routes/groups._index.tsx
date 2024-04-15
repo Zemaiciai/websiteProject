@@ -127,7 +127,6 @@ export default function GroupsIndexPage() {
                               {group.groupShortDescription}
                             </td>
                             <td className="px-6 py-4">
-                              {/* Display the owner's information if ownerGroup is found */}
                               {ownerGroup
                                 ? ownerGroup.owner.user
                                   ? ownerGroup.owner.user.userName

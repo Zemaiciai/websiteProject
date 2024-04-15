@@ -75,26 +75,23 @@ export async function getGroupsOfUserOwners(userId: string) {
 
     // Iterate through each userGroup and find the owner for the group
     for (const userGroup of userGroups) {
-      // Check if the user has the role of 'OWNER' for this group
-      if (userGroup.role === GroupsRoles.OWNER) {
-        // Get the owner information
-        const owner = await prisma.groupUser.findFirst({
-          where: {
-            groupId: userGroup.groupId,
-            role: GroupsRoles.OWNER,
-          },
-          include: {
-            user: true,
-          },
-        });
+      // Get the owner information
+      const owner = await prisma.groupUser.findFirst({
+        where: {
+          groupId: userGroup.groupId,
+          role: GroupsRoles.OWNER,
+        },
+        include: {
+          user: true,
+        },
+      });
 
-        // If owner is found, push the group and owner to the ownerGroups array
-        if (owner) {
-          ownerGroups.push({
-            group: userGroup.group,
-            owner,
-          });
-        }
+      // If owner is found, push the group and owner to the ownerGroups array
+      if (owner) {
+        ownerGroups.push({
+          group: userGroup.group,
+          owner,
+        });
       }
     }
 

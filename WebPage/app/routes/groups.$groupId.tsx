@@ -37,9 +37,10 @@ export const action = async (actionArg) => {
   }
   if (formid === "leaveGroup") {
     const groupID = formData.get("group-name");
-    const inviteUserName = formData.get("user");
-    leaveGroup(groupID, inviteUserName);
+    const userName = formData.get("user");
+    leaveGroup(groupID, userName);
   }
+
   return null;
 };
 
@@ -74,6 +75,10 @@ const GroupDetailPage = () => {
     (user) =>
       user.id === userUsingRN.id &&
       (user.role === GroupsRoles.MEMBER || user.role === GroupsRoles.MODERATOR),
+  );
+
+  const OwnerPermissions = groupUsers.some(
+    (user) => user.id === userUsingRN.id && user.role === GroupsRoles.OWNER,
   );
   return (
     <>
@@ -231,6 +236,27 @@ const GroupDetailPage = () => {
               >
                 Pakviesti vartotoją
               </button>
+            </div>
+          </>
+        )}
+
+        {OwnerPermissions && (
+          <>
+            <div className="flex justify-center pb-2">
+              <Form method="post">
+                <input name="form-id" hidden defaultValue="deleteGroup" />
+                <input name="group-name" hidden defaultValue={groupId} />
+                <input name="user" hidden defaultValue={userUsingRN.id} />
+                <button
+                  type="submit"
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-11 rounded text-nowrap
+                      ? "bg-custom-900 border-black"
+                      : "bg-custom-800  transition duration-300 ease-in-out border-black"
+                  }`}
+                >
+                  Ištrinti grupę
+                </button>
+              </Form>
             </div>
           </>
         )}
