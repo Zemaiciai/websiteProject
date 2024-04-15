@@ -154,7 +154,7 @@ const Dashboard = () => {
                                     {/* Make each row clickable and redirect to a specific route */}
                                     <td className="px-6 py-4 cursor-pointer">
                                       <Link
-                                        to={`/groups/${group.id}`}
+                                        to={"/groups/" + group.id}
                                         className="font-medium text-gray-900 dark:text-white hover:underline"
                                       >
                                         {group.groupName}
@@ -229,7 +229,7 @@ const Dashboard = () => {
                                   {/* Make each row clickable and redirect to a specific route */}
                                   <td className="px-6 py-4 cursor-pointer">
                                     <Link
-                                      to={`/groups/${group.id}`}
+                                      to={"/groups/" + group.id}
                                       className="font-medium text-gray-900 dark:text-white hover:underline"
                                     >
                                       {group.groupName}
