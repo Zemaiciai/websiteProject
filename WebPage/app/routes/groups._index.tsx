@@ -70,22 +70,24 @@ export default function GroupsIndexPage() {
         </ul>
         {activeTab === "myGroups" ? (
           <>
-            <div>
-              <div className="flex justify-between pb-5">
-                {/* Outlet or tab buttons */}
-                {/* Search input */}
-                <input
-                  type="text"
-                  placeholder="Ieškoti grupės pagal pavadinima"
-                  value={searchQueryMyGroups}
-                  onChange={(e) => setSearchQueryMyGroups(e.target.value)}
-                  className="p-2 mt-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-custom-800"
-                  style={{ width: "80%" }} // Adjust the width as needed
-                />
-              </div>
-              {filteredGroupsMyGroups.length === 0 ? (
-                <p>Jūs nepriklausote jokiai grupei, prisijunkite!</p>
-              ) : (
+            {filteredGroupsMyGroups.length === 0 ? (
+              <p className="mt-5">
+                Jūs nepriklausote jokiai grupei, prisijunkite arba sukurkite!
+              </p>
+            ) : (
+              <div>
+                <div className="flex justify-between pb-5">
+                  {/* Outlet or tab buttons */}
+                  {/* Search input */}
+                  <input
+                    type="text"
+                    placeholder="Ieškoti grupės pagal pavadinima"
+                    value={searchQueryMyGroups}
+                    onChange={(e) => setSearchQueryMyGroups(e.target.value)}
+                    className="p-2 mt-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-custom-800"
+                    style={{ width: "80%" }} // Adjust the width as needed
+                  />
+                </div>
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                   <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
@@ -139,80 +141,84 @@ export default function GroupsIndexPage() {
                     </tbody>
                   </table>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </>
         ) : null}
         {activeTab === "allGroups" ? (
           <>
-            <div>
-              <div className="flex justify-between pb-5">
-                {/* Outlet or tab buttons */}
-                {/* Search input */}
-                <input
-                  type="text"
-                  placeholder="Ieškoti grupės pagal pavadinima"
-                  value={searchQueryAllGroups}
-                  onChange={(e) => setSearchQueryAllGroups(e.target.value)}
-                  className="p-2 mt-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-custom-800"
-                  style={{ width: "80%" }} // Adjust the width as needed
-                />
-              </div>
-              <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
-                    <tr>
-                      <th scope="col" className="p-4">
-                        Grupės pavadinimas
-                      </th>
-                      <th scope="col" className="p-4">
-                        Grupės apibūdinimas
-                      </th>
-                      <th scope="col" className="p-4">
-                        Grupė priklauso
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {/* Map through all groups and render table rows */}
-                    {filteredGroupsAllGroups.map((group) => {
-                      // Find the owner of the current group from allGroupsOwners
-                      const ownerGroup = allGGroupsOwners.find(
-                        (owner) => owner.group.id === group.id,
-                      );
+            {filteredGroupsMyGroups.length === 0 ? (
+              <p className="mt-5">Dar nėra sukurtų grupių, sukurk!</p>
+            ) : (
+              <div>
+                <div className="flex justify-between pb-5">
+                  {/* Outlet or tab buttons */}
+                  {/* Search input */}
+                  <input
+                    type="text"
+                    placeholder="Ieškoti grupės pagal pavadinima"
+                    value={searchQueryAllGroups}
+                    onChange={(e) => setSearchQueryAllGroups(e.target.value)}
+                    className="p-2 mt-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-custom-800"
+                    style={{ width: "80%" }} // Adjust the width as needed
+                  />
+                </div>
+                <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                  <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
+                      <tr>
+                        <th scope="col" className="p-4">
+                          Grupės pavadinimas
+                        </th>
+                        <th scope="col" className="p-4">
+                          Grupės apibūdinimas
+                        </th>
+                        <th scope="col" className="p-4">
+                          Grupė priklauso
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* Map through all groups and render table rows */}
+                      {filteredGroupsAllGroups.map((group) => {
+                        // Find the owner of the current group from allGroupsOwners
+                        const ownerGroup = allGGroupsOwners.find(
+                          (owner) => owner.group.id === group.id,
+                        );
 
-                      return (
-                        <tr
-                          key={group.id}
-                          className="bg-white border-b  hover:bg-gray-50 "
-                        >
-                          {/* Make each row clickable and redirect to a specific route */}
-                          <td className="px-6 py-4 cursor-pointer">
-                            <Link
-                              to={"/groups/" + group.groupName}
-                              className="font-medium text-gray-900  hover:underline"
-                            >
-                              {group.groupName}
-                            </Link>
-                          </td>
-                          <td className="px-6 py-4">
-                            {group.groupShortDescription}
-                          </td>
-                          <td className="px-6 py-4">
-                            {/* Display the owner's information if ownerGroup is found */}
-                            {ownerGroup
-                              ? ownerGroup.owner.user
-                                ? ownerGroup.owner.user.userName
-                                : "Unknown"
-                              : "Unknown"}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                        return (
+                          <tr
+                            key={group.id}
+                            className="bg-white border-b  hover:bg-gray-50 "
+                          >
+                            {/* Make each row clickable and redirect to a specific route */}
+                            <td className="px-6 py-4 cursor-pointer">
+                              <Link
+                                to={"/groups/" + group.groupName}
+                                className="font-medium text-gray-900  hover:underline"
+                              >
+                                {group.groupName}
+                              </Link>
+                            </td>
+                            <td className="px-6 py-4">
+                              {group.groupShortDescription}
+                            </td>
+                            <td className="px-6 py-4">
+                              {/* Display the owner's information if ownerGroup is found */}
+                              {ownerGroup
+                                ? ownerGroup.owner.user
+                                  ? ownerGroup.owner.user.userName
+                                  : "Unknown"
+                                : "Unknown"}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            )}
           </>
         ) : null}
       </div>

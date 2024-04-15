@@ -128,6 +128,7 @@ model Groups{
   groupShortDescription String
   groupFullDescription String
   users                  GroupUser[]
+  balance String
 }
 
 model GroupUser {

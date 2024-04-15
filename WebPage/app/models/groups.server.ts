@@ -30,6 +30,7 @@ export async function createGroup(
       groupName: groupNameFromForm,
       groupShortDescription: groupShortDescriptionFromForm,
       groupFullDescription: groupFullDescriptionFromForm,
+      balance: "0",
       users: {
         create: {
           userId: user.id,
