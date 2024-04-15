@@ -1,13 +1,13 @@
 import {
+  NotificationTypes,
   OrderStatus,
   type Order,
-  type Password,
   type User,
 } from "@prisma/client";
-import bcrypt from "bcryptjs";
 
 import { prisma } from "~/db.server";
-import { getUserByEmail, getUserById } from "./user.server";
+import { getUserByEmail } from "./user.server";
+import { sendNotification } from "./notification.server";
 
 export type { Order } from "@prisma/client";
 
@@ -23,8 +23,48 @@ export async function updateOrderStatus(
   return updatedOrder;
 }
 
-export async function getOrderById(id: Order["id"]) {
-  return prisma.order.findUnique({ where: { id } });
+export async function getOrderById(id: Order["id"], includeUserID?: boolean) {
+  if (includeUserID) {
+    const orderWithIDs = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        createdBy: { select: { id: true } },
+        worker: { select: { id: true } },
+      },
+    });
+
+    return orderWithIDs;
+  } else {
+    const orderNoIDs = await prisma.order.findUnique({ where: { id } });
+
+    return orderNoIDs;
+  }
+}
+
+export async function checkOrders() {
+  const currentDate = new Date();
+
+  const orders = await prisma.order.findMany({
+    where: {
+      completionDate: { lte: currentDate },
+      orderStatus: {
+        in: [OrderStatus.PLACED, OrderStatus.IN_PROGRESS, OrderStatus.ACCEPTED],
+      },
+    },
+  });
+
+  await Promise.all(
+    orders.map(async (order) => {
+      console.log(`Sending notifications and updating status for ${order.id}`);
+
+      await sendNotification(
+        order.customerId,
+        NotificationTypes.ORDER_COMPLETED,
+      );
+      await sendNotification(order.workerId, NotificationTypes.ORDER_COMPLETED);
+      await updateOrderStatus(OrderStatus.COMPLETED, order.id);
+    }),
+  );
 }
 
 export async function getOrdersByUserId(

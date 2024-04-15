@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import OrderTimer from "./OrderTimer";
 import { User } from "~/models/user.server";
 import { Form } from "@remix-run/react";
