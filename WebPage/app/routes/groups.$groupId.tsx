@@ -58,6 +58,11 @@ const GroupDetailPage = () => {
   const userIsInvited = groupUsers.some(
     (user) => user.id === userUsingRN.id && user.role === GroupsRoles.INVITED,
   );
+  const userHasPermissionsToGroup = groupUsers.some(
+    (user) =>
+      user.id === userUsingRN.id &&
+      (user.role === GroupsRoles.MODERATOR || user.role === GroupsRoles.OWNER),
+  );
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
@@ -189,30 +194,40 @@ const GroupDetailPage = () => {
             Peržiūrėti narius
           </button>
         </div>
-        <div className="flex justify-center pb-2">
-          <button
-            className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
-              activeTabUsers === "changeSettings"
-                ? "text-white  py-2 bg-custom-900  border-black "
-                : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
-            } w-full`}
-            onClick={() => handleTabClickUser("changeSettings")}
-          >
-            Keisti nustatymus
-          </button>
-        </div>
-        <div className="flex justify-center pb-2">
-          <button
-            className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
-              activeTabUsers === "inviteMember"
-                ? "text-white  py-2 bg-custom-900  border-black "
-                : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
-            } w-full`}
-            onClick={() => handleTabClickUser("inviteMember")}
-          >
-            Pakviesti vartotoją
-          </button>
-        </div>
+        {userHasPermissionsToGroup && (
+          <>
+            <div className="flex justify-center pb-2">
+              <button
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                  activeTabUsers === "changeSettings"
+                    ? "text-white  py-2 bg-custom-900  border-black "
+                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                } w-full`}
+                onClick={() => handleTabClickUser("changeSettings")}
+              >
+                Keisti nustatymus
+              </button>
+            </div>
+          </>
+        )}
+
+        {userHasPermissionsToGroup && (
+          <>
+            <div className="flex justify-center pb-2">
+              <button
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                  activeTabUsers === "inviteMember"
+                    ? "text-white  py-2 bg-custom-900  border-black "
+                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                } w-full`}
+                onClick={() => handleTabClickUser("inviteMember")}
+              >
+                Pakviesti vartotoją
+              </button>
+            </div>
+          </>
+        )}
+
         {/* Render buttons only if the user is invited */}
         {userIsInvited && (
           <>
