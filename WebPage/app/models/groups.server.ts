@@ -217,3 +217,40 @@ export async function invitingUserToGroup(
     },
   });
 }
+
+export async function acceptInvite(groupID: string, inviteUserID: string) {
+  // Find the group by its id
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupID,
+    },
+  });
+
+  if (!group) {
+    throw new Error(`Group with name ${groupID} not found.`);
+  }
+
+  // Find the user by their id
+  const user = await prisma.user.findFirst({
+    where: {
+      id: inviteUserID,
+    },
+  });
+
+  if (!user) {
+    throw new Error(`User with username ${inviteUserID} not found.`);
+  }
+
+  // Update the user's role to MEMBER for the specific group
+  const updatedUser = await prisma.groupUser.updateMany({
+    where: {
+      userId: user.id,
+      groupId: group.id,
+    },
+    data: {
+      role: GroupsRoles.MEMBER,
+    },
+  });
+
+  return updatedUser;
+}

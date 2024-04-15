@@ -6,10 +6,12 @@ import { group } from "console";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
+  acceptInvite,
   getAllGroupUsers,
   getGroupByName,
   invitingUserToGroup,
 } from "~/models/groups.server";
+import { requireUser } from "~/session.server";
 
 export const action = async (actionArg) => {
   const formData = await actionArg.request.formData();
@@ -21,27 +23,39 @@ export const action = async (actionArg) => {
     invitingUserToGroup(groupName, inviteUserName);
     return null;
   }
+  if (formid === "acceptInvite") {
+    const groupID = formData.get("group-name");
+    const inviteUserName = formData.get("user");
+    acceptInvite(groupID, inviteUserName);
+  }
+  if (formid === "declineInvite") {
+    const groupID = formData.get("group-name");
+    const inviteUserName = formData.get("user");
+  }
   return null;
 };
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { groupId } = params;
-
+  const userUsingRN = await requireUser(request);
   if (!groupId) {
     throw new Error("Group ID is missing");
   }
   const groupInfo = await getGroupByName(groupId);
   const groupUsers = await getAllGroupUsers(groupId);
-  return json({ groupInfo, groupUsers });
+  return json({ groupInfo, groupUsers, userUsingRN });
 };
 
 const GroupDetailPage = () => {
   const { groupId } = useParams();
-  const { groupInfo, groupUsers } = useLoaderData<typeof loader>();
+  const { groupInfo, groupUsers, userUsingRN } = useLoaderData<typeof loader>();
   const [activeTabUsers, setActiveTabUsers] = useState("mainPage");
   const handleTabClickUser = (tab: string) => {
     setActiveTabUsers(tab);
   };
+  const userIsInvited = groupUsers.some(
+    (user) => user.id === userUsingRN.id && user.role === GroupsRoles.INVITED,
+  );
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
@@ -61,9 +75,6 @@ const GroupDetailPage = () => {
               <h1 className=" text-1xl pt-1 pl-3 text-wrap">
                 {groupInfo?.groupFullDescription}
               </h1>
-            </div>
-            <div>
-              <h1 className="font-bold text-1xl pt-4 pl-3"></h1>
             </div>
           </>
         ) : null}
@@ -197,31 +208,43 @@ const GroupDetailPage = () => {
             Pakviesti vartotoją
           </button>
         </div>
-        {/* NEED TO MAKE CHECKING IF THE USER HAS AN INVITE TO THIS GROUP */}
-        <div className="flex justify-center pb-2">
-          <button
-            className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
-              activeTabUsers === "inviteMember"
-                ? "text-white  py-2 bg-custom-900  border-black "
-                : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
-            } w-full`}
-            onClick={() => handleTabClickUser("inviteMember")}
-          >
-            Priimti pakvietimą
-          </button>
-        </div>
-        <div className="flex justify-center pb-2">
-          <button
-            className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
-              activeTabUsers === "inviteMember"
-                ? "text-white  py-2 bg-custom-900  border-black "
-                : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
-            } w-full`}
-            onClick={() => handleTabClickUser("inviteMember")}
-          >
-            Atmesti pakvietimą
-          </button>
-        </div>
+        {/* Render buttons only if the user is invited */}
+        {userIsInvited && (
+          <>
+            <div className="flex justify-center pb-2">
+              <Form method="post">
+                <input name="form-id" hidden defaultValue="acceptInvite" />
+                <input name="group-name" hidden defaultValue={groupId} />
+                <input name="user" hidden defaultValue={userUsingRN.id} />
+                <button
+                  type="submit"
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap
+                      ? "bg-custom-900 border-black"
+                      : "bg-custom-800  transition duration-300 ease-in-out border-black"
+                  }`}
+                >
+                  Priimti pakvietimą
+                </button>
+              </Form>
+            </div>
+            <div className="flex justify-center pb-2">
+              <Form method="post">
+                <input name="form-id" hidden defaultValue="declineInvite" />
+                <input name="group-name" hidden defaultValue={groupId} />
+                <input name="user" hidden defaultValue={userUsingRN.id} />
+                <button
+                  type="submit"
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap
+                      ? "bg-custom-900 border-black"
+                      : "bg-custom-800  transition duration-300 ease-in-out border-black"
+                  }`}
+                >
+                  Atmesti pakvietimą
+                </button>
+              </Form>
+            </div>
+          </>
+        )}
       </div>
     </>
   );
