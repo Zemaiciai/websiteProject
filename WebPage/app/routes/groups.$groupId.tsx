@@ -7,6 +7,7 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   acceptInvite,
+  cancelInvite,
   getAllGroupUsers,
   getGroupByName,
   invitingUserToGroup,
@@ -31,6 +32,7 @@ export const action = async (actionArg) => {
   if (formid === "declineInvite") {
     const groupID = formData.get("group-name");
     const inviteUserName = formData.get("user");
+    cancelInvite(groupID, inviteUserName);
   }
   return null;
 };
@@ -96,6 +98,9 @@ const GroupDetailPage = () => {
                   <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">
                     {user.firstName} {user.lastName}
                   </h5>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    {user.email}
+                  </p>
                   <p className="text-gray-600 dark:text-gray-400">
                     {user.role === GroupsRoles.OWNER
                       ? "Owner"
