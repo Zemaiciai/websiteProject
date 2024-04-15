@@ -44,9 +44,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   if (newStatus !== undefined && orderId) {
-    await updateOrderStatus(newStatus, orderId);
-
-    return null;
+    return await updateOrderStatus(newStatus, orderId);
   }
 
   return null;
