@@ -19,32 +19,24 @@ async function seed() {
   let currentDate = new Date();
   let expirationDate = new Date();
   currentDate = new Date(currentDate.getTime());
-  expirationDate = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+  expirationDate = new Date(
+    currentDate.getTime() + 100000 * 24 * 60 * 60 * 1000
+  );
   const secretCode = generateRandomSecretCode(10);
   console.log(secretCode);
 
   await prisma.secretCodeAdmin.create({
     data: {
-      customName: "test",
+      customName: "Super Admin",
       email: email,
-      contractNumber: "test",
+      contractNumber: "Super Admin",
       CreationData: currentDate,
       ExpirationDate: expirationDate,
       Used: false,
-      role: "admin",
+      role: "Super Admin",
       secretCode: secretCode
     }
   });
-  // const user = await prisma.user.create({
-  //   data: {
-  //     email,
-  //     password: {
-  //       create: {
-  //         hash: hashedPassword,
-  //       },
-  //     },
-  //   },
-  // });
 
   console.log(`Database has been seeded. 🌱`);
 }

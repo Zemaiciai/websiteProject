@@ -1,8 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import {
-  Form,
-} from "@remix-run/react";
+import { Form } from "@remix-run/react";
 import { useState } from "react";
 
 import { requireUser } from "~/session.server";
@@ -18,8 +16,8 @@ function ProfilePageEditDropBox() {
   const [isOpen, setIsOpen] = useState(false);
   const user = useUser();
   return (
-    <Form method="get" className="editButtonForm mt-[90px]">
-      <div className="hs-dropdown relative">
+    <Form method="get" className="editButtonForm">
+      <div className="hs-dropdown relative place-items-center	">
         <button
           id="hs-dropdown-with-dividers"
           type="button"
@@ -34,14 +32,14 @@ function ProfilePageEditDropBox() {
         </button>
         {isOpen ? (
           <div
-            className="hs-dropdown-menu transition-[opacity,margin] duration min-w-60 bg-white shadow-md rounded-lg p-2 mt-2 divide-y divide-gray-200 dark:bg-gray-800 dark:border dark:border-gray-700 dark:divide-gray-700"
+            className="hs-dropdown-menu transition-[opacity,margin] duration min-w-60 bg-white shadow-md rounded-lg p-2 mt-2 divide-y divide-gray-200"
             aria-labelledby="hs-dropdown-with-dividers"
           >
             <div className="py-2 first:pt-0 last:pb-0">
               <Form action={"/profileSettings/" + user.id} method="get">
                 <button
                   type="submit"
-                  className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300 dark:focus:bg-gray-700"
+                  className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none"
                 >
                   Account Settings
                 </button>
@@ -53,7 +51,7 @@ function ProfilePageEditDropBox() {
               <Form action="/logout" method="post">
                 <button
                   type="submit"
-                  className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300 dark:focus:bg-gray-700"
+                  className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none"
                 >
                   Sign Out
                 </button>

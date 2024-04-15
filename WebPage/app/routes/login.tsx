@@ -1,7 +1,7 @@
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
-  MetaFunction
+  MetaFunction,
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
@@ -32,8 +32,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const errors: Errors = {};
   const user = await validateLoginCredentials(email, password, errors);
 
-  console.log(errors);
-
   if (errors && Object.keys(errors).length > 0) {
     return json({ errors }, { status: 400 });
   } else if (user) {
@@ -41,7 +39,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       redirectTo,
       remember: remember === "on" ? true : false,
       request,
-      userId: user.id
+      userId: user.id,
     });
   }
 };
@@ -150,7 +148,7 @@ export default function LoginPage() {
                 className="text-grey underline hover:text-slate-300"
                 to={{
                   pathname: "/join",
-                  search: searchParams.toString()
+                  search: searchParams.toString(),
                 }}
               >
                 Registracija
