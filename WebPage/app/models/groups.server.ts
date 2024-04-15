@@ -181,3 +181,39 @@ export async function getAllGroupUsers(groupName: string) {
     role: groupUser.role, // Include the role directly from groupUser
   }));
 }
+
+export async function invitingUserToGroup(
+  groupName: string,
+  inviteUserName: string,
+) {
+  // Find the group by its name
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupName,
+    },
+  });
+
+  if (!group) {
+    throw new Error(`Group with name ${groupName} not found.`);
+  }
+
+  // Find the user by their username
+  const user = await prisma.user.findFirst({
+    where: {
+      userName: inviteUserName,
+    },
+  });
+
+  if (!user) {
+    throw new Error(`User with username ${inviteUserName} not found.`);
+  }
+
+  // Create a new GroupUser entry with the INVITED role
+  return await prisma.groupUser.create({
+    data: {
+      userId: user.id,
+      groupId: group.id,
+      role: GroupsRoles.INVITED,
+    },
+  });
+}

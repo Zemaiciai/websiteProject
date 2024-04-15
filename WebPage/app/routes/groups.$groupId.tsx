@@ -1,11 +1,28 @@
 // groups.$groupId.tsx
 import { GroupsRoles } from "@prisma/client";
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { Link, json, useLoaderData } from "@remix-run/react";
+import { Form, Link, json, useLoaderData } from "@remix-run/react";
 import { group } from "console";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { getAllGroupUsers, getGroupByName } from "~/models/groups.server";
+import {
+  getAllGroupUsers,
+  getGroupByName,
+  invitingUserToGroup,
+} from "~/models/groups.server";
+
+export const action = async (actionArg) => {
+  const formData = await actionArg.request.formData();
+  const formid = formData.get("form-id");
+
+  if (formid === "userInvite") {
+    const groupName = formData.get("group-name");
+    const inviteUserName = formData.get("inviteUserName");
+    invitingUserToGroup(groupName, inviteUserName);
+    return null;
+  }
+  return null;
+};
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const { groupId } = params;
@@ -52,11 +69,11 @@ const GroupDetailPage = () => {
         ) : null}
 
         {activeTabUsers === "viewUsers" ? (
-          <div className="pt-5">
+          <div className="pt-5 flex flex-wrap justify-center">
             {groupUsers.map((user) => (
               <div
                 key={user.id}
-                className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+                className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow mx-2 mb-4"
               >
                 <div className="flex justify-end px-4 pt-4"></div>
                 <div className="flex flex-col items-center pb-10">
@@ -83,6 +100,51 @@ const GroupDetailPage = () => {
               </div>
             ))}
           </div>
+        ) : null}
+
+        {activeTabUsers === "inviteMember" ? (
+          <>
+            <div>
+              <h1 className="font-bold text-1xl pt-4 pl-3 text-wrap mb-5">
+                Nario pakvietimas:
+              </h1>
+              <Form method="post">
+                <div className="flex flex-wrap mb-4">
+                  <div className="w-full px-10">
+                    <div className="flex flex-col">
+                      <div className="relative">
+                        <input
+                          name="form-id"
+                          hidden
+                          defaultValue="userInvite"
+                        />
+                        <input
+                          name="group-name"
+                          hidden
+                          defaultValue={groupId}
+                        />
+                        <input
+                          id="inviteUserName"
+                          name="inviteUserName"
+                          type="text"
+                          autoComplete="on"
+                          aria-describedby="email-error"
+                          className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none"
+                          placeholder="Vartotojo vardas"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                >
+                  Pakviesti!
+                </button>
+              </Form>
+            </div>
+          </>
         ) : null}
       </div>
 
@@ -121,6 +183,43 @@ const GroupDetailPage = () => {
             onClick={() => handleTabClickUser("changeSettings")}
           >
             Keisti nustatymus
+          </button>
+        </div>
+        <div className="flex justify-center pb-2">
+          <button
+            className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+              activeTabUsers === "inviteMember"
+                ? "text-white  py-2 bg-custom-900  border-black "
+                : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+            } w-full`}
+            onClick={() => handleTabClickUser("inviteMember")}
+          >
+            Pakviesti vartotoją
+          </button>
+        </div>
+        {/* NEED TO MAKE CHECKING IF THE USER HAS AN INVITE TO THIS GROUP */}
+        <div className="flex justify-center pb-2">
+          <button
+            className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+              activeTabUsers === "inviteMember"
+                ? "text-white  py-2 bg-custom-900  border-black "
+                : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+            } w-full`}
+            onClick={() => handleTabClickUser("inviteMember")}
+          >
+            Priimti pakvietimą
+          </button>
+        </div>
+        <div className="flex justify-center pb-2">
+          <button
+            className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+              activeTabUsers === "inviteMember"
+                ? "text-white  py-2 bg-custom-900  border-black "
+                : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+            } w-full`}
+            onClick={() => handleTabClickUser("inviteMember")}
+          >
+            Atmesti pakvietimą
           </button>
         </div>
       </div>
