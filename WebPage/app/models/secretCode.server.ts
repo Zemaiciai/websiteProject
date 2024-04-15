@@ -1,4 +1,5 @@
 import { prisma } from "~/db.server";
+import { inviteCodeLog } from "./adminLogs.server";
 
 const generateRandomSecretCode = (length: number) => {
   let result = "";
@@ -17,21 +18,23 @@ export async function createCode(
   emailAdress: string,
   contractNumber: string,
   roleSelection: string,
-  time: string
+  time: string,
+  selectedPercentage: string,
+  admin: string,
 ) {
   const existingCode = await prisma.secretCodeAdmin.findFirst({
     where: {
       email: emailAdress,
       ExpirationDate: {
-        gte: new Date() // Only consider non-expired codes
-      }
-    }
+        gte: new Date(), // Only consider non-expired codes
+      },
+    },
   });
 
   if (existingCode) {
     // If code exists and is not expired, disallow creation
     if (existingCode.ExpirationDate > new Date()) {
-      throw new Error("Code already exists and is not expired.");
+      return;
     }
     // If code exists but is expired, proceed to create a new one
   }
@@ -101,6 +104,10 @@ export async function createCode(
     role = "Klientas";
   }
 
+  if (selectedPercentage === "holder") {
+    return null;
+  }
+
   const nowdate = new Date();
   if (
     customName === "" ||
@@ -113,6 +120,7 @@ export async function createCode(
   ) {
     return null;
   } else {
+    inviteCodeLog(emailAdress, admin);
     const createdCode = await prisma.secretCodeAdmin.create({
       data: {
         customName: customName,
@@ -122,8 +130,9 @@ export async function createCode(
         ExpirationDate: currentDate,
         Used: false,
         role: role,
-        secretCode: secretCode
-      }
+        secretCode: secretCode,
+        percentage: selectedPercentage,
+      },
     });
 
     return createdCode; // Return the created code object
@@ -138,8 +147,8 @@ export async function markCodeAsUsed(findID: string) {
   // Check if the code exists
   const existingCode = await prisma.secretCodeAdmin.findUnique({
     where: {
-      id: findID
-    }
+      id: findID,
+    },
   });
 
   // If the code doesn't exist, throw an error
@@ -150,11 +159,11 @@ export async function markCodeAsUsed(findID: string) {
   // Update the Used field to true
   const updatedCode = await prisma.secretCodeAdmin.update({
     where: {
-      id: findID
+      id: findID,
     },
     data: {
-      Used: true
-    }
+      Used: true,
+    },
   });
 
   return updatedCode;
@@ -165,23 +174,111 @@ export async function changeCodeExpiring(emailtest: string, date: Date) {
 
   const code = await prisma.secretCodeAdmin.findFirst({
     where: {
-      email: emailtest
-    }
+      email: emailtest,
+    },
   });
 
   // If a code is found, update its ExpirationDate
   if (code) {
     const updatedCode = await prisma.secretCodeAdmin.update({
       where: {
-        id: code.id // Use the code's id to uniquely identify it
+        id: code.id, // Use the code's id to uniquely identify it
       },
       data: {
-        ExpirationDate: date
-      }
+        ExpirationDate: date,
+      },
     });
 
     return updatedCode;
   } else {
     throw new Error(`Code with email ${emailtest} not found.`);
   }
+}
+
+export async function changeCodeEmail(emailtest: string, newEmail: string) {
+  const code = await prisma.secretCodeAdmin.findFirst({
+    where: {
+      email: emailtest,
+    },
+  });
+
+  if (code) {
+    const updatedCode = await prisma.secretCodeAdmin.update({
+      where: {
+        id: code.id,
+      },
+      data: {
+        email: newEmail,
+      },
+    });
+
+    return updatedCode;
+  } else {
+    throw new Error(`Code with email ${emailtest} not found.`);
+  }
+}
+
+export async function changeCodePercentage(
+  userID: string,
+  percentageChange: string,
+) {
+  const user = await prisma.user.findFirst({
+    where: {
+      id: userID,
+    },
+  });
+  const code = await prisma.secretCodeAdmin.findFirst({
+    where: {
+      email: user?.email,
+    },
+  });
+
+  if (code) {
+    const updatedCode = await prisma.secretCodeAdmin.update({
+      where: {
+        id: code.id, // Use the code's id to uniquely identify it
+      },
+      data: {
+        percentage: percentageChange,
+      },
+    });
+
+    return updatedCode;
+  } else {
+    throw new Error(`Code with email ${userID} not found.`);
+  }
+}
+export async function getCodeByEmail(email: string) {
+  return prisma.secretCodeAdmin.findFirst({ where: { email } });
+}
+export async function deleteCodeByEmail(email: string) {
+  // Find the secret code by email
+  const secretCode = await prisma.secretCodeAdmin.findFirst({
+    where: { email },
+  });
+
+  if (!secretCode) {
+    return;
+  }
+
+  // Delete the secret code
+  if (secretCode.ExpirationDate < new Date())
+    await prisma.secretCodeAdmin.delete({ where: { id: secretCode.id } });
+
+  return;
+}
+export async function checkExpirationDateByEmail(email: string) {
+  const secretCode = await prisma.secretCodeAdmin.findFirst({
+    where: { email },
+  });
+  if (
+    secretCode &&
+    secretCode.ExpirationDate &&
+    secretCode.ExpirationDate < new Date()
+  ) {
+    return false;
+  } else if (!secretCode) {
+    return false;
+  }
+  return true;
 }

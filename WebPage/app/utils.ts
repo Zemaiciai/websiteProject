@@ -2,6 +2,15 @@ import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 
 import { getUserByEmail, verifyLogin, User } from "~/models/user.server";
+import { prisma } from "./db.server";
+import {
+  checkExpirationDateByEmail,
+  getCodeByEmail,
+} from "./models/secretCode.server";
+import {
+  getCustomMessagesByMessage,
+  getCustomMessagesByName,
+} from "./models/customMessage.server";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -226,6 +235,144 @@ export async function validateOrderData(
   if (typeof orderName !== "string" || orderName.length <= 0)
     errors.orderName = "Užsakymo pavadinimas privalomas";
 
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+
+  return null;
+}
+
+interface InviteCodeGenerationErrors {
+  customName?: string;
+  contractNumber?: string;
+  roleSelection?: string;
+  email?: string;
+  code?: string;
+  notExpired?: string;
+  selectedPercentage?: string;
+}
+export async function validateInviteCodeGeneration(
+  customName: unknown,
+  contractNumber: unknown,
+  roleSelection: unknown,
+  email: unknown,
+  code: unknown,
+  selectedPercentage: unknown,
+  errors: InviteCodeGenerationErrors,
+): Promise<InviteCodeGenerationErrors | null> {
+  //const errors: InviteCodeGenerationErrors = {};
+
+  if (typeof customName !== "string" || customName.length <= 0) {
+    errors.customName = "Pavadinimas yra privalomas";
+  }
+  if (typeof contractNumber !== "string" || contractNumber.length <= 0) {
+    errors.contractNumber = "Kontrakto numeris yra privalomas";
+  }
+  if (roleSelection === "holder") {
+    errors.roleSelection = "Role yra privaloma";
+  }
+  if (typeof email !== "string" || email === "") {
+    errors.email = "El. pašto adresas privalomas";
+  } else if (email.length < 3 || !email.includes("@")) {
+    errors.email = "El. pašto adresas netinkamas";
+  } else {
+    if ((await checkExpirationDateByEmail(email)) === true) {
+      errors.notExpired = "Kodo galiojimo laikas nėra pasibaiges";
+    }
+  }
+  if (code === "holder") {
+    errors.code = "Kodo galiojimas yra privalomas";
+  }
+  if (selectedPercentage === "holder" && roleSelection === "worker") {
+    errors.selectedPercentage = "Privaloma pasirinkti";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+
+  return null;
+}
+interface InviteCustomMessagesErrors {
+  customMessageName?: string;
+  customMessageMessage?: string;
+  customMessagePriority?: string;
+}
+export async function validateCustomMessage(
+  customMessageName: unknown,
+  customMessageMessage: unknown,
+  customMessagePriority: unknown,
+  errors: InviteCustomMessagesErrors,
+): Promise<InviteCustomMessagesErrors | null> {
+  //const errors: InviteCodeGenerationErrors = {};
+
+  if (typeof customMessageName !== "string" || customMessageName.length <= 0) {
+    errors.customMessageName = "Pavadinimas yra privalomas";
+  } else if (await getCustomMessagesByName(customMessageName)) {
+    errors.customMessageName = "Pranešimas su tokiu pavadinimu jau egzistuoja";
+  }
+  if (
+    typeof customMessageMessage !== "string" ||
+    customMessageMessage.length <= 0
+  ) {
+    errors.customMessageMessage = "Privaloma įvesti pranešimą";
+  } else if (await getCustomMessagesByMessage(customMessageMessage)) {
+    errors.customMessageMessage = "Pranešimas su tokia žinute jau egzistuoja";
+  } else if (customMessageMessage.length <= 9) {
+    errors.customMessageMessage = "Pranešimą turi sudaryti bent 10 simbolių";
+  }
+  if (customMessagePriority === "holder") {
+    errors.customMessagePriority = "Privaloma pasirinkti svarbumą";
+  }
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+
+  return null;
+}
+interface ChangeUserInfoErrors {
+  firstNameValidation?: string;
+  lastNameValidation?: string;
+  userNameValidation?: string;
+  emailValidation?: string;
+  roleValidation?: string;
+  expirationDateValidation?: string;
+}
+export async function validateChangeUserInfo(
+  firstNameValidation: unknown,
+  lastNameValidation: unknown,
+  userNameValidation: unknown,
+  emailValidation: unknown,
+  roleValidation: unknown,
+  expirationDateValidation: unknown,
+  errors: ChangeUserInfoErrors,
+): Promise<ChangeUserInfoErrors | null> {
+  if (
+    typeof firstNameValidation !== "string" ||
+    firstNameValidation.length <= 0
+  ) {
+    errors.firstNameValidation = "Vardas yra privalomas";
+  }
+  if (
+    typeof lastNameValidation !== "string" ||
+    lastNameValidation.length <= 0
+  ) {
+    errors.lastNameValidation = "Pavardė yra privaloma";
+  }
+  if (
+    typeof userNameValidation !== "string" ||
+    userNameValidation.length <= 0
+  ) {
+    errors.userNameValidation = "Slapyvardis yra privalomas";
+  }
+  if (typeof emailValidation !== "string" || emailValidation === "") {
+    errors.emailValidation = "El. pašto adresas privalomas";
+  } else if (emailValidation.length < 3 || !emailValidation.includes("@")) {
+    errors.emailValidation = "El. pašto adresas netinkamas";
+  }
+  if (roleValidation === "holder") {
+    errors.roleValidation = "Privaloma pasirinkti rolę";
+  }
   if (Object.keys(errors).length > 0) {
     return errors;
   }

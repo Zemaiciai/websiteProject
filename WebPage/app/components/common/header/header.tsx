@@ -6,6 +6,7 @@ import { requireUser } from "~/session.server";
 
 import navbarIcon from "../../../pictures/navMenu/navMenuIcon.png";
 import NavMenu from "../navMenu/navMenu";
+import { Form } from "@remix-run/react";
 
 interface HeaderProps {
   title: string;
@@ -26,6 +27,14 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <div className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 z-10">
+      <Form action="/logout" method="post">
+        <button
+          type="submit"
+          className="rounded bg-slate-600 px-4 py-2 text-blue-100 hover:bg-blue-500 active:bg-blue-600"
+        >
+          Logout
+        </button>
+      </Form>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="relative flex items-center">

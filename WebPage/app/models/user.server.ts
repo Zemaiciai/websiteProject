@@ -3,7 +3,18 @@ import bcrypt from "bcryptjs";
 
 import { prisma } from "~/db.server";
 
-import { changeCodeExpiring, markCodeAsUsed } from "./secretCode.server";
+import {
+  createBanLog,
+  createInfoChangeLog,
+  createUnBanLog,
+  createWarningLog,
+} from "./adminLogs.server";
+import {
+  changeCodeEmail,
+  changeCodeExpiring,
+  changeCodePercentage,
+  markCodeAsUsed,
+} from "./secretCode.server";
 
 export type { User } from "@prisma/client";
 
@@ -21,15 +32,15 @@ export async function createUser(
   firstName: string,
   lastName: string,
   userName: string,
-  secretCode: string
+  secretCode: string,
 ) {
   const userSecretCode = await prisma.secretCodeAdmin.findFirst({
     where: {
       email,
       ExpirationDate: {
-        gte: new Date()
-      }
-    }
+        gte: new Date(),
+      },
+    },
   });
 
   if (!userSecretCode) {
@@ -54,14 +65,15 @@ export async function createUser(
       userName: userName,
       expiringAt: userSecretCode.ExpirationDate,
       role: userSecretCode.role,
+      percentage: userSecretCode.percentage,
       warningAmount: "0",
       userStatus: "Aktyvi",
       password: {
         create: {
-          hash: hashedPassword
-        }
-      }
-    }
+          hash: hashedPassword,
+        },
+      },
+    },
   });
 }
 
@@ -71,13 +83,13 @@ export async function deleteUserByEmail(email: User["email"]) {
 
 export async function verifyLogin(
   email: User["email"],
-  password: Password["hash"]
+  password: Password["hash"],
 ) {
   const userWithPassword = await prisma.user.findUnique({
     where: { email },
     include: {
-      password: true
-    }
+      password: true,
+    },
   });
 
   if (!userWithPassword || !userWithPassword.password) {
@@ -86,7 +98,7 @@ export async function verifyLogin(
 
   const passwordIsValid = await bcrypt.compare(
     password,
-    userWithPassword.password.hash
+    userWithPassword.password.hash,
   );
 
   if (!passwordIsValid) {
@@ -103,76 +115,90 @@ export async function getAllusers() {
   return prisma.user.findMany();
 }
 
-export async function baningUser(findEMAIL: string, reason: string) {
+export async function baningUser(
+  findEMAIL: string,
+  reason: string,
+  admin: string,
+) {
   const banUser = await prisma.user.update({
     where: {
-      email: findEMAIL
+      email: findEMAIL,
     },
     data: {
       banReason: reason,
-      userStatus: "Užblokuota"
-    }
+      userStatus: "Užblokuota",
+    },
   });
+
+  createBanLog(banUser.email, reason, admin);
 
   return banUser;
 }
 
-export async function unBaningUser(findEMAIL: string) {
+export async function unBaningUser(findEMAIL: string, admin: string) {
   const banUser = await prisma.user.update({
     where: {
-      email: findEMAIL
+      email: findEMAIL,
     },
     data: {
       banReason: null,
-      userStatus: "Aktyvi"
-    }
+      userStatus: "Aktyvi",
+    },
   });
-
+  createUnBanLog(banUser.email, admin);
   return banUser;
 }
 
-export async function warningUser(findEMAIL: string, reason: string) {
+export async function warningUser(
+  findEMAIL: string,
+  reason: string,
+  admin: string,
+) {
   let user = await prisma.user.findUnique({
     where: {
-      email: findEMAIL
-    }
+      email: findEMAIL,
+    },
   });
 
   if (user?.warningAmount === "0") {
     user = await prisma.user.update({
       where: {
-        email: findEMAIL
+        email: findEMAIL,
       },
       data: {
         warningAmount: "1",
         firstWarning: reason,
-        firstWarningDate: new Date()
-      }
+        firstWarningDate: new Date(),
+      },
     });
+    createWarningLog(user.email, reason, admin);
   } else if (user?.warningAmount === "1") {
     user = await prisma.user.update({
       where: {
-        email: findEMAIL
+        email: findEMAIL,
       },
       data: {
         warningAmount: "2",
         secondWarning: reason,
-        secondWarningDate: new Date()
-      }
+        secondWarningDate: new Date(),
+      },
     });
+    createWarningLog(user.email, reason, admin);
   } else {
     user = await prisma.user.update({
       where: {
-        email: findEMAIL
+        email: findEMAIL,
       },
       data: {
         warningAmount: "3",
         thirdWarning: reason,
         thirdWarningDate: new Date(),
         userStatus: "Užlokuota",
-        banReason: "Surinkti 3 įspėjimai"
-      }
+        banReason: "Surinkti 3 įspėjimai",
+      },
     });
+    createWarningLog(user.email, reason, admin);
+
     //IF YOU WANT TO REMOVE WARNINGS
     // } else {
     //   user = await prisma.user.update({
@@ -203,64 +229,295 @@ export async function changeUserInformation(
   nickNameChange: string,
   emailChange: string,
   roleChange: string,
-  timeChange: string
+  timeChange: string,
+  percentageChange: string,
+  admin: string,
 ) {
   const user = await prisma.user.findUnique({
     where: {
-      email: findEMAIL
-    }
+      email: findEMAIL,
+    },
   });
+  //Checking if we need to change the first name
+  if (
+    user?.firstName !== firstNameChange &&
+    firstNameChange !== "" &&
+    user?.firstName
+  ) {
+    await changeFirstName(user.id, firstNameChange, admin, user.firstName);
+  }
+  //Checking if we need to change the last name
+  if (
+    user?.lastName !== lastNameChange &&
+    lastNameChange !== "" &&
+    user?.lastName
+  ) {
+    await changeLastName(user.id, lastNameChange, admin, user.lastName);
+  }
+  //Checking if we need to change the username
+  if (
+    user?.userName !== nickNameChange &&
+    nickNameChange !== "" &&
+    user?.userName
+  ) {
+    await changeUserName(user.id, nickNameChange, admin, user.userName);
+  }
 
+  //Checking if we need to change the percentage
+  if (
+    user?.percentage !== percentageChange &&
+    percentageChange !== "" &&
+    user?.role === "Darbuotojas"
+  ) {
+    if (user?.percentage) {
+      console.log(percentageChange);
+      console.log(user.percentage);
+      await changePercentage(user.id, percentageChange, admin, user.percentage);
+      await changeCodePercentage(user.id, percentageChange);
+    } else if (user?.id) {
+      console.log(percentageChange);
+      console.log(user.percentage);
+      await changePercentage(user.id, percentageChange, admin, "neegzistavo");
+      await changeCodePercentage(user.id, percentageChange);
+    }
+  }
+
+  //Checking if we need to change the role
+  if (user?.role !== roleChange && roleChange !== "" && user?.role) {
+    await changeRole(user.id, roleChange, admin, user.role);
+  }
+
+  //Checking if we need to change the expiration date
   let currentDate: Date | null = user?.expiringAt ?? null;
 
-  if (currentDate !== null && timeChange !== "holder") {
+  if (currentDate !== null && timeChange !== "holder" && user?.id) {
     if (timeChange === "oneMonth") {
       currentDate = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+      changeDate(user?.id, currentDate);
+      createInfoChangeLog(
+        user.email,
+        admin,
+        "galiojimas vienam mėnesiui",
+        "",
+        "",
+      );
     } else if (timeChange === "threeMonths") {
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 3);
+      changeDate(user?.id, currentDate);
+      createInfoChangeLog(
+        user.email,
+        admin,
+        "galiojimas triems mėnesiams",
+        "",
+        "",
+      );
     } else if (timeChange === "sixMonths") {
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 6);
+      changeDate(user?.id, currentDate);
+      createInfoChangeLog(
+        user.email,
+        admin,
+        "galiojimas šešiem mėnesiam",
+        "",
+        "",
+      );
     } else if (timeChange === "nineMonths") {
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 9);
+      changeDate(user?.id, currentDate);
+      createInfoChangeLog(
+        user.email,
+        admin,
+        "galiojimas deviniem mėnesiam",
+        "",
+        "",
+      );
     } else if (timeChange === "oneYear") {
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 12);
+      changeDate(user?.id, currentDate);
+      createInfoChangeLog(user.email, admin, "galiojimas metams", "", "");
     } else if (timeChange === "twoYears") {
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 24);
+      changeDate(user?.id, currentDate);
+      createInfoChangeLog(user.email, admin, "galiojimas dviem metais", "", "");
     }
-
-    const changeInfo = await prisma.user.update({
-      where: {
-        email: findEMAIL
-      },
-      data: {
-        firstName: firstNameChange,
-        lastName: lastNameChange,
-        userName: nickNameChange,
-        role: roleChange,
-        email: emailChange,
-        expiringAt: currentDate !== null ? currentDate : undefined
-      }
-    });
-    changeCodeExpiring(findEMAIL, currentDate);
-    return changeInfo;
-  } else {
-    const changeInfo = await prisma.user.update({
-      where: {
-        email: findEMAIL
-      },
-      data: {
-        firstName: firstNameChange,
-        lastName: lastNameChange,
-        userName: nickNameChange,
-        role: roleChange,
-        email: emailChange
-      }
-    });
-    return changeInfo;
   }
+
+  //Checking if we need to change the email
+  if (user?.email !== emailChange && emailChange !== "" && user?.email) {
+    await changeCodeEmail(user.email, emailChange);
+    await changeUserEmail(user.id, emailChange, admin, user.email);
+  }
+
+  return user;
+}
+
+async function changeFirstName(
+  userID: string,
+  firstNameChange: string,
+  admin: string,
+  originalName: string,
+) {
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      firstName: firstNameChange,
+    },
+  });
+  createInfoChangeLog(
+    changeInfo.email,
+    admin,
+    "varda",
+    originalName,
+    firstNameChange,
+  );
+  return changeInfo;
+}
+
+async function changeLastName(
+  userID: string,
+  lastNameChange: string,
+  admin: string,
+  originalName: string,
+) {
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      lastName: lastNameChange,
+    },
+  });
+  createInfoChangeLog(
+    changeInfo.email,
+    admin,
+    "pavarde",
+    originalName,
+    lastNameChange,
+  );
+  return changeInfo;
+}
+
+async function changeUserName(
+  userID: string,
+  userNameChange: string,
+  admin: string,
+  originalName: string,
+) {
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      userName: userNameChange,
+    },
+  });
+  createInfoChangeLog(
+    changeInfo.email,
+    admin,
+    "slapyvardi",
+    originalName,
+    userNameChange,
+  );
+  return changeInfo;
+}
+
+async function changeUserEmail(
+  userID: string,
+  emailChange: string,
+  admin: string,
+  originalName: string,
+) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userID,
+    },
+  });
+
+  if (user?.email) {
+    createInfoChangeLog(
+      user?.email,
+      admin,
+      "el. pašta",
+      originalName,
+      emailChange,
+    );
+  }
+
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      email: emailChange,
+    },
+  });
+  return changeInfo;
+}
+
+async function changeRole(
+  userID: string,
+  roleChange: string,
+  admin: string,
+  originalName: string,
+) {
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      role: roleChange,
+    },
+  });
+  createInfoChangeLog(
+    changeInfo.email,
+    admin,
+    "role",
+    originalName,
+    roleChange,
+  );
+  return changeInfo;
+}
+
+async function changePercentage(
+  userID: string,
+  percentageChange: string,
+  admin: string,
+  originalName: string,
+) {
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      percentage: percentageChange,
+    },
+  });
+  createInfoChangeLog(
+    changeInfo.email,
+    admin,
+    "atlygis nuo vartotojo",
+    originalName,
+    percentageChange,
+  );
+  return changeInfo;
+}
+
+async function changeDate(userID: string, dateChange: Date) {
+  const changeInfo = await prisma.user.update({
+    where: {
+      id: userID,
+    },
+    data: {
+      expiringAt: dateChange,
+    },
+  });
+
+  return changeInfo;
 }
