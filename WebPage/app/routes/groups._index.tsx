@@ -117,7 +117,7 @@ export default function GroupsIndexPage() {
                             {/* Make each row clickable and redirect to a specific route */}
                             <td className="px-6 py-4 cursor-pointer">
                               <Link
-                                to={"/groups/" + group.id}
+                                to={"/groups/" + group.groupName}
                                 className="font-medium text-gray-900  hover:underline"
                               >
                                 {group.groupName}
@@ -190,7 +190,7 @@ export default function GroupsIndexPage() {
                           {/* Make each row clickable and redirect to a specific route */}
                           <td className="px-6 py-4 cursor-pointer">
                             <Link
-                              to={"/groups/" + group.id}
+                              to={"/groups/" + group.groupName}
                               className="font-medium text-gray-900  hover:underline"
                             >
                               {group.groupName}
@@ -217,10 +217,10 @@ export default function GroupsIndexPage() {
           </>
         ) : null}
       </div>
-      <div className="p-6 bg-custom-200 text-medium mt-3 mr-3">
-        <div className="flex justify-center">
+      <div className="p-6 bg-custom-200 text-medium mt-3 mr-3 ">
+        <div className="flex justify-center ">
           <Link
-            className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-4 rounded"
+            className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap"
             to={"new"}
           >
             Sukurti grupę

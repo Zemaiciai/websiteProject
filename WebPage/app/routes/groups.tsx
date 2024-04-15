@@ -30,7 +30,9 @@ const Dashboard = () => {
         <div className="flex justify-between">
           <Outlet />
         </div>
-        <NewFooter />
+        <div className="mt-3">
+          <NewFooter />
+        </div>
       </div>
     </div>
   );
