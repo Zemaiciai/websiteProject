@@ -11,6 +11,7 @@ import {
   getAllGroupUsers,
   getGroupByName,
   invitingUserToGroup,
+  leaveGroup,
 } from "~/models/groups.server";
 import { requireUser } from "~/session.server";
 
@@ -33,6 +34,11 @@ export const action = async (actionArg) => {
     const groupID = formData.get("group-name");
     const inviteUserName = formData.get("user");
     cancelInvite(groupID, inviteUserName);
+  }
+  if (formid === "leaveGroup") {
+    const groupID = formData.get("group-name");
+    const inviteUserName = formData.get("user");
+    leaveGroup(groupID, inviteUserName);
   }
   return null;
 };
@@ -58,10 +64,16 @@ const GroupDetailPage = () => {
   const userIsInvited = groupUsers.some(
     (user) => user.id === userUsingRN.id && user.role === GroupsRoles.INVITED,
   );
-  const userHasPermissionsToGroup = groupUsers.some(
+  const userHasPermissionsToGroupEditing = groupUsers.some(
     (user) =>
       user.id === userUsingRN.id &&
       (user.role === GroupsRoles.MODERATOR || user.role === GroupsRoles.OWNER),
+  );
+
+  const userHasPermissionsToLeave = groupUsers.some(
+    (user) =>
+      user.id === userUsingRN.id &&
+      (user.role === GroupsRoles.MEMBER || user.role === GroupsRoles.MODERATOR),
   );
   return (
     <>
@@ -194,7 +206,7 @@ const GroupDetailPage = () => {
             Peržiūrėti narius
           </button>
         </div>
-        {userHasPermissionsToGroup && (
+        {userHasPermissionsToGroupEditing && (
           <>
             <div className="flex justify-center pb-2">
               <button
@@ -208,11 +220,6 @@ const GroupDetailPage = () => {
                 Keisti nustatymus
               </button>
             </div>
-          </>
-        )}
-
-        {userHasPermissionsToGroup && (
-          <>
             <div className="flex justify-center pb-2">
               <button
                 className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
@@ -224,6 +231,27 @@ const GroupDetailPage = () => {
               >
                 Pakviesti vartotoją
               </button>
+            </div>
+          </>
+        )}
+
+        {userHasPermissionsToLeave && (
+          <>
+            <div className="flex justify-center pb-2">
+              <Form method="post">
+                <input name="form-id" hidden defaultValue="leaveGroup" />
+                <input name="group-name" hidden defaultValue={groupId} />
+                <input name="user" hidden defaultValue={userUsingRN.id} />
+                <button
+                  type="submit"
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-11 rounded text-nowrap
+                      ? "bg-custom-900 border-black"
+                      : "bg-custom-800  transition duration-300 ease-in-out border-black"
+                  }`}
+                >
+                  Palikti grupę
+                </button>
+              </Form>
             </div>
           </>
         )}

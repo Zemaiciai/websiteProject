@@ -300,3 +300,38 @@ export async function cancelInvite(groupID: string, inviteUserID: string) {
 
   return deletedUser;
 }
+
+export async function leaveGroup(groupID: string, inviteUserID: string) {
+  // Find the group by its id
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupID,
+    },
+  });
+
+  if (!group) {
+    throw new Error(`Group with name ${groupID} not found.`);
+  }
+
+  // Find the user by their id
+  const user = await prisma.user.findFirst({
+    where: {
+      id: inviteUserID,
+    },
+  });
+
+  if (!user) {
+    throw new Error(`User with username ${inviteUserID} not found.`);
+  }
+  if (user.role !== GroupsRoles.OWNER) {
+    const deletedUser = await prisma.groupUser.deleteMany({
+      where: {
+        userId: user.id,
+        groupId: group.id,
+      },
+    });
+
+    return deletedUser;
+  }
+  return null;
+}
