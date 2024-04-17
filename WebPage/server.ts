@@ -11,6 +11,8 @@ import type { RequestHandler } from "express";
 import express from "express";
 import morgan from "morgan";
 import sourceMapSupport from "source-map-support";
+import { CronJob } from "cron";
+import { checkOrders } from "~/models/order.server";
 
 sourceMapSupport.install();
 installGlobals();
@@ -114,6 +116,28 @@ async function run() {
   metricsApp.listen(metricsPort, () => {
     console.log(`✅ metrics ready: http://localhost:${metricsPort}/metrics`);
   });
+
+  CronJob.prototype.stop();
+
+  const cronJob = new CronJob(
+    "0 0 * * * *",
+    () => {
+      console.log(
+        "Running checkOrders() to check if any orders have completed",
+      );
+      checkOrders();
+    },
+    null,
+    false,
+    "UTC",
+  );
+
+  if (!cronJob.running) {
+    cronJob.start();
+    console.log(
+      "✅ started cron job to check every hour if any orders have finished",
+    );
+  }
 
   async function reimportServer(): Promise<ServerBuild> {
     // cjs: manually remove the server build from the require cache

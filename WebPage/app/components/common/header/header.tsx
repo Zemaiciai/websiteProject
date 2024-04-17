@@ -6,7 +6,7 @@ import { requireUser } from "~/session.server";
 
 import navbarIcon from "../../../pictures/navMenu/navMenuIcon.png";
 import NavMenu from "../navMenu/navMenu";
-import { Form, useLoaderData } from "@remix-run/react";
+import { Form } from "@remix-run/react";
 
 interface HeaderProps {
   title: string;
@@ -15,8 +15,7 @@ interface HeaderProps {
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const user = await requireUser(request);
-  return json({ user });
+  await requireUser(request);
 };
 
 const Header: React.FC<HeaderProps> = ({

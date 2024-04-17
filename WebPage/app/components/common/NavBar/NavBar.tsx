@@ -1,5 +1,3 @@
-import NavBarHeader from "./NavBarHeader";
-
 interface NavBarButtonProps {
   title: string;
   activeTab: string;
