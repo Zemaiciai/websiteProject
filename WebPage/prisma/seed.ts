@@ -27,9 +27,11 @@ async function seed() {
   const secretCode = generateRandomSecretCode(10);
   const secretCode2 = generateRandomSecretCode(10);
   const secretCode3 = generateRandomSecretCode(10);
-  console.log("test@gmail.com kodas - " + secretCode);
-  console.log("darbuotojas@gmail.com kodas - " + secretCode2);
-  console.log("klientas@gmail.com kodas - " + secretCode3);
+  console.log("--------------------------------------------------------");
+  console.log("[SUPER ADMIN]  test@gmail.com kodas -        " + secretCode);
+  console.log("[DARBUOTOJAS]  darbuotojas@gmail.com kodas - " + secretCode2);
+  console.log("[KLIENTAS]     klientas@gmail.com kodas -    " + secretCode3);
+  console.log("--------------------------------------------------------");
 
   await prisma.secretCodeAdmin.create({
     data: {
