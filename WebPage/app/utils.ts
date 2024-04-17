@@ -158,15 +158,13 @@ export async function validateLoginCredentials(
   password: unknown,
   errors: RegisterErrors,
 ): Promise<User | null> {
-  if (typeof email !== "string") {
+  if (typeof email !== "string" || email.length <= 0) {
     errors.email = "El. pašto adresas privalomas";
   } else if (email.length < 3 || !email.includes("@")) {
     errors.email = "El. pašto adresas netinkamas";
   }
   if (typeof password !== "string" || password === "") {
     errors.password = "Slaptažodis privalomas";
-  } else if (password.length < 8) {
-    errors.password = "Slaptažodis per trumpas";
   }
 
   if (Object.keys(errors).length > 0) {
