@@ -8,14 +8,6 @@ interface InputProps {
 }
 
 export function CustomInput({ title, name, type, error }: InputProps) {
-  const [inputValue, setInputValue] = useState<string>("");
-
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
-  };
-
-  const hasContent = inputValue ? true : false;
-
   return (
     <div className="w-full">
       <p className="w-full relative inline-block">
@@ -24,8 +16,6 @@ export function CustomInput({ title, name, type, error }: InputProps) {
           type={type}
           autoComplete="on"
           placeholder=" "
-          value={inputValue}
-          onChange={handleInputChange}
           className={`peer w-full p-2.5 border-2 border-grey-500 rounded 
           [&:not(:focus):not(:placeholder-shown)]:border-custom-800
           focus:opacity-100
