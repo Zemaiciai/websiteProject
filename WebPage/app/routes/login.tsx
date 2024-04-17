@@ -6,6 +6,7 @@ import type {
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { ChangeEvent, useState } from "react";
+import WaveBackground from "~/assets/BackgroundSVG/WaveBackground";
 import { CustomInput } from "~/components/common/CustomInput";
 
 import { createUserSession, getUserId } from "~/session.server";
@@ -54,6 +55,9 @@ export default function LoginPage() {
 
   return (
     <main className="w-screen h-screen bg-custom-100 overflow-auto">
+      <div className="custom-shape-divider-top-1713382927">
+        <WaveBackground />
+      </div>
       <div className="flex w-full h-full flex-col justify-center items-center">
         <div className="flex w-3/4 h-full my-4">
           <div className="flex relative justify-center items-center bg-custom-200 h-full w-2/3 rounded-l-2xl overflow-auto">

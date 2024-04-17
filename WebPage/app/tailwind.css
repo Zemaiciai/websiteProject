@@ -14,3 +14,24 @@ select:-webkit-autofill:focus {
   border: 2px solid rgb(43, 43, 43);
   transition: background-color 5000s ease-in-out 0s;
 }
+
+.custom-shape-divider-top-1713382927 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.custom-shape-divider-top-1713382927 svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 27px;
+  transform: rotateY(180deg);
+}
+
+.custom-shape-divider-top-1713382927 .shape-fill {
+  fill: #3b3974;
+}
