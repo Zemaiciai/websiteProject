@@ -144,11 +144,11 @@ export default function LoginPage() {
             <div className="text-container text-center">
               <span className="text-3xl text-white font-extrabold flex justify-center items-center flex-col">
                 Neturi Paskyros?
-                <hr className="border-2 mt-4 w-14 border-custom-850 rounded-2xl" />
+                <hr className="border-2 mt-4 w-14 border-white-400 rounded-2xl" />
               </span>
               <div className="button-container flex flex-col justify-center pt-8 items-center w-full">
                 <Link
-                  className="w-2/4 rounded-3xl border border-custom-850 px-2 py-3 text-white hover:bg-custom-850"
+                  className="w-2/4 rounded-3xl border-2 border-custom-200 px-2 py-3 text-white hover:bg-custom-850"
                   to="/join"
                 >
                   Registruotis
