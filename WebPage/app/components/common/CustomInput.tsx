@@ -1,5 +1,3 @@
-import { ChangeEvent, useState } from "react";
-
 interface InputProps {
   name: string;
   title: string;
@@ -44,11 +42,11 @@ export function CustomInput({ title, name, type, error }: InputProps) {
         >
           {title}
         </label>
-        {error ? (
+        {error && (
           <span className="font-bold text-red-400" id={`${name}-error`}>
             {error}
           </span>
-        ) : null}
+        )}
       </p>
     </div>
   );
