@@ -23,7 +23,6 @@ export function CustomInput({ title, name, type, error }: InputProps) {
           `}
         />
         <label
-          aria-invalid={error ? true : undefined}
           className={`
           opacity-50 px-2.5 pointer-events-none absolute left-1 top-2.5 ease-in-out duration-300          
           peer-focus:scale-75
