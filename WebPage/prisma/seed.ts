@@ -28,6 +28,8 @@ async function seed() {
   const secretCode2 = generateRandomSecretCode(10);
   const secretCode3 = generateRandomSecretCode(10);
   console.log("--------------------------------------------------------");
+  console.log("[ROLĖ]         [EL.PAŠTAS]                   [Kodas]");
+  console.log("--------------------------------------------------------");
   console.log("[SUPER ADMIN]  test@gmail.com kodas -        " + secretCode);
   console.log("[DARBUOTOJAS]  darbuotojas@gmail.com kodas - " + secretCode2);
   console.log("[KLIENTAS]     klientas@gmail.com kodas -    " + secretCode3);
