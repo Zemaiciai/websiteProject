@@ -5,8 +5,6 @@ import type {
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
-import { ChangeEvent, useState } from "react";
-import WaveBackground from "~/assets/BackgroundSVG/WaveBackground";
 import { CustomInput } from "~/components/common/CustomInput";
 
 import { createUserSession, getUserId } from "~/session.server";
@@ -54,55 +52,52 @@ export default function LoginPage() {
   const actionData = useActionData<typeof action>();
 
   return (
-    <main className="w-screen h-screen bg-custom-100 overflow-auto">
-      <div className="custom-shape-divider-top-1713382927">
-        <WaveBackground />
-      </div>
+    <main className="w-screen h-screen bg-white-background bg-cover bg-center overflow-auto">
       <div className="flex w-full h-full flex-col justify-center items-center">
-        <div className="flex w-3/4 h-full my-4">
-          <div className="flex relative justify-center items-center bg-custom-200 h-full w-2/3 rounded-l-2xl overflow-auto">
-            <span className="absolute text-xl font-bold left-6 top-4">
-              Žemaičiai
-            </span>
-            <div className="login-container flex flex-col pb-4 h-full w-2/3">
-              <div className="text-container pt-20 text-center">
-                <span className="text-3xl text-custom-850 font-extrabold flex justify-center items-center flex-col">
-                  Prisijungimas
-                  <hr className="border-2 mt-4 w-14 border-custom-850 rounded-2xl" />
-                </span>
-              </div>
-              <ul className="logos-list pt-2 flex justify-center space-x-4 h-max w-full bg-white ">
-                <li>Logo1</li>
-                <li>Logo2</li>
-                <li>Logo3</li>
-              </ul>
-              <span className="text-center pt-6 pb-4 text-xs text-gray-500">
-                arba naudokite egzistuojančią paskyrą
+        <div className="flex w-2/3 h-full my-32">
+          <div className="flex relative h-full w-2/3 bg-custom-200 rounded-l-2xl overflow-auto">
+            <div className="flex flex-col w-full h-full">
+              <span className="absolute text-xl font-bold left-6 top-4">
+                Žemaičiai
               </span>
-              <div className="flex flex-col bg-white w-full h-full px-10">
-                <Form method="post" className="space-y-8">
-                  <div className="space-y-8">
-                    <CustomInput
-                      name="email"
-                      type="text"
-                      title="El. paštas"
-                      error={actionData?.errors.email}
-                    />
-                    <CustomInput
-                      name="password"
-                      type="password"
-                      title="Slaptažodis"
-                      error={actionData?.errors.password}
-                    />
-                    {actionData?.errors?.wrongCredentials ? (
-                      <div
-                        className="font-bold text-red-400"
-                        id="wrong-credentials-error"
-                      >
-                        {actionData.errors.wrongCredentials}
-                      </div>
-                    ) : null}
-                  </div>
+              <div className="login-container flex flex-col justify-center py-6 px-44 h-full w-full">
+                <div className="text-container text-center">
+                  <span className="text-3xl text-custom-850 font-extrabold flex justify-center items-center flex-col">
+                    Prisijungimas
+                    <hr className="border-2 mt-4 w-14 border-custom-850 rounded-2xl" />
+                  </span>
+                </div>
+                <ul className="logos-list pt-2 flex justify-center space-x-4 h-max w-full bg-white ">
+                  <li>Logo1</li>
+                  <li>Logo2</li>
+                  <li>Logo3</li>
+                </ul>
+                <span className="text-center pt-6 pb-4 text-xs text-gray-500">
+                  arba naudokite egzistuojančią paskyrą
+                </span>
+
+                <Form method="post" className="space-y-4">
+                  <CustomInput
+                    name="email"
+                    type="text"
+                    title="El. paštas"
+                    error={actionData?.errors.email}
+                  />
+                  <CustomInput
+                    name="password"
+                    type="password"
+                    title="Slaptažodis"
+                    error={actionData?.errors.password}
+                  />
+                  {actionData?.errors?.wrongCredentials ? (
+                    <div
+                      className="font-bold text-red-400"
+                      id="wrong-credentials-error"
+                    >
+                      {actionData.errors.wrongCredentials}
+                    </div>
+                  ) : null}
+
                   <input type="hidden" name="redirectTo" value={redirectTo} />
 
                   <div className="flex items-center justify-between">
@@ -120,22 +115,14 @@ export default function LoginPage() {
                         Prisiminti mane
                       </label>
                     </div>
-                    <div className="text-center font-medium">
-                      <Link
-                        className="hover:text-custom-800"
-                        to={{
-                          pathname: "/recover",
-                          search: searchParams.toString(),
-                        }}
-                      >
-                        Pamiršote slaptažodį?
-                      </Link>
-                    </div>
                   </div>
                   <div className="button-container flex flex-col justify-center pt-8 items-center w-full">
                     <button
                       type="submit"
-                      className="w-2/4 rounded-3xl bg-custom-850 px-2 py-3 text-white hover:bg-custom-800"
+                      className="
+                      w-2/4 rounded-3xl bg-custom-850 px-2 py-3 
+                      transition duration-300 ease-in-out hover:bg-custom-800 
+                      text-white"
                     >
                       Prisijungti
                     </button>
@@ -144,7 +131,7 @@ export default function LoginPage() {
               </div>
             </div>
           </div>
-          <div className="flex justify-center items-center bg-custom-800 h-full w-1/3 rounded-r-2xl">
+          <div className="flex relative justify-center items-center bg-custom-800 h-full w-1/3 rounded-r-2xl">
             <div className="text-container text-center">
               <span className="text-3xl text-white font-extrabold flex justify-center items-center flex-col">
                 Neturi Paskyros?
@@ -152,7 +139,11 @@ export default function LoginPage() {
               </span>
               <div className="button-container flex flex-col justify-center pt-8 items-center w-full">
                 <Link
-                  className="w-2/4 rounded-3xl border-2 border-custom-200 px-2 py-3 text-white hover:bg-custom-850"
+                  className="
+                  w-2/4 rounded-3xl border-2 border-custom-200 
+                  transition duration-300 ease-in-out hover:bg-custom-850
+                  px-2 py-3 text-white
+                  "
                   to="/join"
                 >
                   Registruotis

@@ -14,7 +14,7 @@ export function CustomInput({ title, name, type, error }: InputProps) {
           type={type}
           autoComplete="on"
           placeholder=" "
-          className={`peer w-full p-2.5 border-2 border-grey-500 rounded 
+          className={`peer w-full p-1.5 border-2 border-grey-500 rounded 
           [&:not(:focus):not(:placeholder-shown)]:border-custom-800
           focus:opacity-100
            ${error ? "border-red-400 font-bold opacity-100" : ""}
@@ -22,9 +22,9 @@ export function CustomInput({ title, name, type, error }: InputProps) {
         />
         <label
           className={`
-          opacity-50 px-2.5 pointer-events-none absolute left-1 top-2.5 ease-in-out duration-300          
+          opacity-50 px-1.5 pointer-events-none absolute left-1 top-1.5 ease-in-out duration-300          
           peer-focus:scale-75
-          peer-focus:-translate-y-[95%]
+          peer-focus:-translate-y-[85%]
           peer-focus:-translate-x-1.5
           peer-focus:text-custom-850
           peer-focus:font-bold
@@ -32,7 +32,7 @@ export function CustomInput({ title, name, type, error }: InputProps) {
           peer-focus:top-1
           peer-focus:bg-white
           peer-[&:not(:focus):not(:placeholder-shown)]:scale-75
-          peer-[&:not(:focus):not(:placeholder-shown)]:-translate-y-[93%]
+          peer-[&:not(:focus):not(:placeholder-shown)]:-translate-y-[85%]
           peer-[&:not(:focus):not(:placeholder-shown)]:-translate-x-1.5
           peer-[&:not(:focus):not(:placeholder-shown)]:opacity-100
           peer-[&:not(:focus):not(:placeholder-shown)]:bg-white

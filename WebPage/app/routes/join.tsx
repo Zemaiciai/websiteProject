@@ -80,84 +80,121 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export const meta: MetaFunction = () => [{ title: "Sign Up" }];
 
 export default function Join() {
-  const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? undefined;
   const actionData = useActionData<typeof action>();
 
   return (
-    <main className="w-screen h-screen bg-custom-100 overflow-auto">
-      <div className="flex w-full h-full justify-center items-center py-2">
-        <div className="flex relative bg-custom-200 h-full w-2/4 rounded-2xl overflow-auto">
-          <div className="registration-container flex flex-grow-0 flex-col w-full">
-            <div className="text-container pt-8 text-center">
-              <span className="text-3xl text-custom-850 font-extrabold flex justify-center items-center flex-col">
-                Registracija
-                <hr className="border-2 mt-4 w-14 border-custom-850 rounded-2xl" />
+    <main className="w-screen h-screen bg-white-background bg-cover bg-center overflow-auto">
+      <div className="flex w-full h-full flex-col justify-center items-center">
+        <div className="flex w-2/3 h-full my-16">
+          <div className="flex relative h-full w-2/3 bg-custom-200 rounded-l-2xl overflow-auto">
+            <div className="flex flex-col w-full h-full">
+              <span className="absolute text-xl font-bold left-6 top-4">
+                Žemaičiai
               </span>
-            </div>
-            <div className="flex flex-col bg-white w-full h-full pt-6 px-10">
-              <Form method="post" className="space-y-6" noValidate>
-                <CustomInput
-                  error={actionData?.errors.firstname}
-                  name="firstname"
-                  type="text"
-                  title="Vardas"
-                />
-                <CustomInput
-                  error={actionData?.errors.lastname}
-                  name="lastname"
-                  type="text"
-                  title="Pavardė"
-                />
-                <CustomInput
-                  error={actionData?.errors.username}
-                  name="username"
-                  type="text"
-                  title="Slapyvardis"
-                />
-                <CustomInput
-                  error={actionData?.errors.secretCode}
-                  name="secretCode"
-                  type="text"
-                  title="Pakvietimo kodas"
-                />
-                <CustomInput
-                  error={actionData?.errors.email}
-                  name="email"
-                  type="text"
-                  title="El. pašto adresas"
-                />
-                <CustomInput
-                  error={actionData?.errors.password}
-                  name="password"
-                  type="password"
-                  title="Slaptažodis"
-                />
-                {actionData?.errors?.existingUser ? (
-                  <div
-                    className="font-bold text-red-400"
-                    id="existing-user-error"
-                  >
-                    {actionData.errors.existingUser}
-                  </div>
-                ) : actionData?.errors?.wrongSecretCode ? (
-                  <div
-                    className="font-bold text-red-400"
-                    id="wrongsecrted-code-error"
-                  >
-                    {actionData.errors.wrongSecretCode}
-                  </div>
-                ) : null}
-
-                <div className="button-container flex flex-col pt-10 justify-center items-center w-full">
-                  <button
-                    type="submit"
-                    className="w-2/4 rounded-3xl bg-custom-850 px-2 py-3 text-white hover:bg-custom-800"
-                  >
-                    Prisiregistruoti
-                  </button>
+              <div className="register-container flex flex-col justify-center py-6 px-44 h-full w-full">
+                <div className="text-container text-center">
+                  <span className="text-3xl text-custom-850 font-extrabold flex justify-center items-center flex-col">
+                    Registracija
+                    <hr className="border-2 mt-4 w-14 border-custom-850 rounded-2xl" />
+                  </span>
                 </div>
-              </Form>
+                <ul className="logos-list pt-2 flex justify-center space-x-4 h-max w-full bg-white ">
+                  <li>Logo1</li>
+                  <li>Logo2</li>
+                  <li>Logo3</li>
+                </ul>
+                <span className="text-center pt-6 pb-4 text-xs text-gray-500">
+                  arba sukurkite paskyrą
+                </span>
+
+                <Form method="post">
+                  <div className="space-y-4">
+                    <CustomInput
+                      name="firstname"
+                      type="text"
+                      title="Vardas"
+                      error={actionData?.errors.firstname}
+                    />
+                    <CustomInput
+                      name="lastname"
+                      type="text"
+                      title="Pavardė"
+                      error={actionData?.errors.lastname}
+                    />
+                    <CustomInput
+                      name="username"
+                      type="text"
+                      title="Slapyvardis"
+                      error={actionData?.errors.username}
+                    />
+                    <CustomInput
+                      name="secretCode"
+                      type="text"
+                      title="Pakvietimo kodas"
+                      error={actionData?.errors.secretCode}
+                    />
+                    <CustomInput
+                      name="email"
+                      type="text"
+                      title="El. paštas"
+                      error={actionData?.errors.email}
+                    />
+                    <CustomInput
+                      name="password"
+                      type="password"
+                      title="Slaptažodis"
+                      error={actionData?.errors.password}
+                    />
+                  </div>
+                  {actionData?.errors?.existingUser ? (
+                    <div
+                      className="font-bold text-red-400 m-0"
+                      id="wrong-credentials-error"
+                    >
+                      {actionData.errors.existingUser}
+                    </div>
+                  ) : null}
+                  {actionData?.errors?.wrongSecretCode ? (
+                    <div
+                      className="font-bold text-red-400 m-0"
+                      id="wrong-secretCode-error"
+                    >
+                      {actionData.errors.wrongSecretCode}
+                    </div>
+                  ) : null}
+                  <div className="button-container flex flex-col justify-center pt-6 items-center w-full">
+                    <button
+                      type="submit"
+                      className="
+                      rounded-3xl bg-custom-850 px-8 py-3 
+                      transition duration-300 ease-in-out hover:bg-custom-800 
+                      text-white"
+                    >
+                      Prisiregistruoti
+                    </button>
+                  </div>
+                </Form>
+              </div>
+            </div>
+          </div>
+          <div className="flex relative bg-purple-background bg-cover bg-center justify-center items-center h-full w-1/3 rounded-r-2xl ">
+            <div className="text-container text-center">
+              <span className="text-3xl text-white font-extrabold flex justify-center items-center flex-col">
+                Turi Paskyrą?
+                <hr className="border-2 mt-4 w-14 border-white-400 rounded-2xl" />
+              </span>
+              <div className="button-container flex flex-col justify-center pt-8 items-center w-full">
+                <Link
+                  className="
+                  rounded-3xl border-2 border-custom-200 
+                  transition duration-300 ease-in-out hover:bg-custom-850
+                  px-8 py-3 text-white
+                  "
+                  to="/login"
+                >
+                  Prisijungti
+                </Link>
+              </div>
             </div>
           </div>
         </div>
