@@ -3,16 +3,49 @@ import { useEffect, useState } from "react";
 import { Link } from "@remix-run/react";
 import OrdersTable from "~/components/common/OrderPage/OrdersTable";
 import { requireUserId } from "~/session.server";
-import { getOrdersByUserId } from "~/models/order.server";
+import {
+  getOrderById,
+  getOrdersByUserId,
+  updateOrderStatus,
+} from "~/models/order.server";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import { useUser } from "~/utils";
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { NotificationTypes, OrderStatus } from "@prisma/client";
+import { sendNotification } from "~/models/notification.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   const userOrders = await getOrdersByUserId(userId, true);
 
   return typedjson(userOrders);
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  const state = formData.get("action");
+  const orderId = String(formData.get("orderId"));
+  const order = await getOrderById(orderId, true);
+
+  if (!order) return null;
+
+  let newStatus: OrderStatus | undefined;
+
+  if (state === "Priimti") {
+    await sendNotification(order.workerId, NotificationTypes.ORDER_ACCEPTED);
+    newStatus = OrderStatus.ACCEPTED;
+  } else if (state === "Atmesti") {
+    await sendNotification(order.customerId, NotificationTypes.ORDER_DECLINED);
+    newStatus = OrderStatus.DECLINED;
+  }
+
+  if (newStatus !== undefined && orderId) {
+    await updateOrderStatus(newStatus, orderId);
+
+    return null;
+  }
+
+  return null;
 };
 
 export default function OrdersPage() {

@@ -1,56 +1,8 @@
-import { NotificationTypes, OrderStatus } from "@prisma/client";
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Outlet, useLocation } from "@remix-run/react";
-
 import { useEffect, useState } from "react";
-import { typedjson, useTypedLoaderData } from "remix-typedjson";
 
-import OrdersPage from "~/components/OrderPage/OrdersPage";
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
-import { sendNotification } from "~/models/notification.server";
-import {
-  getOrderById,
-  getOrdersByUserId,
-  updateOrderStatus,
-} from "~/models/order.server";
-
-import { requireUserId } from "~/session.server";
-import { useUser } from "~/utils";
-
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const userId = await requireUserId(request);
-  const userOrders = await getOrdersByUserId(userId, true);
-
-  return typedjson(userOrders);
-};
-
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
-  const state = formData.get("action");
-  const orderId = String(formData.get("orderId"));
-  const order = await getOrderById(orderId, true);
-
-  if (!order) return null;
-
-  let newStatus: OrderStatus | undefined;
-
-  if (state === "Priimti") {
-    await sendNotification(order.workerId, NotificationTypes.ORDER_ACCEPTED);
-    newStatus = OrderStatus.ACCEPTED;
-  } else if (state === "Atmesti") {
-    await sendNotification(order.customerId, NotificationTypes.ORDER_DECLINED);
-    newStatus = OrderStatus.DECLINED;
-  }
-
-  if (newStatus !== undefined && orderId) {
-    await updateOrderStatus(newStatus, orderId);
-
-    return null;
-  }
-
-  return null;
-};
 
 export default function WorkPage() {
   const [activeTab, setActiveTab] = useState("");

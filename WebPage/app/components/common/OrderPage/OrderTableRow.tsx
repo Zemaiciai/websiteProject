@@ -31,14 +31,14 @@ export default function OrderCard({
     <tr className="order-card-row bg-white outline outline-1 outline-gray-100">
       {state === "PLACED" && user.role === "Darbuotojas" ? (
         <>
-          <td className="order-name text-center max-w-[50px] truncate ...">
+          <td className="order-name text-center max-w-[50px] truncate">
             {createdBy}
           </td>
-          <td className="order-name text-center max-w-[100px] truncate ...">
+          <td className="order-name text-center max-w-[100px] truncate">
             {orderName}
           </td>
-          <td className="order-status text-center truncate ...">{state}</td>
-          <td className="order-status text-center truncate ...">
+          <td className="order-status text-center truncate">{state}</td>
+          <td className="order-status text-center truncate">
             <Form method="post" className="flex justify-center">
               <input type="hidden" name="orderId" value={orderId} readOnly />
               <input
@@ -58,17 +58,17 @@ export default function OrderCard({
         </>
       ) : (
         <>
-          <td className="order-name text-center max-w-[100px] truncate ...">
+          <td className="order-name text-center max-w-[100px] truncate">
             {createdBy}
           </td>
-          <td className="order-name text-center max-w-[100px] truncate ...">
+          <td className="order-name text-center max-w-[100px] truncate">
             {orderName}
           </td>
           <td
             className={`${state === OrderStatus.ACCEPTED && "text-lime-500"} 
             ${
               state === OrderStatus.DECLINED && "text-red-500"
-            } order-name text-center max-w-[100px] truncate ...`}
+            } order-name text-center max-w-[100px] truncate`}
           >
             {state}
           </td>
