@@ -50,17 +50,14 @@ const OrderDatePicker = ({
           readOnly={true}
           hidden
         />
-        <span>{title}</span>
-      </div>
-      <div className="flex items-center">
         {error ? (
-          <div
-            className="pt-1 font-bold text-red-400 absolute top-40"
-            id={`${name}-error`}
-          >
+          <div className="pt-1 font-bold text-red-400" id={`${name}-error`}>
             {error}
           </div>
         ) : null}
+        <span>{title}</span>
+      </div>
+      <div className="flex items-center">
         <div className="flex">
           <label>
             <select

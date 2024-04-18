@@ -17,6 +17,8 @@ import { validateOrderData } from "~/utils";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await isUserClient(request);
   await requireUserId(request);
+
+  return null;
 };
 
 interface OrderErrors {
