@@ -2,14 +2,13 @@ import { useEffect, useState } from "react";
 
 import { Link } from "@remix-run/react";
 import OrdersTable from "~/components/common/OrderPage/OrdersTable";
-import { requireUserId } from "~/session.server";
+import { isUserClient, requireUserId } from "~/session.server";
 import {
   getOrderById,
   getOrdersByUserId,
   updateOrderStatus,
 } from "~/models/order.server";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
-import { useUser } from "~/utils";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { NotificationTypes, OrderStatus } from "@prisma/client";
 import { sendNotification } from "~/models/notification.server";
@@ -17,8 +16,9 @@ import { sendNotification } from "~/models/notification.server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   const userOrders = await getOrdersByUserId(userId, true);
+  const isClient = await isUserClient(request);
 
-  return typedjson(userOrders);
+  return typedjson({ orders: userOrders, isClient: isClient });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -49,8 +49,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function OrdersPage() {
-  const user = useUser();
-  const orders = useTypedLoaderData<typeof loader>();
+  const data = useTypedLoaderData<typeof loader>();
   const [worker, setWorker] = useState(false);
 
   const [searchQueries, setSearchQueries] = useState<{ [key: string]: string }>(
@@ -61,10 +60,10 @@ export default function OrdersPage() {
   );
 
   useEffect(() => {
-    if (user && user.role === "Darbuotojas") {
+    if (!data.isClient) {
       setWorker(true);
     }
-  }, [user]);
+  });
 
   const handleSearch = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -77,11 +76,11 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="flex h-full p-4 bg-custom-200">
+    <div className="flex h-full p-4 space-x-4 bg-custom-200">
       <div className="orders-table grow flex justify-center place-items-start">
         <div className="w-full">
           <OrdersTable
-            orderCards={orders}
+            orderCards={data.orders}
             handleSearch={(event) => handleSearch(event, "mainTable")}
             searchQuery={searchQueries.mainTable}
             title={`${worker ? "Darbų sąrašas" : "Jūsų užsakymų sąrašas"}`}
@@ -104,7 +103,7 @@ export default function OrdersPage() {
             </Link>
           </div>
           <OrdersTable
-            orderCards={orders}
+            orderCards={data.orders}
             handleSearch={(event) => handleSearch(event, "importantTable")}
             searchQuery={searchQueries.importantTable}
             important={true}

@@ -11,10 +11,16 @@ export default function WorkPage() {
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname === "/orders") {
-      setHeaderTitle("Užsakymų sąrašas");
-    } else {
-      setHeaderTitle("Užsakymo sukurimas");
+    switch (location.pathname) {
+      case "/orders":
+        setHeaderTitle("Užsakymų sąrašas");
+        break;
+      case "/orders/new":
+        setHeaderTitle("Užsakymo sukurimas");
+        break;
+      default:
+        setHeaderTitle("Not Found 404");
+        break;
     }
   }, [location.pathname]);
 
@@ -35,7 +41,7 @@ export default function WorkPage() {
       </div>
       <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto">
         <NavBarHeader title={headerTitle} />
-        <main className="h-full m-4">
+        <main className="h-full m-4 ">
           <Outlet />
         </main>
       </div>
