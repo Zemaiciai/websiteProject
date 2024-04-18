@@ -130,18 +130,12 @@ export async function validateRegistrationCredentials(
     errors.email = "El. pašto adresas privalomas";
   } else if (email.length < 3 || !email.includes("@")) {
     errors.email = "El. pašto adresas netinkamas";
-  } else {
-    const existingUser = await getUserByEmail(email);
-    if (existingUser) {
-      errors.existingUser = "Vartotojas su tuo pačiu el. paštu jau egzistuoja";
-    }
   }
   if (typeof password !== "string" || password === "") {
     errors.password = "Slaptažodis privalomas";
   } else if (password.length < 8) {
     errors.password = "Slaptažodis per trumpas";
   }
-
   if (typeof secretCode !== "string" || secretCode === "") {
     errors.secretCode = "Pakvietimo kodas privalomas";
   }

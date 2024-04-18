@@ -8,7 +8,7 @@ import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { useRef } from "react";
 import { CustomInput } from "~/components/common/CustomInput";
 
-import { createUser } from "~/models/user.server";
+import { createUser, getUserByEmail } from "~/models/user.server";
 import { createUserSession, getUserId } from "~/session.server";
 import { safeRedirect, validateRegistrationCredentials } from "~/utils";
 
@@ -63,6 +63,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     username,
     secretCode,
   );
+
+  if (await getUserByEmail(email)) {
+    errors.existingUser = "Vartotojas su tuo pačiu el. paštu jau egzistuoja";
+    return json({ errors: errors }, { status: 400 });
+  }
 
   if (!user) {
     errors.wrongSecretCode = "Neteisingas pakvietimo kodas arba el. paštas";
@@ -146,20 +151,20 @@ export default function Join() {
                   />
                 </div>
                 {actionData?.errors?.existingUser ? (
-                  <div
-                    className="font-bold text-red-400 m-0"
+                  <span
+                    className="font-bold text-red-400 w-full text-nowrap"
                     id="wrong-credentials-error"
                   >
                     {actionData.errors.existingUser}
-                  </div>
+                  </span>
                 ) : null}
                 {actionData?.errors?.wrongSecretCode ? (
-                  <div
-                    className="font-bold text-red-400 m-0"
+                  <span
+                    className="font-bold text-red-400 w-full text-nowrap"
                     id="wrong-secretCode-error"
                   >
                     {actionData.errors.wrongSecretCode}
-                  </div>
+                  </span>
                 ) : null}
                 <div className="button-container flex flex-col justify-center pt-6 items-center w-full">
                   <button
