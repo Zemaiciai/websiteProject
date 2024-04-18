@@ -208,12 +208,6 @@ export async function validateOrderData(
 
   if (!(completionDate instanceof Date)) {
     errors.completionDate = "Pabaigos data neteisingo formato";
-  } else if (
-    completionDate.getFullYear() === currentDate.getFullYear() &&
-    completionDate.getMonth() === currentDate.getMonth() &&
-    completionDate.getDate() === currentDate.getDate()
-  ) {
-    errors.completionDate = "Pabaigos data privaloma";
   } else if (!validateDate(completionDate)) {
     errors.completionDate = "Negalima pabaigos data";
   }

@@ -29,8 +29,7 @@ export default function OrderCard({
 
   return (
     <tr className="order-card-row bg-white outline outline-1 outline-gray-100">
-      {state === "PLACED" &&
-      (user.role === "worker" || user.role === "Super Admin") ? (
+      {state === "PLACED" && user.role === "Darbuotojas" ? (
         <>
           <td className="order-name text-center max-w-[50px] truncate ...">
             {createdBy}

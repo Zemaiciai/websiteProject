@@ -104,7 +104,7 @@ export default function OrdersTable({
       {imporantCardsAmount === 0 && important ? (
         <span className="text-center">There are no important orders</span>
       ) : (
-        <div className="table-container flex flex-col h-full overflow-auto bg-custom-200 p-2 m-2">
+        <div className="table-container flex flex-col h-full overflow-auto bg-custom-200">
           <OrderPageHeader
             handleSearch={handleSearch}
             searchQuery={searchQuery}

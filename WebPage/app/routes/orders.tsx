@@ -1,6 +1,6 @@
 import { NotificationTypes, OrderStatus } from "@prisma/client";
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { useLocation } from "@remix-run/react";
+import { Outlet, useLocation } from "@remix-run/react";
 
 import { useEffect, useState } from "react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
@@ -53,34 +53,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function WorkPage() {
-  const user = useUser();
-  const userOrders = useTypedLoaderData<typeof loader>();
-
-  const [worker, setWorker] = useState(false);
   const [activeTab, setActiveTab] = useState("");
-  const [linkClicked, setLinkClicked] = useState(false);
+  const [headerTitle, setHeaderTitle] = useState("");
 
   const location = useLocation();
 
   useEffect(() => {
     if (location.pathname === "/orders") {
-      setLinkClicked(false);
+      setHeaderTitle("Užsakymų sąrašas");
+    } else {
+      setHeaderTitle("Užsakymo sukurimas");
     }
   }, [location.pathname]);
-
-  const handleLinkClick = () => {
-    setLinkClicked(true);
-  };
 
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
   };
-
-  useEffect(() => {
-    if (user && (user.role === "worker" || user.role == "Super Admin")) {
-      setWorker(true);
-    }
-  }, [user]);
 
   return (
     <div className="jobs-page-container flex h-screen bg-custom-100">
@@ -93,16 +81,11 @@ export default function WorkPage() {
           tabTitles={["TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST"]}
         />
       </div>
-      <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto pb-3">
-        <NavBarHeader
-          title={`${linkClicked ? "Užsakymo sukurimas" : "Darbų sąrašas"}`}
-        />
-        <OrdersPage
-          orders={userOrders}
-          worker={worker}
-          linkClicked={linkClicked}
-          handleLinkClick={handleLinkClick}
-        />
+      <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto">
+        <NavBarHeader title={headerTitle} />
+        <main className="h-full m-4">
+          <Outlet />
+        </main>
       </div>
     </div>
   );
