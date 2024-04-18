@@ -17,7 +17,7 @@ export function CustomInput({ title, name, type, error }: InputProps) {
           className={`peer w-full p-1.5 border-2 border-grey-500 rounded 
           [&:not(:focus):not(:placeholder-shown)]:border-custom-800
           focus:opacity-100
-           ${error ? "border-red-400 font-bold opacity-100" : ""}
+           ${error ? "border-red-400 opacity-100" : ""}
           `}
         />
         <label
