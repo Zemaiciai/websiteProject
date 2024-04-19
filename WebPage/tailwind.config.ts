@@ -8,10 +8,8 @@ export default {
   theme: {
     extend: {
       backgroundImage: {
-        "purple-background":
-          "url('https://cdn.discordapp.com/attachments/1220465791078760540/1230259973892608020/rightSidePurple.png?ex=6632abe2&is=662036e2&hm=d928b03fe85cab33a2f1de4ed573a50aebd8070a380bda324d9ac9523011e0aa&')",
-        "white-background":
-          "url('https://cdn.discordapp.com/attachments/1220465791078760540/1230259974286868551/websiteBackground.png?ex=6632abe2&is=662036e2&hm=ebd5ad74c0eaf6d5469658f3b4d2f0a0e394f9d8fc49b4aea9b46600a74f6d5d&')",
+        "purple-background": "url('app/public/images/purple-background.png')",
+        "white-background": "url('app/public/images/white-background.png')",
       },
       colors: {
         custom: {

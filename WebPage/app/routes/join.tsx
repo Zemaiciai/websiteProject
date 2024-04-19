@@ -88,7 +88,8 @@ export default function Join() {
   const actionData = useActionData<typeof action>();
 
   return (
-    <main className="w-screen h-screen bg-white-background bg-cover bg-center overflow-auto">
+    <main className="w-screen h-screen overflow-auto">
+      <div className="w-screen h-screen absolute bg-white-background blur-[2px] bg-cover bg-center"></div>
       <div className="flex w-full h-full flex-col justify-center items-center">
         <div className="flex w-2/3 h-full my-16">
           <div className="flex relative h-full w-2/3 bg-custom-200 rounded-l-2xl overflow-auto">
