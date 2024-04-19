@@ -31,12 +31,28 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   let newStatus: OrderStatus | undefined;
 
-  if (state === "Priimti") {
-    await sendNotification(order.workerId, NotificationTypes.ORDER_ACCEPTED);
-    newStatus = OrderStatus.ACCEPTED;
-  } else if (state === "Atmesti") {
-    await sendNotification(order.customerId, NotificationTypes.ORDER_DECLINED);
-    newStatus = OrderStatus.DECLINED;
+  switch (state) {
+    case "Priimti":
+      await sendNotification(order.workerId, NotificationTypes.ORDER_ACCEPTED);
+      newStatus = OrderStatus.ACCEPTED;
+      break;
+    case "Atmesti":
+      await sendNotification(
+        order.customerId,
+        NotificationTypes.ORDER_DECLINED,
+      );
+      newStatus = OrderStatus.DECLINED;
+      break;
+    case "Sumokėti":
+      await sendNotification(order.customerId, NotificationTypes.ORDER_PAYED);
+      newStatus = OrderStatus.PAYED;
+      break;
+    case "Pašalinti":
+      newStatus = OrderStatus.REMOVED;
+      break;
+    default:
+      newStatus = undefined;
+      break;
   }
 
   if (newStatus !== undefined && orderId) {

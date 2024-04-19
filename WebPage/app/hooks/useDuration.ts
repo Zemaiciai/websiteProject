@@ -4,7 +4,7 @@ export default function useDuration(completionDate: Date) {
   const calculateTimeRemaining = () => {
     const currentDate = new Date();
 
-    if (completionDate <= currentDate)
+    if (completionDate < currentDate)
       return { seconds: 0, minutes: 0, hours: 0, days: 0, endInMs: 0 };
 
     const endInMs = completionDate.getTime() - currentDate.getTime();

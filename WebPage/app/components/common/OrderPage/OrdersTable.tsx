@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import OrderTableRow from "./OrderTableRow";
 import OrdersTableHeader from "./OrdersTableHeader";
 import OrderPageHeader from "./OrderPageHeader";
-import { Order } from "@prisma/client";
+import { Order, OrderStatus } from "@prisma/client";
 
 interface OrdersTableProps {
   orderCards?: Order[] | null;
@@ -19,6 +19,10 @@ export default function OrdersTable({
   handleSearch,
   title,
 }: OrdersTableProps) {
+  if (!orderCards || orderCards.length === 0) {
+    return <span>No orders available</span>;
+  }
+
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -33,10 +37,6 @@ export default function OrdersTable({
     setSortColumn(column);
     setSortOrder(sortColumn === column && sortOrder === "asc" ? "desc" : "asc");
   };
-
-  if (!orderCards || orderCards.length === 0) {
-    return <span>No orders available</span>;
-  }
 
   const filteredOrderCards = orderCards.filter((order) =>
     order.orderName.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -55,6 +55,9 @@ export default function OrdersTable({
 
   let sortedOrderCards = [...filteredOrderCards]
     .filter((order) => {
+      if (order.orderStatus === OrderStatus.REMOVED) {
+        return false;
+      }
       if (important && order.completionDate instanceof Date) {
         const endInMs = order.completionDate.getTime() - Date.now();
         return endInMs <= ONE_HOUR_IN_MS;
@@ -93,6 +96,10 @@ export default function OrdersTable({
       }
     });
 
+  if (!sortedOrderCards || sortedOrderCards.length === 0) {
+    return <span>No orders available</span>;
+  }
+
   const maxPageAmount = Math.ceil(sortedOrderCards.length / cardsPerPage);
   const currentCards = sortedOrderCards.slice(
     (currentPage - 1) * cardsPerPage,
@@ -122,11 +129,8 @@ export default function OrdersTable({
                   {currentCards.map((order, index) => (
                     <OrderTableRow
                       key={index}
-                      state={order.orderStatus}
+                      order={order}
                       createdBy={order["createdBy"]["userName"]}
-                      orderId={order.id}
-                      orderName={order.orderName}
-                      completionDate={order.completionDate}
                     />
                   ))}
                 </tbody>

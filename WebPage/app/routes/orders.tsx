@@ -29,7 +29,7 @@ export default function WorkPage() {
   };
 
   return (
-    <div className="jobs-page-container flex h-screen bg-custom-100">
+    <div className="flex h-screen bg-custom-100">
       <div className="navbar-container">
         <NavBar
           title={"Orders"}
@@ -39,7 +39,7 @@ export default function WorkPage() {
           tabTitles={["TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST"]}
         />
       </div>
-      <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto">
+      <div className="jobs-page-container w-screen h-screen flex flex-col bg-custom-100 overflow-auto">
         <NavBarHeader title={headerTitle} />
         <main className="h-full m-4 ">
           <Outlet />
