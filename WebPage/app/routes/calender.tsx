@@ -54,18 +54,18 @@ function Calendar() {
   // Function to generate the month options for the dropdown
   const generateMonthOptions = (): JSX.Element[] => {
     const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
+      "Sausis",
+      "Vasaris",
+      "Kovas",
+      "Balandis",
+      "Gegužė",
+      "Birželis",
+      "Liepa",
+      "Rugpjūtis",
+      "Rugsėjis",
+      "Spalis",
+      "Lapkritis",
+      "Gruodis"
     ];
     return monthNames.map((month, index) => (
       <option key={index} value={index}>{month}</option>
