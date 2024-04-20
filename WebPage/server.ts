@@ -118,7 +118,7 @@ async function run() {
   });
 
   CronJob.prototype.stop();
-
+  checkOrders();
   const cronJob = new CronJob(
     "0 0 * * * *",
     () => {
