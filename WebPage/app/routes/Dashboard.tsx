@@ -11,7 +11,7 @@ import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  //const user = await requireUser(request);
+  const user = await requireUser(request);
   const customMessages = await getAllMessages();
   return customMessages;
 };
