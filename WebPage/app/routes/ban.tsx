@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const BanPage = () => {
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center h-screen bg-white-background ">
       <div className="bg-custom-800 text-white rounded-lg p-8">
         <h2 className="text-2xl font-bold mb-4">
           Jūs esate <span className="text-red-500">užblokuotas</span>
