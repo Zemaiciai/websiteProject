@@ -50,17 +50,14 @@ const OrderDatePicker = ({
           readOnly={true}
           hidden
         />
-        <span>{title}</span>
-      </div>
-      <div className="flex items-center">
         {error ? (
-          <div
-            className="pt-1 font-bold text-red-400 absolute top-40"
-            id={`${name}-error`}
-          >
+          <div className="pt-1 font-bold text-red-400" id={`${name}-error`}>
             {error}
           </div>
         ) : null}
+        <span>{title}</span>
+      </div>
+      <div className="flex items-center">
         <div className="flex">
           <label>
             <select
@@ -105,12 +102,9 @@ const OrderDatePicker = ({
               <option value="" disabled selected hidden>
                 DD
               </option>
-              {[...Array(maxDays - currentDate.getDate()).keys()].map((day) => (
-                <option
-                  key={day + currentDate.getDate() + 1}
-                  value={day + currentDate.getDate() + 1}
-                >
-                  {String(day + currentDate.getDate() + 1).padStart(2, "0")}
+              {[...Array(maxDays).keys()].map((day) => (
+                <option key={day + 1} value={day + 1}>
+                  {String(day + 1).padStart(2, "0")}
                 </option>
               ))}
             </select>

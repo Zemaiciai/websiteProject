@@ -130,18 +130,12 @@ export async function validateRegistrationCredentials(
     errors.email = "El. pašto adresas privalomas";
   } else if (email.length < 3 || !email.includes("@")) {
     errors.email = "El. pašto adresas netinkamas";
-  } else {
-    const existingUser = await getUserByEmail(email);
-    if (existingUser) {
-      errors.existingUser = "Vartotojas su tuo pačiu el. paštu jau egzistuoja";
-    }
   }
   if (typeof password !== "string" || password === "") {
     errors.password = "Slaptažodis privalomas";
   } else if (password.length < 8) {
     errors.password = "Slaptažodis per trumpas";
   }
-
   if (typeof secretCode !== "string" || secretCode === "") {
     errors.secretCode = "Pakvietimo kodas privalomas";
   }
@@ -158,15 +152,13 @@ export async function validateLoginCredentials(
   password: unknown,
   errors: RegisterErrors,
 ): Promise<User | null> {
-  if (typeof email !== "string") {
+  if (typeof email !== "string" || email.length <= 0) {
     errors.email = "El. pašto adresas privalomas";
   } else if (email.length < 3 || !email.includes("@")) {
     errors.email = "El. pašto adresas netinkamas";
   }
   if (typeof password !== "string" || password === "") {
     errors.password = "Slaptažodis privalomas";
-  } else if (password.length < 8) {
-    errors.password = "Slaptažodis per trumpas";
   }
 
   if (Object.keys(errors).length > 0) {
@@ -208,12 +200,6 @@ export async function validateOrderData(
 
   if (!(completionDate instanceof Date)) {
     errors.completionDate = "Pabaigos data neteisingo formato";
-  } else if (
-    completionDate.getFullYear() === currentDate.getFullYear() &&
-    completionDate.getMonth() === currentDate.getMonth() &&
-    completionDate.getDate() === currentDate.getDate()
-  ) {
-    errors.completionDate = "Pabaigos data privaloma";
   } else if (!validateDate(completionDate)) {
     errors.completionDate = "Negalima pabaigos data";
   }

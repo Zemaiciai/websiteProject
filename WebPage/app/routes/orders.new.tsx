@@ -1,13 +1,26 @@
 import { NotificationTypes } from "@prisma/client";
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  json,
+  redirect,
+} from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { ChangeEvent, useState } from "react";
 import OrderDatePicker from "~/components/common/OrderPage/OrderDatePicker";
 import { sendNotification } from "~/models/notification.server";
 import { createOrder } from "~/models/order.server";
 import { getUserByEmail, getUserById } from "~/models/user.server";
-import { requireUserId } from "~/session.server";
+import { isUserClient, requireUserId } from "~/session.server";
 import { validateOrderData } from "~/utils";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  await isUserClient(request);
+  await requireUserId(request);
+
+  return null;
+};
+
 interface OrderErrors {
   customerNotFound?: string;
   workerNotFound?: string;
@@ -194,7 +207,7 @@ export default function NewOrderPage() {
   };
 
   return (
-    <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3">
+    <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max">
       {actionData?.errors.wrongUser ? (
         <div
           className="pt-1 font-bold text-red-400 m-0 absolute end-6"

@@ -10,10 +10,12 @@ generator client {
 enum OrderStatus {
   PLACED
   IN_PROGRESS
+  PAYED
   COMPLETED
   ACCEPTED
   DECLINED
   CANCELLED
+  REMOVED
 }
 
 enum GroupsRoles {
@@ -25,6 +27,7 @@ enum GroupsRoles {
 enum NotificationTypes {
   ORDER_ASSIGNED
   ORDER_COMPLETED
+  ORDER_PAYED
   ORDER_ACCEPTED
   ORDER_DECLINED
   ORDER_IN_PROGRESS
