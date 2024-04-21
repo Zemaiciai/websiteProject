@@ -1,11 +1,9 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "express";
 import { useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 import NewFooter from "~/components/newFooter/NewFooter";
 
-import { getNoteListItems } from "~/models/note.server";
 import { requireUser, requireUserId } from "~/session.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -86,53 +84,36 @@ const FAQ = () => {
 
       <div className="w-screen h-screen flex flex-grow flex-col bg-custom-100 pb-3">
         <NavBarHeader title={`${activeTab ? "D.U.K." : "Grupės"}`} />
-        <div className="flex justify-between">
-          <div style={{ marginLeft: "20%", padding: "20px" }}>
-            <h1>Frequently Asked Questions</h1>
-            <ul>
-              {questions.map((item, index) => (
-                <li
-                  key={index}
-                  id={`question${index + 1}`}
-                  style={{ marginBottom: "20px" }}
-                >
-                  <button
-                    onClick={() => toggleAnswer(index)}
-                    style={{
-                      position: "relative",
-                      padding: "15px", // Increased padding to make the button bigger
-                      margin: "5px 0",
-                      borderRadius: "5px",
-                      backgroundColor: "#f0f0f0",
-                      textDecoration: "none",
-                      color: "#333",
-                      border: "1px solid #ccc",
-                      cursor: "pointer",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      width: "400%", // Adjusted to fit the content
-                    }}
-                  >
-                    <strong>{item.question}</strong>
-                    <span
-                      style={{
-                        borderStyle: "solid",
-                        borderWidth: "5px 5px 0",
-                        borderColor:
-                          "black transparent transparent transparent",
-                        display: "inline-block",
-                        width: 0,
-                        height: 0,
-                        transform: `rotate(${item.isOpen ? "180deg" : "0deg"})`, // Rotate based on item.isOpen
-                        transition: "transform 0.3s ease", // Smooth transition
-                      }}
-                    ></span>
-                  </button>
-                  {item.isOpen ? <p>{item.answer}</p> : null}
-                </li>
-              ))}
-            </ul>
+        <div className="flex justify-between bg-custom-200 m-3">
+          <div
+            className="max-w-full mx-auto mt-5 mb-5 divide-y   shadow shadow-custom-800 rounded-xl"
+            style={{ width: "80%" }}
+          >
+            {questions.map((item, index) => (
+              <li key={index} className="mb-2">
+                <details className="group">
+                  <summary className="flex items-center gap-3 px-4 py-1 font-medium marker:content-none hover:cursor-pointer">
+                    <svg
+                      className="w-5 h-5 text-gray-500 transition group-open:rotate-90"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"
+                      ></path>
+                    </svg>
+                    <span>{item.question}</span>
+                  </summary>
+                  <article className="px-4 pb-4">
+                    <p>{item.answer}</p>
+                  </article>
+                </details>
+              </li>
+            ))}
           </div>
         </div>
         <div className="mt-3">
