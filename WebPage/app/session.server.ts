@@ -2,7 +2,11 @@ import { createCookieSessionStorage, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
 import type { User } from "~/models/user.server";
-import { checkBanStatus, getUserById } from "~/models/user.server";
+import {
+  checkBanStatus,
+  checkContractExpiration,
+  getUserById,
+} from "~/models/user.server";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 
@@ -52,6 +56,10 @@ export async function requireUserId(
     const userStatus = await checkBanStatus(userId);
     if (userStatus) {
       throw redirect(`/ban`);
+    }
+    const contractStatus = await checkContractExpiration(userId);
+    if (contractStatus) {
+      throw redirect(`/contractExpired`);
     }
   }
   if (!userId) {

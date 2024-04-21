@@ -533,3 +533,17 @@ export async function checkBanStatus(userId: string) {
   }
   return false;
 }
+
+export async function checkContractExpiration(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (user?.expiringAt && new Date(user.expiringAt) < new Date()) {
+    return true;
+  }
+
+  return false;
+}
