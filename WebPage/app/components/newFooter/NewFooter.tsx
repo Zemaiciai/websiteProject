@@ -6,7 +6,7 @@ export default function NewFooter() {
           <div className="mb-6 md:mb-0">
             <a href="#" className="flex items-center">
               <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
-                NobodyMedia
+                Žemaičiai
               </span>
             </a>
           </div>
@@ -69,7 +69,7 @@ export default function NewFooter() {
           <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">
             © 2024{" "}
             <a href="#" className="hover:underline">
-              NobodyMedia™
+              Žemaičiai™
             </a>
             . All Rights Reserved.
           </span>
