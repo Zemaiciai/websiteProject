@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import Message from "~/components/DashBoardCustomMessagesDesign/Message";
@@ -9,6 +9,7 @@ import NewFooter from "~/components/newFooter/NewFooter";
 import { getAllMessages } from "~/models/customMessage.server";
 import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
+export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
@@ -41,7 +42,7 @@ const Dashboard = () => {
       {/* Navigation Sidebar */}
       <div className="navbar-container">
         <NavBar
-          title={"Orders"}
+          title={"Žemaičiai"}
           handleTabClick={handleTabClick}
           redirectTo={"orders"}
           activeTab={"activeTab"}

@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 
 import Header from "~/components/common/header/header";
 import ProfilePageTabs from "~/components/profilePageComponents/profilePageTabs";
@@ -11,6 +11,7 @@ import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 import { useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
 import { requireUser } from "~/session.server";
+export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
 export const loader = async ({
   request,

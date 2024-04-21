@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 
@@ -9,6 +9,7 @@ import {
   getGroupsOfUserOwners,
 } from "~/models/groups.server";
 import { requireUser } from "~/session.server";
+export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);

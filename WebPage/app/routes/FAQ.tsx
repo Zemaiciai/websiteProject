@@ -1,10 +1,11 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 import NewFooter from "~/components/newFooter/NewFooter";
 
 import { requireUser, requireUserId } from "~/session.server";
+export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
@@ -74,7 +75,7 @@ const FAQ = () => {
       {/* Navigation Sidebar */}
       <div className="navbar-container">
         <NavBar
-          title={"Groups"}
+          title={"Žemaičiai"}
           handleTabClick={handleTabClick}
           redirectTo={"orders"}
           activeTab={activeTab}

@@ -1,9 +1,9 @@
-import { Link, Outlet, useLocation } from "@remix-run/react";
+import { Link, MetaFunction, Outlet, useLocation } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 import NewFooter from "~/components/newFooter/NewFooter";
-
+export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 import { useUser } from "~/utils";
 
 const Dashboard = () => {
@@ -17,7 +17,7 @@ const Dashboard = () => {
       {/* Navigation Sidebar */}
       <div className="navbar-container">
         <NavBar
-          title={"Groups"}
+          title={"Žemaičiai"}
           handleTabClick={handleTabClick}
           redirectTo={"orders"}
           activeTab={activeTab}

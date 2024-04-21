@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { error } from "console";
 import { useRef, useState } from "react";
@@ -28,6 +28,8 @@ import {
   validateCustomMessage,
   validateInviteCodeGeneration,
 } from "~/utils";
+
+export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
 interface SecretCode {
   id: string;

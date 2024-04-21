@@ -1,6 +1,6 @@
 // groups.$groupId.tsx
 import { GroupsRoles } from "@prisma/client";
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Form, Link, json, useLoaderData } from "@remix-run/react";
 import { group } from "console";
 import React, { useState } from "react";
@@ -14,6 +14,7 @@ import {
   leaveGroup,
 } from "~/models/groups.server";
 import { requireUser } from "~/session.server";
+export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
 export const action = async (actionArg) => {
   const formData = await actionArg.request.formData();
