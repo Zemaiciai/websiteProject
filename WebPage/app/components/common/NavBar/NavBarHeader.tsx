@@ -86,7 +86,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
             {isDropdownOpen ? (
               <div
                 ref={dropdownRef}
-                className="absolute mt-28 ml-20 bg-white divide-y divide-gray-100 border-gray-500 border rounded shadow"
+                className="absolute mt-32 ml-20 bg-white divide-y divide-gray-100 border-custom-800 border rounded shadow"
                 style={{ transform: "translateY(8px)", minWidth: "10rem" }} // Set a minimum width for the dropdown
               >
                 <Form action={"/profile/" + user.id} method="get">

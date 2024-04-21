@@ -77,7 +77,7 @@ const FAQ = () => {
         <NavBar
           title={"Žemaičiai"}
           handleTabClick={handleTabClick}
-          redirectTo={"orders"}
+          redirectTo={"faq"}
           activeTab={activeTab}
           tabTitles={["Orders", "Admin", "Messages", "Profile"]}
         />

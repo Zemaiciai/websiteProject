@@ -22,7 +22,7 @@ export default function UserInfo({ user }: UserInfoProps) {
           alt="Social Media 1"
           className="w-6 h-6"
         />
-        <h2 className="text-base font-semibold text-sky-500 w-[800px]">
+        <h2 className="text-base font-semibold text-custom-800 w-[800px]">
           {user?.userName}
         </h2>
       </div>
@@ -32,7 +32,7 @@ export default function UserInfo({ user }: UserInfoProps) {
           alt="Social Media 1"
           className="w-6 h-6"
         />
-        <h2 className="text-base font-semibold text-sky-500 w-[800px]">
+        <h2 className="text-base font-semibold text-custom-800 w-[800px]">
           {user?.role}
         </h2>
       </div>
@@ -42,7 +42,7 @@ export default function UserInfo({ user }: UserInfoProps) {
           alt="Social Media 1"
           className="w-6 h-6"
         />
-        <h3 className="text-base font-semibold text-sky-500 w-[800px]">
+        <h3 className="text-base font-semibold text-custom-800 w-[800px]">
           {user?.email}
         </h3>
       </div>

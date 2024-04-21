@@ -21,7 +21,7 @@ interface ProfileCardProps {
 export default function ProfileCard({ user }: ProfileCardProps) {
   return (
     <div className="profileCardDiv w-full h-full static">
-      <div className="backGroundPhoto w-full h-[285px] bg-gradient-to-r from-sky-300 to-zinc-600 shadow-xl">
+      <div className="backGroundPhoto w-full h-[285px] bg-gradient-to-r from-custom-800 to-zinc-600 shadow-xl">
         <div className="profileImageDiv absolute top-0 left-20 mt-52 rounded-full outline-4 outline-white outline shadow-xl">
           <img
             className="rounded-full"

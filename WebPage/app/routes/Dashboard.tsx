@@ -44,7 +44,7 @@ const Dashboard = () => {
         <NavBar
           title={"Žemaičiai"}
           handleTabClick={handleTabClick}
-          redirectTo={"orders"}
+          redirectTo={"dashboard"}
           activeTab={"activeTab"}
           tabTitles={["Orders", "Admin", "Messages", "Profile"]}
         />
@@ -52,7 +52,7 @@ const Dashboard = () => {
       {/* Header */}
       <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto pb-3">
         <NavBarHeader
-          title={`${linkClicked ? "Užsakymo sukurimas" : "Darbų sąrašas"}`}
+          title={`${linkClicked ? "Užsakymo sukurimas" : "Titulinis"}`}
         />
         {customMessages.map(
           (message) =>
