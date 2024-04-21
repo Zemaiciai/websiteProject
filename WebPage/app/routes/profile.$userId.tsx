@@ -10,12 +10,14 @@ import { User, getUserById } from "~/models/user.server";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 import { useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
+import { requireUser } from "~/session.server";
 
 export const loader = async ({
   request,
 }: LoaderFunctionArgs): Promise<User | null> => {
   const url = request.url;
   const parts = url.split("/");
+  const user2 = await requireUser(request);
   const userProfileId = parts[parts.length - 1];
   const user = await getUserById(userProfileId);
   return user;

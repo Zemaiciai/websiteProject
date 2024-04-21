@@ -3,10 +3,11 @@ import { Form } from "@remix-run/react";
 import React, { useState, useEffect } from "react";
 
 import { getNoteListItems } from "~/models/note.server";
-import { requireUserId } from "~/session.server";
+import { requireUser, requireUserId } from "~/session.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
+  const user = await requireUser(request);
   const noteListItems = await getNoteListItems({ userId });
   return json({ noteListItems });
 };
@@ -17,62 +18,62 @@ const Questionnaire = () => {
       text: "Question 1",
       answer: "",
       choices: ["Yes", "No"],
-      error: false // Error state for each question
+      error: false, // Error state for each question
     },
     {
       text: "Question 2",
       answer: "",
       choices: ["Yes", "No"],
-      error: false
+      error: false,
     },
     {
       text: "Question 3",
       answer: "",
       choices: ["Yes", "No"],
-      error: false
+      error: false,
     },
     {
       text: "Question 4",
       answer: "",
       choices: ["Yes", "No"],
-      error: false
+      error: false,
     },
     {
       text: "Question 4",
       answer: "",
       choices: ["Yes", "No"],
-      error: false
+      error: false,
     },
     {
       text: "Question 4",
       answer: "",
       choices: ["Yes", "No"],
-      error: false
+      error: false,
     },
     {
       text: "Question 4",
       answer: "",
       choices: ["Yes", "No"],
-      error: false
+      error: false,
     },
     {
       text: "Question 4",
       answer: "",
       choices: ["Yes", "No"],
-      error: false
+      error: false,
     },
     {
       text: "Question 4",
       answer: "",
       choices: ["Yes", "No"],
-      error: false
+      error: false,
     },
     {
       text: "Question 5",
       answer: "",
       choices: ["Yes", "No"],
-      error: false
-    }
+      error: false,
+    },
     // Add more questions as needed
   ]);
 
@@ -87,7 +88,7 @@ const Questionnaire = () => {
 
   const handleSelectChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
-    index: number
+    index: number,
   ) => {
     const { value } = e.target;
     setQuestions((prevQuestions) => {
@@ -202,7 +203,9 @@ const Questionnaire = () => {
             <div className="flex flex-col items-center">
               {renderQuestions()}
               <div
-                className={`flex ${currentPage !== 1 ? "justify-between" : "justify-center"} w-full`}
+                className={`flex ${
+                  currentPage !== 1 ? "justify-between" : "justify-center"
+                } w-full`}
               >
                 {currentPage !== 1 ? (
                   <button

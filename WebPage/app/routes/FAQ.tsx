@@ -2,10 +2,11 @@ import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { useState } from "react";
 
 import { getNoteListItems } from "~/models/note.server";
-import { requireUserId } from "~/session.server";
+import { requireUser, requireUserId } from "~/session.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
+  const user = await requireUser(request);
   const noteListItems = await getNoteListItems({ userId });
   return json({ noteListItems });
 };
@@ -14,49 +15,49 @@ const FAQ = () => {
     {
       question: "Question1",
       answer: "Answer1",
-      isOpen: false
+      isOpen: false,
     },
     {
       question: "Question2",
       answer: "Answer2",
-      isOpen: false
+      isOpen: false,
     },
     {
       question: "Question3",
       answer: "Answer3",
-      isOpen: false
+      isOpen: false,
     },
     {
       question: "Question4",
       answer: "Answer4",
-      isOpen: false
+      isOpen: false,
     },
     {
       question: "Question5",
       answer: "Answer5",
-      isOpen: false
+      isOpen: false,
     },
     {
       question: "Question6",
       answer: "Answer6",
-      isOpen: false
+      isOpen: false,
     },
     {
       question: "Question7",
       answer: "Answer7",
-      isOpen: false
+      isOpen: false,
     },
     {
       question: "Question8",
       answer: "Answer8",
-      isOpen: false
-    }
+      isOpen: false,
+    },
   ]);
   const toggleAnswer = (index: number): void => {
     setQuestions((prevQuestions) =>
       prevQuestions.map((q, i) =>
-        i === index ? { ...q, isOpen: !q.isOpen } : q
-      )
+        i === index ? { ...q, isOpen: !q.isOpen } : q,
+      ),
     );
 
     // Scroll to the question
@@ -73,7 +74,7 @@ const FAQ = () => {
         style={{
           borderBottom: "1px solid #ccc",
           paddingBottom: "10px",
-          marginBottom: "20px"
+          marginBottom: "20px",
         }}
       >
         <h1>Your Website Header</h1>
@@ -88,7 +89,7 @@ const FAQ = () => {
           backgroundColor: "#616161",
           borderRadius: "10px",
           position: "sticky",
-          top: "0"
+          top: "0",
         }}
       >
         <nav>
@@ -98,7 +99,7 @@ const FAQ = () => {
               textAlign: "left",
               marginLeft: "20px",
               marginTop: "10px",
-              fontWeight: "bold"
+              fontWeight: "bold",
             }}
           >
             Navigation
@@ -145,7 +146,7 @@ const FAQ = () => {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  width: "50%" // Adjusted to fit the content
+                  width: "50%", // Adjusted to fit the content
                 }}
               >
                 <strong>{item.question}</strong>
@@ -158,7 +159,7 @@ const FAQ = () => {
                     width: 0,
                     height: 0,
                     transform: `rotate(${item.isOpen ? "180deg" : "0deg"})`, // Rotate based on item.isOpen
-                    transition: "transform 0.3s ease" // Smooth transition
+                    transition: "transform 0.3s ease", // Smooth transition
                   }}
                 ></span>
               </button>
@@ -175,14 +176,14 @@ const FAQ = () => {
           clear: "both",
           width: "100%",
           backgroundColor: "black",
-          marginTop: "auto"
+          marginTop: "auto",
         }}
       >
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            backgroundColor: "black"
+            backgroundColor: "black",
           }}
         >
           {/* Footer Section 1 */}
@@ -191,7 +192,7 @@ const FAQ = () => {
               flex: 1,
               padding: "20px",
               backgroundColor: "#000000",
-              textAlign: "left"
+              textAlign: "left",
             }}
           >
             <a
@@ -199,7 +200,7 @@ const FAQ = () => {
                 color: "red",
                 textAlign: "left",
                 marginLeft: "20px",
-                fontWeight: "bold"
+                fontWeight: "bold",
               }}
               href="https://www.vectorstock.com/royalty-free-vector/jco-letter-logo-design-on-black-background-vector-41865826"
             >
@@ -211,7 +212,7 @@ const FAQ = () => {
                 marginLeft: "20px",
                 marginTop: "10px",
                 maxWidth: "calc(100% - 20px)",
-                wordWrap: "break-word"
+                wordWrap: "break-word",
               }}
             >
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean
@@ -224,7 +225,7 @@ const FAQ = () => {
                 textAlign: "left",
                 marginLeft: "20px",
                 marginTop: "10px",
-                fontWeight: "bold"
+                fontWeight: "bold",
               }}
             >
               We Accept
@@ -238,7 +239,7 @@ const FAQ = () => {
                 color: "white",
                 textAlign: "left",
                 marginLeft: "20px",
-                fontWeight: "bold"
+                fontWeight: "bold",
               }}
             >
               Text
@@ -248,7 +249,7 @@ const FAQ = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -258,7 +259,7 @@ const FAQ = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -268,7 +269,7 @@ const FAQ = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -278,7 +279,7 @@ const FAQ = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -288,7 +289,7 @@ const FAQ = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -302,7 +303,7 @@ const FAQ = () => {
                 color: "white",
                 textAlign: "left",
                 marginLeft: "20px",
-                fontWeight: "bold"
+                fontWeight: "bold",
               }}
             >
               Text
@@ -312,7 +313,7 @@ const FAQ = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -322,7 +323,7 @@ const FAQ = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -332,7 +333,7 @@ const FAQ = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text
@@ -342,7 +343,7 @@ const FAQ = () => {
                 color: "gray",
                 textAlign: "left",
                 marginLeft: "20px",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               Text

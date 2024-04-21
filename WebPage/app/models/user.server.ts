@@ -521,3 +521,15 @@ async function changeDate(userID: string, dateChange: Date) {
 
   return changeInfo;
 }
+
+export async function checkBanStatus(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  if (user?.userStatus === "Užblokuota") {
+    return true;
+  }
+  return false;
+}
