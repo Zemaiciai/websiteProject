@@ -14,7 +14,9 @@ import {
   leaveGroup,
 } from "~/models/groups.server";
 import { requireUser } from "~/session.server";
-export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
+export const meta: MetaFunction = () => [
+  { title: "Grupės peržiūra - Žemaičiai" },
+];
 
 export const action = async (actionArg) => {
   const formData = await actionArg.request.formData();

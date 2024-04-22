@@ -29,7 +29,7 @@ import {
   validateInviteCodeGeneration,
 } from "~/utils";
 
-export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
+export const meta: MetaFunction = () => [{ title: "Admin - Žemaičiai" }];
 
 interface SecretCode {
   id: string;

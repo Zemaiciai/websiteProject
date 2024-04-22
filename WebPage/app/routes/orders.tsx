@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
-export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
+export const meta: MetaFunction = () => [{ title: "Užsakymai - Žemaičiai" }];
 export default function WorkPage() {
   const [activeTab, setActiveTab] = useState("");
   const [headerTitle, setHeaderTitle] = useState("Loading...");

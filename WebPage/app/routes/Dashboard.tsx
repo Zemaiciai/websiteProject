@@ -9,7 +9,7 @@ import NewFooter from "~/components/newFooter/NewFooter";
 import { getAllMessages } from "~/models/customMessage.server";
 import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
-export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
+export const meta: MetaFunction = () => [{ title: "Titulinis - Žemaičiai" }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);

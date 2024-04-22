@@ -17,7 +17,9 @@ import {
   checkPendingStatusRequesteerSide,
   createFriendshipRequest,
 } from "~/models/friendshipRequest.server";
-export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
+export const meta: MetaFunction = () => [
+  { title: "Profilio peržiūra - Žemaičiai" },
+];
 
 export const loader = async ({
   request,

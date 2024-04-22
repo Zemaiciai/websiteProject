@@ -4,7 +4,7 @@ import { useState } from "react";
 import GroupsCreationInformation from "~/components/Groups/groupsCreationInformation";
 import { createGroup } from "~/models/groups.server";
 import { requireUser } from "~/session.server";
-export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
+export const meta: MetaFunction = () => [{ title: "Nauja grupė - Žemaičiai" }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);

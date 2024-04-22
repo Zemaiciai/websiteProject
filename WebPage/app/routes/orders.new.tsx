@@ -2,6 +2,7 @@ import { NotificationTypes } from "@prisma/client";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
+  MetaFunction,
   json,
   redirect,
 } from "@remix-run/node";
@@ -13,7 +14,9 @@ import { createOrder } from "~/models/order.server";
 import { getUserByEmail, getUserById } from "~/models/user.server";
 import { isUserClient, requireUserId } from "~/session.server";
 import { validateOrderData } from "~/utils";
-
+export const meta: MetaFunction = () => [
+  { title: "Naujas užsakymas - Žemaičiai" },
+];
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await isUserClient(request);
   await requireUserId(request);

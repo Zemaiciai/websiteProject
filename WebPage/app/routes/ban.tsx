@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import { Link } from "react-router-dom";
-export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
+export const meta: MetaFunction = () => [{ title: "Užblokuotas - Žemaičiai" }];
 const BanPage = () => {
   return (
     <div className="flex justify-center items-center h-screen bg-white-background ">

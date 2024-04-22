@@ -9,7 +9,7 @@ import {
   getGroupsOfUserOwners,
 } from "~/models/groups.server";
 import { requireUser } from "~/session.server";
-export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
+export const meta: MetaFunction = () => [{ title: "Grupės - Žemaičiai" }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);

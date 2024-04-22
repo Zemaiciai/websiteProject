@@ -9,10 +9,14 @@ import {
   updateOrderStatus,
 } from "~/models/order.server";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
 import { NotificationTypes, OrderStatus } from "@prisma/client";
 import { sendNotification } from "~/models/notification.server";
-
+export const meta: MetaFunction = () => [{ title: "Užsakymai - Žemaičiai" }];
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   const userOrders = await getOrdersByUserId(userId, true);

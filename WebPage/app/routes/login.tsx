@@ -44,7 +44,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 };
 
-export const meta: MetaFunction = () => [{ title: "Login" }];
+export const meta: MetaFunction = () => [{ title: "Prisijungti - Žemaičiai" }];
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();

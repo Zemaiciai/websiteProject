@@ -82,7 +82,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 };
 
-export const meta: MetaFunction = () => [{ title: "Sign Up" }];
+export const meta: MetaFunction = () => [
+  { title: "Prisiregistruoti - Žemaičiai" },
+];
 
 export default function Join() {
   const actionData = useActionData<typeof action>();
