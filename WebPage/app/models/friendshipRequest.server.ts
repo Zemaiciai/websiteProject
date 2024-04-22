@@ -43,6 +43,72 @@ export async function createFriendshipRequest(
     throw new Error("Failed to create friendship request.");
   }
 }
+
+// TO SHOW "REJECT INVITE" BUTTON REQUESTEER SIDE
+export async function checkPendingStatusRequesteerSide(
+  requesterId: string,
+  requestedUserId: string,
+) {
+  const status = await prisma.friendshipRequest.findFirst({
+    where: {
+      requesterId: requesterId,
+      requestedUserId: requestedUserId,
+      status: "PENDING",
+    },
+  });
+
+  if (status) {
+    return true;
+  }
+  return false;
+}
+
+// TO SHOW "REJECT INVITE, ACCEPT INVITE" BUTTON REQUESTED SIDE
+export async function checkPendingStatusRequestedSide(
+  requesterId: string,
+  requestedUserId: string,
+) {
+  const status = await prisma.friendshipRequest.findFirst({
+    where: {
+      requesterId: requestedUserId,
+      requestedUserId: requesterId,
+      status: "PENDING",
+    },
+  });
+
+  if (status) {
+    return true;
+  }
+  return false;
+}
+
+// TO SHOW "REMOVE FROM FRIENDS" BUTTON BOTH SIDES
+export async function checkCurrentlyFriends(
+  requesterId: string,
+  requestedUserId: string,
+) {
+  const status1 = await prisma.friendshipRequest.findFirst({
+    where: {
+      requesterId: requesterId,
+      requestedUserId: requestedUserId,
+      status: "ACCEPTED",
+    },
+  });
+
+  const status2 = await prisma.friendshipRequest.findFirst({
+    where: {
+      requesterId: requestedUserId,
+      requestedUserId: requesterId,
+      status: "ACCEPTED",
+    },
+  });
+
+  if (status1 || status2) {
+    return true;
+  }
+  return false;
+}
+
 export async function acceptFriendshipRequest(requestId: string) {
   try {
     // Find the friendship request

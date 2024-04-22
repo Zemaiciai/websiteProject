@@ -184,6 +184,21 @@ function UserRatingAndOther({ user }: UserInfoProps) {
               Send Message
             </button>
           </Form>
+          {/* Friends */}
+          <Form
+            method="post"
+            className="flex space-x-1 place-items-center ml-4"
+          >
+            <input name="form-id" hidden defaultValue="sendInvite" />
+            <input name="whoSentInvite" hidden defaultValue={realUser.id} />
+            <input name="whoGotInvite" hidden defaultValue={user.id} />
+            <button
+              type="submit"
+              className="text-base font-semibold text-neutral-600 hover:text-neutral-800"
+            >
+              Pridėti į draugus!
+            </button>
+          </Form>
         </div>
       )}
     </div>

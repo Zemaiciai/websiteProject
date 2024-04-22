@@ -11,6 +11,12 @@ import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 import { useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
 import { requireUser } from "~/session.server";
+import {
+  checkCurrentlyFriends,
+  checkPendingStatusRequestedSide,
+  checkPendingStatusRequesteerSide,
+  createFriendshipRequest,
+} from "~/models/friendshipRequest.server";
 export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
 export const loader = async ({
@@ -20,8 +26,35 @@ export const loader = async ({
   const parts = url.split("/");
   const user2 = await requireUser(request);
   const userProfileId = parts[parts.length - 1];
+  // TO SHOW "REJECT INVITE" BUTTON REQUESTEER SIDE
+  const checkPendingStatusRequesteer = await checkPendingStatusRequesteerSide(
+    user2.id,
+    userProfileId,
+  );
+  // TO SHOW "REJECT INVITE, ACCEPT INVITE" BUTTON REQUESTED SIDE
+  const checkPendingStatusRequested = await checkPendingStatusRequestedSide(
+    user2.id,
+    userProfileId,
+  );
+  // TO SHOW "REMOVE FROM FRIENDS" BUTTON BOTH SIDES
+  const CurrentlyFriends = await checkCurrentlyFriends(user2.id, userProfileId);
+
   const user = await getUserById(userProfileId);
+
   return user;
+};
+
+export const action = async (actionArg) => {
+  const formData = await actionArg.request.formData();
+  const formid = formData.get("form-id");
+
+  if (formid === "sendInvite") {
+    const whoSentRequest = formData.get("whoSentInvite");
+    const whoGotRequest = formData.get("whoGotInvite");
+    createFriendshipRequest(whoSentRequest, whoGotRequest);
+    return null;
+  }
+  return;
 };
 
 export default function NoteDetailsPage() {
