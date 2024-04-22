@@ -1,6 +1,5 @@
-import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
+import { MetaFunction } from "@remix-run/node";
 import { Form } from "@remix-run/react";
-import { Link } from "react-router-dom";
 export const meta: MetaFunction = () => [
   { title: "Kontraktas baigėsi - Žemaičiai" },
 ];

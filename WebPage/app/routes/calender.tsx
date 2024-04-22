@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 
 import { useEffect, useState } from "react";
 
@@ -8,35 +8,40 @@ import { requireUserId } from "~/session.server";
 import { getOrdersByUserId } from "~/models/order.server";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 
-
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   const userOrders = await getOrdersByUserId(userId, true);
-  
 
   return typedjson(userOrders);
 };
+
+export const meta: MetaFunction = () => [{ title: "Kalendorius - Žemaičiai" }];
+
 function Calendar() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [hoveredOrders, setHoveredOrders] = useState<string[]>([]);
   const userOrders = useTypedLoaderData<typeof loader>();
-  const acceptedOrders = userOrders?.filter(order => order.orderStatus === "ACCEPTED");
- const completionDates = acceptedOrders?.map(order => new Date(order.completionDate).toLocaleDateString()); // Convert Date to string
-  
+  const acceptedOrders = userOrders?.filter(
+    (order) => order.orderStatus === "ACCEPTED",
+  );
+  const completionDates = acceptedOrders?.map((order) =>
+    new Date(order.completionDate).toLocaleDateString(),
+  ); // Convert Date to string
 
   // Function to get the days in a month
   const getDaysInMonth = (month: number, year: number): number => {
     return new Date(year, month + 1, 0).getDate();
   };
 
- 
-
   // Function to handle date selection
-  const handleDateChange = (event: React.ChangeEvent<HTMLSelectElement>, type: string) => {
+  const handleDateChange = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+    type: string,
+  ) => {
     const value = parseInt(event.target.value, 10);
-    if (type === 'year') {
+    if (type === "year") {
       setSelectedDate(new Date(value, selectedDate.getMonth()));
-    } else if (type === 'month') {
+    } else if (type === "month") {
       setSelectedDate(new Date(selectedDate.getFullYear(), value));
     }
   };
@@ -46,7 +51,11 @@ function Calendar() {
     const currentYear = new Date().getFullYear();
     const years: JSX.Element[] = [];
     for (let year = currentYear - 10; year <= currentYear + 10; year++) {
-      years.push(<option key={year} value={year}>{year}</option>);
+      years.push(
+        <option key={year} value={year}>
+          {year}
+        </option>,
+      );
     }
     return years;
   };
@@ -65,115 +74,175 @@ function Calendar() {
       "Rugsėjis",
       "Spalis",
       "Lapkritis",
-      "Gruodis"
+      "Gruodis",
     ];
     return monthNames.map((month, index) => (
-      <option key={index} value={index}>{month}</option>
+      <option key={index} value={index}>
+        {month}
+      </option>
     ));
   };
 
   // Function to generate the calendar grid
   const generateCalendarGrid = (): JSX.Element[] => {
-    const daysInMonth = getDaysInMonth(selectedDate.getMonth(), selectedDate.getFullYear());
-    const firstDayOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1).getDay();
-
-   // Get the current date
-  const currentDate = new Date();
-
-  const grid: JSX.Element[] = [];
-
-  // Generate cells for each day of the month
-  for (let i = 1; i <= daysInMonth; i++) {
-    const currentDateObj = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), i);
-
-    // Check if the current day is in any of the completionDates
-    const isCompletionDay = completionDates?.some(completionDate => {
-      const completionDateObj = new Date(completionDate);
-      return currentDate <= currentDateObj && currentDateObj <= completionDateObj;
-    });
-
-    const orderNames = acceptedOrders
-      ?.filter(order => {
-        const completionDate = new Date(order.completionDate);
-        return currentDate <= currentDateObj && currentDateObj <= completionDate;
-      })
-      .map(order => order.orderName);
-
-    grid.push(
-      <div
-        key={`day-${i}`}
-        className={`calendar-cell ${selectedDate.getDate() === i ? 'selected' : ''} ${isCompletionDay ? 'completion-day' : ''}`}
-        onClick={() => handleDateClick(i)}
-        onMouseEnter={() => handleMouseEnter(orderNames)}
-        onMouseLeave={() => handleMouseLeave()}
-        style={{
-          border: "1px solid black",
-          padding: "10px",
-          textAlign: "center",
-          width: "40px", // Adjust width as needed
-          height: "40px", // Adjust height as needed
-          backgroundColor: isCompletionDay ? "red" : "transparent" // Set background color to red for days between current date and completion date
-        }}
-      >
-        {i}
-      </div>
+    const daysInMonth = getDaysInMonth(
+      selectedDate.getMonth(),
+      selectedDate.getFullYear(),
     );
-  }
-     // Function to handle date selection
-  const handleDateClick = (day: number) => {
-    setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day));
-};
+    const firstDayOfMonth = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      1,
+    ).getDay();
 
-   // Function to handle mouse enter
+    // Get the current date
+    const currentDate = new Date();
+
+    const grid: JSX.Element[] = [];
+
+    // Generate cells for each day of the month
+    for (let i = 1; i <= daysInMonth; i++) {
+      const currentDateObj = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        i,
+      );
+
+      // Check if the current day is in any of the completionDates
+      const isCompletionDay = completionDates?.some((completionDate) => {
+        const completionDateObj = new Date(completionDate);
+        return (
+          currentDate <= currentDateObj && currentDateObj <= completionDateObj
+        );
+      });
+
+      const orderNames = acceptedOrders
+        ?.filter((order) => {
+          const completionDate = new Date(order.completionDate);
+          return (
+            currentDate <= currentDateObj && currentDateObj <= completionDate
+          );
+        })
+        .map((order) => order.orderName);
+
+      grid.push(
+        <div
+          key={`day-${i}`}
+          className={`calendar-cell ${
+            selectedDate.getDate() === i ? "selected" : ""
+          } ${isCompletionDay ? "completion-day" : ""}`}
+          onClick={() => handleDateClick(i)}
+          onMouseEnter={() => handleMouseEnter(orderNames)}
+          onMouseLeave={() => handleMouseLeave()}
+          style={{
+            border: "1px solid black",
+            padding: "10px",
+            textAlign: "center",
+            width: "40px", // Adjust width as needed
+            height: "40px", // Adjust height as needed
+            backgroundColor: isCompletionDay ? "red" : "transparent", // Set background color to red for days between current date and completion date
+          }}
+        >
+          {i}
+        </div>,
+      );
+    }
+    // Function to handle date selection
+    const handleDateClick = (day: number) => {
+      setSelectedDate(
+        new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day),
+      );
+    };
+
+    // Function to handle mouse enter
     const handleMouseEnter = (orderNames: string[] | undefined) => {
       if (orderNames) {
         setHoveredOrders(orderNames);
       }
     };
 
-  // Function to handle mouse leave
-  const handleMouseLeave = () => {
-    // Hide tooltip or popover
-    console.log("Mouse left");
-  };
+    // Function to handle mouse leave
+    const handleMouseLeave = () => {
+      // Hide tooltip or popover
+      console.log("Mouse left");
+    };
 
     // Add empty cells to fill the last row if needed
-    const lastRowEmptyCells = (7 - (daysInMonth + firstDayOfMonth) % 7) % 7;
+    const lastRowEmptyCells = (7 - ((daysInMonth + firstDayOfMonth) % 7)) % 7;
     for (let i = 0; i < lastRowEmptyCells; i++) {
-      grid.push(<div key={`empty-${daysInMonth + i}`} className="calendar-cell empty"></div>);
+      grid.push(
+        <div
+          key={`empty-${daysInMonth + i}`}
+          className="calendar-cell empty"
+        ></div>,
+      );
     }
 
     return grid;
   };
-  
 
-   return (
+  return (
     <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto pb-3">
       <NavBarHeader title={"Darbų kalendorius"} />
       <div className="flex justify-center mt-3">
         <div className="calendar">
           <div className="calendar-header">
-            <button onClick={() => setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1))}>&lt;</button>
-            <select value={selectedDate.getMonth()} onChange={(e) => handleDateChange(e, 'month')}>
+            <button
+              onClick={() =>
+                setSelectedDate(
+                  new Date(
+                    selectedDate.getFullYear(),
+                    selectedDate.getMonth() - 1,
+                  ),
+                )
+              }
+            >
+              &lt;
+            </button>
+            <select
+              value={selectedDate.getMonth()}
+              onChange={(e) => handleDateChange(e, "month")}
+            >
               {generateMonthOptions()}
             </select>
-            <select value={selectedDate.getFullYear()} onChange={(e) => handleDateChange(e, 'year')}>
+            <select
+              value={selectedDate.getFullYear()}
+              onChange={(e) => handleDateChange(e, "year")}
+            >
               {generateYearOptions()}
             </select>
-            <button onClick={() => setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1))}>&gt;</button>
+            <button
+              onClick={() =>
+                setSelectedDate(
+                  new Date(
+                    selectedDate.getFullYear(),
+                    selectedDate.getMonth() + 1,
+                  ),
+                )
+              }
+            >
+              &gt;
+            </button>
           </div>
-          <div className="calendar-grid" style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "5px" }}>
+          <div
+            className="calendar-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(7, 1fr)",
+              gap: "5px",
+            }}
+          >
             {generateCalendarGrid()}
           </div>
         </div>
-    <div>
-        <h3>Užsakymas ties kurio dirbama pažymėtą dieną</h3>
-        <ul>
-          {hoveredOrders.map((orderName, index) => (
-            <li key={index}>{orderName}</li>
-          ))}
-        </ul>
-      </div>
+        <div>
+          <h3>Užsakymas ties kurio dirbama pažymėtą dieną</h3>
+          <ul>
+            {hoveredOrders.map((orderName, index) => (
+              <li key={index}>{orderName}</li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

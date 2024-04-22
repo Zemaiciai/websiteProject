@@ -1,10 +1,9 @@
-import { Link, MetaFunction, Outlet, useLocation } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { MetaFunction, Outlet } from "@remix-run/react";
+import { useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 import NewFooter from "~/components/newFooter/NewFooter";
 export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
-import { useUser } from "~/utils";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("myGroups");

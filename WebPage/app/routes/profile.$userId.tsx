@@ -21,6 +21,7 @@ import {
   deleteFromFriends,
   rejectFriendshipRequest,
 } from "~/models/friendshipRequest.server";
+import { typedjson } from "remix-typedjson";
 export const meta: MetaFunction = () => [
   { title: "Profilio peržiūra - Žemaičiai" },
 ];

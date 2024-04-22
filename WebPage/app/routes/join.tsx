@@ -55,6 +55,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return json({ errors: validationErrors }, { status: 400 });
   }
 
+  if (await getUserByEmail(email)) {
+    errors.existingUser = "Vartotojas su tuo pačiu el. paštu jau egzistuoja";
+    return json({ errors: errors }, { status: 400 });
+  }
+
   const user = await createUser(
     email,
     password,
@@ -63,11 +68,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     username,
     secretCode,
   );
-
-  if (await getUserByEmail(email)) {
-    errors.existingUser = "Vartotojas su tuo pačiu el. paštu jau egzistuoja";
-    return json({ errors: errors }, { status: 400 });
-  }
 
   if (!user) {
     errors.wrongSecretCode = "Neteisingas pakvietimo kodas arba el. paštas";

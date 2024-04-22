@@ -148,22 +148,19 @@ export default function GroupsIndexPage() {
         ) : null}
         {activeTab === "allGroups" ? (
           <>
-            {filteredGroupsMyGroups.length === 0 ? (
-              <p className="mt-5">Dar nėra sukurtų grupių, sukurk!</p>
+            <input
+              type="text"
+              placeholder="Ieškoti grupės pagal pavadinima"
+              value={searchQueryAllGroups}
+              onChange={(e) => setSearchQueryAllGroups(e.target.value)}
+              className="p-2 mt-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-custom-800"
+              style={{ width: "80%" }} // Adjust the width as needed
+            />
+            {filteredGroupsAllGroups.length === 0 ? (
+              <p className="mt-5">Nėra grupių</p>
             ) : (
               <div>
-                <div className="flex justify-between pb-5">
-                  {/* Outlet or tab buttons */}
-                  {/* Search input */}
-                  <input
-                    type="text"
-                    placeholder="Ieškoti grupės pagal pavadinima"
-                    value={searchQueryAllGroups}
-                    onChange={(e) => setSearchQueryAllGroups(e.target.value)}
-                    className="p-2 mt-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-custom-800"
-                    style={{ width: "80%" }} // Adjust the width as needed
-                  />
-                </div>
+                <div className="flex justify-between pb-5"></div>
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                   <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">

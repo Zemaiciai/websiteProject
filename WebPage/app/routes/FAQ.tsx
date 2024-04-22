@@ -91,7 +91,7 @@ const FAQ = () => {
             style={{ width: "80%" }}
           >
             {questions.map((item, index) => (
-              <li key={index} className="mb-2">
+              <li key={index} className="mb-2 list-none">
                 <details className="group">
                   <summary className="flex items-center gap-3 px-4 py-1 font-medium marker:content-none hover:cursor-pointer">
                     <svg
