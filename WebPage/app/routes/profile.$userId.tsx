@@ -5,45 +5,63 @@ import ProfilePageTabs from "~/components/profilePageComponents/profilePageTabs"
 import { useUser } from "~/utils";
 
 import ProfileCard from "../components/profilePageComponents/profileCard";
-import { useLoaderData } from "@remix-run/react";
+import { redirect, useLoaderData } from "@remix-run/react";
 import { User, getUserById } from "~/models/user.server";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 import { useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
 import { requireUser } from "~/session.server";
 import {
+  acceptFriendshipRequest,
   checkCurrentlyFriends,
   checkPendingStatusRequestedSide,
   checkPendingStatusRequesteerSide,
   createFriendshipRequest,
+  deleteFriendshipRequest,
+  deleteFromFriends,
+  rejectFriendshipRequest,
 } from "~/models/friendshipRequest.server";
 export const meta: MetaFunction = () => [
   { title: "Profilio peržiūra - Žemaičiai" },
 ];
 
+interface LoaderData {
+  user: User;
+  checkPendingStatusRequesteer: boolean;
+  checkPendingStatusRequested: boolean;
+  CurrentlyFriends: boolean;
+}
+
 export const loader = async ({
   request,
-}: LoaderFunctionArgs): Promise<User | null> => {
+}: LoaderFunctionArgs): Promise<LoaderData | null> => {
   const url = request.url;
   const parts = url.split("/");
   const user2 = await requireUser(request);
   const userProfileId = parts[parts.length - 1];
-  // TO SHOW "REJECT INVITE" BUTTON REQUESTEER SIDE
+
   const checkPendingStatusRequesteer = await checkPendingStatusRequesteerSide(
     user2.id,
     userProfileId,
   );
-  // TO SHOW "REJECT INVITE, ACCEPT INVITE" BUTTON REQUESTED SIDE
+
   const checkPendingStatusRequested = await checkPendingStatusRequestedSide(
     user2.id,
     userProfileId,
   );
-  // TO SHOW "REMOVE FROM FRIENDS" BUTTON BOTH SIDES
+
   const CurrentlyFriends = await checkCurrentlyFriends(user2.id, userProfileId);
 
   const user = await getUserById(userProfileId);
 
-  return user;
+  return user
+    ? {
+        user,
+        checkPendingStatusRequesteer,
+        checkPendingStatusRequested,
+        CurrentlyFriends,
+      }
+    : null;
 };
 
 export const action = async (actionArg) => {
@@ -56,12 +74,46 @@ export const action = async (actionArg) => {
     createFriendshipRequest(whoSentRequest, whoGotRequest);
     return null;
   }
+
+  if (formid === "cancelInvite") {
+    const whoSentRequest = formData.get("whoSentInvite");
+    const whoGotRequest = formData.get("whoGotInvite");
+    deleteFriendshipRequest(whoSentRequest, whoGotRequest);
+    return null;
+  }
+
+  if (formid === "acceptInvite") {
+    const whoSentRequest = formData.get("whoSentInvite");
+    const whoGotRequest = formData.get("whoGotInvite");
+    acceptFriendshipRequest(whoSentRequest, whoGotRequest);
+    return null;
+  }
+
+  if (formid === "rejectInvite") {
+    const whoSentRequest = formData.get("whoSentInvite");
+    const whoGotRequest = formData.get("whoGotInvite");
+    rejectFriendshipRequest(whoSentRequest, whoGotRequest);
+    return null;
+  }
+
+  if (formid === "removeFromFriends") {
+    const whoSentRequest = formData.get("whoSentInvite");
+    const whoGotRequest = formData.get("whoGotInvite");
+    deleteFromFriends(whoSentRequest, whoGotRequest);
+    return null;
+  }
   return;
 };
 
 export default function NoteDetailsPage() {
   const OGuser = useUser();
-  const user = useLoaderData<typeof loader>();
+  const {
+    user,
+    checkPendingStatusRequesteer,
+    checkPendingStatusRequested,
+    CurrentlyFriends,
+  } = useLoaderData<LoaderData>();
+
   const [linkClicked, setLinkClicked] = useState(false);
   const [activeTab, setActiveTab] = useState("");
   const handleTabClick = (tab: string) => {
@@ -83,7 +135,12 @@ export default function NoteDetailsPage() {
         title={`${linkClicked ? "Profilio puslapis" : "Profilio puslapis"}`}
       />
       <div className="profilePageDiv">
-        <ProfileCard user={user} />
+        <ProfileCard
+          user={user}
+          checkPendingStatusRequesteer={checkPendingStatusRequesteer}
+          checkPendingStatusRequested={checkPendingStatusRequested}
+          CurrentlyFriends={CurrentlyFriends}
+        />
         <ProfilePageTabs user={user} />
       </div>
     </div>

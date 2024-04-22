@@ -15,10 +15,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 interface ProfileCardProps {
-  user: any;
+  user: User;
+  checkPendingStatusRequesteer: boolean;
+  checkPendingStatusRequested: boolean;
+  CurrentlyFriends: boolean;
 }
 
-export default function ProfileCard({ user }: ProfileCardProps) {
+export default function ProfileCard({
+  user,
+  checkPendingStatusRequesteer,
+  checkPendingStatusRequested,
+  CurrentlyFriends,
+}: ProfileCardProps) {
   return (
     <div className="profileCardDiv w-full h-full static">
       <div className="backGroundPhoto w-full h-[285px] bg-gradient-to-r from-custom-800 to-zinc-600 shadow-xl">
@@ -34,7 +42,12 @@ export default function ProfileCard({ user }: ProfileCardProps) {
       </div>
       <div className="infoDiv w-full h-[200px] flex space-x-20">
         <UserInfo user={user} />
-        <UserRatingAndOther user={user} />
+        <UserRatingAndOther
+          user={user}
+          checkPendingStatusRequesteer={checkPendingStatusRequesteer}
+          checkPendingStatusRequested={checkPendingStatusRequested}
+          CurrentlyFriends={CurrentlyFriends}
+        />
       </div>
     </div>
   );

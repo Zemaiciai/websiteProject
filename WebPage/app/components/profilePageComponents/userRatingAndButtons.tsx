@@ -1,11 +1,20 @@
+import { User } from "@prisma/client";
 import { Form } from "@remix-run/react";
 import { useState } from "react";
 import { useUser } from "~/utils";
 
 interface UserInfoProps {
-  user: any;
+  user: User;
+  checkPendingStatusRequesteer: boolean;
+  checkPendingStatusRequested: boolean;
+  CurrentlyFriends: boolean;
 }
-function UserRatingAndOther({ user }: UserInfoProps) {
+function UserRatingAndOther({
+  user,
+  checkPendingStatusRequesteer,
+  checkPendingStatusRequested,
+  CurrentlyFriends,
+}: UserInfoProps) {
   const [showPopup, setShowPopup] = useState(false);
   const realUser = useUser();
   const togglePopup = () => {
@@ -185,20 +194,91 @@ function UserRatingAndOther({ user }: UserInfoProps) {
             </button>
           </Form>
           {/* Friends */}
-          <Form
-            method="post"
-            className="flex space-x-1 place-items-center ml-4"
-          >
-            <input name="form-id" hidden defaultValue="sendInvite" />
-            <input name="whoSentInvite" hidden defaultValue={realUser.id} />
-            <input name="whoGotInvite" hidden defaultValue={user.id} />
-            <button
-              type="submit"
-              className="text-base font-semibold text-neutral-600 hover:text-neutral-800"
+          {!isUserInProfile() &&
+            !checkPendingStatusRequesteer &&
+            !checkPendingStatusRequested &&
+            !CurrentlyFriends && (
+              <Form
+                method="post"
+                className="flex space-x-1 place-items-center ml-4"
+              >
+                <input name="form-id" hidden defaultValue="sendInvite" />
+                <input name="whoSentInvite" hidden defaultValue={realUser.id} />
+                <input name="whoGotInvite" hidden defaultValue={user.id} />
+                <button
+                  type="submit"
+                  className="text-base font-semibold text-neutral-600 hover:text-neutral-800"
+                >
+                  Pridėti į draugus!
+                </button>
+              </Form>
+            )}
+          {!isUserInProfile() && checkPendingStatusRequesteer && (
+            <Form
+              method="post"
+              className="flex space-x-1 place-items-center ml-4"
             >
-              Pridėti į draugus!
-            </button>
-          </Form>
+              <input name="form-id" hidden defaultValue="cancelInvite" />
+              <input name="whoSentInvite" hidden defaultValue={realUser.id} />
+              <input name="whoGotInvite" hidden defaultValue={user.id} />
+              <button
+                type="submit"
+                className="text-base font-semibold text-neutral-600 hover:text-neutral-800"
+              >
+                Atšaukti pakvietimą
+              </button>
+            </Form>
+          )}
+          {/* ACCEPTING, DECLINE */}
+          {!isUserInProfile() && checkPendingStatusRequested && (
+            <Form
+              method="post"
+              className="flex space-x-1 place-items-center ml-4"
+            >
+              <input name="form-id" hidden defaultValue="acceptInvite" />
+              <input name="whoSentInvite" hidden defaultValue={realUser.id} />
+              <input name="whoGotInvite" hidden defaultValue={user.id} />
+              <button
+                type="submit"
+                className="text-base font-semibold text-neutral-600 hover:text-neutral-800"
+              >
+                Priimti pakvietimą
+              </button>
+            </Form>
+          )}
+          {!isUserInProfile() && checkPendingStatusRequested && (
+            <Form
+              method="post"
+              className="flex space-x-1 place-items-center ml-4"
+            >
+              <input name="form-id" hidden defaultValue="rejectInvite" />
+              <input name="whoSentInvite" hidden defaultValue={realUser.id} />
+              <input name="whoGotInvite" hidden defaultValue={user.id} />
+              <button
+                type="submit"
+                className="text-base font-semibold text-neutral-600 hover:text-neutral-800"
+              >
+                Atšaukti pakvietimą
+              </button>
+            </Form>
+          )}
+          {/* IF YOU ARE FRIENDS */}
+          {!isUserInProfile() && CurrentlyFriends && (
+            <Form
+              method="post"
+              className="flex space-x-1 place-items-center ml-4"
+            >
+              <input name="form-id" hidden defaultValue="removeFromFriends" />
+              <input name="whoSentInvite" hidden defaultValue={realUser.id} />
+              <input name="whoGotInvite" hidden defaultValue={user.id} />
+              <button
+                type="submit"
+                className="text-base font-semibold text-neutral-600 hover:text-neutral-800"
+              >
+                Išmesti iš draugų
+              </button>
+            </Form>
+          )}
         </div>
       )}
     </div>

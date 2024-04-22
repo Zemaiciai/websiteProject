@@ -1,3 +1,4 @@
+import { redirect } from "remix-typedjson";
 import { prisma } from "~/db.server";
 
 export async function createFriendshipRequest(
@@ -63,6 +64,94 @@ export async function checkPendingStatusRequesteerSide(
   return false;
 }
 
+// Delete the invite
+export async function deleteFriendshipRequest(
+  requesterId: string,
+  requestedUserId: string,
+) {
+  const status = await prisma.friendshipRequest.findFirst({
+    where: {
+      requesterId: requesterId,
+      requestedUserId: requestedUserId,
+      status: "PENDING",
+    },
+  });
+
+  if (status) {
+    return await prisma.friendshipRequest.deleteMany({
+      where: {
+        requesterId: requesterId,
+        requestedUserId: requestedUserId,
+      },
+    });
+  }
+  return false;
+}
+
+// Reject the invite
+export async function rejectFriendshipRequest(
+  requesterId: string,
+  requestedUserId: string,
+) {
+  const status = await prisma.friendshipRequest.findFirst({
+    where: {
+      requesterId: requestedUserId,
+      requestedUserId: requesterId,
+      status: "PENDING",
+    },
+  });
+
+  if (status) {
+    return await prisma.friendshipRequest.deleteMany({
+      where: {
+        requesterId: requestedUserId,
+        requestedUserId: requesterId,
+      },
+    });
+  }
+  return false;
+}
+
+// Remove from friends
+export async function deleteFromFriends(
+  requesterId: string,
+  requestedUserId: string,
+) {
+  const status1 = await prisma.friendshipRequest.findFirst({
+    where: {
+      requesterId: requesterId,
+      requestedUserId: requestedUserId,
+      status: "ACCEPTED",
+    },
+  });
+  const status2 = await prisma.friendshipRequest.findFirst({
+    where: {
+      requesterId: requestedUserId,
+      requestedUserId: requesterId,
+      status: "ACCEPTED",
+    },
+  });
+
+  if (status1) {
+    return await prisma.friendshipRequest.deleteMany({
+      where: {
+        requesterId: requesterId,
+        requestedUserId: requestedUserId,
+      },
+    });
+  }
+
+  if (status2) {
+    return await prisma.friendshipRequest.deleteMany({
+      where: {
+        requesterId: requestedUserId,
+        requestedUserId: requesterId,
+      },
+    });
+  }
+  return false;
+}
+
 // TO SHOW "REJECT INVITE, ACCEPT INVITE" BUTTON REQUESTED SIDE
 export async function checkPendingStatusRequestedSide(
   requesterId: string,
@@ -109,28 +198,27 @@ export async function checkCurrentlyFriends(
   return false;
 }
 
-export async function acceptFriendshipRequest(requestId: string) {
-  try {
-    // Find the friendship request
-    const request = await prisma.friendshipRequest.findUnique({
-      where: { id: requestId },
-      include: { requester: true, requestedUser: true },
-    });
-
-    if (!request) {
-      throw new Error("Friendship request not found.");
-    }
-
-    // Update the status of the request to "ACCEPTED"
+export async function acceptFriendshipRequest(
+  requesterId: string,
+  requestedUserId: string,
+) {
+  const status = await prisma.friendshipRequest.findFirst({
+    where: {
+      requesterId: requestedUserId,
+      requestedUserId: requesterId,
+      status: "PENDING",
+    },
+  });
+  if (status) {
     await prisma.friendshipRequest.update({
-      where: { id: requestId },
-      data: { status: "ACCEPTED" },
+      where: {
+        id: status.id,
+      },
+      data: {
+        status: "ACCEPTED",
+      },
     });
-
-    return null;
-  } catch (error) {
-    // Handle errors
-    console.error("Error accepting friendship request:", error);
-    throw new Error("Failed to accept friendship request.");
+    return true; // Return true when the request is successfully accepted
   }
+  return false; // Return false if no pending request is found
 }
