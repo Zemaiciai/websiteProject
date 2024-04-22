@@ -14,6 +14,7 @@ export default function OrderTimer({
   const day = orderEndDate.getDate();
   const month = orderEndDate.getMonth() + 1;
   const time = useDuration(orderEndDate);
+  const year = orderEndDate.getFullYear();
 
   const [ending, setEnding] = useState(false);
 
@@ -29,7 +30,8 @@ export default function OrderTimer({
     <div className="text-nowrap w-full">
       {time.days >= 3 ? (
         <span>
-          {String(month + 2).padStart(2, "0")}-{String(day).padStart(2, "0")}
+          {String(year)}-{String(month + 2).padStart(2, "0")}-
+          {String(day).padStart(2, "0")}
         </span>
       ) : time.days >= 1 && time.days <= 3 ? (
         <span className="text-nowrap">
