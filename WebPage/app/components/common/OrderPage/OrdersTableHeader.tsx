@@ -50,7 +50,7 @@ export default function OrderTableHeader({
       <tr>
         <OrderTableHeaderCell
           column="orderedBy"
-          title="Užsakymas sukurtas"
+          title="Užsakymą sukurė"
           handleSort={handleSort}
           sortOrder={sortOrder}
           sortColumn={sortColumn}

@@ -7,6 +7,10 @@ export default {
   ],
   theme: {
     extend: {
+      backgroundImage: {
+        "purple-background": "url('app/public/images/purple-background.png')",
+        "white-background": "url('app/public/images/white-background.png')",
+      },
       colors: {
         custom: {
           900: "#1d1d41", //admin panel menu

@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
 import Header from "~/components/common/header/header";
 import ProfilePageTabs from "~/components/profilePageComponents/profilePageTabs";
@@ -20,6 +20,7 @@ export const loader = async ({
   const user = await getUserById(userProfileId);
   return user;
 };
+export const action = async ({ request }: ActionFunctionArgs) => {};
 
 export default function NoteDetailsPage() {
   const OGuser = useUser();

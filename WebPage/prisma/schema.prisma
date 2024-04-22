@@ -10,15 +10,18 @@ generator client {
 enum OrderStatus {
   PLACED
   IN_PROGRESS
+  PAYED
   COMPLETED
   ACCEPTED
   DECLINED
   CANCELLED
+  REMOVED
 }
 
 enum NotificationTypes {
   ORDER_ASSIGNED
   ORDER_COMPLETED
+  ORDER_PAYED
   ORDER_ACCEPTED
   ORDER_DECLINED
   ORDER_IN_PROGRESS
@@ -55,6 +58,11 @@ model User {
 
   userStatus String
   banReason String?
+
+  // New fields for skills
+  programSkills   ProgramSkill[]
+  workHours       Int?
+  otherSkills     String[]
 }
 
 model Password {
@@ -135,4 +143,12 @@ model CustomMessage{
   message String
   createdAt DateTime @default(now())
   visibility Boolean
+}
+model ProgramSkill {
+  id         String   @id @default(cuid())
+  program    String
+  experience Int      // Experience in years
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId     String
 }

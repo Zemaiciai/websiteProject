@@ -6,6 +6,7 @@ import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
 
 import ProfilePageSocialMedia from "./profilePageSocialMedia";
+import SetProgram from "./SkillSetComponents/SetProgram";
 
 export const loader = async ({ request }) => {
   const user = await requireUser(request);
@@ -160,12 +161,27 @@ function ProfileSettings() {
           ) : null}
           {activeTab === "settings" ? (
             <>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                Settings Tab
-              </h3>
-              <p className="mb-2">
-                This is some placeholder content for the Settings tab.
-              </p>
+              <div className="mainDivOfSkillSetTab">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  Pasirinkite savo sugebėjimus
+                </h3>
+                <div className="mainDivOfSkillSet flex justify-start space-x-6">
+                  <div className="usedPrograms">
+                    <p>Naudojamos programos</p>
+                    <ul className="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SetProgram programName={"Adobe"} />
+                      <SetProgram programName={"Adobe"} />
+                      <SetProgram programName={"Adobe"} />
+                    </ul>
+                  </div>
+                  <div className="workHours">
+                    <p>Norimos darbo valandos</p>
+                  </div>
+                  <div className="skills">
+                    <p>Įgūdžiai</p>
+                  </div>
+                </div>
+              </div>
             </>
           ) : null}
           {activeTab === "SocialMedia" ? (
