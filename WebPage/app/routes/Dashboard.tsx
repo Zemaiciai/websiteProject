@@ -1,14 +1,18 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import Message from "~/components/DashBoardCustomMessagesDesign/Message";
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
+import NewFooter from "~/components/newFooter/NewFooter";
 
 import { getAllMessages } from "~/models/customMessage.server";
+import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
+export const meta: MetaFunction = () => [{ title: "Titulinis - Žemaičiai" }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const user = await requireUser(request);
   const customMessages = await getAllMessages();
   return customMessages;
 };
@@ -38,9 +42,9 @@ const Dashboard = () => {
       {/* Navigation Sidebar */}
       <div className="navbar-container">
         <NavBar
-          title={"Orders"}
+          title={"Žemaičiai"}
           handleTabClick={handleTabClick}
-          redirectTo={"orders"}
+          redirectTo={"dashboard"}
           activeTab={"activeTab"}
           tabTitles={["Orders", "Admin", "Messages", "Profile"]}
         />
@@ -48,7 +52,7 @@ const Dashboard = () => {
       {/* Header */}
       <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto pb-3">
         <NavBarHeader
-          title={`${linkClicked ? "Užsakymo sukurimas" : "Darbų sąrašas"}`}
+          title={`${linkClicked ? "Užsakymo sukurimas" : "Titulinis"}`}
         />
         {customMessages.map(
           (message) =>
@@ -92,45 +96,7 @@ const Dashboard = () => {
           </div>
         </div>
         {/* Footer */}
-        <footer className="text-center border-t border-black bg-black text-white">
-          <div className="flex justify-between p-4">
-            {/* Footer Section 1 */}
-            <div className="flex-1 p-4 bg-black text-left">
-              <a
-                className="text-red-500 ml-4 font-bold"
-                href="https://www.vectorstock.com/royalty-free-vector/jco-letter-logo-design-on-black-background-vector-41865826"
-              >
-                Logotipas
-              </a>
-              <p className="text-white ml-4 mt-4 max-w-[calc(100%-20px)] break-words">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean
-                facilisis ligula et massa sollicitudin tristique. Vestibulum non
-                magna
-              </p>
-              <p className="text-white ml-4 mt-4 font-bold">We Accept</p>
-            </div>
-
-            {/* Footer Section 2 */}
-            <div className="flex-1 p-4 bg-black">
-              <p className="text-white ml-4 font-bold">Text</p>
-              <p className="text-gray-400 ml-4 mt-4">Text</p>
-              <p className="text-gray-400 ml-4 mt-4">Text</p>
-              <p className="text-gray-400 ml-4 mt-4">Text</p>
-              <p className="text-gray-400 ml-4 mt-4">Text</p>
-              <p className="text-gray-400 ml-4 mt-4">Text</p>
-            </div>
-
-            {/* Footer Section 3 */}
-            <div className="flex-1 p-4 bg-black">
-              <p className="text-white ml-4 font-bold">Text</p>
-              <p className="text-gray-400 ml-4 mt-4">Text</p>
-              <p className="text-gray-400 ml-4 mt-4">Text</p>
-              <p className="text-gray-400 ml-4 mt-4">Text</p>
-              <p className="text-gray-400 ml-4 mt-4">Text</p>
-              <p className="text-gray-400 ml-4 mt-4">Text</p>
-            </div>
-          </div>
-        </footer>
+        <NewFooter></NewFooter>
       </div>
     </div>
   );

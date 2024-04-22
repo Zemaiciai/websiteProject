@@ -24,7 +24,7 @@ function ProfileSettings() {
   return (
     <div className="settingsMainDiv">
       <div className="md:flex">
-        <ul className="flex-column space-y space-y-4 text-sm font-medium text-sky-500 md:me-4 mb-4 md:mb-0 w-[200px]">
+        <ul className="flex-column space-y space-y-4 text-sm font-medium text-custom-800 md:me-4 mb-4 md:mb-0 w-[200px]">
           <li>
             <button
               className={`inline-flex items-center px-4 py-3 rounded-lg ${

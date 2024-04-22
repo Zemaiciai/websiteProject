@@ -1,5 +1,5 @@
 import { Form, Link } from "@remix-run/react";
-import { useState } from "react"; // Import useState hook to manage state
+import { useState, useEffect, useRef } from "react"; // Import useState and useEffect hooks
 import { useUser } from "~/utils";
 
 interface NavBarHeaderProps {
@@ -9,9 +9,36 @@ interface NavBarHeaderProps {
 export default function NavBarHeader({ title }: NavBarHeaderProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to manage dropdown visibility
   const user = useUser();
+  const dropdownRef = useRef<HTMLDivElement>(null); // Ref to the dropdown menu element
+
   const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen); // Toggle dropdown visibility
+    setIsDropdownOpen((prev) => !prev); // Toggle dropdown visibility
   };
+
+  useEffect(() => {
+    // Function to handle clicks outside the dropdown
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false); // Close dropdown if the click is outside of it
+      }
+    };
+
+    // Attach event listener when the dropdown is open
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      // Remove event listener when the dropdown is closed
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    // Cleanup function to remove event listener on component unmount
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   return (
     <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
@@ -37,7 +64,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
               id="hs-dropdown-with-dividers"
               className=""
               type="button"
-              onClick={() => setIsDropdownOpen((prev) => !prev)}
+              onClick={toggleDropdown}
             >
               <svg
                 className="w-2.5 h-2.5 ms-3"
@@ -58,15 +85,16 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
             {/* Dropdown menu */}
             {isDropdownOpen ? (
               <div
-                className="absolute mt-24 ml-28 bg-white divide-y divide-gray-100 border-gray-500 border rounded shadow"
-                style={{ transform: "translateY(8px)" }}
+                ref={dropdownRef}
+                className="absolute mt-32 ml-20 bg-white divide-y divide-gray-100 border-custom-800 border rounded shadow"
+                style={{ transform: "translateY(8px)", minWidth: "10rem" }} // Set a minimum width for the dropdown
               >
                 <Form action={"/profile/" + user.id} method="get">
                   <button
                     type="submit"
                     className="block w-full py-2 px-4 text-sm text-gray-800 hover:bg-gray-100 focus:outline-none"
                   >
-                    Profile
+                    Profilis
                   </button>
                 </Form>
                 <Form action="/logout" method="post">
@@ -74,7 +102,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
                     type="submit"
                     className="block w-full py-2 px-4 text-sm text-gray-800 hover:bg-gray-100 focus:outline-none"
                   >
-                    Sign Out
+                    Atsijungti
                   </button>
                 </Form>
               </div>

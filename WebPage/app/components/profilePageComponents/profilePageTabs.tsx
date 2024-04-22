@@ -30,7 +30,7 @@ function ProfilePageTabs({ user }: UserInfoProps) {
           <button
             className={`inline-block p-4  ${
               activeTab === "statistics"
-                ? "border-sky-500 border-b-2 rounded-t-lg"
+                ? "border-custom-800 border-b-2 rounded-t-lg"
                 : "hover:text-gray-600 hover:border-gray-300"
             }`}
             onClick={() => handleTabClick("statistics")}
@@ -42,7 +42,7 @@ function ProfilePageTabs({ user }: UserInfoProps) {
           <button
             className={`inline-block p-4  ${
               activeTab === "skills"
-                ? "border-sky-500 border-b-2 rounded-t-lg"
+                ? "border-custom-800 border-b-2 rounded-t-lg"
                 : "hover:text-gray-600 hover:border-gray-300"
             }`}
             onClick={() => handleTabClick("skills")}
@@ -55,7 +55,7 @@ function ProfilePageTabs({ user }: UserInfoProps) {
             <button
               className={`inline-block p-4  ${
                 activeTab === "settings"
-                  ? "border-sky-500 border-b-2 rounded-t-lg"
+                  ? "border-custom-800 border-b-2 rounded-t-lg"
                   : "hover:text-gray-600 hover:border-gray-300"
               }`}
               onClick={() => handleTabClick("settings")}

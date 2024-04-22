@@ -18,6 +18,12 @@ enum OrderStatus {
   REMOVED
 }
 
+enum GroupsRoles {
+  OWNER
+  MODERATOR
+  MEMBER
+  INVITED
+}
 enum NotificationTypes {
   ORDER_ASSIGNED
   ORDER_COMPLETED
@@ -58,11 +64,10 @@ model User {
 
   userStatus String
   banReason String?
+  groups            GroupUser[]
 
-  // New fields for skills
-  programSkills   ProgramSkill[]
-  workHours       Int?
-  otherSkills     String[]
+  requestedFriendships FriendshipRequest[] @relation("RequestedFriendships")
+  receivedFriendships  FriendshipRequest[]  @relation("ReceivedFriendships")
 }
 
 model Password {
@@ -88,6 +93,7 @@ model Order {
   orderStatus OrderStatus
   description String?
   footageLink String
+  
 }
 
 model SecretCodeAdmin {
@@ -144,11 +150,41 @@ model CustomMessage{
   createdAt DateTime @default(now())
   visibility Boolean
 }
-model ProgramSkill {
-  id         String   @id @default(cuid())
-  program    String
-  experience Int      // Experience in years
 
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId     String
+model Groups{
+  id String @id @default(cuid())
+  groupName String @unique
+  groupShortDescription String
+  groupFullDescription String
+  users                  GroupUser[]
+  balance String
+}
+
+model GroupUser {
+  id       String       @id @default(cuid())
+  user     User         @relation(fields: [userId], references: [id])
+  userId   String
+  group    Groups       @relation(fields: [groupId], references: [id])
+  groupId  String
+  role     GroupsRoles // Define the role of the user within the group
+  percentage String?
+}
+
+
+
+model FriendshipRequest {
+  id            String   @id @default(cuid())
+  requester     User     @relation("RequestedFriendships", fields: [requesterId], references: [id])
+  requesterId   String
+  requestedUser User     @relation("ReceivedFriendships", fields: [requestedUserId], references: [id])
+  requestedUserId String
+  status        FriendshipRequestStatus
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum FriendshipRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }

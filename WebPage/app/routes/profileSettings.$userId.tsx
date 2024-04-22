@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, Link } from "@remix-run/react";
 
@@ -7,6 +7,7 @@ import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
 
 import ProfileCard from "../components/profilePageComponents/profileCard";
+export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);

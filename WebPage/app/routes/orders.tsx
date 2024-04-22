@@ -1,9 +1,9 @@
-import { Outlet, useLocation } from "@remix-run/react";
+import { MetaFunction, Outlet, useLocation } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
-
+export const meta: MetaFunction = () => [{ title: "Užsakymai - Žemaičiai" }];
 export default function WorkPage() {
   const [activeTab, setActiveTab] = useState("");
   const [headerTitle, setHeaderTitle] = useState("Loading...");
@@ -32,7 +32,7 @@ export default function WorkPage() {
     <div className="flex h-screen bg-custom-100">
       <div className="navbar-container">
         <NavBar
-          title={"Orders"}
+          title={"Žemaičiai"}
           handleTabClick={handleTabClick}
           redirectTo={"orders"}
           activeTab={activeTab}

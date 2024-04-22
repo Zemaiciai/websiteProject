@@ -521,3 +521,29 @@ async function changeDate(userID: string, dateChange: Date) {
 
   return changeInfo;
 }
+
+export async function checkBanStatus(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  if (user?.userStatus === "Užblokuota") {
+    return true;
+  }
+  return false;
+}
+
+export async function checkContractExpiration(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (user?.expiringAt && new Date(user.expiringAt) < new Date()) {
+    return true;
+  }
+
+  return false;
+}

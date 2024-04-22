@@ -55,6 +55,7 @@ export async function createCode(
   }
   if (time === "thirtyMinutes") {
     currentDate = new Date(currentDate.getTime() + 30 * 60000);
+    // FOR CODE EXPIRATION DATE TESTING - THIS IS LITTERALLY FOR A SECOND OR SOMETHING
     //currentDate = new Date(currentDate.getTime() + 1 * 10000);
   }
   if (time === "oneHour") {
