@@ -96,3 +96,12 @@ export async function getAllMyAdds(userWhoUses: string) {
     },
   });
 }
+
+export async function getAddByID(addId: string) {
+  console.log(addId); //ITS RETURNING [object Object]
+  return prisma.workerAds.findFirst({
+    where: {
+      id: addId,
+    },
+  });
+}

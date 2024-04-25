@@ -24,21 +24,29 @@ export async function createGroup(
     return null;
   }
 
-  // Create the group
-  return prisma.groups.create({
-    data: {
-      groupName: groupNameFromForm,
-      groupShortDescription: groupShortDescriptionFromForm,
-      groupFullDescription: groupFullDescriptionFromForm,
-      balance: "0",
-      users: {
-        create: {
-          userId: user.id,
-          role: GroupsRoles.OWNER,
+  if (
+    groupNameFromForm !== "" &&
+    groupShortDescriptionFromForm !== "" &&
+    groupFullDescriptionFromForm !== "" &&
+    owner !== ""
+  ) {
+    // Create the group
+    return prisma.groups.create({
+      data: {
+        groupName: groupNameFromForm,
+        groupShortDescription: groupShortDescriptionFromForm,
+        groupFullDescription: groupFullDescriptionFromForm,
+        balance: "0",
+        users: {
+          create: {
+            userId: user.id,
+            role: GroupsRoles.OWNER,
+          },
         },
       },
-    },
-  });
+    });
+  }
+  return null;
 }
 export async function getGroupByName(groupName: string) {
   return prisma.groups.findFirst({ where: { groupName } });
