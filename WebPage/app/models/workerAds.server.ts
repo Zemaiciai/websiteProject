@@ -136,6 +136,7 @@ export async function WorkerAdsUpdate(
       return prisma.workerAds.update({
         where: {
           id: workerAddID,
+          userid: whoCreated,
         },
         data: {
           adsName: customName,

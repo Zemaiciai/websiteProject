@@ -246,18 +246,22 @@ const GroupDetailPage = () => {
           </button>
         </div>
 
-        <div className="flex justify-center pb-2">
-          <button
-            className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
-              activeTabUsers === "changeInformation"
-                ? "text-white  py-2 bg-custom-900  border-black "
-                : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
-            } w-full`}
-            onClick={() => handleTabClickUser("changeInformation")}
-          >
-            Keisti informacija
-          </button>
-        </div>
+        {userUsingRN.id === getAddOwner?.id && (
+          <>
+            <div className="flex justify-center pb-2">
+              <button
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                  activeTabUsers === "changeInformation"
+                    ? "text-white  py-2 bg-custom-900  border-black "
+                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                } w-full`}
+                onClick={() => handleTabClickUser("changeInformation")}
+              >
+                Keisti informacija
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </>
   );
