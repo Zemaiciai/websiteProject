@@ -14,27 +14,29 @@ export async function createWorkerAds(
     throw new Error("User not found");
   }
 
-  if (customName !== null && fullDescription !== null)
-    if (await checkUserAdsLimit(whoCreated)) {
-      const isValidYouTubeLink = (link: string): boolean => {
-        // Regex pattern to match YouTube video IDs with optional query parameters
-        const youtubePattern =
-          /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})\b/;
-        return youtubePattern.test(link);
-      };
+  if (customName !== "" && fullDescription !== "")
+    if (true) {
+      if (await checkUserAdsLimit(whoCreated)) {
+        const isValidYouTubeLink = (link: string): boolean => {
+          // Regex pattern to match YouTube video IDs with optional query parameters
+          const youtubePattern =
+            /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})\b/;
+          return youtubePattern.test(link);
+        };
 
-      const validVideoLinks = [videoOne, videoTwo, videoThird].filter(
-        (link) => link.trim() !== "" && isValidYouTubeLink(link),
-      );
+        const validVideoLinks = [videoOne, videoTwo, videoThird].filter(
+          (link) => link.trim() !== "" && isValidYouTubeLink(link),
+        );
 
-      return prisma.workerAds.create({
-        data: {
-          adsName: customName,
-          adsDescription: fullDescription,
-          userid: whoCreated,
-          adsExamples: validVideoLinks,
-        },
-      });
+        return prisma.workerAds.create({
+          data: {
+            adsName: customName,
+            adsDescription: fullDescription,
+            userid: whoCreated,
+            adsExamples: validVideoLinks,
+          },
+        });
+      }
     }
   return null;
 }
@@ -49,4 +51,40 @@ export async function checkUserAdsLimit(userId: string): Promise<boolean> {
 
   // Return true if the user has created less than two ads, false otherwise
   return adsCount < 2;
+}
+
+export async function getAllWorkerAdds() {
+  return prisma.workerAds.findMany();
+}
+
+export async function getAllWorkerAddsCreators() {
+  try {
+    // Fetch all worker ads
+    const allWorkerAdds = await prisma.workerAds.findMany();
+
+    const creators: string[] = [];
+
+    // Iterate through each worker ad and find the creator's username
+    for (const workerAdd of allWorkerAdds) {
+      // Get the creator's username
+      const creator = await prisma.user.findUnique({
+        where: {
+          id: workerAdd.userid,
+        },
+        select: {
+          userName: true,
+        },
+      });
+
+      // If creator is found, push the username to the creators array
+      if (creator) {
+        creators.push(creator.userName);
+      }
+    }
+
+    return creators;
+  } catch (error) {
+    console.error("Error fetching worker ad creators:", error);
+    throw new Error("Failed to fetch worker ad creators");
+  }
 }

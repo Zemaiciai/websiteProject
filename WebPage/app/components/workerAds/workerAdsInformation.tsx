@@ -5,7 +5,7 @@ export default function workerAdsInformation() {
         Reklamos pavadinimas
         <ul className="ps-5 mt-2 space-y-1 list-disc list-inside">
           <li>
-            Reklamos pavadinimą turi sudaryti bent 5 simboliai ir nedaugiau 50.
+            Reklamos pavadinimą turi sudaryti bent 5 simboliai ir nedaugiau 100.
           </li>
         </ul>
       </li>

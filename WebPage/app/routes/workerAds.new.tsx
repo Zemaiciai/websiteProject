@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
 import { Form, json, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import GroupsCreationInformation from "~/components/workerAds/workerAdsInformation";
@@ -11,6 +11,10 @@ export const meta: MetaFunction = () => [
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
   console.log(user.email);
+
+  if (user.role !== "Darbuotojas") {
+    return redirect("/workerAds");
+  }
   return json(user);
 };
 
@@ -33,8 +37,11 @@ export const action = async (actionArg) => {
     videoThird,
   );
 
-  // Return the created group or any other value you need
-  return WorkerAds;
+  if (WorkerAds) {
+    return redirect("/workerAds");
+  } else {
+    return null;
+  }
 };
 
 export default function NewOrderPage() {

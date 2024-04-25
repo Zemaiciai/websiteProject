@@ -18,7 +18,7 @@ const Dashboard = () => {
         <NavBar
           title={"Žemaičiai"}
           handleTabClick={handleTabClick}
-          redirectTo={"groups"}
+          redirectTo={"workerAds"}
           activeTab={activeTab}
           tabTitles={["Orders", "Admin", "Messages", "Profile"]}
         />
