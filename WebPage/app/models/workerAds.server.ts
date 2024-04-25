@@ -105,3 +105,45 @@ export async function getAddByID(addId: string) {
     },
   });
 }
+
+export async function WorkerAdsUpdate(
+  whoCreated: string,
+  workerAddID: string,
+  customName: string,
+  fullDescription: string,
+  videoOne: string,
+  videoTwo: string,
+  videoThird: string,
+) {
+  const user = await getUserById(whoCreated);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (customName !== "" && fullDescription !== "")
+    if (true) {
+      const isValidYouTubeLink = (link: string): boolean => {
+        // Regex pattern to match YouTube video IDs with optional query parameters
+        const youtubePattern =
+          /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})\b/;
+        return youtubePattern.test(link);
+      };
+
+      const validVideoLinks = [videoOne, videoTwo, videoThird].filter(
+        (link) => link.trim() !== "" && isValidYouTubeLink(link),
+      );
+
+      return prisma.workerAds.update({
+        where: {
+          id: workerAddID,
+        },
+        data: {
+          adsName: customName,
+          adsDescription: fullDescription,
+          userid: whoCreated,
+          adsExamples: validVideoLinks,
+        },
+      });
+    }
+  return null;
+}
