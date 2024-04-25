@@ -9,6 +9,7 @@ import {
   getGroupsOfUserOwners,
 } from "~/models/groups.server";
 import {
+  getAllMyAdds,
   getAllWorkerAdds,
   getAllWorkerAddsCreators,
 } from "~/models/workerAds.server";
@@ -20,25 +21,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const allAdds = await getAllWorkerAdds();
   const allAddsCreators = await getAllWorkerAddsCreators();
+  const myAdds = await getAllMyAdds(user.id);
 
-  const userGroups = await getGroupByUserId(user.id);
-  const userGroupsOwners = await getGroupsOfUserOwners(user.id);
-  const allGroups = await getAllGroups();
-  const allGGroupsOwners = await getAllGroupsAndOwners();
   return json({
     user,
-    userGroups,
-    userGroupsOwners,
+    myAdds,
     allAdds,
     allAddsCreators,
   });
 };
 
 export default function GroupsIndexPage() {
-  const { user, userGroups, userGroupsOwners, allAdds, allAddsCreators } =
+  const { user, myAdds, allAdds, allAddsCreators } =
     useLoaderData<typeof loader>();
 
-  const [searchQueryMyGroups, setSearchQueryMyGroups] = useState("");
   const [searchQueryAllGroups, setSearchQueryAllGroups] = useState("");
 
   const [activeTab, setActiveTab] = useState(
@@ -47,10 +43,6 @@ export default function GroupsIndexPage() {
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
   };
-
-  const filteredGroupsMyGroups = userGroups.filter((group) =>
-    group.groupName.toLowerCase().includes(searchQueryMyGroups.toLowerCase()),
-  );
 
   const filteredAddsAllAdds = allAdds.filter((adds) =>
     adds.adsName.toLowerCase().includes(searchQueryAllGroups.toLowerCase()),
@@ -90,35 +82,30 @@ export default function GroupsIndexPage() {
         </ul>
         {activeTab === "myAdds" ? (
           <>
-            {filteredGroupsMyGroups.length === 0 ? (
+            {myAdds.length === 0 ? (
               <p className="mt-5">
                 Jūs nesate sukūrę jokių reklamų, sukurkite!
               </p>
             ) : (
               <div>
-                <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-5">
                   <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
                       <tr>
                         <th scope="col" className="p-4">
-                          Grupės pavadinimas
+                          Reklamos pavadinimas
                         </th>
                         <th scope="col" className="p-4">
-                          Grupės apibūdinimas
+                          Reklamos sukūrimo data
                         </th>
                         <th scope="col" className="p-4">
-                          Grupė priklauso
+                          Reklamos atnaujinimo data
                         </th>
                       </tr>
                     </thead>
                     <tbody>
                       {/* Map through filtered groups and render table rows */}
-                      {filteredGroupsMyGroups.map((group) => {
-                        // Find the owner of the current group from userGroupsOwners
-                        const ownerGroup = userGroupsOwners.find(
-                          (owner) => owner.group.id === group.id,
-                        );
-
+                      {myAdds.map((group) => {
                         return (
                           <tr
                             key={group.id}
@@ -127,21 +114,39 @@ export default function GroupsIndexPage() {
                             {/* Make each row clickable and redirect to a specific route */}
                             <td className="px-6 py-4 cursor-pointer">
                               <Link
-                                to={"/groups/" + group.groupName}
+                                to={"/workerAds/" + group.id}
                                 className="font-medium text-gray-900  hover:underline"
                               >
-                                {group.groupName}
+                                {group.adsName}
                               </Link>
                             </td>
                             <td className="px-6 py-4">
-                              {group.groupShortDescription}
+                              {/* Display the owner's username */}
+                              {new Date(group.createdAt).toLocaleString(
+                                "lt-LT",
+                                {
+                                  year: "numeric",
+                                  month: "2-digit",
+                                  day: "2-digit",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: false,
+                                },
+                              )}
                             </td>
                             <td className="px-6 py-4">
-                              {ownerGroup
-                                ? ownerGroup.owner.user
-                                  ? ownerGroup.owner.user.userName
-                                  : "Unknown"
-                                : "Unknown"}
+                              {/* Display the owner's username */}
+                              {new Date(group.updatedAt).toLocaleString(
+                                "lt-LT",
+                                {
+                                  year: "numeric",
+                                  month: "2-digit",
+                                  day: "2-digit",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: false,
+                                },
+                              )}
                             </td>
                           </tr>
                         );
@@ -178,6 +183,9 @@ export default function GroupsIndexPage() {
                         <th scope="col" className="p-4">
                           Reklamą sukūrė
                         </th>
+                        <th scope="col" className="p-4">
+                          Atnaujinimo data
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -190,7 +198,7 @@ export default function GroupsIndexPage() {
                           {/* Make each row clickable and redirect to a specific route */}
                           <td className="px-6 py-4 cursor-pointer">
                             <Link
-                              to={"/groups/" + add.id}
+                              to={"/workerAds/" + add.id}
                               className="font-medium text-gray-900  hover:underline"
                             >
                               {add.adsName}
@@ -199,6 +207,18 @@ export default function GroupsIndexPage() {
                           <td className="px-6 py-4">
                             {/* Display the owner's username */}
                             {allAddsCreators[index] || "Unknown"}
+                          </td>
+
+                          <td className="px-6 py-4">
+                            {/* Display the owner's username */}
+                            {new Date(add.updatedAt).toLocaleString("lt-LT", {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false,
+                            })}
                           </td>
                         </tr>
                       ))}

@@ -88,3 +88,11 @@ export async function getAllWorkerAddsCreators() {
     throw new Error("Failed to fetch worker ad creators");
   }
 }
+
+export async function getAllMyAdds(userWhoUses: string) {
+  return prisma.workerAds.findMany({
+    where: {
+      userid: userWhoUses,
+    },
+  });
+}
