@@ -36,7 +36,9 @@ export const action = async (actionArg) => {
       videoTwo,
       videoThird,
     );
-    return updated;
+    if (updated) {
+      return redirect("/workerAds");
+    }
   }
 
   return null;
@@ -63,32 +65,6 @@ const GroupDetailPage = () => {
   const handleTabClickUser = (tab: string) => {
     setActiveTabUsers(tab);
   };
-  // const userIsInvited = groupUsers.some(
-  //   (user) => user.id === userUsingRN.id && user.role === GroupsRoles.INVITED,
-  // );
-  // const userHasPermissionsToGroupEditing = groupUsers.some(
-  //   (user) =>
-  //     user.id === userUsingRN.id &&
-  //     (user.role === GroupsRoles.MODERATOR || user.role === GroupsRoles.OWNER),
-  // );
-
-  // const userHasPermissionsToLeave = groupUsers.some(
-  //   (user) =>
-  //     user.id === userUsingRN.id &&
-  //     (user.role === GroupsRoles.MEMBER || user.role === GroupsRoles.MODERATOR),
-  // );
-
-  // const abilityToViewGroupAsMember = groupUsers.some(
-  //   (user) =>
-  //     user.id === userUsingRN.id &&
-  //     (user.role === GroupsRoles.MEMBER ||
-  //       user.role === GroupsRoles.MODERATOR ||
-  //       user.role === GroupsRoles.OWNER),
-  // );
-
-  // const OwnerPermissions = groupUsers.some(
-  //   (user) => user.id === userUsingRN.id && user.role === GroupsRoles.OWNER,
-  // );
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
@@ -269,6 +245,7 @@ const GroupDetailPage = () => {
             Pagrindinis
           </button>
         </div>
+
         <div className="flex justify-center pb-2">
           <button
             className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
