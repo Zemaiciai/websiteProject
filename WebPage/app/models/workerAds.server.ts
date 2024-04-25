@@ -148,3 +148,11 @@ export async function WorkerAdsUpdate(
     }
   return null;
 }
+
+export async function deleteAdd(groupId: string) {
+  return prisma.workerAds.delete({
+    where: {
+      id: groupId,
+    },
+  });
+}

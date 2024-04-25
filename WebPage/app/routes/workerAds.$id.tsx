@@ -9,7 +9,11 @@ import {
   leaveGroup,
 } from "~/models/groups.server";
 import { getUserById } from "~/models/user.server";
-import { WorkerAdsUpdate, getAddByID } from "~/models/workerAds.server";
+import {
+  WorkerAdsUpdate,
+  deleteAdd,
+  getAddByID,
+} from "~/models/workerAds.server";
 import { requireUser } from "~/session.server";
 export const meta: MetaFunction = () => [
   { title: "Reklamos peržiūra - Žemaičiai" },
@@ -41,6 +45,18 @@ export const action = async (actionArg) => {
     }
   }
 
+  if (formid === "goToProfile") {
+    const whoCreated = formData.get("whoCreated");
+    return redirect("/profile/" + whoCreated);
+  }
+
+  if (formid === "deleteAdd") {
+    const whoCreated = formData.get("whoCreated");
+    const groupId = formData.get("groupId");
+
+    deleteAdd(groupId);
+    return redirect("/workerAds/");
+  }
   return null;
 };
 
@@ -260,7 +276,92 @@ const GroupDetailPage = () => {
                 Keisti informacija
               </button>
             </div>
+            <div className="flex justify-center pb-2">
+              <Form method="post">
+                <input
+                  id="form-id"
+                  name="form-id"
+                  type="text"
+                  autoComplete="on"
+                  className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                  defaultValue="deleteAdd"
+                  hidden
+                />
+                <input
+                  id="whoCreated"
+                  name="whoCreated"
+                  type="text"
+                  autoComplete="on"
+                  className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                  defaultValue={getAddOwner?.id}
+                  hidden
+                />
+                <input
+                  id="groupId"
+                  name="groupId"
+                  type="text"
+                  autoComplete="on"
+                  className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                  defaultValue={getGroup?.id}
+                  hidden
+                />
+                <input
+                  id="groupId"
+                  name="groupId"
+                  type="text"
+                  autoComplete="on"
+                  className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                  defaultValue={userUsingRN.id}
+                  hidden
+                />
+
+                <button
+                  type="submit"
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-11 rounded text-nowrap
+                      ? "bg-custom-900 border-black"
+                      : "bg-custom-800  transition duration-300 ease-in-out border-black"
+                  }`}
+                >
+                  Ištrinti reklamą
+                </button>
+              </Form>
+            </div>
           </>
+        )}
+
+        {userUsingRN.id !== getAddOwner?.id && (
+          <div className="flex justify-center pb-2">
+            <Form method="post">
+              <input
+                id="form-id"
+                name="form-id"
+                type="text"
+                autoComplete="on"
+                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                defaultValue="goToProfile"
+                hidden
+              />
+              <input
+                id="whoCreated"
+                name="whoCreated"
+                type="text"
+                autoComplete="on"
+                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                defaultValue={getAddOwner?.id}
+                hidden
+              />
+
+              <button
+                type="submit"
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-11 rounded text-nowrap
+                      ? "bg-custom-900 border-black"
+                      : "bg-custom-800  transition duration-300 ease-in-out border-black"
+                  }`}
+              >
+                Eiti į profilį
+              </button>
+            </Form>
+          </div>
         )}
       </div>
     </>
