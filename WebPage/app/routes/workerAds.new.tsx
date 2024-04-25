@@ -85,7 +85,7 @@ export default function NewOrderPage() {
                 type="text"
                 autoComplete="on"
                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
-                placeholder="Grupės pavadinimas"
+                placeholder="Reklamos pavadinimas"
               />
             </div>
 
@@ -98,7 +98,7 @@ export default function NewOrderPage() {
                     name="fullDescription"
                     autoComplete="on"
                     className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black resize-none"
-                    placeholder="Grupės aprašymas"
+                    placeholder="Reklamos aprašymas"
                     style={{ resize: "none" }} // Disable resizing
                     rows={7}
                   ></textarea>

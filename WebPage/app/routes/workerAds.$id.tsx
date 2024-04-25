@@ -49,12 +49,11 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   const url = request.url;
   const parts = url.split("/");
-  const userProfileId = parts[parts.length - 1];
+  const workerAddId = parts[parts.length - 1];
 
-  console.log("Calling getAddByID with addId:", userProfileId);
-  const getGroup = await getAddByID(userProfileId);
+  const getGroup = await getAddByID(workerAddId);
 
-  const getAddOwner = await getUserById(userProfileId);
+  const getAddOwner = await getUserById(String(getGroup?.userid));
 
   return json({ userUsingRN, getGroup, getAddOwner });
 };
@@ -98,7 +97,7 @@ const GroupDetailPage = () => {
         <ul className="flex flex-wrap -mb-px border-b border-gray-200 pb-3">
           <div>
             <h1 className="font-bold text-2xl pt-4 pl-3">
-              Peržiūrite grupę kurios pavadinimas: {getGroup?.adsName}
+              Peržiūrite reklamą kurios pavadinimas: {getGroup?.adsName}
             </h1>
           </div>
         </ul>
@@ -106,11 +105,43 @@ const GroupDetailPage = () => {
           <>
             <div>
               <h1 className="font-bold text-1xl pt-4 pl-3 text-wrap">
-                Grupės aprašymas:
+                Reklamą sukūrusio darbuotojo informacija:
+              </h1>
+              <h1 className=" text-1xl pt-1 pl-3 text-wrap">
+                Vardas pavardė: {getAddOwner?.firstName} {getAddOwner?.lastName}
+              </h1>
+              <h1 className=" text-1xl pt-1 pl-3 text-wrap">
+                Slapyvardis: {getAddOwner?.userName}
+              </h1>
+              <h1 className=" text-1xl pt-1 pl-3 text-wrap">
+                Paskyros statusas: {getAddOwner?.userStatus}
+              </h1>
+            </div>
+            <div>
+              <h1 className="font-bold text-1xl pt-4 pl-3 text-wrap">
+                Reklamos aprašymas:
               </h1>
               <h1 className=" text-1xl pt-1 pl-3 text-wrap">
                 {getGroup?.adsDescription}
               </h1>
+            </div>
+            <div>
+              <h1 className="font-bold text-1xl pt-4 pl-3 text-wrap">
+                Pavyzdžiai:
+              </h1>
+              <ul className="list-disc pl-8">
+                {getGroup?.adsExamples.map((videoLink, index) => (
+                  <li key={index} className="py-2">
+                    <a
+                      href={videoLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {videoLink}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           </>
         ) : null}
