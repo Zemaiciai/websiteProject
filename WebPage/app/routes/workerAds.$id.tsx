@@ -1,16 +1,10 @@
-// groups.$groupId.tsx
-import { GroupsRoles } from "@prisma/client";
 import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Form, Link, json, useLoaderData } from "@remix-run/react";
-import { group } from "console";
-import { getgroups } from "process";
+import { Form, json, useLoaderData } from "@remix-run/react";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   acceptInvite,
   cancelInvite,
-  getAllGroupUsers,
-  getGroupByName,
   invitingUserToGroup,
   leaveGroup,
 } from "~/models/groups.server";
@@ -18,7 +12,7 @@ import { getUserById } from "~/models/user.server";
 import { getAddByID } from "~/models/workerAds.server";
 import { requireUser } from "~/session.server";
 export const meta: MetaFunction = () => [
-  { title: "Grupės peržiūra - Žemaičiai" },
+  { title: "Reklamos peržiūra - Žemaičiai" },
 ];
 
 export const action = async (actionArg) => {
@@ -51,14 +45,16 @@ export const action = async (actionArg) => {
 };
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const addId = params as unknown as string;
   const userUsingRN = await requireUser(request);
 
-  console.log("Calling getAddByID with addId:", addId);
-  const getGroup = await getAddByID(String(addId));
-  console.log("getGroup:", getGroup); // Log getGroup to verify its structure and data
+  const url = request.url;
+  const parts = url.split("/");
+  const userProfileId = parts[parts.length - 1];
 
-  const getAddOwner = await getUserById(String(getGroup?.userid));
+  console.log("Calling getAddByID with addId:", userProfileId);
+  const getGroup = await getAddByID(userProfileId);
+
+  const getAddOwner = await getUserById(userProfileId);
 
   return json({ userUsingRN, getGroup, getAddOwner });
 };
@@ -113,7 +109,7 @@ const GroupDetailPage = () => {
                 Grupės aprašymas:
               </h1>
               <h1 className=" text-1xl pt-1 pl-3 text-wrap">
-                {/* {groupInfo?.groupFullDescription} */}
+                {getGroup?.adsDescription}
               </h1>
             </div>
           </>
