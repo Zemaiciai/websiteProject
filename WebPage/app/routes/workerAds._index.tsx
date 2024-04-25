@@ -3,12 +3,6 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 
 import {
-  getAllGroups,
-  getAllGroupsAndOwners,
-  getGroupByUserId,
-  getGroupsOfUserOwners,
-} from "~/models/groups.server";
-import {
   getAllMyAdds,
   getAllWorkerAdds,
   getAllWorkerAddsCreators,

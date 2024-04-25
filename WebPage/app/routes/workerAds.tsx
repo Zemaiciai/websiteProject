@@ -2,7 +2,6 @@ import { MetaFunction, Outlet } from "@remix-run/react";
 import { useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
-import NewFooter from "~/components/newFooter/NewFooter";
 export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
 const Dashboard = () => {

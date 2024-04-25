@@ -2,12 +2,6 @@ import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
 import { Form, json, useLoaderData } from "@remix-run/react";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import {
-  acceptInvite,
-  cancelInvite,
-  invitingUserToGroup,
-  leaveGroup,
-} from "~/models/groups.server";
 import { getUserById } from "~/models/user.server";
 import {
   WorkerAdsUpdate,
@@ -51,7 +45,6 @@ export const action = async (actionArg) => {
   }
 
   if (formid === "deleteAdd") {
-    const whoCreated = formData.get("whoCreated");
     const groupId = formData.get("groupId");
 
     deleteAdd(groupId);
@@ -287,15 +280,7 @@ const GroupDetailPage = () => {
                   defaultValue="deleteAdd"
                   hidden
                 />
-                <input
-                  id="whoCreated"
-                  name="whoCreated"
-                  type="text"
-                  autoComplete="on"
-                  className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
-                  defaultValue={getAddOwner?.id}
-                  hidden
-                />
+
                 <input
                   id="groupId"
                   name="groupId"
@@ -303,15 +288,6 @@ const GroupDetailPage = () => {
                   autoComplete="on"
                   className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                   defaultValue={getGroup?.id}
-                  hidden
-                />
-                <input
-                  id="groupId"
-                  name="groupId"
-                  type="text"
-                  autoComplete="on"
-                  className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
-                  defaultValue={userUsingRN.id}
                   hidden
                 />
 

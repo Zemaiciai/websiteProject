@@ -1,6 +1,5 @@
 import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
 import { Form, json, useLoaderData } from "@remix-run/react";
-import { useState } from "react";
 import GroupsCreationInformation from "~/components/workerAds/workerAdsInformation";
 import { createWorkerAds } from "~/models/workerAds.server";
 import { requireUser } from "~/session.server";
