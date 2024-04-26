@@ -289,16 +289,6 @@ export default function NotesPage() {
   const indexOfLastItemForLogs = currentPage * itemsPerPageForLogs;
   const indexOfFirstItemForLogs = indexOfLastItemForLogs - itemsPerPageForLogs;
 
-  const currentCustomMessagesItems = customMessagesItems.sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime();
-    const dateB = new Date(b.createdAt).getTime();
-    if (!isNaN(dateA) && !isNaN(dateB)) {
-      return dateB - dateA;
-    }
-    // Handle cases where createdAt is not a valid date
-    return 0;
-  });
-
   const currentAdminLogItems = adminLogItems
     .sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
@@ -2348,8 +2338,8 @@ export default function NotesPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {currentCustomMessagesItems.map((code, index) => (
-                          <tr key={index}>
+                        {customMessagesItems.map((code, index) => (
+                          <tr key={code.createdAt}>
                             <td className="px-6 py-4">{index + 1}</td>
                             <td className="px-6 py-4">{code.name}</td>
                             <td className="px-6 py-4">{code.message}</td>
