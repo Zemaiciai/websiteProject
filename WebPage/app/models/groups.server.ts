@@ -560,6 +560,10 @@ export async function deleteGroup(groupID: string, whoUsingRN: string) {
     throw new Error(`User name ${checkWhoMadeRequestRole} not found.`);
   }
 
+  if (Number(group.balance) !== 0) {
+    return null;
+  }
+
   if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER) {
     await prisma.groupUser.deleteMany({
       where: {
