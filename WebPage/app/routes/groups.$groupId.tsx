@@ -145,6 +145,13 @@ const GroupDetailPage = () => {
   const OwnerPermissions = groupUsers.some(
     (user) => user.id === userUsingRN.id && user.role === GroupsRoles.OWNER,
   );
+
+  //Used for group deletion
+  const [showPopup, setShowPopup] = useState(false);
+
+  const handleDeleteClick = () => {
+    setShowPopup(true);
+  };
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
@@ -520,22 +527,47 @@ const GroupDetailPage = () => {
               </button>
             </div>
             <div className="flex justify-center pb-2">
-              <Form method="post">
-                <input name="form-id" hidden defaultValue="deleteGroup" />
-                <input name="group-name" hidden defaultValue={groupId} />
-                <input name="user" hidden defaultValue={userUsingRN.id} />
-                <button
-                  type="submit"
-                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-11 rounded text-nowrap
-                      ? "bg-custom-900 border-black"
-                      : "bg-custom-800  transition duration-300 ease-in-out border-black"
-                  }`}
-                >
-                  Ištrinti šią grupę
-                </button>
-              </Form>
+              <button
+                type="button" // Change type to "button" to prevent form submission
+                onClick={handleDeleteClick}
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-11 rounded text-nowrap
+            ? "bg-custom-900 border-black"
+            : "bg-custom-800  transition duration-300 ease-in-out border-black"
+          }`}
+              >
+                Ištrinti šią grupę
+              </button>
             </div>
           </>
+        )}
+
+        {showPopup && (
+          <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+            <div className="bg-white p-8 rounded-lg">
+              <p className="text-center">
+                Ar tikrai norite ištrinti šią grupę?
+              </p>
+              <div className="flex justify-end mt-4">
+                <button
+                  onClick={() => setShowPopup(false)}
+                  className="mr-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300 ease-in-out"
+                >
+                  Atšaukti
+                </button>
+                <Form method="post">
+                  <input name="form-id" hidden defaultValue="deleteGroup" />
+                  <input name="group-name" hidden defaultValue={groupId} />
+                  <input name="user" hidden defaultValue={userUsingRN.id} />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition duration-300 ease-in-out"
+                  >
+                    Ištrinti šią grupę
+                  </button>
+                </Form>
+              </div>
+            </div>
+          </div>
         )}
 
         {userHasPermissionsToLeave && (
