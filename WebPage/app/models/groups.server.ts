@@ -190,7 +190,7 @@ export async function getAllGroupUsers(groupName: string) {
 
 export async function invitingUserToGroup(
   groupName: string,
-  inviteUserName: string,
+  inviteUserEmail: string,
 ) {
   // Find the group by its name
   const group = await prisma.groups.findFirst({
@@ -206,12 +206,12 @@ export async function invitingUserToGroup(
   // Find the user by their username
   const user = await prisma.user.findFirst({
     where: {
-      userName: inviteUserName,
+      email: inviteUserEmail,
     },
   });
 
   if (!user) {
-    throw new Error(`User with username ${inviteUserName} not found.`);
+    throw new Error(`User with username ${inviteUserEmail} not found.`);
   }
 
   // Check if the user has already been invited to the group

@@ -26,8 +26,8 @@ export const action = async (actionArg) => {
 
   if (formid === "userInvite") {
     const groupName = formData.get("group-name");
-    const inviteUserName = formData.get("inviteUserName");
-    invitingUserToGroup(groupName, inviteUserName);
+    const inviteUserEmail = formData.get("inviteUserEmail");
+    invitingUserToGroup(groupName, inviteUserEmail);
     return null;
   }
   if (formid === "acceptInvite") {
@@ -197,13 +197,13 @@ const GroupDetailPage = () => {
                     <input name="form-id" hidden defaultValue="userInvite" />
                     <input name="group-name" hidden defaultValue={groupId} />
                     <input
-                      id="inviteUserName"
-                      name="inviteUserName"
+                      id="inviteUserEmail"
+                      name="inviteUserEmail"
                       type="text"
                       autoComplete="on"
                       aria-describedby="email-error"
                       className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none"
-                      placeholder="Vartotojo vardas"
+                      placeholder="Vartotojo el. paštas"
                     />
                   </div>
                 </div>
