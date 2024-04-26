@@ -8,6 +8,7 @@ import { useParams } from "react-router-dom";
 import {
   acceptInvite,
   cancelInvite,
+  deleteGroup,
   getAllGroupUsers,
   getGroupByName,
   groupInformationChange,
@@ -88,6 +89,14 @@ export const action = async (actionArg) => {
       removeUserEmail,
       whoMadeRequestId,
     );
+  }
+  if (formid === "deleteGroup") {
+    const groupID = formData.get("group-name");
+    const whoMadeRequestId = formData.get("user");
+    const check = await deleteGroup(groupID, whoMadeRequestId);
+    if (check) {
+      return redirect("/groups");
+    }
   }
   return null;
 };

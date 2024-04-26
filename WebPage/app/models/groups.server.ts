@@ -535,3 +535,42 @@ export async function removeUserFromGroup(
 
   return null;
 }
+
+export async function deleteGroup(groupID: string, whoUsingRN: string) {
+  // Find the group by its id
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupID,
+    },
+  });
+
+  if (!group) {
+    throw new Error(`Group with name ${groupID} not found.`);
+  }
+
+  const checkWhoMadeRequestRole = await prisma.groupUser.findFirst({
+    where: {
+      groupId: group.id,
+      userId: whoUsingRN,
+    },
+  });
+
+  if (!checkWhoMadeRequestRole) {
+    throw new Error(`User name ${checkWhoMadeRequestRole} not found.`);
+  }
+
+  if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER) {
+    await prisma.groupUser.deleteMany({
+      where: {
+        groupId: group.id,
+      },
+    });
+
+    return await prisma.groups.deleteMany({
+      where: {
+        id: group.id,
+      },
+    });
+  }
+  return null;
+}
