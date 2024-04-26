@@ -2,6 +2,7 @@ import { GroupUser, Groups, GroupsRoles, User } from "@prisma/client";
 
 import { getUserById } from "./user.server";
 import { prisma } from "~/db.server";
+import { Decimal } from "@prisma/client/runtime/library";
 interface OwnerGroup {
   group: Groups;
   owner: GroupUser & { user: User | null };
@@ -36,7 +37,7 @@ export async function createGroup(
         groupName: groupNameFromForm,
         groupShortDescription: groupShortDescriptionFromForm,
         groupFullDescription: groupFullDescriptionFromForm,
-        balance: "0",
+        balance: 0,
         users: {
           create: {
             userId: user.id,
@@ -572,5 +573,86 @@ export async function deleteGroup(groupID: string, whoUsingRN: string) {
       },
     });
   }
+  return null;
+}
+
+export async function sendMoneyToUser(
+  groupID: string,
+  whoUsingRNID: string,
+  userEmail: string,
+  moneyAmount: Decimal,
+) {
+  // Find the group by its id
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupID,
+    },
+  });
+
+  if (!group) {
+    throw new Error(`Group with name ${groupID} not found.`);
+  }
+
+  const checkWhoMadeRequestRole = await prisma.groupUser.findFirst({
+    where: {
+      groupId: group.id,
+      userId: whoUsingRNID,
+    },
+  });
+
+  if (!checkWhoMadeRequestRole) {
+    throw new Error(`User name ${checkWhoMadeRequestRole} not found.`);
+  }
+
+  const user = await prisma.user.findFirst({
+    where: {
+      email: userEmail,
+    },
+  });
+
+  if (!user) {
+    throw new Error(`User name ${user} not found.`);
+  }
+
+  const checkifuseringroup = await prisma.groupUser.findFirst({
+    where: {
+      userId: user.id,
+      groupId: group.id,
+    },
+  });
+
+  if (!checkifuseringroup) {
+    return null;
+  }
+
+  const currentGroupBalance = group.balance;
+  const changingGroupBalance =
+    Number(currentGroupBalance) - Number(moneyAmount);
+
+  const currentUserBalance = user.balance;
+  const changingUserBalance = Number(currentUserBalance) + Number(moneyAmount);
+
+  if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER) {
+    if (changingGroupBalance >= 0) {
+      await prisma.groups.updateMany({
+        where: {
+          id: group.id,
+        },
+        data: {
+          balance: changingGroupBalance,
+        },
+      });
+
+      return await prisma.user.updateMany({
+        where: {
+          id: user.id,
+        },
+        data: {
+          balance: changingUserBalance,
+        },
+      });
+    }
+  }
+
   return null;
 }

@@ -16,6 +16,7 @@ import {
   invitingUserToGroup,
   leaveGroup,
   removeUserFromGroup,
+  sendMoneyToUser,
 } from "~/models/groups.server";
 import { requireUser } from "~/session.server";
 export const meta: MetaFunction = () => [
@@ -97,6 +98,19 @@ export const action = async (actionArg) => {
     if (check) {
       return redirect("/groups");
     }
+  }
+
+  if (formid === "sendingMoney") {
+    const groupID = formData.get("group-name");
+    const whoMadeRequestID = formData.get("whoMadeRequestID");
+    const userEmailMoneySend = formData.get("userEmailMoneySend");
+    const moneyAmount = formData.get("moneyAmount");
+    const check = await sendMoneyToUser(
+      groupID,
+      whoMadeRequestID,
+      userEmailMoneySend,
+      moneyAmount,
+    );
   }
   return null;
 };
@@ -266,6 +280,74 @@ const GroupDetailPage = () => {
               </h1>
             </div>
           </div>
+        ) : null}
+
+        {activeTabUsers === "sendMoney" ? (
+          <>
+            <div className="flex flex-col items-center">
+              {" "}
+              {/* Center the content vertically */}
+              <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow mt-5">
+                <div className="flex flex-col items-center pb-10">
+                  <h5 className="mb-1 text-2xl font-medium text-gray-900 pt-5">
+                    Balansas
+                  </h5>
+                  <span className="text-5xl text-green-500">
+                    {groupInfo?.balance}€
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="pl-3">
+              <h1 className="font-bold text-1xl pt-4 text-wrap mb-5">
+                Reklamos informacijos keitimas:
+              </h1>
+              <Form method="post">
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <input name="form-id" hidden defaultValue="sendingMoney" />
+                    <input name="group-name" hidden defaultValue={groupId} />
+                    <input
+                      name="whoMadeRequestID"
+                      hidden
+                      defaultValue={userUsingRN.id}
+                    />
+                    <input
+                      id="userEmailMoneySend"
+                      name="userEmailMoneySend"
+                      type="text"
+                      autoComplete="on"
+                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                      placeholder="Vartotojo kuriame atliekate pavedima el. paštas"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <input
+                      id="moneyAmount"
+                      name="moneyAmount"
+                      type="number"
+                      step="0.01" // Allow increments of 0.01
+                      autoComplete="on"
+                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                      placeholder="Kiek norite pervesti?"
+                      min="0" // Optional: specify minimum value
+                      max="9999999.99" // Optional: specify maximum value
+                      pattern="^\d{1,10}(\.\d{1,2})?$" // Optional: client-side regex pattern validation
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full rounded bg-custom-800  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                >
+                  Atlikti pervedimą!
+                </button>
+              </Form>
+            </div>
+          </>
         ) : null}
 
         {activeTabUsers === "changeRole" ? (
@@ -524,6 +606,18 @@ const GroupDetailPage = () => {
                 onClick={() => handleTabClickUser("changeRole")}
               >
                 Pakeisti rolę
+              </button>
+            </div>
+            <div className="flex justify-center pb-2">
+              <button
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                  activeTabUsers === "sendMoney"
+                    ? "text-white  py-2 bg-custom-900  border-black "
+                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                } w-full`}
+                onClick={() => handleTabClickUser("sendMoney")}
+              >
+                Atlikti pervedimą
               </button>
             </div>
             <div className="flex justify-center pb-2">

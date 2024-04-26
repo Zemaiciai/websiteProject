@@ -61,6 +61,7 @@ model User {
   secondWarningDate DateTime?
   thirdWarning String?
   thirdWarningDate DateTime?
+  balance Decimal @db.Decimal(10,2)
 
   userStatus String
   banReason String?
@@ -157,7 +158,7 @@ model Groups{
   groupShortDescription String
   groupFullDescription String
   users                  GroupUser[]
-  balance String
+  balance Decimal @db.Decimal(10,2)
 }
 
 model GroupUser {
