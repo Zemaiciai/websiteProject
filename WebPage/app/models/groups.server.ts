@@ -404,3 +404,38 @@ export async function groupMemberRoleChange(
     });
   }
 }
+
+export async function groupInformationChange(
+  groupName: string,
+  groupNameChange: string,
+  groupShortDescriptionChange: string,
+  groupFullDescriptionChange: string,
+) {
+  // Find the group by its name
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupName,
+    },
+  });
+
+  if (!group) {
+    throw new Error(`Group with name ${groupName} not found.`);
+  }
+
+  if (
+    groupNameChange !== "" &&
+    groupShortDescriptionChange !== "" &&
+    groupFullDescriptionChange !== ""
+  ) {
+    return await prisma.groups.update({
+      where: {
+        id: group.id,
+      },
+      data: {
+        groupName: groupNameChange,
+        groupShortDescription: groupShortDescriptionChange,
+        groupFullDescription: groupFullDescriptionChange,
+      },
+    });
+  }
+}

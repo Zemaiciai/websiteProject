@@ -10,6 +10,7 @@ import {
   cancelInvite,
   getAllGroupUsers,
   getGroupByName,
+  groupInformationChange,
   groupMemberRoleChange,
   invitingUserToGroup,
   leaveGroup,
@@ -55,6 +56,27 @@ export const action = async (actionArg) => {
     const userEmailRoleChange = formData.get("userEmailRoleChange");
     const roleToChange = formData.get("roleToChange");
     groupMemberRoleChange(groupID, userEmailRoleChange, roleToChange);
+  }
+  if (formid === "changeSettings") {
+    const groupID = formData.get("group-name");
+    const groupNameChange = formData.get("groupNameChange");
+    const groupShortDescriptionChange = formData.get(
+      "groupShortDescriptionChange",
+    );
+    const groupFullDescriptionChange = formData.get(
+      "groupFullDescriptionChange",
+    );
+
+    const check = await groupInformationChange(
+      groupID,
+      groupNameChange,
+      groupShortDescriptionChange,
+      groupFullDescriptionChange,
+    );
+
+    if (check) {
+      return redirect("/groups");
+    }
   }
   return null;
 };
@@ -269,6 +291,77 @@ const GroupDetailPage = () => {
             </div>
           </>
         ) : null}
+
+        {activeTabUsers === "changeSettings" ? (
+          <>
+            <div className="pl-3">
+              <h1 className="font-bold text-1xl pt-4 text-wrap">
+                Grupės informacijos keitimas:
+              </h1>
+              <Form method="post">
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <input
+                      name="form-id"
+                      hidden
+                      defaultValue="changeSettings"
+                    />
+                    <input name="group-name" hidden defaultValue={groupId} />
+                    <h1 className=" text-1xl pt-2 text-wrap mb-1">
+                      Grupės pavadinimas:
+                    </h1>
+                    <input
+                      id="groupNameChange"
+                      name="groupNameChange"
+                      type="text"
+                      autoComplete="on"
+                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                      defaultValue={groupInfo?.groupName}
+                    />
+                    <h1 className=" text-1xl pt-2 text-wrap mb-1">
+                      Grupės apibūdinimas:
+                    </h1>
+                    <input
+                      id="groupShortDescriptionChange"
+                      name="groupShortDescriptionChange"
+                      type="text"
+                      autoComplete="on"
+                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                      defaultValue={groupInfo?.groupShortDescription}
+                    />
+                  </div>
+
+                  {/* New textarea field */}
+                  <div className="w-full px-3">
+                    <div className="flex flex-col">
+                      <div className="relative">
+                        <h1 className=" text-1xl pt-2 text-wrap mb-1">
+                          Grupės aprašymas:
+                        </h1>
+                        <textarea
+                          id="groupFullDescriptionChange"
+                          name="groupFullDescriptionChange"
+                          autoComplete="on"
+                          className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black resize-none"
+                          defaultValue={groupInfo?.groupFullDescription}
+                          style={{ resize: "none" }} // Disable resizing
+                          rows={7}
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full rounded bg-custom-800  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                >
+                  Atnaujinti grupės informacija!
+                </button>
+              </Form>
+            </div>
+          </>
+        ) : null}
       </div>
 
       <div className="p-6 bg-custom-200 text-medium mt-3 mr-3 ">
@@ -307,7 +400,7 @@ const GroupDetailPage = () => {
                 } w-full`}
                 onClick={() => handleTabClickUser("changeSettings")}
               >
-                Keisti nustatymus
+                Keisti informacija
               </button>
             </div>
             <div className="flex justify-center pb-2">
