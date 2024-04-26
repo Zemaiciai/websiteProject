@@ -5,6 +5,7 @@ import { Form, Link, json, useLoaderData } from "@remix-run/react";
 import { group } from "console";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import { getMoneyLogsByGroupId } from "~/models/groupBalanceLog.server";
 import {
   acceptInvite,
   cancelInvite,
@@ -123,12 +124,15 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   }
   const groupInfo = await getGroupByName(groupId);
   const groupUsers = await getAllGroupUsers(groupId);
-  return json({ groupInfo, groupUsers, userUsingRN });
+
+  const balanceLogs = await getMoneyLogsByGroupId(String(groupInfo?.id));
+  return json({ groupInfo, groupUsers, userUsingRN, balanceLogs });
 };
 
 const GroupDetailPage = () => {
   const { groupId } = useParams();
-  const { groupInfo, groupUsers, userUsingRN } = useLoaderData<typeof loader>();
+  const { groupInfo, groupUsers, userUsingRN, balanceLogs } =
+    useLoaderData<typeof loader>();
   const [activeTabUsers, setActiveTabUsers] = useState("mainPage");
   const handleTabClickUser = (tab: string) => {
     setActiveTabUsers(tab);
@@ -261,25 +265,58 @@ const GroupDetailPage = () => {
         ) : null}
 
         {activeTabUsers === "viewBalance" ? (
-          <div className="flex flex-col items-center">
-            {" "}
-            {/* Center the content vertically */}
-            <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow mt-5">
+          <>
+            <div className="w-full  bg-white border border-gray-200 rounded-lg shadow mt-5">
               <div className="flex flex-col items-center pb-10">
-                <h5 className="mb-1 text-2xl font-medium text-gray-900 pt-5">
+                <h1 className="mb-1 text-2xl font-medium text-gray-900 pt-5">
                   Balansas
-                </h5>
+                </h1>
                 <span className="text-5xl text-green-500">
                   {groupInfo?.balance}€
                 </span>
               </div>
             </div>
             <div className="mt-5 text-left">
-              <h1 className="font-bold text-2xl">
-                Balanso pokyčiai: [NOT IMPLEMENTED]
-              </h1>
+              <h1 className="font-bold text-2xl">Balanso pokyčiai:</h1>
             </div>
-          </div>
+            <div>
+              <div className="flex justify-between pb-5"></div>
+              <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
+                    <tr>
+                      <th scope="col" className="p-4">
+                        Pervedimą atliko
+                      </th>
+                      <th scope="col" className="p-4">
+                        Balanso pokyčio aprašymas
+                      </th>
+                      <th scope="col" className="p-4">
+                        Balansas pasikeitė iš
+                      </th>
+                      <th scope="col" className="p-4">
+                        Balansas pasikeitė į
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Map through all balance logs and render table rows */}
+                    {balanceLogs.map((log) => (
+                      <tr
+                        key={log.id}
+                        className="bg-white border-b  hover:bg-gray-50 "
+                      >
+                        <td className="px-6 py-4">{log.whoDidChanges}</td>
+                        <td className="px-6 py-4">{log.description}</td>
+                        <td className="px-6 py-4">{log.balanceFrom}</td>
+                        <td className="px-6 py-4">{log.balanceTo}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
         ) : null}
 
         {activeTabUsers === "sendMoney" ? (
