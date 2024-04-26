@@ -1,6 +1,6 @@
 // groups.$groupId.tsx
 import { GroupsRoles } from "@prisma/client";
-import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
 import { Form, Link, json, useLoaderData } from "@remix-run/react";
 import { group } from "console";
 import React, { useState } from "react";
@@ -10,6 +10,7 @@ import {
   cancelInvite,
   getAllGroupUsers,
   getGroupByName,
+  groupMemberRoleChange,
   invitingUserToGroup,
   leaveGroup,
 } from "~/models/groups.server";
@@ -36,14 +37,25 @@ export const action = async (actionArg) => {
   if (formid === "declineInvite") {
     const groupID = formData.get("group-name");
     const inviteUserName = formData.get("user");
-    cancelInvite(groupID, inviteUserName);
+    const check = await cancelInvite(groupID, inviteUserName);
+    if (check) {
+      return redirect("/groups");
+    }
   }
   if (formid === "leaveGroup") {
     const groupID = formData.get("group-name");
     const userName = formData.get("user");
-    leaveGroup(groupID, userName);
+    const check = await leaveGroup(groupID, userName);
+    if (check) {
+      return redirect("/groups");
+    }
   }
-
+  if (formid === "userRoleChange") {
+    const groupID = formData.get("group-name");
+    const userEmailRoleChange = formData.get("userEmailRoleChange");
+    const roleToChange = formData.get("roleToChange");
+    groupMemberRoleChange(groupID, userEmailRoleChange, roleToChange);
+  }
   return null;
 };
 
@@ -153,41 +165,30 @@ const GroupDetailPage = () => {
 
         {activeTabUsers === "inviteMember" ? (
           <>
-            <div>
-              <h1 className="font-bold text-1xl pt-4 pl-3 text-wrap mb-5">
+            <div className="pl-3">
+              <h1 className="font-bold text-1xl pt-4 text-wrap mb-5">
                 Nario pakvietimas:
               </h1>
               <Form method="post">
-                <div className="flex flex-wrap mb-4">
-                  <div className="w-full px-10">
-                    <div className="flex flex-col">
-                      <div className="relative">
-                        <input
-                          name="form-id"
-                          hidden
-                          defaultValue="userInvite"
-                        />
-                        <input
-                          name="group-name"
-                          hidden
-                          defaultValue={groupId}
-                        />
-                        <input
-                          id="inviteUserName"
-                          name="inviteUserName"
-                          type="text"
-                          autoComplete="on"
-                          aria-describedby="email-error"
-                          className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none"
-                          placeholder="Vartotojo vardas"
-                        />
-                      </div>
-                    </div>
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <input name="form-id" hidden defaultValue="userInvite" />
+                    <input name="group-name" hidden defaultValue={groupId} />
+                    <input
+                      id="inviteUserName"
+                      name="inviteUserName"
+                      type="text"
+                      autoComplete="on"
+                      aria-describedby="email-error"
+                      className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none"
+                      placeholder="Vartotojo vardas"
+                    />
                   </div>
                 </div>
+
                 <button
                   type="submit"
-                  className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                  className="w-full rounded bg-custom-800  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
                 >
                   Pakviesti!
                 </button>
@@ -216,6 +217,57 @@ const GroupDetailPage = () => {
               </h1>
             </div>
           </div>
+        ) : null}
+
+        {activeTabUsers === "changeRole" ? (
+          <>
+            <div className="pl-3">
+              <h1 className="font-bold text-1xl pt-4 text-wrap mb-5">
+                Reklamos informacijos keitimas:
+              </h1>
+              <Form method="post">
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <input
+                      name="form-id"
+                      hidden
+                      defaultValue="userRoleChange"
+                    />
+                    <input name="group-name" hidden defaultValue={groupId} />
+                    <input
+                      id="userEmailRoleChange"
+                      name="userEmailRoleChange"
+                      type="text"
+                      autoComplete="on"
+                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                      placeholder="Vartotojo el. paštas"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <select
+                      id="roleToChange"
+                      name="roleToChange"
+                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                    >
+                      <option value="holder">Pasirinkti rolę</option>
+                      <option value="member">Narys</option>
+                      <option value="moderator">Moderatorius</option>
+                      <option value="owner">Vadovas</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full rounded bg-custom-800  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                >
+                  Pakeisti rolę!
+                </button>
+              </Form>
+            </div>
+          </>
         ) : null}
       </div>
 
@@ -291,6 +343,18 @@ const GroupDetailPage = () => {
 
         {OwnerPermissions && (
           <>
+            <div className="flex justify-center pb-2">
+              <button
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                  activeTabUsers === "changeRole"
+                    ? "text-white  py-2 bg-custom-900  border-black "
+                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                } w-full`}
+                onClick={() => handleTabClickUser("changeRole")}
+              >
+                Pakeisti rolę
+              </button>
+            </div>
             <div className="flex justify-center pb-2">
               <Form method="post">
                 <input name="form-id" hidden defaultValue="deleteGroup" />

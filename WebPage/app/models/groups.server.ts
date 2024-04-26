@@ -341,3 +341,66 @@ export async function leaveGroup(groupID: string, inviteUserID: string) {
   }
   return null;
 }
+
+export async function groupMemberRoleChange(
+  groupName: string,
+  userEmail: string,
+  roleToChange: string,
+) {
+  // Find the group by its name
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupName,
+    },
+  });
+
+  if (!group) {
+    throw new Error(`Group with name ${groupName} not found.`);
+  }
+
+  // Find the user by their email
+  const user = await prisma.user.findFirst({
+    where: {
+      email: userEmail,
+    },
+  });
+
+  if (!user) {
+    throw new Error(`User with email ${userEmail} not found.`);
+  }
+
+  if (roleToChange === "member") {
+    return await prisma.groupUser.updateMany({
+      where: {
+        userId: user.id,
+        groupId: group.id,
+      },
+      data: {
+        role: GroupsRoles.MEMBER, // Assuming "MEMBER" is a valid role
+      },
+    });
+  }
+  if (roleToChange === "moderator") {
+    return await prisma.groupUser.updateMany({
+      where: {
+        userId: user.id,
+        groupId: group.id,
+      },
+      data: {
+        role: GroupsRoles.MODERATOR, // Assuming "MEMBER" is a valid role
+      },
+    });
+  }
+
+  if (roleToChange === "owner") {
+    return await prisma.groupUser.updateMany({
+      where: {
+        userId: user.id,
+        groupId: group.id,
+      },
+      data: {
+        role: GroupsRoles.OWNER, // Assuming "MEMBER" is a valid role
+      },
+    });
+  }
+}
