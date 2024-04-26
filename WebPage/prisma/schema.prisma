@@ -171,6 +171,15 @@ model GroupUser {
   percentage String?
 }
 
+model GroupBalanceLog{
+  id String @id @default(cuid())
+  groupId String
+  whoDidChanges String
+  description String
+  balanceFrom Decimal @db.Decimal(10,2)
+  balanceTo Decimal @db.Decimal(10,2)
+}
+
 
 
 model FriendshipRequest {

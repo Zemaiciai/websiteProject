@@ -3,6 +3,7 @@ import { GroupUser, Groups, GroupsRoles, User } from "@prisma/client";
 import { getUserById } from "./user.server";
 import { prisma } from "~/db.server";
 import { Decimal } from "@prisma/client/runtime/library";
+import { createSendingMoneyLog } from "./groupBalanceLog.server";
 interface OwnerGroup {
   group: Groups;
   owner: GroupUser & { user: User | null };
@@ -638,7 +639,14 @@ export async function sendMoneyToUser(
 
   if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER) {
     if (changingGroupBalance >= 0) {
-      await prisma.groups.updateMany({
+      createSendingMoneyLog(
+        group.id,
+        whoUsingRNID,
+        user.userName,
+        Number(currentGroupBalance),
+        Number(changingGroupBalance),
+      );
+      await await prisma.groups.updateMany({
         where: {
           id: group.id,
         },
