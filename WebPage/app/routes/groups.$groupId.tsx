@@ -14,6 +14,7 @@ import {
   groupMemberRoleChange,
   invitingUserToGroup,
   leaveGroup,
+  removeUserFromGroup,
 } from "~/models/groups.server";
 import { requireUser } from "~/session.server";
 export const meta: MetaFunction = () => [
@@ -77,6 +78,16 @@ export const action = async (actionArg) => {
     if (check) {
       return redirect("/groups");
     }
+  }
+  if (formid === "userRemove") {
+    const groupID = formData.get("group-name");
+    const removeUserEmail = formData.get("removeUserEmail");
+    const whoMadeRequestId = formData.get("whoMadeRequest");
+    const check = await removeUserFromGroup(
+      groupID,
+      removeUserEmail,
+      whoMadeRequestId,
+    );
   }
   return null;
 };
@@ -292,6 +303,45 @@ const GroupDetailPage = () => {
           </>
         ) : null}
 
+        {activeTabUsers === "removeMember" ? (
+          <>
+            <div className="pl-3">
+              <h1 className="font-bold text-1xl pt-4 text-wrap mb-5">
+                Nario išmetimas:
+              </h1>
+              <Form method="post">
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <input name="form-id" hidden defaultValue="userRemove" />
+                    <input name="group-name" hidden defaultValue={groupId} />
+                    <input
+                      name="whoMadeRequest"
+                      hidden
+                      defaultValue={userUsingRN.id}
+                    />
+                    <input
+                      id="removeUserEmail"
+                      name="removeUserEmail"
+                      type="text"
+                      autoComplete="on"
+                      aria-describedby="email-error"
+                      className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none"
+                      placeholder="Vartotojo el. paštas"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full rounded bg-custom-800  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                >
+                  Išmesti!
+                </button>
+              </Form>
+            </div>
+          </>
+        ) : null}
+
         {activeTabUsers === "changeSettings" ? (
           <>
             <div className="pl-3">
@@ -413,6 +463,18 @@ const GroupDetailPage = () => {
                 onClick={() => handleTabClickUser("inviteMember")}
               >
                 Pakviesti vartotoją
+              </button>
+            </div>
+            <div className="flex justify-center pb-2">
+              <button
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                  activeTabUsers === "removeMember"
+                    ? "text-white  py-2 bg-custom-900  border-black "
+                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                } w-full`}
+                onClick={() => handleTabClickUser("removeMember")}
+              >
+                Išmesti vartotoją
               </button>
             </div>
           </>

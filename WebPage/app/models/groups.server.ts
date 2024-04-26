@@ -439,3 +439,99 @@ export async function groupInformationChange(
     });
   }
 }
+
+export async function removeUserFromGroup(
+  groupID: string,
+  removeUserEmail: string,
+  whoMadeRequest: string,
+) {
+  // Find the group by its id
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupID,
+    },
+  });
+
+  if (!group) {
+    throw new Error(`Group with name ${groupID} not found.`);
+  }
+
+  // Find the user by their id
+  const removeUser = await prisma.user.findFirst({
+    where: {
+      email: removeUserEmail,
+    },
+  });
+
+  const whoMadeRequestToRemove = await prisma.user.findFirst({
+    where: {
+      id: whoMadeRequest,
+    },
+  });
+
+  if (!removeUser) {
+    throw new Error(`User with username ${removeUser} not found.`);
+  }
+
+  if (!whoMadeRequestToRemove) {
+    throw new Error(`Who made request ${whoMadeRequestToRemove} not found.`);
+  }
+
+  const checkWhoMadeRequestRole = await prisma.groupUser.findFirst({
+    where: {
+      groupId: group.id,
+      userId: whoMadeRequestToRemove.id,
+    },
+  });
+
+  if (!checkWhoMadeRequestRole) {
+    throw new Error(`Who made request ${checkWhoMadeRequestRole} not found.`);
+  }
+
+  if (checkWhoMadeRequestRole.role === GroupsRoles.MODERATOR) {
+    const checkUserRole = await prisma.groupUser.findFirst({
+      where: {
+        groupId: group.id,
+        userId: removeUser.id,
+      },
+    });
+
+    if (
+      checkUserRole?.role === GroupsRoles.MEMBER ||
+      checkUserRole?.role === GroupsRoles.INVITED
+    ) {
+      const deletedUser = await prisma.groupUser.deleteMany({
+        where: {
+          userId: removeUser.id,
+          groupId: group.id,
+        },
+      });
+      return deletedUser;
+    }
+  }
+
+  if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER) {
+    const checkUserRole = await prisma.groupUser.findFirst({
+      where: {
+        groupId: group.id,
+        userId: removeUser.id,
+      },
+    });
+
+    if (
+      checkUserRole?.role === GroupsRoles.MEMBER ||
+      checkUserRole?.role === GroupsRoles.MODERATOR ||
+      checkUserRole?.role === GroupsRoles.INVITED
+    ) {
+      const deletedUser = await prisma.groupUser.deleteMany({
+        where: {
+          userId: removeUser.id,
+          groupId: group.id,
+        },
+      });
+      return deletedUser;
+    }
+  }
+
+  return null;
+}
