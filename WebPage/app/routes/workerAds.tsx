@@ -2,7 +2,6 @@ import { MetaFunction, Outlet } from "@remix-run/react";
 import { useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
-import NewFooter from "~/components/newFooter/NewFooter";
 export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
 const Dashboard = () => {
@@ -18,14 +17,14 @@ const Dashboard = () => {
         <NavBar
           title={"Žemaičiai"}
           handleTabClick={handleTabClick}
-          redirectTo={"groups"}
+          redirectTo={"workerAds"}
           activeTab={activeTab}
           tabTitles={["Orders", "Admin", "Messages", "Profile"]}
         />
       </div>
 
       <div className="w-screen h-screen flex flex-grow flex-col bg-custom-100 pb-3">
-        <NavBarHeader title={`${activeTab ? "Grupės sukurimas" : "Grupės"}`} />
+        <NavBarHeader title={`${activeTab ? "Reklamos" : "Grupės"}`} />
         <div className="flex justify-between">
           <Outlet />
         </div>

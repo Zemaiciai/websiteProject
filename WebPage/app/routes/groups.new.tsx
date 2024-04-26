@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
 import { Form, json, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import GroupsCreationInformation from "~/components/Groups/groupsCreationInformation";
@@ -27,8 +27,11 @@ export const action = async (actionArg) => {
     ownerUserID,
   );
 
-  // Return the created group or any other value you need
-  return createdGroup;
+  if (createdGroup) {
+    return redirect("/groups");
+  }
+
+  return null;
 };
 
 export default function NewOrderPage() {

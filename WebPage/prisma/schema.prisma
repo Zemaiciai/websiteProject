@@ -188,3 +188,14 @@ enum FriendshipRequestStatus {
   ACCEPTED
   REJECTED
 }
+
+model WorkerAds{
+  id String @id @default(cuid())
+  adsName String
+  adsDescription String
+  adsExamples String[]
+  userid String
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
