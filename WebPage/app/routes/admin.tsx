@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { error } from "console";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getAllLogs } from "~/models/adminLogs.server";
 import {
   createMessage,
@@ -230,8 +230,8 @@ export const action = async (actionArg) => {
 export default function NotesPage() {
   // Admin page tabs
   const [activeTab, setActiveTab] = useState("Dashboard");
-  const [popupOpen, setPopupOpen] = useState(false);
 
+  const [popupOpen, setPopupOpen] = useState(false);
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
   };
@@ -240,11 +240,11 @@ export default function NotesPage() {
   const handleTabClickUser = (tab: string) => {
     setActiveTabUsers(tab);
   };
-
   const togglePopup = () => {
-    setPopupOpen(!popupOpen);
+    setTimeout(() => {
+      if (!actionData?.findingUserEmail) setPopupOpen(!popupOpen);
+    }, 50);
   };
-
   const data = useLoaderData<typeof loader>();
 
   const emailRef = useRef<HTMLInputElement>(null);
@@ -572,16 +572,12 @@ export default function NotesPage() {
                       <button
                         type="submit"
                         className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
-                        onClick={
-                          actionData && !actionData.findingUserEmail
-                            ? togglePopup
-                            : undefined
-                        }
+                        onClick={togglePopup}
                       >
                         Ieškoti
                       </button>
 
-                      {popupOpen ? (
+                      {!actionData?.findingUserEmail && popupOpen ? (
                         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10 overflow-y-auto">
                           <div className="bg-custom-100 p-3 rounded-lg shadow-md text-center">
                             {userList ? (
