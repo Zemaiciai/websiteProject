@@ -190,7 +190,7 @@ export const action = async (actionArg) => {
       return json(changeUserInfoErrors);
     }
 
-    return changeUserInformation(
+    const userchange = await changeUserInformation(
       emailID,
       firstNameChange,
       lastNameChange,
@@ -201,6 +201,8 @@ export const action = async (actionArg) => {
       percentage,
       adminUserName,
     );
+    if (userchange) return userchange;
+    else return null;
   } else if (formId === "websiteMessageCreation") {
     const customNameForMessages = formData.get("customName");
     const importanceForMessages = formData.get("importance");
@@ -245,6 +247,13 @@ export default function NotesPage() {
       if (!actionData?.findingUserEmail) setPopupOpen(!popupOpen);
     }, 50);
   };
+
+  function handleSubmit() {
+    setTimeout(() => {
+      setActiveTab("Users");
+      setActiveTabUsers("changeUserInformation");
+    }, 500);
+  }
   const data = useLoaderData<typeof loader>();
 
   const emailRef = useRef<HTMLInputElement>(null);

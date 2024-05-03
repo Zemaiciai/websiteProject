@@ -22,6 +22,12 @@ import {
   rejectFriendshipRequest,
 } from "~/models/friendshipRequest.server";
 import { typedjson } from "remix-typedjson";
+import {
+  createSocialMedia,
+  getSocialMediaByUserId,
+  updateSocialMedia,
+} from "~/models/socialMedia.server";
+import { socialMedia } from "@prisma/client";
 export const meta: MetaFunction = () => [
   { title: "Profilio peržiūra - Žemaičiai" },
 ];
@@ -31,6 +37,7 @@ interface LoaderData {
   checkPendingStatusRequesteer: boolean;
   checkPendingStatusRequested: boolean;
   CurrentlyFriends: boolean;
+  socialMediaLinks: socialMedia | null;
 }
 
 export const loader = async ({
@@ -55,19 +62,56 @@ export const loader = async ({
 
   const user = await getUserById(userProfileId);
 
+  const socialMediaLinks = await getSocialMediaByUserId(user2.id);
+
   return user
     ? {
         user,
         checkPendingStatusRequesteer,
         checkPendingStatusRequested,
         CurrentlyFriends,
+        socialMediaLinks,
       }
     : null;
 };
-
+interface Errors {
+  fbLinkError?: string;
+  igLinkError?: string;
+  twLinkError?: string;
+}
 export const action = async (actionArg) => {
   const formData = await actionArg.request.formData();
+  const errors: Errors = {};
   const formid = formData.get("form-id");
+  if (formid === "socialMedia") {
+    const fbLinkRegex =
+      /^(https?:\/\/)?(www\.)?facebook\.com\/[a-zA-Z0-9._-]+\/?$/;
+    const igLinkRegex =
+      /^(https?:\/\/)?(www\.)?instagram\.com\/[a-zA-Z0-9._-]+\/?$/;
+    const twLinkRegex =
+      /^(https?:\/\/)?(www\.)?twitter\.com\/[a-zA-Z0-9._-]+\/?$/;
+    const fbLinkt = fbLinkRegex.test(formData.get("fblink"));
+    const igLinkt = igLinkRegex.test(formData.get("iglink"));
+    const twLinkt = twLinkRegex.test(formData.get("twlink"));
+    const fbLink = formData.get("fblink");
+    const igLink = formData.get("iglink");
+    const twLink = formData.get("twlink");
+    //VALIDATION
+    if (!fbLinkt) {
+      errors.fbLinkError = "Nuoroda neatitinka formato";
+    }
+    //TODO IKI GALO DAMUST VALIDATIONIUS, PADARYT KAD NEREAGUOTU JEI NEIVEDE NIEKO, PERSIUST ERRORUS I KITA FAILA
+    //VALIDATION
+
+    const user = formData.get("userid");
+    const socialmed = await getSocialMediaByUserId(user);
+    if (socialmed) {
+      updateSocialMedia(socialmed.id, fbLink, igLink, twLink);
+    } else {
+      createSocialMedia(String(fbLink), String(igLink), String(twLink), user);
+    }
+    return null;
+  }
 
   if (formid === "sendInvite") {
     const whoSentRequest = formData.get("whoSentInvite");
@@ -103,7 +147,7 @@ export const action = async (actionArg) => {
     deleteFromFriends(whoSentRequest, whoGotRequest);
     return null;
   }
-  return;
+  return null;
 };
 
 export default function NoteDetailsPage() {
@@ -113,6 +157,7 @@ export default function NoteDetailsPage() {
     checkPendingStatusRequesteer,
     checkPendingStatusRequested,
     CurrentlyFriends,
+    socialMediaLinks,
   } = useLoaderData<LoaderData>();
 
   const [linkClicked, setLinkClicked] = useState(false);
@@ -141,6 +186,7 @@ export default function NoteDetailsPage() {
           checkPendingStatusRequesteer={checkPendingStatusRequesteer}
           checkPendingStatusRequested={checkPendingStatusRequested}
           CurrentlyFriends={CurrentlyFriends}
+          socialMediaLinks={socialMediaLinks}
         />
         <ProfilePageTabs user={user} />
       </div>

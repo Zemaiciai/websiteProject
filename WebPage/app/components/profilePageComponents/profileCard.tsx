@@ -7,7 +7,7 @@ import ProfilePageEditDropBox from "./profilePageEditDropBox";
 import ProfilePageTabs from "./profilePageTabs";
 import UserInfo from "./userInfo";
 import UserRatingAndOther from "./userRatingAndButtons";
-import { User } from "@prisma/client";
+import { User, socialMedia } from "@prisma/client";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
@@ -19,6 +19,7 @@ interface ProfileCardProps {
   checkPendingStatusRequesteer: boolean;
   checkPendingStatusRequested: boolean;
   CurrentlyFriends: boolean;
+  socialMediaLinks: socialMedia | null;
 }
 
 export default function ProfileCard({
@@ -26,6 +27,7 @@ export default function ProfileCard({
   checkPendingStatusRequesteer,
   checkPendingStatusRequested,
   CurrentlyFriends,
+  socialMediaLinks,
 }: ProfileCardProps) {
   return (
     <div className="profileCardDiv w-full h-full static">
@@ -41,7 +43,7 @@ export default function ProfileCard({
         </div>
       </div>
       <div className="infoDiv w-full h-[200px] flex space-x-20">
-        <UserInfo user={user} />
+        <UserInfo user={user} socialMediaLinks={socialMediaLinks} />
         <UserRatingAndOther
           user={user}
           checkPendingStatusRequesteer={checkPendingStatusRequesteer}
