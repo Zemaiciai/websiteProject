@@ -9,6 +9,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import { typedjson } from "remix-typedjson";
 
 import { getUser } from "~/session.server";
 import stylesheet from "~/tailwind.css";
@@ -19,7 +20,9 @@ export const links: LinksFunction = () => [
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  return json({ user: await getUser(request) });
+  const user = await getUser(request);
+
+  return typedjson({ user: user, notifications: user?.notificationsRecieved });
 };
 
 export default function App() {

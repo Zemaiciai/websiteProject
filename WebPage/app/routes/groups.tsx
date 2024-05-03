@@ -2,10 +2,9 @@ import { MetaFunction, Outlet } from "@remix-run/react";
 import { useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
-import NewFooter from "~/components/newFooter/NewFooter";
 export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
-const Dashboard = () => {
+export default function Groups() {
   const [activeTab, setActiveTab] = useState("myGroups");
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
@@ -32,6 +31,4 @@ const Dashboard = () => {
       </div>
     </div>
   );
-};
-
-export default Dashboard;
+}
