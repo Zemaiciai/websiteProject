@@ -1,15 +1,9 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 
-import Header from "~/components/common/header/header";
 import ProfilePageTabs from "~/components/profilePageComponents/profilePageTabs";
-import { useUser } from "~/utils";
 
 import ProfileCard from "../components/profilePageComponents/profileCard";
-import { redirect, useLoaderData } from "@remix-run/react";
-import { User, getUserById } from "~/models/user.server";
-import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
-import { useState } from "react";
-import NavBar from "~/components/common/NavBar/NavBar";
+import { getUserById } from "~/models/user.server";
 import { requireUser } from "~/session.server";
 import {
   acceptFriendshipRequest,
@@ -25,13 +19,6 @@ import { typedjson, useTypedLoaderData } from "remix-typedjson";
 export const meta: MetaFunction = () => [
   { title: "Profilio peržiūra - Žemaičiai" },
 ];
-
-interface LoaderData {
-  user: User;
-  checkPendingStatusRequesteer: boolean;
-  checkPendingStatusRequested: boolean;
-  CurrentlyFriends: boolean;
-}
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = request.url;
@@ -101,20 +88,9 @@ export const action = async (actionArg) => {
 };
 
 export default function NoteDetailsPage() {
-  const OGuser = useUser();
   const data = useTypedLoaderData<typeof loader>();
-
-  const [linkClicked, setLinkClicked] = useState(false);
-  const [activeTab, setActiveTab] = useState("");
-  const handleTabClick = (tab: string) => {
-    setActiveTab(tab);
-  };
-
   return (
     <div className="main-div">
-      <NavBarHeader
-        title={`${linkClicked ? "Profilio puslapis" : "Profilio puslapis"}`}
-      />
       <div className="profilePageDiv">
         <ProfileCard
           user={data.user}

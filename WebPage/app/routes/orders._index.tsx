@@ -37,7 +37,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (!order) return null;
 
   const worker = await getUserById(order.workerId);
-  const customer = await getUserById(order.customerId);
 
   let newStatus: OrderStatus | undefined;
 

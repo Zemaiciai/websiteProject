@@ -20,7 +20,6 @@ export default function NoteDetailsPage() {
   return (
     <div className="main-div">
       <div className="profilePageDiv">
-        <ProfileCard />
         <ProfileSettings />
         <div className="profileImageDiv absolute top-0 left-20 mt-28 rounded-full outline-4 outline-white outline shadow-xl">
           <img

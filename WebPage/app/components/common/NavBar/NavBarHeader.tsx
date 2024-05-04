@@ -1,14 +1,19 @@
 import { Form, Link } from "@remix-run/react";
 import { useState, useEffect, useRef } from "react";
 
-import { useOptionalUser, useUser } from "~/utils";
+import { useOptionalUser } from "~/utils";
 import Notifications from "../Notifications";
+import { Notification } from "@prisma/client";
 
 interface NavBarHeaderProps {
   title: string;
+  notifications: Notification[] | null;
 }
 
-export default function NavBarHeader({ title }: NavBarHeaderProps) {
+export default function NavBarHeader({
+  title,
+  notifications,
+}: NavBarHeaderProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -135,7 +140,12 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
               alt="sugedo"
               onClick={handleNotificationsClick}
             />
-            {showNotifications && <Notifications />}
+            {showNotifications && (
+              <Notifications
+                notifications={notifications}
+                handleNotificationsClick={handleNotificationsClick}
+              />
+            )}
           </div>
           <Link to="/dashboard" className="btn btn-primary">
             <div style={{ display: "flex", alignItems: "center" }}>

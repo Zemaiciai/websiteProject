@@ -23,13 +23,6 @@ export async function getUserById(id: string) {
   });
 }
 
-export async function getUserByIdIncludeNotifications(id: string) {
-  return prisma.user.findUnique({
-    where: { id },
-    include: { notificationsRecieved: true },
-  });
-}
-
 export async function getUserByEmail(email: User["email"]) {
   return prisma.user.findUnique({ where: { email } });
 }

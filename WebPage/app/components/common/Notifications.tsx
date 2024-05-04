@@ -1,13 +1,17 @@
 import { NotificationTypes } from "@prisma/client";
 import { Link } from "@remix-run/react";
 import useHowLongAgo from "~/hooks/useHowLongAgo";
-import { useOptionalNotifications, useUser } from "~/utils";
 import { Notification } from "@prisma/client";
 
-export default function Notifications() {
-  const notifications = useOptionalNotifications();
-  const user = useUser();
+interface NotificationsProps {
+  notifications: Notification[] | null;
+  handleNotificationsClick: () => void;
+}
 
+export default function Notifications({
+  notifications,
+  handleNotificationsClick,
+}: NotificationsProps) {
   /*
    * TODO: Redirect to the specific order that has been
    * assigned, accpeted, declined, changed status, completed, payed
@@ -60,7 +64,7 @@ export default function Notifications() {
               className="flex px-1 py-2 first:pt-2 hover:bg-gray-200"
             >
               <Link to={handleNotificationClick(n.notificationType, n)}>
-                <div className="flex">
+                <div className="flex" onClick={handleNotificationsClick}>
                   {n.message}
                   <span className="text-[#626f86] font-normal text-sm pl-1">
                     {useHowLongAgo(new Date(n.createdAt))}
