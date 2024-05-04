@@ -5,12 +5,20 @@ import { Notification } from "@prisma/client";
 import { useTypedLoaderData } from "remix-typedjson";
 import { loader } from "~/root";
 import Arrow from "~/assets/icons/Arrow/Arrow";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Notifications() {
   const { allNotifications } = useTypedLoaderData<typeof loader>();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [hideSeen, setHideSeen] = useState(false);
+  const [hideSeen, setHideSeen] = useState<boolean>(() => {
+    const storedHideSeen = localStorage.getItem("hideSeen");
+    return storedHideSeen ? JSON.parse(storedHideSeen) : false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("hideSeen", JSON.stringify(hideSeen));
+  }, [hideSeen]);
+
   const location = useLocation();
   const handleFormSubmission = (form: HTMLFormElement | null) => {
     if (form) {
@@ -22,7 +30,6 @@ export default function Notifications() {
     if (containerRef.current) {
       containerRef.current.scrollTop = 0;
     }
-
     setHideSeen(!hideSeen);
   };
 
