@@ -122,13 +122,16 @@ const GroupDetailPage = () => {
                 Paskyros statusas: {getAddOwner?.userStatus}
               </h1>
             </div>
-            <div>
+            <div className="">
               <h1 className="font-bold text-1xl pt-4 pl-3 text-wrap">
                 Reklamos aprašymas:
               </h1>
-              <h1 className=" text-1xl pt-1 pl-3 text-wrap">
+              <textarea
+                className="text-1xl pt-1 pl-3 text-wrap break-words w-full h-[250px] resize-none"
+                readOnly
+              >
                 {getGroup?.adsDescription}
-              </h1>
+              </textarea>
             </div>
             <div>
               <h1 className="font-bold text-1xl pt-4 pl-3 text-wrap">
