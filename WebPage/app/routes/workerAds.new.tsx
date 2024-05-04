@@ -9,7 +9,6 @@ export const meta: MetaFunction = () => [
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
-  console.log(user.email);
 
   if (user.role !== "Darbuotojas") {
     return redirect("/workerAds");

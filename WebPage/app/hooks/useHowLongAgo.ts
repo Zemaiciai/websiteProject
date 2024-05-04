@@ -4,8 +4,6 @@ export default function useHowLongAgo(date: Date) {
   if (yearsAgo > 0) return "Senai senai";
   const monthsAgo = date.getMonth() + yearsAgo * 12 - currentDate.getMonth();
 
-  console.log(monthsAgo);
-
   const msAgo = currentDate.getTime() - date.getTime();
 
   let secondsAgo = Math.trunc(Math.abs(msAgo) / 1000);
@@ -15,6 +13,8 @@ export default function useHowLongAgo(date: Date) {
   secondsAgo -= hoursAgo * 3600;
   const minutesAgo = Math.trunc(secondsAgo / 60) % 60;
   secondsAgo -= minutesAgo * 60;
+
+  console.log("minutesAgo: ", minutesAgo);
 
   if (monthsAgo > 0) return `prieš ${monthsAgo} mėn.`;
   else if (daysAgo > 0) return `prieš ${daysAgo} d.`;

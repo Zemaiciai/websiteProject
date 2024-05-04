@@ -8,7 +8,6 @@ export const meta: MetaFunction = () => [{ title: "Nauja grupė - Žemaičiai" }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
-  console.log(user.email);
   return json(user);
 };
 

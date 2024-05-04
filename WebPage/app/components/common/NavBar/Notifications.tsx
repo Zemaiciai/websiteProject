@@ -64,8 +64,6 @@ export default function Notifications({
         break;
     }
 
-    console.log(redirectTo);
-
     return redirectTo;
   };
 
