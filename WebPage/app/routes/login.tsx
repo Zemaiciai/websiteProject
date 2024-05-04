@@ -98,7 +98,12 @@ export default function LoginPage() {
                   </div>
                 ) : null}
 
-                <input type="hidden" name="redirectTo" value={redirectTo} />
+                <input
+                  type="hidden"
+                  name="redirectTo"
+                  readOnly
+                  value={redirectTo}
+                />
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">

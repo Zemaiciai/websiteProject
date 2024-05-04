@@ -2,7 +2,7 @@ import { User, NotificationTypes } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 import { getUserById } from "./user.server";
-import { connect } from "node:http2";
+import { Notification } from "@prisma/client";
 
 export type { Notification } from "@prisma/client";
 
@@ -53,4 +53,46 @@ export async function getUserNotifications(userId: User["id"]) {
       createdAt: "asc",
     },
   });
+}
+
+export async function getNotificationById(notificationId: Notification["id"]) {
+  return await prisma.notification.findUnique({
+    where: { id: notificationId },
+  });
+}
+
+export async function updateNotificationStatus(
+  notificationId: Notification["id"],
+) {
+  const notification = await getNotificationById(notificationId);
+
+  if (notification?.isSeen)
+    return await prisma.notification.update({
+      where: { id: notificationId },
+      data: {
+        isSeen: false,
+      },
+    });
+  else
+    return await prisma.notification.update({
+      where: { id: notificationId },
+      data: {
+        isSeen: true,
+      },
+    });
+}
+
+export async function updateNotificationStatusToRead(
+  notificationId: Notification["id"],
+) {
+  const notification = await getNotificationById(notificationId);
+
+  if (!notification?.isSeen)
+    return await prisma.notification.update({
+      where: { id: notificationId },
+      data: {
+        isSeen: true,
+      },
+    });
+  else return;
 }

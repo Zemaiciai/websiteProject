@@ -1,6 +1,5 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
-import { error } from "console";
 import { useRef, useState } from "react";
 import { getAllLogs } from "~/models/adminLogs.server";
 import {

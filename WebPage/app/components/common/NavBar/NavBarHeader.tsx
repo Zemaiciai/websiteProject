@@ -7,13 +7,9 @@ import { Notification } from "@prisma/client";
 
 interface NavBarHeaderProps {
   title: string;
-  notifications: Notification[] | null;
 }
 
-export default function NavBarHeader({
-  title,
-  notifications,
-}: NavBarHeaderProps) {
+export default function NavBarHeader({ title }: NavBarHeaderProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -142,7 +138,6 @@ export default function NavBarHeader({
             />
             {showNotifications && (
               <Notifications
-                notifications={notifications}
                 handleNotificationsClick={handleNotificationsClick}
               />
             )}

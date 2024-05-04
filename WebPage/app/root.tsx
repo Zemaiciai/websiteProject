@@ -29,11 +29,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
 
   if (!user) {
-    return typedjson({ user: null, notifications: null });
+    return typedjson({ user: null, allNotifications: null });
   }
 
   return typedjson({
-    notifications: await getUserNotifications(user.id),
+    allNotifications: await getUserNotifications(user.id),
     user: user,
   });
 };
@@ -43,9 +43,6 @@ export default function App() {
   const [headerTitle, setHeaderTitle] = useState("Loading...");
   const [showNavigation, setShowNavigation] = useState(false);
   const user = useOptionalUser();
-
-  const loaderData = useTypedLoaderData<typeof loader>();
-
   const location = useLocation();
 
   useEffect(() => {
@@ -88,7 +85,7 @@ export default function App() {
         setHeaderTitle("Sukurti reklamą");
         break;
       default:
-        setHeaderTitle("Not Found 404");
+        setHeaderTitle("NĖRA HEADER PAVADINIMO ROOT.TSX FAILE");
         break;
     }
 
@@ -138,10 +135,7 @@ export default function App() {
               />
             </div>
             <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto">
-              <NavBarHeader
-                title={headerTitle}
-                notifications={loaderData.notifications}
-              />
+              <NavBarHeader title={headerTitle} />
               <div className="flex flex-col justify-between h-full">
                 <Outlet />
                 <NewFooter />
