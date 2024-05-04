@@ -248,7 +248,7 @@ export default function Notifications() {
                       className={`h-5 w-5 opacity-0 flex justify-center border rounded-full border-custom-800 accent-custom-850
                       group-hover:opacity-100 ${n.isSeen && "bg-custom-800"}`}
                       type="submit"
-                    ></button>
+                    />
                   </Form>
                 </div>
               </li>
