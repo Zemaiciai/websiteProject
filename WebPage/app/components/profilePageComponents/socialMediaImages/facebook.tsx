@@ -2,6 +2,12 @@ interface Props {
   fblink: string;
 }
 function FacebookImage({ fblink }: Props) {
+  if (fblink.startsWith("facebook")) {
+    fblink = "https://www." + fblink;
+  }
+  if (fblink.startsWith("www.")) {
+    fblink = "https://" + fblink;
+  }
   return (
     <a href={fblink} target="_blank" rel="noopener noreferrer">
       <svg

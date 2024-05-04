@@ -2,6 +2,12 @@ interface Props {
   twlink: string;
 }
 function XImage({ twlink }: Props) {
+  if (twlink.startsWith("twitter")) {
+    twlink = "https://www." + twlink;
+  }
+  if (twlink.startsWith("www.")) {
+    twlink = "https://" + twlink;
+  }
   return (
     <a href={twlink} target="_blank" rel="noopener noreferrer">
       <svg

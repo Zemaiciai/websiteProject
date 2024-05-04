@@ -45,7 +45,7 @@ function ProfilePageTabs({ user, errorData }: UserInfoProps) {
             }`}
             onClick={() => handleTabClick("statistics")}
           >
-            Statistics
+            Statistika
           </button>
         </li>
         <li className="me-2">
@@ -57,7 +57,19 @@ function ProfilePageTabs({ user, errorData }: UserInfoProps) {
             }`}
             onClick={() => handleTabClick("skills")}
           >
-            Skills
+            Įgudžiai
+          </button>
+        </li>
+        <li className="me-2">
+          <button
+            className={`inline-block p-4  ${
+              activeTab === "example"
+                ? "border-custom-800 border-b-2 rounded-t-lg"
+                : "hover:text-gray-600 hover:border-gray-300"
+            }`}
+            onClick={() => handleTabClick("example")}
+          >
+            Darbo pavyzdžiai
           </button>
         </li>
         {isUserInProfile() && (
@@ -70,7 +82,7 @@ function ProfilePageTabs({ user, errorData }: UserInfoProps) {
               }`}
               onClick={() => handleTabClick("settings")}
             >
-              Settings
+              Nustatymai
             </button>
           </li>
         )}

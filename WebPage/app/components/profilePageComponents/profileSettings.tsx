@@ -47,19 +47,7 @@ function ProfileSettings({ errorData }: UserInfoProps) {
               } w-full`}
               onClick={() => handleTabClick("profile")}
             >
-              Profile Picture
-            </button>
-          </li>
-          <li>
-            <button
-              className={`inline-flex items-center px-4 py-3 rounded-lg ${
-                activeTab === "Dashboard"
-                  ? "text-gray-900 bg-gray-200"
-                  : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
-              } w-full`}
-              onClick={() => handleTabClick("Dashboard")}
-            >
-              Background Picture
+              Profilio nuotrauka
             </button>
           </li>
           <li>
@@ -71,7 +59,7 @@ function ProfileSettings({ errorData }: UserInfoProps) {
               } w-full`}
               onClick={() => handleTabClick("SocialMedia")}
             >
-              Social Media
+              Socialiniai tinklai
             </button>
           </li>
           <li>
@@ -83,7 +71,7 @@ function ProfileSettings({ errorData }: UserInfoProps) {
               } w-full`}
               onClick={() => handleTabClick("settings")}
             >
-              Settings
+              Kiti nustatymai
             </button>
           </li>
         </ul>

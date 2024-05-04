@@ -62,7 +62,7 @@ export const loader = async ({
 
   const user = await getUserById(userProfileId);
 
-  const socialMediaLinks = await getSocialMediaByUserId(user2.id);
+  const socialMediaLinks = await getSocialMediaByUserId(userProfileId);
 
   return user
     ? {

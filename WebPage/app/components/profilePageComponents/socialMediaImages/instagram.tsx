@@ -2,6 +2,12 @@ interface Props {
   iglink: string;
 }
 function InstagramImage({ iglink }: Props) {
+  if (iglink.startsWith("instagram")) {
+    iglink = "https://www." + iglink;
+  }
+  if (iglink.startsWith("www.")) {
+    iglink = "https://" + iglink;
+  }
   return (
     <a href={iglink} target="_blank" rel="noopener noreferrer">
       <svg
