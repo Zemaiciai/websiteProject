@@ -27,15 +27,6 @@ export default function Notifications({
     setHideSeen(!hideSeen);
   };
 
-  if (allNotifications) {
-    allNotifications[0].createdAt.setFullYear(new Date().getFullYear() + 1);
-    allNotifications[1].createdAt.setMonth(new Date().getMonth() + 1);
-    allNotifications[2].createdAt = new Date(
-      new Date().setDate(new Date().getDate() + 1),
-    );
-    allNotifications[3].createdAt.setHours(new Date().getHours() + 1);
-  }
-
   const seenNotifications = allNotifications?.filter(
     (n: Notification) => n.isSeen === true,
   );
