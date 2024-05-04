@@ -206,3 +206,8 @@ model socialMedia{
   InstagramLink String
   TwitterLink String
 }
+model workExamples{
+  id String @id @default(cuid())
+  userid String
+  examples String[]
+}

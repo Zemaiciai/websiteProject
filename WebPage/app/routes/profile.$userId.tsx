@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 
 import Header from "~/components/common/header/header";
 import ProfilePageTabs from "~/components/profilePageComponents/profilePageTabs";
-import { useUser } from "~/utils";
+import { useUser, validateCreateWorkExample } from "~/utils";
 
 import ProfileCard from "../components/profilePageComponents/profileCard";
 import { redirect, useActionData, useLoaderData } from "@remix-run/react";
@@ -27,7 +27,12 @@ import {
   getSocialMediaByUserId,
   updateSocialMedia,
 } from "~/models/socialMedia.server";
-import { socialMedia } from "@prisma/client";
+import { socialMedia, workExamples } from "@prisma/client";
+import {
+  createWorkExamples,
+  getUserWorkExamples,
+  workExamplesUpdate,
+} from "~/models/workExamples.server";
 export const meta: MetaFunction = () => [
   { title: "Profilio peržiūra - Žemaičiai" },
 ];
@@ -38,6 +43,7 @@ interface LoaderData {
   checkPendingStatusRequested: boolean;
   CurrentlyFriends: boolean;
   socialMediaLinks: socialMedia | null;
+  workExamples: workExamples | null;
 }
 
 export const loader = async ({
@@ -64,6 +70,8 @@ export const loader = async ({
 
   const socialMediaLinks = await getSocialMediaByUserId(userProfileId);
 
+  const workExamples = await getUserWorkExamples(userProfileId);
+
   return user
     ? {
         user,
@@ -71,6 +79,7 @@ export const loader = async ({
         checkPendingStatusRequested,
         CurrentlyFriends,
         socialMediaLinks,
+        workExamples,
       }
     : null;
 };
@@ -78,6 +87,11 @@ interface Errors {
   fbLinkError?: string;
   igLinkError?: string;
   twLinkError?: string;
+  video1?: string;
+  video2?: string;
+  video3?: string;
+  video4?: string;
+  video5?: string;
 }
 export const action = async (actionArg) => {
   const formData = await actionArg.request.formData();
@@ -109,15 +123,48 @@ export const action = async (actionArg) => {
     if (errors.fbLinkError || errors.igLinkError || errors.twLinkError) {
       return errors;
     }
-    //TODO IKI GALO DAMUST VALIDATIONIUS, PADARYT KAD NEREAGUOTU JEI NEIVEDE NIEKO, PERSIUST ERRORUS I KITA FAILA
-    //VALIDATION
-
     const user = formData.get("userid");
     const socialmed = await getSocialMediaByUserId(user);
     if (socialmed) {
       updateSocialMedia(socialmed.id, fbLink, igLink, twLink);
     } else {
       createSocialMedia(String(fbLink), String(igLink), String(twLink), user);
+    }
+    return null;
+  }
+
+  if (formid === "changeExample") {
+    const video1 = formData.get("video1");
+    const video2 = formData.get("video2");
+    const video3 = formData.get("video3");
+    const video4 = formData.get("video4");
+    const video5 = formData.get("video5");
+    const user = formData.get("userid");
+    // const validationErrors = await validateCreateWorkExample(
+    //   video1,
+    //   video2,
+    //   video3,
+    //   video4,
+    //   video5,
+    //   errors,
+    // );
+
+    // if (validationErrors !== null) {
+    //   return errors;
+    // }
+    const examples = await getUserWorkExamples(user);
+    if (examples) {
+      workExamplesUpdate(
+        user,
+        video1,
+        video2,
+        video3,
+        video4,
+        video5,
+        examples.id,
+      );
+    } else {
+      createWorkExamples(user, video1, video2, video3, video4, video5);
     }
     return null;
   }
@@ -167,6 +214,7 @@ export default function NoteDetailsPage() {
     checkPendingStatusRequested,
     CurrentlyFriends,
     socialMediaLinks,
+    workExamples,
   } = useLoaderData<LoaderData>();
 
   const [linkClicked, setLinkClicked] = useState(false);
@@ -197,7 +245,11 @@ export default function NoteDetailsPage() {
           CurrentlyFriends={CurrentlyFriends}
           socialMediaLinks={socialMediaLinks}
         />
-        <ProfilePageTabs user={user} errorData={errorData} />
+        <ProfilePageTabs
+          user={user}
+          errorData={errorData}
+          workExample={workExamples}
+        />
       </div>
     </div>
   );

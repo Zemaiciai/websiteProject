@@ -415,3 +415,40 @@ export async function validateCreateWorkerAd(
   }
   return null;
 }
+interface workExampleErrors {
+  video1?: string;
+  video2?: string;
+  video3?: string;
+  video4?: string;
+  video5?: string;
+}
+export async function validateCreateWorkExample(
+  video1: string,
+  video2: string,
+  video3: string,
+  video4: string,
+  video5: string,
+  errors: workExampleErrors,
+): Promise<workExampleErrors | null> {
+  const youtubePattern =
+    /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})\b/;
+  if (!youtubePattern.test(video1) && video1 != "") {
+    errors.video1 = "Nuoroda neatitinka formato";
+  }
+  if (!youtubePattern.test(video2) && video2 != "") {
+    errors.video2 = "Nuoroda neatitinka formato";
+  }
+  if (!youtubePattern.test(video3) && video3 != "") {
+    errors.video3 = "Nuoroda neatitinka formato";
+  }
+  if (!youtubePattern.test(video4) && video4 != "") {
+    errors.video4 = "Nuoroda neatitinka formato";
+  }
+  if (!youtubePattern.test(video5) && video5 != "") {
+    errors.video5 = "Nuoroda neatitinka formato";
+  }
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+  return null;
+}
