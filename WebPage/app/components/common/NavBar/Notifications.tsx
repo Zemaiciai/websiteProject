@@ -9,7 +9,6 @@ import { useEffect, useRef, useState } from "react";
 
 export default function Notifications() {
   const { allNotifications } = useTypedLoaderData<typeof loader>();
-  const containerRef = useRef<HTMLDivElement>(null);
   const [hideSeen, setHideSeen] = useState<boolean>(() => {
     const storedHideSeen = localStorage.getItem("hideSeen");
     return storedHideSeen ? JSON.parse(storedHideSeen) : false;
@@ -27,9 +26,6 @@ export default function Notifications() {
   };
 
   const handleHideSeen = () => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = 0;
-    }
     setHideSeen(!hideSeen);
   };
 
@@ -38,9 +34,7 @@ export default function Notifications() {
   );
   const notifications = allNotifications
     ?.filter((n: Notification) => !n.isSeen)
-    .sort(
-      (a, b) => b.createdAt.getMilliseconds() - a.createdAt.getMilliseconds(),
-    );
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   /*
    * TODO: Redirect to the specific order that has been
@@ -77,13 +71,10 @@ export default function Notifications() {
 
   return (
     <div
-      className={`
+      className="
       notifications flex flex-col
       absolute h-48 w-[33.75rem] right-0 top-7 
-      bg-custom-200 drop-shadow-lg rounded p-4 ${
-        hideSeen ? "overflow-hidden" : "overflow-auto"
-      }`}
-      ref={containerRef}
+      bg-custom-200 drop-shadow-lg rounded p-4 overflow-auto"
     >
       <span className="text-2xl">Pranešimai</span>
 
@@ -93,7 +84,7 @@ export default function Notifications() {
       </div>
 
       {!notifications || notifications.length <= 0 ? (
-        <span>Nėra naujų pranešimų!</span>
+        <span className="text-sm font-normal">Nėra naujų pranešimų!</span>
       ) : (
         <div>
           <ul className="flex flex-col overflow-auto">
