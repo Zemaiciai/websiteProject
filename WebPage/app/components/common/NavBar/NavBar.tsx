@@ -3,10 +3,16 @@ import { Link } from "@remix-run/react";
 interface NavBarButtonProps {
   title: string;
   activeTab: string;
+  redirectTo: string;
   handleTabClick: (tab: string) => void;
 }
 
-function NavBarButton({ title, activeTab, handleTabClick }: NavBarButtonProps) {
+function NavBarButton({
+  title,
+  activeTab,
+  redirectTo,
+  handleTabClick,
+}: NavBarButtonProps) {
   return (
     <Link
       className={`flex justify-center px-4 py-3 ${
@@ -14,7 +20,7 @@ function NavBarButton({ title, activeTab, handleTabClick }: NavBarButtonProps) {
           ? "text-white bg-custom-850"
           : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
       } w-full`}
-      to={"/" + title.toLocaleLowerCase()}
+      to={"/" + redirectTo}
       onClick={() => handleTabClick(title)}
     >
       {title}
@@ -27,7 +33,7 @@ interface NavBarProps {
   handleTabClick: (tab: string) => void;
   redirectTo: string;
   activeTab: string;
-  tabTitles: string[];
+  tabTitles: { [redirectTo: string]: string };
 }
 
 export default function NavBar({
@@ -46,10 +52,11 @@ export default function NavBar({
         {title}
       </Link>
       <div className="h-max">
-        {Array.from({ length: tabTitles.length }).map((_, index) => (
+        {Object.keys(tabTitles).map((redirectTo, _) => (
           <NavBarButton
-            key={index}
-            title={tabTitles[index]}
+            key={redirectTo}
+            title={tabTitles[redirectTo]}
+            redirectTo={redirectTo}
             activeTab={activeTab}
             handleTabClick={handleTabClick}
           />

@@ -70,6 +70,7 @@ export default function NewOrderPage() {
                     autoComplete="on"
                     className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                     value={data.id}
+                    readOnly
                     hidden
                   />
                   <input

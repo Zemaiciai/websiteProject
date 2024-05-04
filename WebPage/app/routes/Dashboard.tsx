@@ -27,18 +27,8 @@ const Dashboard = () => {
     setActiveTab(tab);
   };
   return (
-    <div className="flex h-screen w-screen bg-red-100">
-      <div className="navbar-container">
-        <NavBar
-          title={"Žemaičiai"}
-          handleTabClick={handleTabClick}
-          redirectTo={"dashboard"}
-          activeTab={"activeTab"}
-          tabTitles={["Orders", "Admin", "Messages", "Profile"]}
-        />
-      </div>
-      <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto pb-3">
-        <NavBarHeader title={"Dashboard"} />
+    <div className="flex h-full w-full">
+      <div className="flex flex-col h-full w-full bg-custom-100 overflow-auto">
         {data.customMessages.map(
           (message) =>
             message.visibility && (
@@ -65,7 +55,6 @@ const Dashboard = () => {
             <p>Stats</p>
           </div>
         </div>
-        <NewFooter />
       </div>
     </div>
   );

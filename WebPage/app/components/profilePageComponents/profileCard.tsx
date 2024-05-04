@@ -15,7 +15,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 interface ProfileCardProps {
-  user: User;
+  user: User | null;
   checkPendingStatusRequesteer: boolean;
   checkPendingStatusRequested: boolean;
   CurrentlyFriends: boolean;

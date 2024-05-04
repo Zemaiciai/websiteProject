@@ -71,20 +71,8 @@ const FAQ = () => {
   };
 
   return (
-    <div className="flex h-screen bg-custom-100">
-      {/* Navigation Sidebar */}
-      <div className="navbar-container">
-        <NavBar
-          title={"Žemaičiai"}
-          handleTabClick={handleTabClick}
-          redirectTo={"faq"}
-          activeTab={activeTab}
-          tabTitles={["Orders", "Admin", "Messages", "Profile"]}
-        />
-      </div>
-
-      <div className="w-screen h-screen flex flex-grow flex-col bg-custom-100 pb-3">
-        <NavBarHeader title={`${activeTab ? "D.U.K." : "Grupės"}`} />
+    <div className="flex h-full bg-custom-100">
+      <div className="w-full h-full flex flex-grow flex-col bg-custom-100">
         <div className="flex justify-between bg-custom-200 m-3">
           <div
             className="max-w-full mx-auto mt-5 mb-5 divide-y   shadow shadow-custom-800 rounded-xl"
@@ -116,9 +104,6 @@ const FAQ = () => {
               </li>
             ))}
           </div>
-        </div>
-        <div className="mt-3">
-          <NewFooter />
         </div>
       </div>
     </div>

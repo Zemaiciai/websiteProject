@@ -21,7 +21,7 @@ import {
   deleteFromFriends,
   rejectFriendshipRequest,
 } from "~/models/friendshipRequest.server";
-import { typedjson } from "remix-typedjson";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
 export const meta: MetaFunction = () => [
   { title: "Profilio peržiūra - Žemaičiai" },
 ];
@@ -33,9 +33,7 @@ interface LoaderData {
   CurrentlyFriends: boolean;
 }
 
-export const loader = async ({
-  request,
-}: LoaderFunctionArgs): Promise<LoaderData | null> => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = request.url;
   const parts = url.split("/");
   const user2 = await requireUser(request);
@@ -53,16 +51,12 @@ export const loader = async ({
 
   const CurrentlyFriends = await checkCurrentlyFriends(user2.id, userProfileId);
 
-  const user = await getUserById(userProfileId);
-
-  return user
-    ? {
-        user,
-        checkPendingStatusRequesteer,
-        checkPendingStatusRequested,
-        CurrentlyFriends,
-      }
-    : null;
+  return typedjson({
+    user: await getUserById(userProfileId),
+    requesteerStatus: checkPendingStatusRequesteer,
+    requestedStatus: checkPendingStatusRequested,
+    currenltyFriends: CurrentlyFriends,
+  });
 };
 
 export const action = async (actionArg) => {
@@ -108,12 +102,7 @@ export const action = async (actionArg) => {
 
 export default function NoteDetailsPage() {
   const OGuser = useUser();
-  const {
-    user,
-    checkPendingStatusRequesteer,
-    checkPendingStatusRequested,
-    CurrentlyFriends,
-  } = useLoaderData<LoaderData>();
+  const data = useTypedLoaderData<typeof loader>();
 
   const [linkClicked, setLinkClicked] = useState(false);
   const [activeTab, setActiveTab] = useState("");
@@ -123,26 +112,17 @@ export default function NoteDetailsPage() {
 
   return (
     <div className="main-div">
-      {/* <div className="navbar-container">
-        <NavBar
-          title={"Orders"}
-          handleTabClick={handleTabClick}
-          redirectTo={"orders"}
-          activeTab={activeTab}
-          tabTitles={["TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST"]}
-        />
-      </div> */}
       <NavBarHeader
         title={`${linkClicked ? "Profilio puslapis" : "Profilio puslapis"}`}
       />
       <div className="profilePageDiv">
         <ProfileCard
-          user={user}
-          checkPendingStatusRequesteer={checkPendingStatusRequesteer}
-          checkPendingStatusRequested={checkPendingStatusRequested}
-          CurrentlyFriends={CurrentlyFriends}
+          user={data.user}
+          checkPendingStatusRequesteer={data.requesteerStatus}
+          checkPendingStatusRequested={data.requestedStatus}
+          CurrentlyFriends={data.currenltyFriends}
         />
-        <ProfilePageTabs user={user} />
+        <ProfilePageTabs user={data.user} />
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import {
   checkBanStatus,
   checkContractExpiration,
   getUserById,
+  getUserByIdIncludeNotifications,
 } from "~/models/user.server";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
@@ -40,7 +41,7 @@ export async function getUser(request: Request) {
   const userId = await getUserId(request);
   if (userId === undefined) return null;
 
-  const user = await getUserById(userId);
+  const user = await getUserByIdIncludeNotifications(userId);
   if (user) return user;
 
   throw await logout(request);

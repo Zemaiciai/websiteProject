@@ -1,7 +1,7 @@
 import { Form, Link } from "@remix-run/react";
 import { useState, useEffect, useRef } from "react";
 
-import { useUser } from "~/utils";
+import { useOptionalUser, useUser } from "~/utils";
 import Notifications from "../Notifications";
 
 interface NavBarHeaderProps {
@@ -13,7 +13,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
 
-  const user = useUser();
+  const user = useOptionalUser();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => {
@@ -69,10 +69,10 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
         </div>
         <div className="flex items-center text-1xl text-bold font-bold pr-6 space-x-4">
           <div className="flex items-center text-1xl text-bold font-bold">
-            <Link to={"/profile/" + user.id} className="btn btn-primary">
+            <Link to={"/profile/" + user?.id} className="btn btn-primary">
               <div style={{ display: "flex", alignItems: "center" }}>
                 <span style={{ marginRight: "0.5rem" }}>
-                  {user.firstName + " " + user.lastName}
+                  {user?.firstName + " " + user?.lastName}
                 </span>
                 <img
                   src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
@@ -109,7 +109,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
                 className="absolute mt-32 ml-20 bg-white divide-y divide-gray-100 border-custom-800 border rounded shadow"
                 style={{ transform: "translateY(8px)", minWidth: "10rem" }} // Set a minimum width for the dropdown
               >
-                <Form action={"/profile/" + user.id} method="get">
+                <Form action={"/profile/" + user?.id} method="get">
                   <button
                     type="submit"
                     className="block w-full py-2 px-4 text-sm text-gray-800 hover:bg-gray-100 focus:outline-none"

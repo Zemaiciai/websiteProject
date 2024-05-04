@@ -11,23 +11,9 @@ export default function Groups() {
   };
 
   return (
-    <div className="flex h-screen bg-custom-100">
-      {/* Navigation Sidebar */}
-      <div className="navbar-container">
-        <NavBar
-          title={"Žemaičiai"}
-          handleTabClick={handleTabClick}
-          redirectTo={"groups"}
-          activeTab={activeTab}
-          tabTitles={["Orders", "Admin", "Messages", "Profile"]}
-        />
-      </div>
-
-      <div className="w-screen h-screen flex flex-grow flex-col bg-custom-100 pb-3">
-        <NavBarHeader title={`${activeTab ? "Grupės" : "Grupės"}`} />
-        <div className="flex justify-between">
-          <Outlet />
-        </div>
+    <div className="w-full h-full flex flex-grow flex-col bg-custom-100 pb-3">
+      <div className="flex justify-between overflow-auto">
+        <Outlet />
       </div>
     </div>
   );

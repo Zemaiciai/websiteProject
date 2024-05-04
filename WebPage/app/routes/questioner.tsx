@@ -150,7 +150,7 @@ const Questionnaire = () => {
     const endIndex = Math.min(startIndex + 4, questions.length);
 
     return questions.slice(startIndex, endIndex).map((question, index) => (
-      <div className="mb-4" key={index + startIndex}>
+      <div className="mb-4 h-full w-full" key={index + startIndex}>
         <label
           htmlFor={(index + startIndex).toString()}
           className="block mb-2 font-bold"
@@ -178,18 +178,7 @@ const Questionnaire = () => {
   };
 
   return (
-    <div className="">
-      <Form action={"/notes/"} method="get" className="flex flex-row-reverse">
-        <button type="submit" className="px-4 py-2 flex space-x-2 space-y-1 ">
-          <h1>Grįžti atgal</h1>
-          <img
-            className="w-4 h-4"
-            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
-            alt="ggwp"
-          ></img>
-        </button>
-      </Form>
-
+    <div className="my-4">
       <div className="flex flex-col items-center justify-center h-full ">
         <div className="max-w-md mx-auto mb-8 text-center">
           <h1 className="text-3xl font-bold">Atsakykite į šiuos klausimus</h1>

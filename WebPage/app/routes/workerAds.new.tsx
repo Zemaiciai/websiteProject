@@ -87,8 +87,6 @@ export default function NewOrderPage() {
                 placeholder="Reklamos pavadinimas"
               />
             </div>
-
-            {/* New textarea field */}
             <div className="w-full px-3 mt-3">
               <div className="flex flex-col">
                 <div className="relative">
