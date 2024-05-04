@@ -14,11 +14,9 @@ export default function useHowLongAgo(date: Date) {
   const minutesAgo = Math.trunc(secondsAgo / 60) % 60;
   secondsAgo -= minutesAgo * 60;
 
-  console.log("minutesAgo: ", minutesAgo);
-
   if (monthsAgo > 0) return `prieš ${monthsAgo} mėn.`;
   else if (daysAgo > 0) return `prieš ${daysAgo} d.`;
   else if (hoursAgo > 0) return `prieš ${hoursAgo} h.`;
-  else if (minutesAgo > 0) return `prieš ${hoursAgo} min.`;
+  else if (minutesAgo > 0) return `prieš ${minutesAgo} min.`;
   else return "Ką tik";
 }
