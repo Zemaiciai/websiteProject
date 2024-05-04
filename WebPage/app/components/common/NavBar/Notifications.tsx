@@ -65,10 +65,12 @@ export default function Notifications() {
 
   return (
     <div
-      className="
+      className={`
       notifications flex flex-col
       absolute h-48 w-[33.75rem] right-0 top-7 
-      bg-custom-200 drop-shadow-lg rounded p-4"
+      bg-custom-200 drop-shadow-lg rounded p-4 ${
+        hideSeen ? "overflow-hidden" : "overflow-auto"
+      }`}
     >
       <span className="text-2xl">Pranešimai</span>
 
@@ -174,7 +176,7 @@ export default function Notifications() {
             </span>
             <hr className="flex justify-center border-2 w-full border-custom-850 rounded-2xl" />
           </div>
-          <ul className="relative overflow-auto z-0">
+          <ul className={`relative overflow-auto z-0`}>
             <div
               className={`bg-custom-200 z-50 h-full w-full absolute opacity-100 origin-bottom ease-in-out duration-200 ${
                 !hideSeen && "scale-y-0 "
