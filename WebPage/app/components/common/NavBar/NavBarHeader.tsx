@@ -2,7 +2,7 @@ import { Form, Link } from "@remix-run/react";
 import { useState, useEffect, useRef } from "react";
 
 import { useOptionalUser } from "~/utils";
-import Notifications from "../Notifications";
+import Notifications from "./Notifications";
 import { Notification } from "@prisma/client";
 
 interface NavBarHeaderProps {
