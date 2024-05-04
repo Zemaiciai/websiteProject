@@ -136,11 +136,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
               alt="sugedo"
               onClick={handleNotificationsClick}
             />
-            {showNotifications && (
-              <Notifications
-                handleNotificationsClick={handleNotificationsClick}
-              />
-            )}
+            {showNotifications && <Notifications />}
           </div>
           <Link to="/dashboard" className="btn btn-primary">
             <div style={{ display: "flex", alignItems: "center" }}>

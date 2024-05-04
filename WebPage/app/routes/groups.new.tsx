@@ -37,14 +37,14 @@ export default function NewOrderPage() {
   const data = useLoaderData<typeof loader>();
 
   return (
-    <div className="flex-grow mr-6">
-      <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3">
+    <div className="flex grow flex-col h-full w-full">
+      <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ">
         <h1 className="text-3xl font-mono font-font-extralight pb-3">
           Informacija apie grupių kūrimus
         </h1>
         <GroupsCreationInformation></GroupsCreationInformation>
       </div>
-      <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3 mb-5">
+      <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ">
         <h1 className="text-3xl font-mono font-font-extralight pb-3">
           Grupės sukūrimas
         </h1>

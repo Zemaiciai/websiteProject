@@ -110,7 +110,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="flex h-full p-4 space-x-4 bg-custom-200">
+    <div className="flex h-full w-full p-4 space-x-4 bg-custom-200">
       <div className="orders-table grow flex justify-center place-items-start">
         <div className="w-full">
           <OrdersTable

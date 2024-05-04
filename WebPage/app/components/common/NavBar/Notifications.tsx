@@ -1,5 +1,5 @@
 import { NotificationTypes } from "@prisma/client";
-import { Form, Link, useLocation, useNavigate } from "@remix-run/react";
+import { Form, useLocation } from "@remix-run/react";
 import useHowLongAgo from "~/hooks/useHowLongAgo";
 import { Notification } from "@prisma/client";
 import { useTypedLoaderData } from "remix-typedjson";
@@ -7,13 +7,7 @@ import { loader } from "~/root";
 import Arrow from "~/assets/icons/Arrow/Arrow";
 import { useState } from "react";
 
-interface NotificationsProps {
-  handleNotificationsClick: () => void;
-}
-
-export default function Notifications({
-  handleNotificationsClick,
-}: NotificationsProps) {
+export default function Notifications() {
   const { allNotifications } = useTypedLoaderData<typeof loader>();
   const [hideSeen, setHideSeen] = useState(false);
   const location = useLocation();
@@ -30,9 +24,11 @@ export default function Notifications({
   const seenNotifications = allNotifications?.filter(
     (n: Notification) => n.isSeen === true,
   );
-  const notifications = allNotifications?.filter(
-    (n: Notification) => n.isSeen === false,
-  );
+  const notifications = allNotifications
+    ?.filter((n: Notification) => !n.isSeen)
+    .sort(
+      (a, b) => b.createdAt.getMilliseconds() - a.createdAt.getMilliseconds(),
+    );
 
   /*
    * TODO: Redirect to the specific order that has been
@@ -131,15 +127,6 @@ export default function Notifications({
                     </span>
                   </div>
                 </Form>
-                {n.isSeen && (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    className="h-4 w-4 absolute right-[1.39rem] text-custom-800 group-hover:hidden"
-                  >
-                    <circle cx="12" cy="12" r="4" fill="currentColor" />
-                  </svg>
-                )}
                 <div className="flex items-center">
                   <Form method="post" name="form" action="/notifications">
                     <input
@@ -239,16 +226,7 @@ export default function Notifications({
                     </span>
                   </div>
                 </Form>
-                {n.isSeen && (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    className="h-4 w-4 absolute right-[1.39rem] text-custom-800 group-hover:hidden"
-                  >
-                    <circle cx="12" cy="12" r="4" fill="currentColor" />
-                  </svg>
-                )}
-                <div className="flex items-center">
+                <div className="relative">
                   <Form method="post" name="form" action="/notifications">
                     <input
                       id={`notification-id-${index}`}
@@ -267,8 +245,8 @@ export default function Notifications({
                       readOnly
                     />
                     <button
-                      className={`h-5 w-5 opacity-0 flex items-center justify-center border rounded-full border-custom-800 accent-custom-850 cursor-pointer
-                  group-hover:opacity-100 ${n.isSeen && "bg-custom-800"}`}
+                      className={`h-5 w-5 opacity-0 flex justify-center border rounded-full border-custom-800 accent-custom-850 cursor-pointer
+                      group-hover:opacity-100 ${n.isSeen && "bg-custom-800"}`}
                       type="submit"
                     ></button>
                   </Form>

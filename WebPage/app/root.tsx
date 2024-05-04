@@ -84,6 +84,9 @@ export default function App() {
       case "/workerAds/new":
         setHeaderTitle("Sukurti reklamą");
         break;
+      case "/questioner":
+        setHeaderTitle("Užduoti klausimą");
+        break;
       default:
         setHeaderTitle("NĖRA HEADER PAVADINIMO ROOT.TSX FAILE");
         break;
@@ -134,10 +137,12 @@ export default function App() {
                 }}
               />
             </div>
-            <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto">
+            <div className="flex w-full h-full flex-col bg-custom-100 overflow-auto">
               <NavBarHeader title={headerTitle} />
               <div className="flex flex-col justify-between h-full">
-                <Outlet />
+                <div className="grow w-full">
+                  <Outlet />
+                </div>
                 <NewFooter />
               </div>
             </div>
