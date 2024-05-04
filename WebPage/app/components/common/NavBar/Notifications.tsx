@@ -5,10 +5,11 @@ import { Notification } from "@prisma/client";
 import { useTypedLoaderData } from "remix-typedjson";
 import { loader } from "~/root";
 import Arrow from "~/assets/icons/Arrow/Arrow";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function Notifications() {
   const { allNotifications } = useTypedLoaderData<typeof loader>();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [hideSeen, setHideSeen] = useState(false);
   const location = useLocation();
   const handleFormSubmission = (form: HTMLFormElement | null) => {
@@ -18,6 +19,10 @@ export default function Notifications() {
   };
 
   const handleHideSeen = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
+
     setHideSeen(!hideSeen);
   };
 
@@ -71,17 +76,19 @@ export default function Notifications() {
       bg-custom-200 drop-shadow-lg rounded p-4 ${
         hideSeen ? "overflow-hidden" : "overflow-auto"
       }`}
+      ref={containerRef}
     >
       <span className="text-2xl">Pranešimai</span>
+
+      <div className="flex items-center justify-center mt-4 mb-2">
+        <span className="text-nowrap mr-2 text-sm">Nauji pranešimai</span>
+        <hr className="flex justify-center border-2 w-full border-custom-850 rounded-2xl" />
+      </div>
 
       {!notifications || notifications.length <= 0 ? (
         <span>Nėra naujų pranešimų!</span>
       ) : (
         <div>
-          <div className="flex items-center justify-center mt-4 mb-2">
-            <span className="text-nowrap mr-2 text-sm">Nauji pranešimai</span>
-            <hr className="flex justify-center border-2 w-full border-custom-850 rounded-2xl" />
-          </div>
           <ul className="flex flex-col overflow-auto">
             {notifications.map((n, index) => (
               <li
