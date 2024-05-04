@@ -166,7 +166,7 @@ export default function Notifications() {
       )}
 
       {!seenNotifications || seenNotifications.length <= 0 ? null : (
-        <div className="h-max">
+        <>
           <div
             className="flex items-center justify-center mt-4 mb-2 cursor-pointer"
             onClick={handleHideSeen}
@@ -181,10 +181,14 @@ export default function Notifications() {
             </span>
             <hr className="flex justify-center border-2 w-full border-custom-850 rounded-2xl" />
           </div>
-          <ul className={`relative overflow-auto z-0`}>
+          <ul
+            className={`relative z-0 origin-top ease-in duration-[1000ms] ${
+              hideSeen ? "overflow-hidden" : "h-max"
+            }`}
+          >
             <div
-              className={`bg-custom-200 z-50 h-full w-full absolute opacity-100 origin-bottom ease-in-out duration-200 ${
-                !hideSeen && "scale-y-0 "
+              className={`bg-custom-200 z-50 h-full w-full absolute origin-bottom ease-in-out duration-200 ${
+                !hideSeen && "scale-y-0"
               }`}
             ></div>
             {seenNotifications.map((n, index) => (
@@ -261,7 +265,7 @@ export default function Notifications() {
               </li>
             ))}
           </ul>
-        </div>
+        </>
       )}
     </div>
   );
