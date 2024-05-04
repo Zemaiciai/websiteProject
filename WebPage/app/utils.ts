@@ -11,6 +11,8 @@ import {
   getCustomMessagesByMessage,
   getCustomMessagesByName,
 } from "./models/customMessage.server";
+import { aD } from "vitest/dist/reporters-P7C2ytIv";
+import { checkUserAdsLimit } from "./models/workerAds.server";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -363,5 +365,53 @@ export async function validateChangeUserInfo(
     return errors;
   }
 
+  return null;
+}
+interface CreateWorkerAdErrors {
+  adName?: string;
+  adDescription?: string;
+  video1?: string;
+  video2?: string;
+  video3?: string;
+  limit?: string;
+}
+export async function validateCreateWorkerAd(
+  adName: string,
+  adDescription: string,
+  video1: string,
+  video2: string,
+  video3: string,
+  errors: CreateWorkerAdErrors,
+  userId: string,
+): Promise<CreateWorkerAdErrors | null> {
+  if (typeof adName !== "string" || adName.length <= 0) {
+    errors.adName = "Pavadinimas yra privalomas";
+  } else if (adName.length < 5) {
+    errors.adName = "Pavadinimo ilgį turi sudaryti bent penki simboliai";
+  } else if (adName.length > 100) {
+    errors.adName = "Pavadinimo ilgis negali viršyti šimto simbolių";
+  }
+  if (typeof adDescription !== "string" || adDescription.length <= 0) {
+    errors.adDescription = "Aprašymas yra privalomas";
+  } else if (adDescription.length < 100) {
+    errors.adDescription = "Aprašymą turi sudaryti bent šimtas simbolių";
+  }
+  const youtubePattern =
+    /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})\b/;
+  if (!youtubePattern.test(video1) && video1 != "") {
+    errors.video1 = "Nuoroda neatitinka formato";
+  }
+  if (!youtubePattern.test(video2) && video2 != "") {
+    errors.video2 = "Nuoroda neatitinka formato";
+  }
+  if (!youtubePattern.test(video3) && video3 != "") {
+    errors.video3 = "Nuoroda neatitinka formato";
+  }
+  if (!(await checkUserAdsLimit(userId))) {
+    errors.limit = "Pasiektas reklamų limitas (MAX 2)";
+  }
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
   return null;
 }
