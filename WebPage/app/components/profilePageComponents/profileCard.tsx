@@ -13,7 +13,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
   return json({ user });
 };
-
 interface ProfileCardProps {
   user: User;
   checkPendingStatusRequesteer: boolean;

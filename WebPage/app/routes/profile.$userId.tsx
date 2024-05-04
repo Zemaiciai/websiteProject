@@ -5,7 +5,7 @@ import ProfilePageTabs from "~/components/profilePageComponents/profilePageTabs"
 import { useUser } from "~/utils";
 
 import ProfileCard from "../components/profilePageComponents/profileCard";
-import { redirect, useLoaderData } from "@remix-run/react";
+import { redirect, useActionData, useLoaderData } from "@remix-run/react";
 import { User, getUserById } from "~/models/user.server";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 import { useState } from "react";
@@ -85,11 +85,11 @@ export const action = async (actionArg) => {
   const formid = formData.get("form-id");
   if (formid === "socialMedia") {
     const fbLinkRegex =
-      /^(https?:\/\/)?(www\.)?facebook\.com\/[a-zA-Z0-9._-]+\/?$/;
+      /^(https?:\/\/)?(www\.)?facebook\.com\/(?:[a-zA-Z0-9._-]+\/?)?$/;
     const igLinkRegex =
-      /^(https?:\/\/)?(www\.)?instagram\.com\/[a-zA-Z0-9._-]+\/?$/;
+      /^(https?:\/\/)?(www\.)?instagram\.com\/(?:[a-zA-Z0-9._-]+\/?)?$/;
     const twLinkRegex =
-      /^(https?:\/\/)?(www\.)?twitter\.com\/[a-zA-Z0-9._-]+\/?$/;
+      /^(https?:\/\/)?(www\.)?twitter\.com\/(?:[a-zA-Z0-9._-]+\/?)?$/;
     const fbLinkt = fbLinkRegex.test(formData.get("fblink"));
     const igLinkt = igLinkRegex.test(formData.get("iglink"));
     const twLinkt = twLinkRegex.test(formData.get("twlink"));
@@ -97,8 +97,17 @@ export const action = async (actionArg) => {
     const igLink = formData.get("iglink");
     const twLink = formData.get("twlink");
     //VALIDATION
-    if (!fbLinkt) {
+    if (!fbLinkt && fbLink != "") {
       errors.fbLinkError = "Nuoroda neatitinka formato";
+    }
+    if (!igLinkt && igLink != "") {
+      errors.igLinkError = "Nuoroda neatitinka formato";
+    }
+    if (!twLinkt && twLink != "") {
+      errors.twLinkError = "Nuoroda neatitinka formato";
+    }
+    if (errors.fbLinkError || errors.igLinkError || errors.twLinkError) {
+      return errors;
     }
     //TODO IKI GALO DAMUST VALIDATIONIUS, PADARYT KAD NEREAGUOTU JEI NEIVEDE NIEKO, PERSIUST ERRORUS I KITA FAILA
     //VALIDATION
@@ -165,7 +174,7 @@ export default function NoteDetailsPage() {
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
   };
-
+  const errorData = useActionData<Errors>();
   return (
     <div className="main-div">
       {/* <div className="navbar-container">
@@ -188,7 +197,7 @@ export default function NoteDetailsPage() {
           CurrentlyFriends={CurrentlyFriends}
           socialMediaLinks={socialMediaLinks}
         />
-        <ProfilePageTabs user={user} />
+        <ProfilePageTabs user={user} errorData={errorData} />
       </div>
     </div>
   );

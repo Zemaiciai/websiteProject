@@ -1,10 +1,9 @@
-function XImage() {
+interface Props {
+  twlink: string;
+}
+function XImage({ twlink }: Props) {
   return (
-    <a
-      href="your-social-media-link-1"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <a href={twlink} target="_blank" rel="noopener noreferrer">
       <svg
         version="1.0"
         xmlns="http://www.w3.org/2000/svg"

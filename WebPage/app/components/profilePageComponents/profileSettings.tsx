@@ -12,8 +12,21 @@ export const loader = async ({ request }) => {
   const user = await requireUser(request);
   return json({ user });
 };
+interface Errors {
+  fbLinkError?: string;
+  igLinkError?: string;
+  twLinkError?: string;
+}
+type JsonifyObject<T> = {
+  [K in keyof T]: T[K] extends object
+    ? JsonifyObject<T[K]> | null
+    : T[K] | null;
+};
+interface UserInfoProps {
+  errorData: JsonifyObject<Errors> | null | undefined;
+}
 
-function ProfileSettings() {
+function ProfileSettings({ errorData }: UserInfoProps) {
   const [activeTab, setActiveTab] = useState("profile");
   const user = useUser();
 
@@ -186,7 +199,7 @@ function ProfileSettings() {
           ) : null}
           {activeTab === "SocialMedia" ? (
             <>
-              <ProfilePageSocialMedia />
+              <ProfilePageSocialMedia errorData={errorData} />
             </>
           ) : null}
         </div>

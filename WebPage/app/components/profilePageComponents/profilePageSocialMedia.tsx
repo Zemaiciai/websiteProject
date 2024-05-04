@@ -10,8 +10,21 @@ import {
 
 import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
+interface Errors {
+  fbLinkError?: string;
+  igLinkError?: string;
+  twLinkError?: string;
+}
+type JsonifyObject<T> = {
+  [K in keyof T]: T[K] extends object
+    ? JsonifyObject<T[K]> | null
+    : T[K] | null;
+};
+interface UserInfoProps {
+  errorData: JsonifyObject<Errors> | null | undefined;
+}
 
-function ProfilePageSocialMedia() {
+function ProfilePageSocialMedia({ errorData }: UserInfoProps) {
   const user = useUser();
   const [Clicked, setClicked] = useState(false);
   const handleTabClick = () => {
@@ -25,52 +38,82 @@ function ProfilePageSocialMedia() {
             <div>
               <input name="form-id" hidden defaultValue="socialMedia" />
               <input name="userid" hidden defaultValue={user.id} />
-              <div className="igdiv flex space-x-2">
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/600px-Instagram_icon.png"
-                  alt="Social Media 1"
-                  className="w-6 h-6"
-                />
-                <input
-                  type="iglink"
-                  name="iglink"
-                  id="iglink"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
-                  placeholder="instagram.com/profile/"
-                />
+              <div className="igdiv">
+                <div className="flex space-x-2">
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/600px-Instagram_icon.png"
+                    alt="Social Media 1"
+                    className="w-6 h-6"
+                  />
+                  <input
+                    type="iglink"
+                    name="iglink"
+                    id="iglink"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
+                    placeholder="instagram.com/profile/"
+                  />
+                </div>
+                {errorData?.igLinkError ? (
+                  <div
+                    className="pt-1 font-bold text-red-500"
+                    id="firstname-error"
+                  >
+                    {errorData.igLinkError}
+                  </div>
+                ) : null}
               </div>
-              <div className="fbdiv flex space-x-2 mt-4">
-                <img
-                  src="https://i.pinimg.com/originals/ce/d6/6e/ced66ecfc53814d71f8774789b55cc76.png"
-                  alt="Social Media 2"
-                  className="w-6 h-6"
-                />
-                <input
-                  type="fblink"
-                  name="fblink"
-                  id="fblink"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
-                  placeholder="facebook.com/profile/"
-                />
+              <div className="fbdiv mt-4">
+                <div className="flex space-x-2">
+                  <img
+                    src="https://i.pinimg.com/originals/ce/d6/6e/ced66ecfc53814d71f8774789b55cc76.png"
+                    alt="Social Media 2"
+                    className="w-6 h-6"
+                  />
+                  <input
+                    type="fblink"
+                    name="fblink"
+                    id="fblink"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
+                    placeholder="facebook.com/profile/"
+                  />
+                </div>
+                {errorData?.fbLinkError ? (
+                  <div
+                    className="pt-1 font-bold text-red-500"
+                    id="firstname-error"
+                  >
+                    {errorData.fbLinkError}
+                  </div>
+                ) : null}
               </div>
-              <div className="xdiv flex space-x-2 mt-4">
-                <img
-                  src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/x-social-media-black-icon.png"
-                  alt="Social Media 2"
-                  className="w-6 h-6"
-                />
-                <input
-                  type="twlink"
-                  name="twlink"
-                  id="twlink"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
-                  placeholder="twitter.com/profile/"
-                />
+              <div className="xdiv  mt-4">
+                <div className="flex space-x-2">
+                  <img
+                    src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/x-social-media-black-icon.png"
+                    alt="Social Media 2"
+                    className="w-6 h-6"
+                  />
+                  <input
+                    type="twlink"
+                    name="twlink"
+                    id="twlink"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
+                    placeholder="twitter.com/profile/"
+                  />
+                </div>
+                {errorData?.twLinkError ? (
+                  <div
+                    className="pt-1 font-bold text-red-500"
+                    id="firstname-error"
+                  >
+                    {errorData.twLinkError}
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
         </div>
-        {Clicked ? (
+        {Clicked && !errorData ? (
           <div className="pt-1 font-bold text-green-500">
             <p>Socialinių tinklų nuorodos sėkmingai išsaugotos</p>
           </div>

@@ -7,12 +7,22 @@ import ProfilePageSocialMedia from "./profilePageSocialMedia";
 import ProfilePageTabsSkills from "./profilePageTabsSkills";
 import ProfileSettings from "./profileSettings";
 import { useUser } from "~/utils";
-
+interface Errors {
+  fbLinkError?: string;
+  igLinkError?: string;
+  twLinkError?: string;
+}
+type JsonifyObject<T> = {
+  [K in keyof T]: T[K] extends object
+    ? JsonifyObject<T[K]> | null
+    : T[K] | null;
+};
 interface UserInfoProps {
   user: any;
+  errorData: JsonifyObject<Errors> | null | undefined;
 }
 
-function ProfilePageTabs({ user }: UserInfoProps) {
+function ProfilePageTabs({ user, errorData }: UserInfoProps) {
   const [activeTab, setActiveTab] = useState("statistics");
   const realuser = useUser();
   const handleTabClick = (tab) => {
@@ -80,7 +90,7 @@ function ProfilePageTabs({ user }: UserInfoProps) {
         ) : null}
         {activeTab === "settings" ? (
           <>
-            <ProfileSettings />
+            <ProfileSettings errorData={errorData} />
           </>
         ) : null}
       </div>

@@ -49,10 +49,15 @@ export default function UserInfo({ user, socialMediaLinks }: UserInfoProps) {
       </div>
 
       <div className="socialMediaLinks pt-3 flex space-x-4 pl-[400px] w-[800px]">
-        <InstagramImage />
-        <FacebookImage fblink={String(socialMediaLinks?.facebookLink)} />
-
-        <XImage />
+        {socialMediaLinks?.InstagramLink ? (
+          <InstagramImage iglink={String(socialMediaLinks?.InstagramLink)} />
+        ) : null}
+        {socialMediaLinks?.facebookLink ? (
+          <FacebookImage fblink={String(socialMediaLinks?.facebookLink)} />
+        ) : null}
+        {socialMediaLinks?.TwitterLink ? (
+          <XImage twlink={String(socialMediaLinks?.TwitterLink)} />
+        ) : null}
       </div>
     </div>
   );
