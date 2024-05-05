@@ -26,7 +26,7 @@ type JsonifyObject<T> = {
     : T[K] | null;
 };
 interface UserInfoProps {
-  user: JsonifyObject<User>;
+  user: User | null;
   errorData: JsonifyObject<Errors> | null | undefined;
   workExample: workExamples | null | undefined;
 }
