@@ -45,11 +45,11 @@ export default function NavBar({ title, tabTitles, redirectTo }: NavBarProps) {
         {title}
       </Link>
       <div className="h-max">
-        {Object.keys(tabTitles).map((loaction, _) => (
+        {Object.keys(tabTitles).map((location, _) => (
           <NavBarButton
-            key={loaction}
-            title={tabTitles[loaction]}
-            redirectTo={loaction}
+            key={location}
+            title={tabTitles[location]}
+            redirectTo={location}
             activeTab={activeTab}
           />
         ))}
