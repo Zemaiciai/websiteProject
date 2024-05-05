@@ -16,15 +16,13 @@ export async function sendNotification(
     return null;
   }
 
-  if (senderId && (await getUserById(senderId))) {
+  if (senderId) {
     return await prisma.notification.create({
       data: {
         recipient: {
           connect: { id: recipientId },
         },
-        sender: {
-          connect: { id: senderId },
-        },
+        senderId: senderId,
         message: message,
         isSeen: false,
         notificationType: type,

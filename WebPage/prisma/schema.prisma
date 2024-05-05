@@ -52,7 +52,6 @@ model User {
   password       Password?
   notes Note[]
   notificationsRecieved Notification[] @relation("Recipient")
-  notificationsSent Notification[] @relation("Sender")
   createdOrders  Order[]  @relation("CreatedBy")
   workingOrders  Order[]  @relation("Worker")
   role String
@@ -120,7 +119,6 @@ model Notification {
 
   recipient        User @relation("Recipient", fields: [recipientId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   recipientId      String
-  sender           User? @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   senderId         String?
 
   notificationType NotificationTypes
