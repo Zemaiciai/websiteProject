@@ -10,6 +10,7 @@ import {
 } from "./models/customMessage.server";
 import { aD } from "vitest/dist/reporters-P7C2ytIv";
 import { checkUserAdsLimit } from "./models/workerAds.server";
+import { prisma } from "./db.server";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -492,6 +493,7 @@ export async function validateCreateGroup(
   groupShortDesc: string,
   groupDescription: string,
   errors: CreateGroupsErrors,
+  edit: boolean
 ): Promise<CreateGroupsErrors | null> {
   if (typeof groupName !== "string" || groupName.length <= 0) {
     errors.groupName = "Pavadinimas yra privalomas";
@@ -505,7 +507,7 @@ export async function validateCreateGroup(
         groupName: groupName,
       },
     })
-  ) {
+   && !edit) {
     errors.groupName = "Grupe su tokiu pavadinimu jau egzistuoja";
   }
   if (typeof groupShortDesc !== "string" || groupShortDesc.length <= 0) {

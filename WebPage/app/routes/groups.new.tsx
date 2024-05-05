@@ -30,6 +30,7 @@ export const action = async (actionArg) => {
     shortDescription,
     fullDescription,
     errors,
+    false,
   );
 
   if (validationErrors !== null) {
