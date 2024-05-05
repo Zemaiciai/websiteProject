@@ -5,10 +5,11 @@ import { Notification } from "@prisma/client";
 import { useTypedLoaderData } from "remix-typedjson";
 import { loader } from "~/root";
 import Arrow from "~/assets/icons/Arrow/Arrow";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Notifications() {
   const { allNotifications } = useTypedLoaderData<typeof loader>();
+
   const [hideSeen, setHideSeen] = useState<boolean>(() => {
     const storedHideSeen = localStorage.getItem("hideSeen");
     return storedHideSeen ? JSON.parse(storedHideSeen) : false;

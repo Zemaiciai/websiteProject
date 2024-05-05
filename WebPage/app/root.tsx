@@ -39,10 +39,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("");
   const [headerTitle, setHeaderTitle] = useState("Loading...");
   const [showNavigation, setShowNavigation] = useState(false);
-  const user = useOptionalUser();
+
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    if (typeof localStorage == "undefined") return "";
+
+    const storedActiveTabValue = localStorage.getItem("activeTab");
+    return storedActiveTabValue ? JSON.parse(storedActiveTabValue) : "";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("activeTab", JSON.stringify(activeTab));
+  }, [activeTab]);
+
   const location = useLocation();
 
   useEffect(() => {
@@ -69,7 +79,7 @@ export default function App() {
       case "/calender":
         setHeaderTitle("Darbų Kalendorius");
         break;
-      case "/FAQ":
+      case "/faq":
         setHeaderTitle("Dažnai užduodami klausimai");
         break;
       case "/groups":
@@ -78,10 +88,10 @@ export default function App() {
       case "/groups/new":
         setHeaderTitle("Sukurti grupę");
         break;
-      case "/workerAds":
+      case "/workerads":
         setHeaderTitle("Reklamos");
         break;
-      case "/workerAds/new":
+      case "/workerads/new":
         setHeaderTitle("Sukurti reklamą");
         break;
       case "/questioner":
