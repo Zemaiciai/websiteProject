@@ -71,7 +71,7 @@ export default function App() {
         setShowNavigation(false);
         break;
     }
-    if (location.pathname.startsWith("/profile/[^new].+")) {
+    if (location.pathname.startsWith("/profile")) {
       setHeaderTitle("Profilis");
       return;
     }
