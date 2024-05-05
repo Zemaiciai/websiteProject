@@ -118,6 +118,16 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
                     Profilis
                   </button>
                 </Form>
+                {user?.role.toLocaleLowerCase() === "super admin" && (
+                  <Form action={"/admin"} method="get">
+                    <button
+                      type="submit"
+                      className="block w-full py-2 px-4 text-sm text-gray-800 hover:bg-gray-100 focus:outline-none"
+                    >
+                      Admin panel
+                    </button>
+                  </Form>
+                )}
                 <Form action="/logout" method="post">
                   <button
                     type="submit"

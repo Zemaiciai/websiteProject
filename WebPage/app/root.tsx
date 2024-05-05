@@ -48,7 +48,7 @@ export default function App() {
   useEffect(() => {
     setShowNavigation(true);
 
-    switch (location.pathname) {
+    switch (location.pathname.toLocaleLowerCase()) {
       case "/admin":
       case "/":
       case "/ban":
@@ -126,9 +126,8 @@ export default function App() {
                 activeTab={activeTab}
                 tabTitles={{
                   orders: "Užsakymai",
-                  admin: "Admin panel",
+                  dashboard: "Dashboard",
                   messages: "Žinutės",
-                  [`profile/${user?.id}`]: "Profilis",
                   calender: "Kalendorius",
                   FAQ: "D.U.K",
                   groups: "Grupės",
