@@ -11,7 +11,6 @@ import {
 } from "./adminLogs.server";
 import {
   changeCodeEmail,
-  changeCodeExpiring,
   changeCodePercentage,
   markCodeAsUsed,
 } from "./secretCode.server";
@@ -19,7 +18,9 @@ import {
 export type { User } from "@prisma/client";
 
 export async function getUserById(id: string) {
-  return prisma.user.findUnique({ where: { id } });
+  return prisma.user.findUnique({
+    where: { id },
+  });
 }
 
 export async function getUserByEmail(email: User["email"]) {
