@@ -1,22 +1,14 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Form, Link } from "@remix-run/react";
 
 import ProfileSettings from "~/components/profilePageComponents/profileSettings";
 import { requireUser } from "~/session.server";
-import { useUser } from "~/utils";
 
-import ProfileCard from "../components/profilePageComponents/profileCard";
 export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const user = await requireUser(request);
-  return json({ user });
-};
+export const loader = async ({ request }: LoaderFunctionArgs) =>
+  await requireUser(request);
 
 export default function NoteDetailsPage() {
-  const user = useUser();
-
   return (
     <div className="main-div">
       <div className="profilePageDiv">

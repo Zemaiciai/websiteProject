@@ -103,6 +103,7 @@ export default function App() {
     }
 
     if (location.pathname.startsWith("/profile")) {
+      setActiveTab("");
       setHeaderTitle("Profilis");
     }
 
