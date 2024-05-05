@@ -2,34 +2,23 @@ import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { useState } from "react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import Message from "~/components/DashBoardCustomMessagesDesign/Message";
-import NavBar from "~/components/common/NavBar/NavBar";
-import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
-import NewFooter from "~/components/newFooter/NewFooter";
 
 import { getAllMessages } from "~/models/customMessage.server";
 import { requireUser } from "~/session.server";
-import { useUser } from "~/utils";
 export const meta: MetaFunction = () => [{ title: "Titulinis - Žemaičiai" }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await requireUser(request);
-  return typedjson({
-    customMessages: await getAllMessages(),
-  });
+  return typedjson(await getAllMessages());
 };
 
 const Dashboard = () => {
-  const data = useTypedLoaderData<typeof loader>();
+  const customMessages = useTypedLoaderData<typeof loader>();
 
-  const user = useUser();
-  const [activeTab, setActiveTab] = useState("");
-  const handleTabClick = (tab: string) => {
-    setActiveTab(tab);
-  };
   return (
     <div className="flex h-full w-full">
       <div className="flex flex-col h-full w-full bg-custom-100 overflow-auto">
-        {data.customMessages.map(
+        {customMessages.map(
           (message) =>
             message.visibility && (
               <div key={message.id}>
