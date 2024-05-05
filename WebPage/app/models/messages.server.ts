@@ -48,20 +48,126 @@ export async function createConversation(userId1: string, userId2: string) {
   return newConversation.id;
 }
 
-export async function getConversations(userId) {
-  const conversations = await prisma.conversation.findMany({
-    where: {
-      participants: {
-        some: { id: userId },
+export async function getConversations(userId: string) {
+  try {
+    const conversations = await prisma.conversation.findMany({
+      where: {
+        participants: {
+          some: { id: userId },
+        },
       },
-    },
-    include: {
-      participants: true, // Include all participant details
-    },
-  });
+      include: {
+        participants: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
 
-  if (conversations) {
     return conversations;
+  } catch (error) {
+    console.error("Error fetching conversations:", error);
+    throw new Error("Failed to fetch conversations");
   }
-  return null;
+}
+
+export async function sendMessage(
+  conversationId: string,
+  senderId: string,
+  content: string,
+) {
+  try {
+    // Find the conversation
+    const conversation = await prisma.conversation.findUnique({
+      where: {
+        id: conversationId,
+      },
+      include: {
+        participants: true,
+      },
+    });
+
+    if (!conversation) {
+      throw new Error("Conversation not found");
+    }
+
+    // Determine the recipient ID
+    const recipientId = conversation.participants.find(
+      (participant) => participant.id !== senderId,
+    )?.id;
+
+    if (!recipientId) {
+      throw new Error("Recipient not found");
+    }
+
+    // Create the new message
+    const newMessage = await prisma.message.create({
+      data: {
+        text: content,
+        senderId: senderId,
+        recipientId: recipientId,
+        conversationId: conversationId,
+      },
+    });
+
+    return newMessage;
+  } catch (error) {
+    console.error("Error sending message:", error);
+    throw new Error("Failed to send message");
+  }
+}
+
+export async function getMessagesByConversationId(conversationId: string) {
+  try {
+    const messages = await prisma.message.findMany({
+      where: {
+        conversationId: conversationId,
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        recipient: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    const conversation = await prisma.conversation.findUnique({
+      where: {
+        id: conversationId,
+      },
+      include: {
+        participants: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!conversation) {
+      throw new Error("Conversation not found");
+    }
+
+    const participantIds = conversation.participants.map(
+      (participant) => participant.id,
+    );
+
+    return { messages, participantIds };
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    throw new Error("Failed to fetch messages");
+  }
 }

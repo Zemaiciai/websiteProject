@@ -1,7 +1,7 @@
-import { Conversation } from "@prisma/client";
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
+import { getConversations } from "~/models/messages.server";
 
 import {
   getAllMyAdds,
@@ -20,6 +20,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     messagesList,
   });
 };
+
+interface Conversation {
+  id: string;
+  participants: Participant[];
+  // Add other properties as needed
+}
+
+interface Participant {
+  id: string;
+  name: string;
+  firstName: string; // Add firstName property
+  lastName: string; // Add lastName property
+  // Add other participant properties as needed
+}
 
 export default function GroupsIndexPage() {
   const { user } = useLoaderData<typeof loader>();
@@ -85,17 +99,37 @@ export default function GroupsIndexPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {/* Map through filtered conversations and render table rows */}
-                      {messagesList && messagesList.length > 0 && (
-                        <tr className="bg-white border-b hover:bg-gray-50">
-                          <td className="px-6 py-4 cursor-pointer">
-                            {/* Display participant information */}
-                            {messagesList.map((participant) => (
-                              <span key={participant.id}>{participant.id}</span>
-                            ))}
-                          </td>
-                        </tr>
-                      )}
+                      {/* Map through conversations and render table rows */}
+                      {messagesList &&
+                        messagesList.length > 0 &&
+                        messagesList.map((conversation) => (
+                          <Link
+                            key={conversation.id}
+                            to={`/messages/${conversation.id}`}
+                            className="block"
+                          >
+                            <tr className="bg-white border-b hover:bg-gray-50">
+                              <td className="px-6 py-4 cursor-pointer">
+                                {/* Display participant information excluding the current user */}
+                                {conversation.participants.map(
+                                  (participant) =>
+                                    participant.id !== user.id && (
+                                      <div key={participant.id}>
+                                        <span>{participant.firstName}</span>{" "}
+                                        <span>{participant.lastName}</span>
+                                      </div>
+                                    ),
+                                )}
+                              </td>
+                              <td className="px-6 py-4">
+                                {/* Display message text */}
+                              </td>
+                              <td className="px-6 py-4">
+                                {/* Display timestamp */}
+                              </td>
+                            </tr>
+                          </Link>
+                        ))}
                     </tbody>
                   </table>
                 </div>
@@ -117,7 +151,4 @@ export default function GroupsIndexPage() {
       </div>
     </>
   );
-}
-function getConversations(id: string) {
-  throw new Error("Function not implemented.");
 }
