@@ -107,6 +107,7 @@ export default function OrderCard({ createdBy, order }: OrderCardProps) {
                       name="action"
                       value="Pašalinti"
                       className="w-full cursor-pointer font-bold"
+                      readOnly
                     />
                   </Form>
                 ) : (

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useUser } from "~/utils";
 
 interface UserInfoProps {
-  user: User;
+  user: User | null;
   checkPendingStatusRequesteer: boolean;
   checkPendingStatusRequested: boolean;
   CurrentlyFriends: boolean;
@@ -22,7 +22,7 @@ function UserRatingAndOther({
   };
   const isUserInProfile = () => {
     // Check if the user is in their profile
-    return user.id === realUser.id; // Assuming user ID is used for identification
+    return user?.id === realUser.id; // Assuming user ID is used for identification
   };
   return (
     <div className="otherInfoDiv flex space-x-4 place-items-center">
@@ -204,7 +204,7 @@ function UserRatingAndOther({
               >
                 <input name="form-id" hidden defaultValue="sendInvite" />
                 <input name="whoSentInvite" hidden defaultValue={realUser.id} />
-                <input name="whoGotInvite" hidden defaultValue={user.id} />
+                <input name="whoGotInvite" hidden defaultValue={user?.id} />
                 <button
                   type="submit"
                   className="text-base font-semibold text-neutral-600 hover:text-neutral-800"
@@ -220,7 +220,7 @@ function UserRatingAndOther({
             >
               <input name="form-id" hidden defaultValue="cancelInvite" />
               <input name="whoSentInvite" hidden defaultValue={realUser.id} />
-              <input name="whoGotInvite" hidden defaultValue={user.id} />
+              <input name="whoGotInvite" hidden defaultValue={user?.id} />
               <button
                 type="submit"
                 className="text-base font-semibold text-neutral-600 hover:text-neutral-800"
@@ -237,7 +237,7 @@ function UserRatingAndOther({
             >
               <input name="form-id" hidden defaultValue="acceptInvite" />
               <input name="whoSentInvite" hidden defaultValue={realUser.id} />
-              <input name="whoGotInvite" hidden defaultValue={user.id} />
+              <input name="whoGotInvite" hidden defaultValue={user?.id} />
               <button
                 type="submit"
                 className="text-base font-semibold text-neutral-600 hover:text-neutral-800"
@@ -253,7 +253,7 @@ function UserRatingAndOther({
             >
               <input name="form-id" hidden defaultValue="rejectInvite" />
               <input name="whoSentInvite" hidden defaultValue={realUser.id} />
-              <input name="whoGotInvite" hidden defaultValue={user.id} />
+              <input name="whoGotInvite" hidden defaultValue={user?.id} />
               <button
                 type="submit"
                 className="text-base font-semibold text-neutral-600 hover:text-neutral-800"
@@ -270,7 +270,7 @@ function UserRatingAndOther({
             >
               <input name="form-id" hidden defaultValue="removeFromFriends" />
               <input name="whoSentInvite" hidden defaultValue={realUser.id} />
-              <input name="whoGotInvite" hidden defaultValue={user.id} />
+              <input name="whoGotInvite" hidden defaultValue={user?.id} />
               <button
                 type="submit"
                 className="text-base font-semibold text-neutral-600 hover:text-neutral-800"

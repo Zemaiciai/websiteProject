@@ -44,9 +44,9 @@ export default function SetProgram({ programName }: ProgramInfo) {
           >
             {programName}
           </label>
-          {isVueChecked && ( // Render dropdown only if Vue checkbox is checked
+          {isVueChecked && (
             <div className="ml-auto">
-              <label htmlFor="vue-experience" className="sr-only">
+              <label htmlFor="vue-experience" hidden>
                 Experience:
               </label>
               <select
@@ -59,7 +59,6 @@ export default function SetProgram({ programName }: ProgramInfo) {
                 <option value="1">1 year</option>
                 <option value="2">2 years</option>
                 <option value="3">3 years</option>
-                {/* Add more options as needed */}
               </select>
             </div>
           )}

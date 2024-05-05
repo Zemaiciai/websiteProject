@@ -1,40 +1,62 @@
 import { Form, Link } from "@remix-run/react";
-import { useState, useEffect, useRef } from "react"; // Import useState and useEffect hooks
-import { useUser } from "~/utils";
+import { useState, useEffect, useRef } from "react";
+
+import { useOptionalUser } from "~/utils";
+import Notifications from "./Notifications";
+import { Notification } from "@prisma/client";
 
 interface NavBarHeaderProps {
   title: string;
 }
 
 export default function NavBarHeader({ title }: NavBarHeaderProps) {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to manage dropdown visibility
-  const user = useUser();
-  const dropdownRef = useRef<HTMLDivElement>(null); // Ref to the dropdown menu element
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+
+  const user = useOptionalUser();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => {
-    setIsDropdownOpen((prev) => !prev); // Toggle dropdown visibility
+    setIsDropdownOpen((prev) => !prev);
+  };
+
+  const handleNotificationsClick = () => {
+    setShowNotifications(!showNotifications);
   };
 
   useEffect(() => {
-    // Function to handle clicks outside the dropdown
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target as Node)
+      ) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [notificationsRef]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        setIsDropdownOpen(false); // Close dropdown if the click is outside of it
+        setIsDropdownOpen(false);
       }
     };
 
-    // Attach event listener when the dropdown is open
     if (isDropdownOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
-      // Remove event listener when the dropdown is closed
       document.removeEventListener("mousedown", handleClickOutside);
     }
-
-    // Cleanup function to remove event listener on component unmount
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -48,10 +70,10 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
         </div>
         <div className="flex items-center text-1xl text-bold font-bold pr-6 space-x-4">
           <div className="flex items-center text-1xl text-bold font-bold">
-            <Link to={"/profile/" + user.id} className="btn btn-primary">
+            <Link to={"/profile/" + user?.id} className="btn btn-primary">
               <div style={{ display: "flex", alignItems: "center" }}>
                 <span style={{ marginRight: "0.5rem" }}>
-                  {user.firstName + " " + user.lastName}
+                  {user?.firstName + " " + user?.lastName}
                 </span>
                 <img
                   src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
@@ -75,21 +97,20 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
               >
                 <path
                   stroke="currentColor"
-                  strokeLinecap="round" // Use camelCase for attributes
-                  strokeLinejoin="round" // Use camelCase for attributes
-                  strokeWidth="2" // Use camelCase for attributes
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="m1 1 4 4 4-4"
                 />
               </svg>
             </button>
-            {/* Dropdown menu */}
             {isDropdownOpen ? (
               <div
                 ref={dropdownRef}
                 className="absolute mt-32 ml-20 bg-white divide-y divide-gray-100 border-custom-800 border rounded shadow"
                 style={{ transform: "translateY(8px)", minWidth: "10rem" }} // Set a minimum width for the dropdown
               >
-                <Form action={"/profile/" + user.id} method="get">
+                <Form action={"/profile/" + user?.id} method="get">
                   <button
                     type="submit"
                     className="block w-full py-2 px-4 text-sm text-gray-800 hover:bg-gray-100 focus:outline-none"
@@ -97,6 +118,16 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
                     Profilis
                   </button>
                 </Form>
+                {user?.role.toLocaleLowerCase() === "super admin" && (
+                  <Form action={"/admin"} method="get">
+                    <button
+                      type="submit"
+                      className="block w-full py-2 px-4 text-sm text-gray-800 hover:bg-gray-100 focus:outline-none"
+                    >
+                      Admin panel
+                    </button>
+                  </Form>
+                )}
                 <Form action="/logout" method="post">
                   <button
                     type="submit"
@@ -108,15 +139,15 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
               </div>
             ) : null}
           </div>
-          <Link to="/notifications" className="btn btn-primary">
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <img
-                className="w-5 h-5"
-                src="https://cdn1.iconfinder.com/data/icons/100-basic-for-user-interface/32/94-bell-256.png"
-                alt="sugedo"
-              />
-            </div>
-          </Link>
+          <div className="relative" ref={notificationsRef}>
+            <img
+              className="w-5 h-5 flex items-center cursor-pointer"
+              src="https://cdn1.iconfinder.com/data/icons/100-basic-for-user-interface/32/94-bell-256.png"
+              alt="sugedo"
+              onClick={handleNotificationsClick}
+            />
+            {showNotifications && <Notifications />}
+          </div>
           <Link to="/dashboard" className="btn btn-primary">
             <div style={{ display: "flex", alignItems: "center" }}>
               <span style={{ marginRight: "0.5rem" }}>Grįžti atgal</span>

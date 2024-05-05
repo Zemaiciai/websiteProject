@@ -16,7 +16,10 @@ import {
 } from "@remix-run/node";
 import { NotificationTypes, OrderStatus } from "@prisma/client";
 import { sendNotification } from "~/models/notification.server";
+import { getUserById } from "~/models/user.server";
+
 export const meta: MetaFunction = () => [{ title: "Užsakymai - Žemaičiai" }];
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   const userOrders = await getOrdersByUserId(userId, true);
@@ -33,22 +36,33 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if (!order) return null;
 
+  const worker = await getUserById(order.workerId);
+
   let newStatus: OrderStatus | undefined;
 
   switch (state) {
     case "Priimti":
-      await sendNotification(order.workerId, NotificationTypes.ORDER_ACCEPTED);
+      await sendNotification(
+        order.customerId,
+        `Užsakymą ${order.orderName} vartotojas ${worker?.userName} priėmė`,
+        NotificationTypes.ORDER_ACCEPTED,
+      );
       newStatus = OrderStatus.ACCEPTED;
       break;
     case "Atmesti":
       await sendNotification(
         order.customerId,
+        `Užsakymą ${order.orderName} vartotojas ${worker?.userName} atmetė`,
         NotificationTypes.ORDER_DECLINED,
       );
       newStatus = OrderStatus.DECLINED;
       break;
     case "Sumokėti":
-      await sendNotification(order.customerId, NotificationTypes.ORDER_PAYED);
+      await sendNotification(
+        order.workerId,
+        `Už užsakymą ${order.orderName} sumokėta`,
+        NotificationTypes.ORDER_PAYED,
+      );
       newStatus = OrderStatus.PAYED;
       break;
     case "Pašalinti":
@@ -96,7 +110,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="flex h-full p-4 space-x-4 bg-custom-200">
+    <div className="flex h-full w-full p-4 space-x-4 bg-custom-200">
       <div className="orders-table grow flex justify-center place-items-start">
         <div className="w-full">
           <OrdersTable

@@ -1,6 +1,5 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 
-import Header from "~/components/common/header/header";
 import ProfilePageTabs from "~/components/profilePageComponents/profilePageTabs";
 import { useUser, validateCreateWorkExample } from "~/utils";
 
@@ -10,6 +9,7 @@ import { User, getUserById } from "~/models/user.server";
 import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
 import { useState } from "react";
 import NavBar from "~/components/common/NavBar/NavBar";
+
 import { requireUser } from "~/session.server";
 import {
   acceptFriendshipRequest,
@@ -21,7 +21,6 @@ import {
   deleteFromFriends,
   rejectFriendshipRequest,
 } from "~/models/friendshipRequest.server";
-import { typedjson } from "remix-typedjson";
 import {
   createSocialMedia,
   getSocialMediaByUserId,
@@ -33,22 +32,12 @@ import {
   getUserWorkExamples,
   workExamplesUpdate,
 } from "~/models/workExamples.server";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
 export const meta: MetaFunction = () => [
   { title: "Profilio peržiūra - Žemaičiai" },
 ];
 
-interface LoaderData {
-  user: User;
-  checkPendingStatusRequesteer: boolean;
-  checkPendingStatusRequested: boolean;
-  CurrentlyFriends: boolean;
-  socialMediaLinks: socialMedia | null;
-  workExamples: workExamples | null;
-}
-
-export const loader = async ({
-  request,
-}: LoaderFunctionArgs): Promise<LoaderData | null> => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = request.url;
   const parts = url.split("/");
   const user2 = await requireUser(request);
@@ -66,22 +55,16 @@ export const loader = async ({
 
   const CurrentlyFriends = await checkCurrentlyFriends(user2.id, userProfileId);
 
-  const user = await getUserById(userProfileId);
-
   const socialMediaLinks = await getSocialMediaByUserId(userProfileId);
 
-  const workExamples = await getUserWorkExamples(userProfileId);
-
-  return user
-    ? {
-        user,
-        checkPendingStatusRequesteer,
-        checkPendingStatusRequested,
-        CurrentlyFriends,
-        socialMediaLinks,
-        workExamples,
-      }
-    : null;
+  return typedjson({
+    user: await getUserById(userProfileId),
+    requesteerStatus: checkPendingStatusRequesteer,
+    requestedStatus: checkPendingStatusRequested,
+    currenltyFriends: CurrentlyFriends,
+    socialMediaLinks: socialMediaLinks,
+    workExamples: await getUserWorkExamples(userProfileId),
+  });
 };
 interface Errors {
   fbLinkError?: string;
@@ -207,48 +190,22 @@ export const action = async (actionArg) => {
 };
 
 export default function NoteDetailsPage() {
-  const OGuser = useUser();
-  const {
-    user,
-    checkPendingStatusRequesteer,
-    checkPendingStatusRequested,
-    CurrentlyFriends,
-    socialMediaLinks,
-    workExamples,
-  } = useLoaderData<LoaderData>();
-
-  const [linkClicked, setLinkClicked] = useState(false);
-  const [activeTab, setActiveTab] = useState("");
-  const handleTabClick = (tab: string) => {
-    setActiveTab(tab);
-  };
+  const data = useTypedLoaderData<typeof loader>();
   const errorData = useActionData<Errors>();
   return (
     <div className="main-div">
-      {/* <div className="navbar-container">
-        <NavBar
-          title={"Orders"}
-          handleTabClick={handleTabClick}
-          redirectTo={"orders"}
-          activeTab={activeTab}
-          tabTitles={["TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST"]}
-        />
-      </div> */}
-      <NavBarHeader
-        title={`${linkClicked ? "Profilio puslapis" : "Profilio puslapis"}`}
-      />
       <div className="profilePageDiv">
         <ProfileCard
-          user={user}
-          checkPendingStatusRequesteer={checkPendingStatusRequesteer}
-          checkPendingStatusRequested={checkPendingStatusRequested}
-          CurrentlyFriends={CurrentlyFriends}
-          socialMediaLinks={socialMediaLinks}
+          user={data.user}
+          checkPendingStatusRequesteer={data.requesteerStatus}
+          checkPendingStatusRequested={data.requestedStatus}
+          CurrentlyFriends={data.currenltyFriends}
+          socialMediaLinks={data.socialMediaLinks}
         />
         <ProfilePageTabs
-          user={user}
+          user={data.user}
           errorData={errorData}
-          workExample={workExamples}
+          workExample={data.workExamples}
         />
       </div>
     </div>

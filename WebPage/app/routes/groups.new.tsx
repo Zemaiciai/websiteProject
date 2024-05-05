@@ -9,7 +9,6 @@ export const meta: MetaFunction = () => [{ title: "Nauja grupė - Žemaičiai" }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
-  console.log(user.email);
   return json(user);
 };
 interface Errors {
@@ -55,14 +54,14 @@ export default function NewOrderPage() {
   const data = useLoaderData<typeof loader>();
   const errorData = useActionData<Errors>();
   return (
-    <div className="flex-grow mr-6">
-      <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3">
+    <div className="flex grow flex-col h-full w-full">
+      <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ">
         <h1 className="text-3xl font-mono font-font-extralight pb-3">
           Informacija apie grupių kūrimus
         </h1>
         <GroupsCreationInformation></GroupsCreationInformation>
       </div>
-      <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3 mb-5">
+      <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ">
         <h1 className="text-3xl font-mono font-font-extralight pb-3">
           Grupės sukūrimas
         </h1>
@@ -87,6 +86,7 @@ export default function NewOrderPage() {
                     autoComplete="on"
                     className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                     value={data.id}
+                    readOnly
                     hidden
                   />
                   <input

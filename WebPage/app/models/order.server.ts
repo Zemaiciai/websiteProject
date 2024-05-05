@@ -59,9 +59,14 @@ export async function checkOrders() {
 
       await sendNotification(
         order.customerId,
+        `Užsakymas ${order.orderName} baigtas`,
         NotificationTypes.ORDER_COMPLETED,
       );
-      await sendNotification(order.workerId, NotificationTypes.ORDER_COMPLETED);
+      await sendNotification(
+        order.workerId,
+        `Užsakymas ${order.orderName} baigtas`,
+        NotificationTypes.ORDER_COMPLETED,
+      );
       await updateOrderStatus(OrderStatus.COMPLETED, order.id);
     }),
   );

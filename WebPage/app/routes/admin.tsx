@@ -1,7 +1,6 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
-import { error } from "console";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { getAllLogs } from "~/models/adminLogs.server";
 import {
   createMessage,
@@ -28,6 +27,13 @@ import {
   validateCustomMessage,
   validateInviteCodeGeneration,
 } from "~/utils";
+import Questionnaire from "./questioner";
+import {
+  createFAQQuestion,
+  deleteFAQQuestion,
+  getFAQQuestions,
+} from "~/models/faqPage.server";
+import { FaqPage } from "@prisma/client";
 
 export const meta: MetaFunction = () => [{ title: "Admin - Žemaičiai" }];
 
@@ -65,12 +71,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
   const logsOfAdmin = await getAllLogs();
   const customMessageList = await getAllMessages();
+  const faqQuestionList = await getFAQQuestions();
   return json({
     secretCodeList,
     userList,
     user,
     logsOfAdmin,
     customMessageList,
+    faqQuestionList,
   });
 };
 interface Errors {
@@ -224,6 +232,14 @@ export const action = async (actionArg) => {
       customMessageForMessages,
       adminUserName,
     );
+  } else if (formId === "faqQuestionCreate") {
+    console.log("ATEJO KRW");
+    const questionName = String(formData.get("questionName"));
+    const questionDescription = String(formData.get("questionDescription"));
+    return createFAQQuestion(questionName, questionDescription);
+  } else if (formId === "deleteFAQQuestion") {
+    const question = String(formData.get("questionID"));
+    return deleteFAQQuestion(question);
   } else {
     return null;
   }
@@ -255,7 +271,6 @@ export default function NotesPage() {
     }, 500);
   }
   const data = useLoaderData<typeof loader>();
-
   const emailRef = useRef<HTMLInputElement>(null);
   const customNameRef = useRef<HTMLInputElement>(null);
   const contractNumberRef = useRef<HTMLInputElement>(null);
@@ -266,6 +281,7 @@ export default function NotesPage() {
   const secretCodeList = data.secretCodeList;
   const adminLogItems: AdminLogs[] = data.logsOfAdmin;
   const customMessagesItems: CustomMessage[] = data.customMessageList;
+  const faqPageItems: FaqPage[] = data.faqQuestionList;
 
   const userShitNahui = useActionData<User>();
   const userList = useLoaderData<{ userList: User[] }>().userList;
@@ -280,16 +296,6 @@ export default function NotesPage() {
   const itemsPerPageForLogs = 30;
   const indexOfLastItemForLogs = currentPage * itemsPerPageForLogs;
   const indexOfFirstItemForLogs = indexOfLastItemForLogs - itemsPerPageForLogs;
-
-  const currentCustomMessagesItems = customMessagesItems.sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime();
-    const dateB = new Date(b.createdAt).getTime();
-    if (!isNaN(dateA) && !isNaN(dateB)) {
-      return dateB - dateA;
-    }
-    // Handle cases where createdAt is not a valid date
-    return 0;
-  });
 
   const currentAdminLogItems = adminLogItems
     .sort((a, b) => {
@@ -402,16 +408,7 @@ export default function NotesPage() {
             >
               Reports
             </button>
-            <button
-              className={`inline-flex justify-center px-4 py-3 ${
-                activeTab === "adminLogs"
-                  ? "text-white bg-custom-850"
-                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
-              } w-full`}
-              onClick={() => handleTabClick("adminLogs")}
-            >
-              Veiksmų istorija
-            </button>
+
             <button
               className={`inline-flex justify-center px-4 py-3 ${
                 activeTab === "websiteMessages"
@@ -421,6 +418,26 @@ export default function NotesPage() {
               onClick={() => handleTabClick("websiteMessages")}
             >
               Svetainės pranešimai
+            </button>
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "faqPage"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
+              } w-full`}
+              onClick={() => handleTabClick("faqPage")}
+            >
+              D.U.K. pakeitimai
+            </button>
+            <button
+              className={`inline-flex justify-center px-4 py-3 ${
+                activeTab === "adminLogs"
+                  ? "text-white bg-custom-850"
+                  : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
+              } w-full`}
+              onClick={() => handleTabClick("adminLogs")}
+            >
+              Veiksmų istorija
             </button>
           </div>
         </div>
@@ -2325,8 +2342,8 @@ export default function NotesPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {currentCustomMessagesItems.map((code, index) => (
-                          <tr key={index}>
+                        {customMessagesItems.map((code, index) => (
+                          <tr key={code.createdAt}>
                             <td className="px-6 py-4">{index + 1}</td>
                             <td className="px-6 py-4">{code.name}</td>
                             <td className="px-6 py-4">{code.message}</td>
@@ -2373,6 +2390,162 @@ export default function NotesPage() {
                                   type="submit"
                                   name="action"
                                   value="Pakeisti matomumą"
+                                  className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-4 rounded"
+                                />
+                              </Form>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : null}
+
+        {activeTab === "faqPage" ? (
+          <>
+            <div className="flex flex-col w-full relative overflow-auto">
+              <div className="flex flex-col w-full bg-custom-100">
+                {/* HEADER FOR ADMIN PANEL */}
+                <div className="flex w-full flex-col h-70 border-solid border-b-4 border-gray-150 justify-center">
+                  <div className="flex items-center justify-between">
+                    <div className="pt-6 pl-6 pb-6">
+                      <h1 className="text-2xl text-bold font-bold">
+                        D.U.K. Puslapio pakeitimai
+                      </h1>
+                    </div>
+
+                    <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                      <div className="flex items-center text-1xl text-bold font-bold pr-6">
+                        <Link to="/dashboard" className="btn btn-primary">
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <span style={{ marginRight: "0.5rem" }}>
+                              Vardas pavardė
+                            </span>
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="h-10 w-10 rounded-full cursor-pointer"
+                            />
+                          </div>
+                        </Link>
+                      </div>
+                      <Link to="/dashboard" className="btn btn-primary">
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span style={{ marginRight: "0.5rem" }}>
+                            Grįžti atgal
+                          </span>
+                          <img
+                            className="w-4 h-4"
+                            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
+                            alt="ggwp"
+                          />
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                {/* END OF HEADER FOR ADMIN PANEL */}
+                <div className="flex flex-col ml-3 mt-3 mr-8">
+                  <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3 mb-5">
+                    <h1 className="text-3xl font-mono font-font-extralight pb-3">
+                      Klausimo sukūrimas
+                    </h1>
+                    <Form method="post">
+                      <div className="flex flex-wrap -mx-3 mb-4">
+                        <div className="w-full  px-3 mb-6 md:mb-0">
+                          <div className="flex flex-col">
+                            <input
+                              id="form-id"
+                              name="form-id"
+                              type="text"
+                              autoComplete="on"
+                              className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                              defaultValue="faqQuestionCreate"
+                              hidden
+                            />
+                            <input
+                              id="questionName"
+                              name="questionName"
+                              type="text"
+                              autoComplete="on"
+                              className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                              placeholder="Klausimo pavadinimas"
+                            />
+                          </div>
+                        </div>
+
+                        {/* New textarea field */}
+                        <div className="w-full px-3 mt-3">
+                          <div className="flex flex-col">
+                            <div className="relative">
+                              <textarea
+                                id="questionDescription"
+                                name="questionDescription"
+                                autoComplete="on"
+                                className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black resize-none"
+                                placeholder="Atsakymas į klausimą"
+                                style={{ resize: "none" }} // Disable resizing
+                                rows={7}
+                              ></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full rounded bg-custom-800 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                      >
+                        Sukurti klausimą
+                      </button>
+                    </Form>
+                  </div>
+
+                  <div className="p-6 bg-custom-200 text-medium w-full ml-3 mt-3 mr-3 mb-5">
+                    <h1 className="text-3xl font-mono font-font-extralight mb-5">
+                      Sistemoje esantys klausimai
+                    </h1>
+                    <table className="min-w-full text-center text-sm font-light">
+                      <thead className="border-b bg-neutral-50 font-medium">
+                        <tr>
+                          <th className="px-6 py-4 w-16">#</th>
+                          <th className="px-6 py-4 w-1/2">Klausimas</th>
+                          <th className="px-6 py-4 w-1/2">Atsakymas</th>
+                          <th className="px-6 py-4 w-1/2">Veiksmai</th>{" "}
+                          {/* Added this table header */}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {faqPageItems.map((faq, index) => (
+                          <tr key={faq.id}>
+                            <td className="px-6 py-4">{index + 1}</td>
+                            <td className="px-6 py-4">{faq.questionName}</td>
+                            <td className="px-6 py-4">{faq.questionAnswer}</td>
+                            <td className="px-6 py-4">
+                              <Form
+                                method="post"
+                                className="flex justify-center"
+                              >
+                                <input
+                                  name="form-id"
+                                  hidden
+                                  defaultValue="deleteFAQQuestion"
+                                />
+                                <input
+                                  name="questionID"
+                                  hidden
+                                  defaultValue={faq.id}
+                                />
+                                <input
+                                  type="submit"
+                                  name="action"
+                                  value="Ištrinti"
                                   className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-4 rounded"
                                 />
                               </Form>

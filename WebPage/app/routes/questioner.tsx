@@ -166,7 +166,7 @@ const Questionnaire = () => {
     const endIndex = Math.min(startIndex + 4, questions.length);
 
     return questions.slice(startIndex, endIndex).map((question, index) => (
-      <div className="mb-4" key={index + startIndex}>
+      <div className="mb-4 h-full w-full" key={index + startIndex}>
         <label
           htmlFor={(index + startIndex).toString()}
           className="block mb-2 font-bold"

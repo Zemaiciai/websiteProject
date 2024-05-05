@@ -1,17 +1,23 @@
 // groups.$groupId.tsx
 import { GroupsRoles } from "@prisma/client";
-import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
 import { Form, Link, json, useLoaderData } from "@remix-run/react";
 import { group } from "console";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import { getMoneyLogsByGroupId } from "~/models/groupBalanceLog.server";
 import {
   acceptInvite,
   cancelInvite,
+  deleteGroup,
   getAllGroupUsers,
   getGroupByName,
+  groupInformationChange,
+  groupMemberRoleChange,
   invitingUserToGroup,
   leaveGroup,
+  removeUserFromGroup,
+  sendMoneyToUser,
 } from "~/models/groups.server";
 import { requireUser } from "~/session.server";
 export const meta: MetaFunction = () => [
@@ -24,8 +30,8 @@ export const action = async (actionArg) => {
 
   if (formid === "userInvite") {
     const groupName = formData.get("group-name");
-    const inviteUserName = formData.get("inviteUserName");
-    invitingUserToGroup(groupName, inviteUserName);
+    const inviteUserEmail = formData.get("inviteUserEmail");
+    invitingUserToGroup(groupName, inviteUserEmail);
     return null;
   }
   if (formid === "acceptInvite") {
@@ -36,14 +42,77 @@ export const action = async (actionArg) => {
   if (formid === "declineInvite") {
     const groupID = formData.get("group-name");
     const inviteUserName = formData.get("user");
-    cancelInvite(groupID, inviteUserName);
+    const check = await cancelInvite(groupID, inviteUserName);
+    if (check) {
+      return redirect("/groups");
+    }
   }
   if (formid === "leaveGroup") {
     const groupID = formData.get("group-name");
     const userName = formData.get("user");
-    leaveGroup(groupID, userName);
+    const check = await leaveGroup(groupID, userName);
+    if (check) {
+      return redirect("/groups");
+    }
+  }
+  if (formid === "userRoleChange") {
+    const groupID = formData.get("group-name");
+    const userEmailRoleChange = formData.get("userEmailRoleChange");
+    const roleToChange = formData.get("roleToChange");
+    groupMemberRoleChange(groupID, userEmailRoleChange, roleToChange);
+  }
+  if (formid === "changeSettings") {
+    const groupID = formData.get("group-name");
+    const groupNameChange = formData.get("groupNameChange");
+    const groupShortDescriptionChange = formData.get(
+      "groupShortDescriptionChange",
+    );
+    const groupFullDescriptionChange = formData.get(
+      "groupFullDescriptionChange",
+    );
+
+    const check = await groupInformationChange(
+      groupID,
+      groupNameChange,
+      groupShortDescriptionChange,
+      groupFullDescriptionChange,
+    );
+
+    if (check) {
+      return redirect("/groups");
+    }
+  }
+  if (formid === "userRemove") {
+    const groupID = formData.get("group-name");
+    const removeUserEmail = formData.get("removeUserEmail");
+    const whoMadeRequestId = formData.get("whoMadeRequest");
+    const check = await removeUserFromGroup(
+      groupID,
+      removeUserEmail,
+      whoMadeRequestId,
+    );
+  }
+  if (formid === "deleteGroup") {
+    const groupID = formData.get("group-name");
+    const whoMadeRequestId = formData.get("user");
+    const check = await deleteGroup(groupID, whoMadeRequestId);
+    if (check) {
+      return redirect("/groups");
+    }
   }
 
+  if (formid === "sendingMoney") {
+    const groupID = formData.get("group-name");
+    const whoMadeRequestID = formData.get("whoMadeRequestID");
+    const userEmailMoneySend = formData.get("userEmailMoneySend");
+    const moneyAmount = formData.get("moneyAmount");
+    const check = await sendMoneyToUser(
+      groupID,
+      whoMadeRequestID,
+      userEmailMoneySend,
+      moneyAmount,
+    );
+  }
   return null;
 };
 
@@ -55,12 +124,15 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   }
   const groupInfo = await getGroupByName(groupId);
   const groupUsers = await getAllGroupUsers(groupId);
-  return json({ groupInfo, groupUsers, userUsingRN });
+
+  const balanceLogs = await getMoneyLogsByGroupId(String(groupInfo?.id));
+  return json({ groupInfo, groupUsers, userUsingRN, balanceLogs });
 };
 
 const GroupDetailPage = () => {
   const { groupId } = useParams();
-  const { groupInfo, groupUsers, userUsingRN } = useLoaderData<typeof loader>();
+  const { groupInfo, groupUsers, userUsingRN, balanceLogs } =
+    useLoaderData<typeof loader>();
   const [activeTabUsers, setActiveTabUsers] = useState("mainPage");
   const handleTabClickUser = (tab: string) => {
     setActiveTabUsers(tab);
@@ -91,6 +163,13 @@ const GroupDetailPage = () => {
   const OwnerPermissions = groupUsers.some(
     (user) => user.id === userUsingRN.id && user.role === GroupsRoles.OWNER,
   );
+
+  //Used for group deletion
+  const [showPopup, setShowPopup] = useState(false);
+
+  const handleDeleteClick = () => {
+    setShowPopup(true);
+  };
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
@@ -159,41 +238,30 @@ const GroupDetailPage = () => {
 
         {activeTabUsers === "inviteMember" ? (
           <>
-            <div>
-              <h1 className="font-bold text-1xl pt-4 pl-3 text-wrap mb-5">
+            <div className="pl-3">
+              <h1 className="font-bold text-1xl pt-4 text-wrap mb-5">
                 Nario pakvietimas:
               </h1>
               <Form method="post">
-                <div className="flex flex-wrap mb-4">
-                  <div className="w-full px-10">
-                    <div className="flex flex-col">
-                      <div className="relative">
-                        <input
-                          name="form-id"
-                          hidden
-                          defaultValue="userInvite"
-                        />
-                        <input
-                          name="group-name"
-                          hidden
-                          defaultValue={groupId}
-                        />
-                        <input
-                          id="inviteUserName"
-                          name="inviteUserName"
-                          type="text"
-                          autoComplete="on"
-                          aria-describedby="email-error"
-                          className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none"
-                          placeholder="Vartotojo vardas"
-                        />
-                      </div>
-                    </div>
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <input name="form-id" hidden defaultValue="userInvite" />
+                    <input name="group-name" hidden defaultValue={groupId} />
+                    <input
+                      id="inviteUserEmail"
+                      name="inviteUserEmail"
+                      type="text"
+                      autoComplete="on"
+                      aria-describedby="email-error"
+                      className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none"
+                      placeholder="Vartotojo el. paštas"
+                    />
                   </div>
                 </div>
+
                 <button
                   type="submit"
-                  className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                  className="w-full rounded bg-custom-800  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
                 >
                   Pakviesti!
                 </button>
@@ -203,25 +271,287 @@ const GroupDetailPage = () => {
         ) : null}
 
         {activeTabUsers === "viewBalance" ? (
-          <div className="flex flex-col items-center">
-            {" "}
-            {/* Center the content vertically */}
-            <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow mt-5">
+          <>
+            <div className="w-full  bg-white border border-gray-200 rounded-lg shadow mt-5">
               <div className="flex flex-col items-center pb-10">
-                <h5 className="mb-1 text-2xl font-medium text-gray-900 pt-5">
+                <h1 className="mb-1 text-2xl font-medium text-gray-900 pt-5">
                   Balansas
-                </h5>
+                </h1>
                 <span className="text-5xl text-green-500">
                   {groupInfo?.balance}€
                 </span>
               </div>
             </div>
             <div className="mt-5 text-left">
-              <h1 className="font-bold text-2xl">
-                Balanso pokyčiai: [NOT IMPLEMENTED]
-              </h1>
+              <h1 className="font-bold text-2xl">Balanso pokyčiai:</h1>
             </div>
-          </div>
+            <div>
+              <div className="flex justify-between pb-5"></div>
+              <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
+                    <tr>
+                      <th scope="col" className="p-4">
+                        Pervedimą atliko
+                      </th>
+                      <th scope="col" className="p-4">
+                        Balanso pokyčio aprašymas
+                      </th>
+                      <th scope="col" className="p-4">
+                        Balansas pasikeitė iš
+                      </th>
+                      <th scope="col" className="p-4">
+                        Balansas pasikeitė į
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Map through all balance logs and render table rows */}
+                    {balanceLogs.map((log) => (
+                      <tr
+                        key={log.id}
+                        className="bg-white border-b  hover:bg-gray-50 "
+                      >
+                        <td className="px-6 py-4">{log.whoDidChanges}</td>
+                        <td className="px-6 py-4">{log.description}</td>
+                        <td className="px-6 py-4">{log.balanceFrom}</td>
+                        <td className="px-6 py-4">{log.balanceTo}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        ) : null}
+
+        {activeTabUsers === "sendMoney" ? (
+          <>
+            <div className="flex flex-col items-center">
+              {" "}
+              {/* Center the content vertically */}
+              <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow mt-5">
+                <div className="flex flex-col items-center pb-10">
+                  <h5 className="mb-1 text-2xl font-medium text-gray-900 pt-5">
+                    Balansas
+                  </h5>
+                  <span className="text-5xl text-green-500">
+                    {groupInfo?.balance}€
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="pl-3">
+              <h1 className="font-bold text-1xl pt-4 text-wrap mb-5">
+                Reklamos informacijos keitimas:
+              </h1>
+              <Form method="post">
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <input name="form-id" hidden defaultValue="sendingMoney" />
+                    <input name="group-name" hidden defaultValue={groupId} />
+                    <input
+                      name="whoMadeRequestID"
+                      hidden
+                      defaultValue={userUsingRN.id}
+                    />
+                    <input
+                      id="userEmailMoneySend"
+                      name="userEmailMoneySend"
+                      type="text"
+                      autoComplete="on"
+                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                      placeholder="Vartotojo kuriame atliekate pavedima el. paštas"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <input
+                      id="moneyAmount"
+                      name="moneyAmount"
+                      type="number"
+                      step="0.01" // Allow increments of 0.01
+                      autoComplete="on"
+                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                      placeholder="Kiek norite pervesti?"
+                      min="0" // Optional: specify minimum value
+                      max="9999999.99" // Optional: specify maximum value
+                      pattern="^\d{1,10}(\.\d{1,2})?$" // Optional: client-side regex pattern validation
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full rounded bg-custom-800  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                >
+                  Atlikti pervedimą!
+                </button>
+              </Form>
+            </div>
+          </>
+        ) : null}
+
+        {activeTabUsers === "changeRole" ? (
+          <>
+            <div className="pl-3">
+              <h1 className="font-bold text-1xl pt-4 text-wrap mb-5">
+                Reklamos informacijos keitimas:
+              </h1>
+              <Form method="post">
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <input
+                      name="form-id"
+                      hidden
+                      defaultValue="userRoleChange"
+                    />
+                    <input name="group-name" hidden defaultValue={groupId} />
+                    <input
+                      id="userEmailRoleChange"
+                      name="userEmailRoleChange"
+                      type="text"
+                      autoComplete="on"
+                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                      placeholder="Vartotojo el. paštas"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <select
+                      id="roleToChange"
+                      name="roleToChange"
+                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none"
+                    >
+                      <option value="holder">Pasirinkti rolę</option>
+                      <option value="member">Narys</option>
+                      <option value="moderator">Moderatorius</option>
+                      <option value="owner">Vadovas</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full rounded bg-custom-800  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                >
+                  Pakeisti rolę!
+                </button>
+              </Form>
+            </div>
+          </>
+        ) : null}
+
+        {activeTabUsers === "removeMember" ? (
+          <>
+            <div className="pl-3">
+              <h1 className="font-bold text-1xl pt-4 text-wrap mb-5">
+                Nario išmetimas:
+              </h1>
+              <Form method="post">
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <input name="form-id" hidden defaultValue="userRemove" />
+                    <input name="group-name" hidden defaultValue={groupId} />
+                    <input
+                      name="whoMadeRequest"
+                      hidden
+                      defaultValue={userUsingRN.id}
+                    />
+                    <input
+                      id="removeUserEmail"
+                      name="removeUserEmail"
+                      type="text"
+                      autoComplete="on"
+                      aria-describedby="email-error"
+                      className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none"
+                      placeholder="Vartotojo el. paštas"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full rounded bg-custom-800  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                >
+                  Išmesti!
+                </button>
+              </Form>
+            </div>
+          </>
+        ) : null}
+
+        {activeTabUsers === "changeSettings" ? (
+          <>
+            <div className="pl-3">
+              <h1 className="font-bold text-1xl pt-4 text-wrap">
+                Grupės informacijos keitimas:
+              </h1>
+              <Form method="post">
+                <div className="flex flex-wrap -mx-3 mb-4">
+                  <div className="w-full  px-3 mb-6 md:mb-0">
+                    <input
+                      name="form-id"
+                      hidden
+                      defaultValue="changeSettings"
+                    />
+                    <input name="group-name" hidden defaultValue={groupId} />
+                    <h1 className=" text-1xl pt-2 text-wrap mb-1">
+                      Grupės pavadinimas:
+                    </h1>
+                    <input
+                      id="groupNameChange"
+                      name="groupNameChange"
+                      type="text"
+                      autoComplete="on"
+                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                      defaultValue={groupInfo?.groupName}
+                    />
+                    <h1 className=" text-1xl pt-2 text-wrap mb-1">
+                      Grupės apibūdinimas:
+                    </h1>
+                    <input
+                      id="groupShortDescriptionChange"
+                      name="groupShortDescriptionChange"
+                      type="text"
+                      autoComplete="on"
+                      className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                      defaultValue={groupInfo?.groupShortDescription}
+                    />
+                  </div>
+
+                  {/* New textarea field */}
+                  <div className="w-full px-3">
+                    <div className="flex flex-col">
+                      <div className="relative">
+                        <h1 className=" text-1xl pt-2 text-wrap mb-1">
+                          Grupės aprašymas:
+                        </h1>
+                        <textarea
+                          id="groupFullDescriptionChange"
+                          name="groupFullDescriptionChange"
+                          autoComplete="on"
+                          className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black resize-none"
+                          defaultValue={groupInfo?.groupFullDescription}
+                          style={{ resize: "none" }} // Disable resizing
+                          rows={7}
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full rounded bg-custom-800  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                >
+                  Atnaujinti grupės informacija!
+                </button>
+              </Form>
+            </div>
+          </>
         ) : null}
       </div>
 
@@ -261,7 +591,7 @@ const GroupDetailPage = () => {
                 } w-full`}
                 onClick={() => handleTabClickUser("changeSettings")}
               >
-                Keisti nustatymus
+                Keisti informacija
               </button>
             </div>
             <div className="flex justify-center pb-2">
@@ -274,6 +604,18 @@ const GroupDetailPage = () => {
                 onClick={() => handleTabClickUser("inviteMember")}
               >
                 Pakviesti vartotoją
+              </button>
+            </div>
+            <div className="flex justify-center pb-2">
+              <button
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                  activeTabUsers === "removeMember"
+                    ? "text-white  py-2 bg-custom-900  border-black "
+                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                } w-full`}
+                onClick={() => handleTabClickUser("removeMember")}
+              >
+                Išmesti vartotoją
               </button>
             </div>
           </>
@@ -298,22 +640,71 @@ const GroupDetailPage = () => {
         {OwnerPermissions && (
           <>
             <div className="flex justify-center pb-2">
-              <Form method="post">
-                <input name="form-id" hidden defaultValue="deleteGroup" />
-                <input name="group-name" hidden defaultValue={groupId} />
-                <input name="user" hidden defaultValue={userUsingRN.id} />
-                <button
-                  type="submit"
-                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-11 rounded text-nowrap
-                      ? "bg-custom-900 border-black"
-                      : "bg-custom-800  transition duration-300 ease-in-out border-black"
-                  }`}
-                >
-                  Ištrinti šią grupę
-                </button>
-              </Form>
+              <button
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                  activeTabUsers === "changeRole"
+                    ? "text-white  py-2 bg-custom-900  border-black "
+                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                } w-full`}
+                onClick={() => handleTabClickUser("changeRole")}
+              >
+                Pakeisti rolę
+              </button>
+            </div>
+            <div className="flex justify-center pb-2">
+              <button
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                  activeTabUsers === "sendMoney"
+                    ? "text-white  py-2 bg-custom-900  border-black "
+                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                } w-full`}
+                onClick={() => handleTabClickUser("sendMoney")}
+              >
+                Atlikti pervedimą
+              </button>
+            </div>
+            <div className="flex justify-center pb-2">
+              <button
+                type="button" // Change type to "button" to prevent form submission
+                onClick={handleDeleteClick}
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-11 rounded text-nowrap
+            ? "bg-custom-900 border-black"
+            : "bg-custom-800  transition duration-300 ease-in-out border-black"
+          }`}
+              >
+                Ištrinti šią grupę
+              </button>
             </div>
           </>
+        )}
+
+        {showPopup && (
+          <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+            <div className="bg-white p-8 rounded-lg">
+              <p className="text-center">
+                Ar tikrai norite ištrinti šią grupę?
+              </p>
+              <div className="flex justify-end mt-4">
+                <button
+                  onClick={() => setShowPopup(false)}
+                  className="mr-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300 ease-in-out"
+                >
+                  Atšaukti
+                </button>
+                <Form method="post">
+                  <input name="form-id" hidden defaultValue="deleteGroup" />
+                  <input name="group-name" hidden defaultValue={groupId} />
+                  <input name="user" hidden defaultValue={userUsingRN.id} />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition duration-300 ease-in-out"
+                  >
+                    Ištrinti šią grupę
+                  </button>
+                </Form>
+              </div>
+            </div>
+          </div>
         )}
 
         {userHasPermissionsToLeave && (
