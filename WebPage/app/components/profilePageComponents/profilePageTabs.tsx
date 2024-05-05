@@ -8,7 +8,7 @@ import ProfilePageTabsSkills from "./profilePageTabsSkills";
 import ProfileSettings from "./profileSettings";
 import { useUser } from "~/utils";
 import { Form } from "@remix-run/react";
-import { workExamples } from "@prisma/client";
+import { User, workExamples } from "@prisma/client";
 import YouTube from "react-youtube";
 interface Errors {
   fbLinkError?: string;
@@ -26,7 +26,7 @@ type JsonifyObject<T> = {
     : T[K] | null;
 };
 interface UserInfoProps {
-  user: any;
+  user: JsonifyObject<User>;
   errorData: JsonifyObject<Errors> | null | undefined;
   workExample: workExamples | null | undefined;
 }
@@ -38,6 +38,17 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
+  const handleTabClickSubmit = (tab) => {
+    if (
+      !errorData?.video1 ||
+      !errorData?.video2 ||
+      !errorData?.video3 ||
+      !errorData?.video4 ||
+      !errorData?.video5
+    ) {
+      setActiveTab(tab);
+    }
+  };
   const handelButtonClick = () => {
     setEdit(true);
   };
@@ -45,11 +56,36 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
     // Check if the user is in their profile
     return user.id === realuser.id; // Assuming user ID is used for identification
   };
+  const isUserWorker = () => {
+    if (user.role == "Darbuotojas") return true;
+    return false;
+  };
   const YoutubeLinkToId = (link: string) => {
     const youtubePattern =
       /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})\b/;
     const match = link.match(youtubePattern);
     return match[1];
+  };
+  const [video1, setVideo1] = useState(workExample?.examples[0]);
+  const [video2, setVideo2] = useState(workExample?.examples[1]);
+  const [video3, setVideo3] = useState(workExample?.examples[2]);
+  const [video4, setVideo4] = useState(workExample?.examples[3]);
+  const [video5, setVideo5] = useState(workExample?.examples[4]);
+
+  const handleChange1 = (event) => {
+    setVideo1(event.target.value);
+  };
+  const handleChange2 = (event) => {
+    setVideo2(event.target.value);
+  };
+  const handleChange3 = (event) => {
+    setVideo3(event.target.value);
+  };
+  const handleChange4 = (event) => {
+    setVideo4(event.target.value);
+  };
+  const handleChange5 = (event) => {
+    setVideo5(event.target.value);
   };
 
   return (
@@ -79,18 +115,20 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
             Įgudžiai
           </button>
         </li>
-        <li className="me-2">
-          <button
-            className={`inline-block p-4  ${
-              activeTab === "example"
-                ? "border-custom-800 border-b-2 rounded-t-lg"
-                : "hover:text-gray-600 hover:border-gray-300"
-            }`}
-            onClick={() => handleTabClick("example")}
-          >
-            Darbo pavyzdžiai
-          </button>
-        </li>
+        {isUserWorker() && (
+          <li className="me-2">
+            <button
+              className={`inline-block p-4  ${
+                activeTab === "example"
+                  ? "border-custom-800 border-b-2 rounded-t-lg"
+                  : "hover:text-gray-600 hover:border-gray-300"
+              }`}
+              onClick={() => handleTabClick("example")}
+            >
+              Darbo pavyzdžiai
+            </button>
+          </li>
+        )}
         {isUserInProfile() && (
           <li className="me-2">
             <button
@@ -126,8 +164,8 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
         ) : null}
         {activeTab === "example" ? (
           <>
-            <div className="exampleDiv border rounded border-grey-200 space-y-4">
-              <ul className="list-disc pl-8">
+            <div className="exampleDiv">
+              <ul className="list-disc pl-8 space-y-4 ">
                 {workExample?.examples.map((videoLink, index) => (
                   // <li key={index} className="py-2">
                   //   <a
@@ -156,7 +194,7 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
         {activeTab === "changeExample" ? (
           <>
             <Form method="post">
-              <div className="exampleDiv space-x-1 ">
+              <div className="exampleDiv space-y-2 ">
                 <input name="form-id" hidden defaultValue="changeExample" />
                 <input name="userid" hidden defaultValue={realuser.id} />
                 <input
@@ -165,7 +203,8 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
                   id="video1"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
                   placeholder="youtube.com/"
-                  value={workExample?.examples[0]}
+                  value={video1}
+                  onChange={handleChange1}
                 />
                 {errorData?.video1 ? (
                   <div
@@ -181,7 +220,8 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
                   id="video2"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
                   placeholder="youtube.com/"
-                  value={workExample?.examples[1]}
+                  value={video2}
+                  onChange={handleChange2}
                 />
                 {errorData?.video2 ? (
                   <div
@@ -197,7 +237,8 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
                   id="video3"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
                   placeholder="youtube.com/"
-                  value={workExample?.examples[2]}
+                  value={video3}
+                  onChange={handleChange3}
                 />
                 {errorData?.video3 ? (
                   <div
@@ -213,7 +254,8 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
                   id="video4"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
                   placeholder="youtube.com/"
-                  value={workExample?.examples[3]}
+                  value={video4}
+                  onChange={handleChange4}
                 />
                 {errorData?.video4 ? (
                   <div
@@ -229,7 +271,8 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
                   id="video5"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
                   placeholder="youtube.com/"
-                  value={workExample?.examples[4]}
+                  value={video5}
+                  onChange={handleChange5}
                 />
                 {errorData?.video5 ? (
                   <div
@@ -239,10 +282,11 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
                     {errorData.video5}
                   </div>
                 ) : null}
+
                 {isUserInProfile() && (
                   <button
                     type="submit"
-                    onClick={handelButtonClick}
+                    //onClick={() => handleTabClickSubmit("example")}
                     className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
                   >
                     Išsaugoti

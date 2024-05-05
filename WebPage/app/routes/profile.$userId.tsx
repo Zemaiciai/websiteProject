@@ -140,18 +140,18 @@ export const action = async (actionArg) => {
     const video4 = formData.get("video4");
     const video5 = formData.get("video5");
     const user = formData.get("userid");
-    // const validationErrors = await validateCreateWorkExample(
-    //   video1,
-    //   video2,
-    //   video3,
-    //   video4,
-    //   video5,
-    //   errors,
-    // );
+    const validationErrors = await validateCreateWorkExample(
+      video1,
+      video2,
+      video3,
+      video4,
+      video5,
+      errors,
+    );
 
-    // if (validationErrors !== null) {
-    //   return errors;
-    // }
+    if (validationErrors !== null) {
+      return errors;
+    }
     const examples = await getUserWorkExamples(user);
     if (examples) {
       workExamplesUpdate(
