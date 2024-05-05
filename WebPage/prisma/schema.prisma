@@ -211,3 +211,8 @@ model workExamples{
   userid String
   examples String[]
 }
+model questionerAnswers{
+  id String @id @default(cuid())
+  userid String
+  answers String[]
+}

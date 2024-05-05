@@ -3,7 +3,9 @@ import { Form } from "@remix-run/react";
 import React, { useState, useEffect } from "react";
 
 import { getNoteListItems } from "~/models/note.server";
+import { createQuestionerAnswers } from "~/models/questionerAnswers.server";
 import { requireUser, requireUserId } from "~/session.server";
+import { useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
@@ -11,8 +13,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const noteListItems = await getNoteListItems({ userId });
   return json({ noteListItems });
 };
-
+export const action = async (actionArg) => {
+  const formData = await actionArg.request.formData();
+  const formId = formData.get("form-id");
+  //const userid = formData.get("userid");
+  //const answers = formData.get("answers");
+  //await createQuestionerAnswers(userid, answers);
+};
 const Questionnaire = () => {
+  const user = useUser();
+  const [answers, setAnswers] = useState<string[]>([]);
   const [questions, setQuestions] = useState([
     {
       text: "Question 1",
@@ -99,7 +109,8 @@ const Questionnaire = () => {
     });
   };
 
-  const handleNextPage = () => {
+  const handleNextPage = (e) => {
+    e.preventDefault();
     // Check if all questions on the current page are answered
     const startIndex = (currentPage - 1) * 4;
     const endIndex = Math.min(startIndex + 4, questions.length);
@@ -143,6 +154,11 @@ const Questionnaire = () => {
     setSubmitted(true); // Mark form as submitted
     // Handle form submission (e.g., send data to backend)
     console.log("Form submitted with answers:", questions);
+
+    // Extract answers and call the backend to store them
+    const extractanswers = questions.map((question) => question.answer); // Extract answers
+    setAnswers(extractanswers);
+    createQuestionerAnswers(user.id, answers);
   };
 
   const renderQuestions = () => {
@@ -178,72 +194,93 @@ const Questionnaire = () => {
   };
 
   return (
-    <div className="">
-      <Form action={"/notes/"} method="get" className="flex flex-row-reverse">
-        <button type="submit" className="px-4 py-2 flex space-x-2 space-y-1 ">
-          <h1>Grįžti atgal</h1>
-          <img
-            className="w-4 h-4"
-            src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
-            alt="ggwp"
-          ></img>
-        </button>
-      </Form>
+    <Form method="post">
+      <div className="">
+        <Form action={"/notes/"} method="get" className="flex flex-row-reverse">
+          <button type="submit" className="px-4 py-2 flex space-x-2 space-y-1 ">
+            <h1>Grįžti atgal</h1>
+            <img
+              className="w-4 h-4"
+              src="https://cdn-icons-png.flaticon.com/512/13/13964.png"
+              alt="ggwp"
+            ></img>
+          </button>
+        </Form>
 
-      <div className="flex flex-col items-center justify-center h-full ">
-        <div className="max-w-md mx-auto mb-8 text-center">
-          <h1 className="text-3xl font-bold">Atsakykite į šiuos klausimus</h1>
-        </div>
-        <div className="max-w-md mx-auto">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
-          >
-            <div className="flex flex-col items-center">
-              {renderQuestions()}
-              <div
-                className={`flex ${
-                  currentPage !== 1 ? "justify-between" : "justify-center"
-                } w-full`}
-              >
-                {currentPage !== 1 ? (
-                  <button
-                    type="button"
-                    onClick={handlePreviousPage}
-                    className="mt-4 mr-2 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-opacity duration-300"
-                  >
-                    Atgal
-                  </button>
+        <div className="flex flex-col items-center justify-center h-full ">
+          <input name="userid" hidden defaultValue={user.id} />
+          <div className="max-w-md mx-auto mb-8 text-center">
+            <h1 className="text-3xl font-bold">Atsakykite į šiuos klausimus</h1>
+          </div>
+          <div className="max-w-md mx-auto">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+              }}
+            >
+              <div className="flex flex-col items-center">
+                {renderQuestions()}
+                <div
+                  className={`flex ${
+                    currentPage !== 1 ? "justify-between" : "justify-center"
+                  } w-full`}
+                >
+                  {currentPage !== 1 ? (
+                    <button
+                      type="button"
+                      onClick={handlePreviousPage}
+                      className="mt-4 mr-2 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-opacity duration-300"
+                    >
+                      Atgal
+                    </button>
+                  ) : null}
+                  {currentPage !== Math.ceil(questions.length / 4) ? (
+                    <button
+                      type="button"
+                      onClick={handleNextPage}
+                      className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-opacity duration-300"
+                    >
+                      Pirmyn
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      onClick={handleSubmit}
+                      className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    >
+                      Pateikti
+                    </button>
+                  )}
+                  <input
+                    id="form-id"
+                    name="form-id"
+                    type="text"
+                    autoComplete="on"
+                    className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                    placeholder="test"
+                    hidden
+                  />
+                  <input
+                    id="answers"
+                    name="answers"
+                    type="text"
+                    autoComplete="on"
+                    className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
+                    defaultValue={answers}
+                    hidden
+                  />
+                </div>
+                {error ? (
+                  <p className="text-red-500 mt-2 ml-4">
+                    Please answer all questions before proceeding.
+                  </p>
                 ) : null}
-                {currentPage !== Math.ceil(questions.length / 4) ? (
-                  <button
-                    type="button"
-                    onClick={handleNextPage}
-                    className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-opacity duration-300"
-                  >
-                    Pirmyn
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                  >
-                    Pateikti
-                  </button>
-                )}
               </div>
-              {error ? (
-                <p className="text-red-500 mt-2 ml-4">
-                  Please answer all questions before proceeding.
-                </p>
-              ) : null}
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+    </Form>
   );
 };
 

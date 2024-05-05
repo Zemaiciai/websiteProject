@@ -107,9 +107,15 @@ const GroupDetailPage = () => {
               <h1 className="font-bold text-1xl pt-4 pl-3 text-wrap">
                 Grupės aprašymas:
               </h1>
-              <h1 className=" text-1xl pt-1 pl-3 text-wrap">
+              {/* <h1 className=" text-1xl pt-1 pl-3 text-wrap">
                 {groupInfo?.groupFullDescription}
-              </h1>
+              </h1> */}
+              <textarea
+                className="text-1xl pt-1 pl-3 text-wrap break-words w-full h-[250px] resize-none"
+                readOnly
+              >
+                {groupInfo?.groupFullDescription}
+              </textarea>
             </div>
           </>
         ) : null}

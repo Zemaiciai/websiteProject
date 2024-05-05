@@ -452,3 +452,46 @@ export async function validateCreateWorkExample(
   }
   return null;
 }
+interface CreateGroupsErrors {
+  groupName?: string;
+  groupShortDesc?: string;
+  groupDescription?: string;
+}
+export async function validateCreateGroup(
+  groupName: string,
+  groupShortDesc: string,
+  groupDescription: string,
+  errors: CreateGroupsErrors,
+): Promise<CreateGroupsErrors | null> {
+  if (typeof groupName !== "string" || groupName.length <= 0) {
+    errors.groupName = "Pavadinimas yra privalomas";
+  } else if (groupName.length < 5) {
+    errors.groupName = "Pavadinimo ilgį turi sudaryti bent penki simboliai";
+  } else if (groupName.length > 20) {
+    errors.groupName = "Pavadinimo ilgis negali viršyti šimto simbolių";
+  } else if (
+    await prisma.groups.findFirst({
+      where: {
+        groupName: groupName,
+      },
+    })
+  ) {
+    errors.groupName = "Grupe su tokiu pavadinimu jau egzistuoja";
+  }
+  if (typeof groupShortDesc !== "string" || groupShortDesc.length <= 0) {
+    errors.groupShortDesc = "Apibūdinimas yra privalomas";
+  } else if (groupShortDesc.length > 100) {
+    errors.groupShortDesc = "Apibūdinimas negali viršyti šimto simbolių";
+  } else if (groupShortDesc.length < 10) {
+    errors.groupShortDesc = "Apibūdinimą turi sudaryti bent dešimt simbolių";
+  }
+  if (typeof groupDescription !== "string" || groupDescription.length <= 0) {
+    errors.groupDescription = "Aprašymas yra privalomas";
+  } else if (groupDescription.length < 100) {
+    errors.groupDescription = "Aprašymą turi sudaryti bent šimtą simbolių";
+  }
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+  return null;
+}
