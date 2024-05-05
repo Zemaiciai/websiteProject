@@ -42,23 +42,26 @@ export default function App() {
   const [headerTitle, setHeaderTitle] = useState("Loading...");
   const [showNavigation, setShowNavigation] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<string>(() => {
-    if (typeof localStorage == "undefined") return "";
-
-    const storedActiveTabValue = localStorage.getItem("activeTab");
-    return storedActiveTabValue ? JSON.parse(storedActiveTabValue) : "";
-  });
-
-  useEffect(() => {
-    localStorage.setItem("activeTab", JSON.stringify(activeTab));
-  }, [activeTab]);
-
   const location = useLocation();
+
+  const headerTitlesDictionary = {
+    "/orders": "Užsakymų sąrašas",
+    "/orders/new": "Sukurti užsakymą",
+    "/dashboard": "Dashboard",
+    "/messages": "žinutės",
+    "/calender": "Kalendorius",
+    "/FAQ": "Dažnai užduodami klausimai",
+    "/groups": "Grupės",
+    "/groups/new": "Sukurti grupę",
+    "/questioner": "Užduoti klausimą",
+    "/workerAds": "Reklamos",
+    "/workerAds/new": "Sukurti reklamą",
+  };
 
   useEffect(() => {
     setShowNavigation(true);
 
-    switch (location.pathname.toLocaleLowerCase()) {
+    switch (location.pathname) {
       case "/admin":
       case "/":
       case "/ban":
@@ -67,57 +70,28 @@ export default function App() {
       case "/contractExpired":
         setShowNavigation(false);
         break;
-      case "/orders":
-        setHeaderTitle("Užsakymų sąrašas");
-        break;
-      case "/dashboard":
-        setHeaderTitle("Dashboard");
-        break;
-      case "/orders/new":
-        setHeaderTitle("Užsakymo sukurimas");
-        break;
-      case "/calender":
-        setHeaderTitle("Darbų Kalendorius");
-        break;
-      case "/faq":
-        setHeaderTitle("Dažnai užduodami klausimai");
-        break;
-      case "/groups":
-        setHeaderTitle("Grupės");
-        break;
-      case "/groups/new":
-        setHeaderTitle("Sukurti grupę");
-        break;
-      case "/workerads":
-        setHeaderTitle("Reklamos");
-        break;
-      case "/workerads/new":
-        setHeaderTitle("Sukurti reklamą");
-        break;
-      case "/questioner":
-        setHeaderTitle("Užduoti klausimą");
-        break;
-      default:
-        setHeaderTitle("NĖRA HEADER PAVADINIMO ROOT.TSX FAILE");
-        break;
     }
-
-    if (location.pathname.startsWith("/profile")) {
-      setActiveTab("");
+    if (location.pathname.startsWith("/profile/[^new].+")) {
       setHeaderTitle("Profilis");
+      return;
+    }
+    if (location.pathname.match("/workerAds/[^new].+")) {
+      setHeaderTitle("Reklama");
+      return;
+    }
+    if (location.pathname.match("/groups/[^new].+")) {
+      setHeaderTitle(`Grupė ${location.pathname.slice(8)}`);
+      return;
     }
 
-    if (
-      location.pathname.match("/workerAds/[a-zA-Z0-9]+$") &&
-      !location.pathname.endsWith("new")
-    ) {
-      setHeaderTitle("Reklama");
+    if (headerTitlesDictionary[location.pathname] === undefined) {
+      setHeaderTitle("ROOT.TSX REIKIA NUSTATYTI HEADER TITLE");
+      return;
     }
+
+    setHeaderTitle(headerTitlesDictionary[location.pathname]);
   }, [location.pathname]);
 
-  const handleTabClick = (tab: string) => {
-    setActiveTab(tab);
-  };
   return (
     <html lang="en" className="h-full">
       <head>
@@ -132,9 +106,7 @@ export default function App() {
             <div className="navbar-container">
               <NavBar
                 title={"Žemaičiai"}
-                handleTabClick={handleTabClick}
                 redirectTo={"dashboard"}
-                activeTab={activeTab}
                 tabTitles={{
                   orders: "Užsakymai",
                   dashboard: "Dashboard",

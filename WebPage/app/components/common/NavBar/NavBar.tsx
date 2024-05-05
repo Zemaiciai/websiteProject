@@ -1,18 +1,13 @@
-import { Link } from "@remix-run/react";
+import { Link, useLocation } from "@remix-run/react";
+import { useEffect, useState } from "react";
 
 interface NavBarButtonProps {
   title: string;
   activeTab: string;
   redirectTo: string;
-  handleTabClick: (tab: string) => void;
 }
 
-function NavBarButton({
-  title,
-  activeTab,
-  redirectTo,
-  handleTabClick,
-}: NavBarButtonProps) {
+function NavBarButton({ title, activeTab, redirectTo }: NavBarButtonProps) {
   return (
     <Link
       className={`flex justify-center px-4 py-3 ${
@@ -21,7 +16,6 @@ function NavBarButton({
           : "text-white bg-custom-900 hover:bg-custom-850 transition duration-300 ease-in-out"
       } w-full`}
       to={"/" + redirectTo}
-      onClick={() => handleTabClick(title)}
     >
       {title}
     </Link>
@@ -30,19 +24,18 @@ function NavBarButton({
 
 interface NavBarProps {
   title: string;
-  handleTabClick: (tab: string) => void;
   redirectTo: string;
-  activeTab: string;
   tabTitles: { [redirectTo: string]: string };
 }
 
-export default function NavBar({
-  title,
-  handleTabClick,
-  activeTab,
-  tabTitles,
-  redirectTo,
-}: NavBarProps) {
+export default function NavBar({ title, tabTitles, redirectTo }: NavBarProps) {
+  const pathname = useLocation().pathname;
+  const [activeTab, setActiveTab] = useState("");
+
+  useEffect(() => {
+    setActiveTab(tabTitles[pathname.slice(1)]);
+  }, [pathname]);
+
   return (
     <div className="flex flex-col w-72 border-r-2 border-black bg-custom-900 h-screen overflow-auto">
       <Link
@@ -52,13 +45,12 @@ export default function NavBar({
         {title}
       </Link>
       <div className="h-max">
-        {Object.keys(tabTitles).map((redirectTo, _) => (
+        {Object.keys(tabTitles).map((loaction, _) => (
           <NavBarButton
-            key={redirectTo}
-            title={tabTitles[redirectTo]}
-            redirectTo={redirectTo}
+            key={loaction}
+            title={tabTitles[loaction]}
+            redirectTo={loaction}
             activeTab={activeTab}
-            handleTabClick={handleTabClick}
           />
         ))}
       </div>

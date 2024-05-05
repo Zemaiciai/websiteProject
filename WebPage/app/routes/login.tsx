@@ -48,7 +48,7 @@ export const meta: MetaFunction = () => [{ title: "Prisijungti - Žemaičiai" }]
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/Dashboard";
+  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
   const actionData = useActionData<typeof action>();
 
   return (
