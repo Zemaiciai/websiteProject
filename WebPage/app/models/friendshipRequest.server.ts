@@ -1,5 +1,8 @@
 import { redirect } from "remix-typedjson";
 import { prisma } from "~/db.server";
+import { sendNotification } from "./notification.server";
+import { NotificationTypes } from "@prisma/client";
+import { getUserById } from "./user.server";
 
 export async function createFriendshipRequest(
   requesterId: string,
@@ -29,6 +32,13 @@ export async function createFriendshipRequest(
     if (existingRequest) {
       throw new Error("Friendship request already exists.");
     }
+
+    await sendNotification(
+      requestedUserId,
+      `${requester.userName} pakvietė draugauti!`,
+      NotificationTypes.FRIEND_REQUEST,
+      requesterId,
+    );
 
     // Create the friendship request
     return prisma.friendshipRequest.create({
@@ -101,7 +111,15 @@ export async function rejectFriendshipRequest(
     },
   });
 
+  const requesterUser = await getUserById(requesterId);
+
   if (status) {
+    await sendNotification(
+      requestedUserId,
+      `${requesterUser?.userName} atmetė kvietimą draugauti!`,
+      NotificationTypes.FRIEND_DECLINED,
+      requesterId,
+    );
     return await prisma.friendshipRequest.deleteMany({
       where: {
         requesterId: requestedUserId,
@@ -131,6 +149,15 @@ export async function deleteFromFriends(
       status: "ACCEPTED",
     },
   });
+
+  const requester = await getUserById(requesterId);
+
+  await sendNotification(
+    requestedUserId,
+    `${requester?.userName} išmetė jus iš draugų`,
+    NotificationTypes.FRIEND_REMOVE,
+    requesterId,
+  );
 
   if (status1) {
     return await prisma.friendshipRequest.deleteMany({
@@ -202,6 +229,8 @@ export async function acceptFriendshipRequest(
   requesterId: string,
   requestedUserId: string,
 ) {
+  const requesterUser = await getUserById(requesterId);
+
   const status = await prisma.friendshipRequest.findFirst({
     where: {
       requesterId: requestedUserId,
@@ -218,6 +247,12 @@ export async function acceptFriendshipRequest(
         status: "ACCEPTED",
       },
     });
+    await sendNotification(
+      requestedUserId,
+      `${requesterUser?.userName} priėmė jūsų kvietimą draugauti`,
+      NotificationTypes.FRIEND_ACCEPTED,
+      requesterId,
+    );
     return true; // Return true when the request is successfully accepted
   }
   return false; // Return false if no pending request is found

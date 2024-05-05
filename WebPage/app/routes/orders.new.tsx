@@ -102,7 +102,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   );
 
   // Create a notification for the worker
-  await sendNotification(worker!.id, NotificationTypes.ORDER_ASSIGNED);
+  await sendNotification(
+    worker!.id,
+    `Jums vartotojas ${createdBy!.userName} priskirė naują užsakymą!`,
+    NotificationTypes.ORDER_ASSIGNED,
+  );
 
   return redirect("/orders");
 };

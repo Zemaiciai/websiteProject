@@ -32,6 +32,9 @@ enum NotificationTypes {
   ORDER_DECLINED
   ORDER_IN_PROGRESS
   FRIEND_REQUEST
+  FRIEND_ACCEPTED
+  FRIEND_DECLINED
+  FRIEND_REMOVE
 }
 
 model User {
@@ -48,7 +51,7 @@ model User {
 
   password       Password?
   notes Note[]
-  notifications Notification[] @relation("Recipient")
+  notificationsRecieved Notification[] @relation("Recipient")
   createdOrders  Order[]  @relation("CreatedBy")
   workingOrders  Order[]  @relation("Worker")
   role String
@@ -61,6 +64,7 @@ model User {
   secondWarningDate DateTime?
   thirdWarning String?
   thirdWarningDate DateTime?
+  balance Decimal @db.Decimal(10,2)
 
   userStatus String
   banReason String?
@@ -113,14 +117,16 @@ model SecretCodeAdmin {
 model Notification {
   id String @id @default(cuid())
 
-  recipient User @relation("Recipient", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String
+  recipient        User @relation("Recipient", fields: [recipientId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  recipientId      String
+  senderId         String?
 
   notificationType NotificationTypes
-  isSeen Boolean
+  message          String
+  isSeen           Boolean
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model Note {
@@ -157,7 +163,7 @@ model Groups{
   groupShortDescription String
   groupFullDescription String
   users                  GroupUser[]
-  balance String
+  balance Decimal @db.Decimal(10,2)
 }
 
 model GroupUser {
@@ -168,6 +174,15 @@ model GroupUser {
   groupId  String
   role     GroupsRoles // Define the role of the user within the group
   percentage String?
+}
+
+model GroupBalanceLog{
+  id String @id @default(cuid())
+  groupId String
+  whoDidChanges String
+  description String
+  balanceFrom Decimal @db.Decimal(10,2)
+  balanceTo Decimal @db.Decimal(10,2)
 }
 
 

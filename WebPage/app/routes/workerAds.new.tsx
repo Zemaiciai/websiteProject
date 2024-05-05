@@ -9,7 +9,6 @@ export const meta: MetaFunction = () => [
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
-  console.log(user.email);
 
   if (user.role !== "Darbuotojas") {
     return redirect("/workerAds");
@@ -87,8 +86,6 @@ export default function NewOrderPage() {
                 placeholder="Reklamos pavadinimas"
               />
             </div>
-
-            {/* New textarea field */}
             <div className="w-full px-3 mt-3">
               <div className="flex flex-col">
                 <div className="relative">

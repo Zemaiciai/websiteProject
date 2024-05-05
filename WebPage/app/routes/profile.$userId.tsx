@@ -1,15 +1,9 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 
-import Header from "~/components/common/header/header";
 import ProfilePageTabs from "~/components/profilePageComponents/profilePageTabs";
-import { useUser } from "~/utils";
 
 import ProfileCard from "../components/profilePageComponents/profileCard";
-import { redirect, useLoaderData } from "@remix-run/react";
-import { User, getUserById } from "~/models/user.server";
-import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
-import { useState } from "react";
-import NavBar from "~/components/common/NavBar/NavBar";
+import { getUserById } from "~/models/user.server";
 import { requireUser } from "~/session.server";
 import {
   acceptFriendshipRequest,
@@ -21,21 +15,12 @@ import {
   deleteFromFriends,
   rejectFriendshipRequest,
 } from "~/models/friendshipRequest.server";
-import { typedjson } from "remix-typedjson";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
 export const meta: MetaFunction = () => [
   { title: "Profilio peržiūra - Žemaičiai" },
 ];
 
-interface LoaderData {
-  user: User;
-  checkPendingStatusRequesteer: boolean;
-  checkPendingStatusRequested: boolean;
-  CurrentlyFriends: boolean;
-}
-
-export const loader = async ({
-  request,
-}: LoaderFunctionArgs): Promise<LoaderData | null> => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = request.url;
   const parts = url.split("/");
   const user2 = await requireUser(request);
@@ -53,16 +38,12 @@ export const loader = async ({
 
   const CurrentlyFriends = await checkCurrentlyFriends(user2.id, userProfileId);
 
-  const user = await getUserById(userProfileId);
-
-  return user
-    ? {
-        user,
-        checkPendingStatusRequesteer,
-        checkPendingStatusRequested,
-        CurrentlyFriends,
-      }
-    : null;
+  return typedjson({
+    user: await getUserById(userProfileId),
+    requesteerStatus: checkPendingStatusRequesteer,
+    requestedStatus: checkPendingStatusRequested,
+    currenltyFriends: CurrentlyFriends,
+  });
 };
 
 export const action = async (actionArg) => {
@@ -107,42 +88,17 @@ export const action = async (actionArg) => {
 };
 
 export default function NoteDetailsPage() {
-  const OGuser = useUser();
-  const {
-    user,
-    checkPendingStatusRequesteer,
-    checkPendingStatusRequested,
-    CurrentlyFriends,
-  } = useLoaderData<LoaderData>();
-
-  const [linkClicked, setLinkClicked] = useState(false);
-  const [activeTab, setActiveTab] = useState("");
-  const handleTabClick = (tab: string) => {
-    setActiveTab(tab);
-  };
-
+  const data = useTypedLoaderData<typeof loader>();
   return (
     <div className="main-div">
-      {/* <div className="navbar-container">
-        <NavBar
-          title={"Orders"}
-          handleTabClick={handleTabClick}
-          redirectTo={"orders"}
-          activeTab={activeTab}
-          tabTitles={["TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST"]}
-        />
-      </div> */}
-      <NavBarHeader
-        title={`${linkClicked ? "Profilio puslapis" : "Profilio puslapis"}`}
-      />
       <div className="profilePageDiv">
         <ProfileCard
-          user={user}
-          checkPendingStatusRequesteer={checkPendingStatusRequesteer}
-          checkPendingStatusRequested={checkPendingStatusRequested}
-          CurrentlyFriends={CurrentlyFriends}
+          user={data.user}
+          checkPendingStatusRequesteer={data.requesteerStatus}
+          checkPendingStatusRequested={data.requestedStatus}
+          CurrentlyFriends={data.currenltyFriends}
         />
-        <ProfilePageTabs user={user} />
+        <ProfilePageTabs user={data.user} />
       </div>
     </div>
   );

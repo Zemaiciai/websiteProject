@@ -182,8 +182,7 @@ function Calendar() {
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col bg-custom-100 overflow-auto pb-3">
-      <NavBarHeader title={"Darbų kalendorius"} />
+    <div className="w-full h-full flex flex-col bg-custom-100 overflow-auto pb-3">
       <div className="flex justify-center mt-3">
         <div className="calendar">
           <div className="calendar-header">

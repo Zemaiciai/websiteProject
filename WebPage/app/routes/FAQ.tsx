@@ -2,9 +2,6 @@ import { FaqPage } from "@prisma/client";
 import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import NavBar from "~/components/common/NavBar/NavBar";
-import NavBarHeader from "~/components/common/NavBar/NavBarHeader";
-import NewFooter from "~/components/newFooter/NewFooter";
 import { getFAQQuestions } from "~/models/faqPage.server";
 import { requireUser, requireUserId } from "~/session.server";
 
@@ -42,20 +39,8 @@ const FAQ = () => {
   }, [searchQuery, faqMessages]);
 
   return (
-    <div className="flex h-screen bg-custom-100">
-      {/* Navigation Sidebar */}
-      <div className="navbar-container">
-        <NavBar
-          title={"Žemaičiai"}
-          handleTabClick={handleTabClick}
-          redirectTo={"faq"}
-          activeTab={activeTab}
-          tabTitles={["Orders", "Admin", "Messages", "Profile"]}
-        />
-      </div>
-
-      <div className="w-screen h-screen flex flex-col bg-custom-100 pb-3">
-        <NavBarHeader title={`${activeTab ? "D.U.K." : "Grupės"}`} />
+    <div className="flex h-full bg-custom-100">
+      <div className="w-full h-full flex flex-grow flex-col bg-custom-100">
         <div className="flex justify-between bg-custom-200 m-3">
           <div className="mb-1">
             <div className="w-full px-5">

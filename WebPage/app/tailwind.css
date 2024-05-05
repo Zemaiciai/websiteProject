@@ -14,3 +14,7 @@ select:-webkit-autofill:focus {
   border: 2px solid rgb(43, 43, 43);
   transition: background-color 5000s ease-in-out 0s;
 }
+
+.notifications {
+  height: calc(100vh - 75pt);
+}

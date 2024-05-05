@@ -2,6 +2,8 @@ import { GroupUser, Groups, GroupsRoles, User } from "@prisma/client";
 
 import { getUserById } from "./user.server";
 import { prisma } from "~/db.server";
+import { Decimal } from "@prisma/client/runtime/library";
+import { createSendingMoneyLog } from "./groupBalanceLog.server";
 interface OwnerGroup {
   group: Groups;
   owner: GroupUser & { user: User | null };
@@ -36,7 +38,7 @@ export async function createGroup(
         groupName: groupNameFromForm,
         groupShortDescription: groupShortDescriptionFromForm,
         groupFullDescription: groupFullDescriptionFromForm,
-        balance: "0",
+        balance: 0,
         users: {
           create: {
             userId: user.id,
@@ -190,7 +192,7 @@ export async function getAllGroupUsers(groupName: string) {
 
 export async function invitingUserToGroup(
   groupName: string,
-  inviteUserName: string,
+  inviteUserEmail: string,
 ) {
   // Find the group by its name
   const group = await prisma.groups.findFirst({
@@ -206,12 +208,12 @@ export async function invitingUserToGroup(
   // Find the user by their username
   const user = await prisma.user.findFirst({
     where: {
-      userName: inviteUserName,
+      email: inviteUserEmail,
     },
   });
 
   if (!user) {
-    throw new Error(`User with username ${inviteUserName} not found.`);
+    throw new Error(`User with username ${inviteUserEmail} not found.`);
   }
 
   // Check if the user has already been invited to the group
@@ -339,5 +341,330 @@ export async function leaveGroup(groupID: string, inviteUserID: string) {
 
     return deletedUser;
   }
+  return null;
+}
+
+export async function groupMemberRoleChange(
+  groupName: string,
+  userEmail: string,
+  roleToChange: string,
+) {
+  // Find the group by its name
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupName,
+    },
+  });
+
+  if (!group) {
+    throw new Error(`Group with name ${groupName} not found.`);
+  }
+
+  // Find the user by their email
+  const user = await prisma.user.findFirst({
+    where: {
+      email: userEmail,
+    },
+  });
+
+  if (!user) {
+    throw new Error(`User with email ${userEmail} not found.`);
+  }
+
+  if (roleToChange === "member") {
+    return await prisma.groupUser.updateMany({
+      where: {
+        userId: user.id,
+        groupId: group.id,
+      },
+      data: {
+        role: GroupsRoles.MEMBER, // Assuming "MEMBER" is a valid role
+      },
+    });
+  }
+  if (roleToChange === "moderator") {
+    return await prisma.groupUser.updateMany({
+      where: {
+        userId: user.id,
+        groupId: group.id,
+      },
+      data: {
+        role: GroupsRoles.MODERATOR, // Assuming "MEMBER" is a valid role
+      },
+    });
+  }
+
+  if (roleToChange === "owner") {
+    return await prisma.groupUser.updateMany({
+      where: {
+        userId: user.id,
+        groupId: group.id,
+      },
+      data: {
+        role: GroupsRoles.OWNER, // Assuming "MEMBER" is a valid role
+      },
+    });
+  }
+}
+
+export async function groupInformationChange(
+  groupName: string,
+  groupNameChange: string,
+  groupShortDescriptionChange: string,
+  groupFullDescriptionChange: string,
+) {
+  // Find the group by its name
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupName,
+    },
+  });
+
+  if (!group) {
+    throw new Error(`Group with name ${groupName} not found.`);
+  }
+
+  if (
+    groupNameChange !== "" &&
+    groupShortDescriptionChange !== "" &&
+    groupFullDescriptionChange !== ""
+  ) {
+    return await prisma.groups.update({
+      where: {
+        id: group.id,
+      },
+      data: {
+        groupName: groupNameChange,
+        groupShortDescription: groupShortDescriptionChange,
+        groupFullDescription: groupFullDescriptionChange,
+      },
+    });
+  }
+}
+
+export async function removeUserFromGroup(
+  groupID: string,
+  removeUserEmail: string,
+  whoMadeRequest: string,
+) {
+  // Find the group by its id
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupID,
+    },
+  });
+
+  if (!group) {
+    throw new Error(`Group with name ${groupID} not found.`);
+  }
+
+  // Find the user by their id
+  const removeUser = await prisma.user.findFirst({
+    where: {
+      email: removeUserEmail,
+    },
+  });
+
+  const whoMadeRequestToRemove = await prisma.user.findFirst({
+    where: {
+      id: whoMadeRequest,
+    },
+  });
+
+  if (!removeUser) {
+    throw new Error(`User with username ${removeUser} not found.`);
+  }
+
+  if (!whoMadeRequestToRemove) {
+    throw new Error(`Who made request ${whoMadeRequestToRemove} not found.`);
+  }
+
+  const checkWhoMadeRequestRole = await prisma.groupUser.findFirst({
+    where: {
+      groupId: group.id,
+      userId: whoMadeRequestToRemove.id,
+    },
+  });
+
+  if (!checkWhoMadeRequestRole) {
+    throw new Error(`Who made request ${checkWhoMadeRequestRole} not found.`);
+  }
+
+  if (checkWhoMadeRequestRole.role === GroupsRoles.MODERATOR) {
+    const checkUserRole = await prisma.groupUser.findFirst({
+      where: {
+        groupId: group.id,
+        userId: removeUser.id,
+      },
+    });
+
+    if (
+      checkUserRole?.role === GroupsRoles.MEMBER ||
+      checkUserRole?.role === GroupsRoles.INVITED
+    ) {
+      const deletedUser = await prisma.groupUser.deleteMany({
+        where: {
+          userId: removeUser.id,
+          groupId: group.id,
+        },
+      });
+      return deletedUser;
+    }
+  }
+
+  if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER) {
+    const checkUserRole = await prisma.groupUser.findFirst({
+      where: {
+        groupId: group.id,
+        userId: removeUser.id,
+      },
+    });
+
+    if (
+      checkUserRole?.role === GroupsRoles.MEMBER ||
+      checkUserRole?.role === GroupsRoles.MODERATOR ||
+      checkUserRole?.role === GroupsRoles.INVITED
+    ) {
+      const deletedUser = await prisma.groupUser.deleteMany({
+        where: {
+          userId: removeUser.id,
+          groupId: group.id,
+        },
+      });
+      return deletedUser;
+    }
+  }
+
+  return null;
+}
+
+export async function deleteGroup(groupID: string, whoUsingRN: string) {
+  // Find the group by its id
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupID,
+    },
+  });
+
+  if (!group) {
+    throw new Error(`Group with name ${groupID} not found.`);
+  }
+
+  const checkWhoMadeRequestRole = await prisma.groupUser.findFirst({
+    where: {
+      groupId: group.id,
+      userId: whoUsingRN,
+    },
+  });
+
+  if (!checkWhoMadeRequestRole) {
+    throw new Error(`User name ${checkWhoMadeRequestRole} not found.`);
+  }
+
+  if (Number(group.balance) !== 0) {
+    return null;
+  }
+
+  if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER) {
+    await prisma.groupUser.deleteMany({
+      where: {
+        groupId: group.id,
+      },
+    });
+
+    return await prisma.groups.deleteMany({
+      where: {
+        id: group.id,
+      },
+    });
+  }
+  return null;
+}
+
+export async function sendMoneyToUser(
+  groupID: string,
+  whoUsingRNID: string,
+  userEmail: string,
+  moneyAmount: Decimal,
+) {
+  // Find the group by its id
+  const group = await prisma.groups.findFirst({
+    where: {
+      groupName: groupID,
+    },
+  });
+
+  if (!group) {
+    throw new Error(`Group with name ${groupID} not found.`);
+  }
+
+  const checkWhoMadeRequestRole = await prisma.groupUser.findFirst({
+    where: {
+      groupId: group.id,
+      userId: whoUsingRNID,
+    },
+  });
+
+  if (!checkWhoMadeRequestRole) {
+    throw new Error(`User name ${checkWhoMadeRequestRole} not found.`);
+  }
+
+  const user = await prisma.user.findFirst({
+    where: {
+      email: userEmail,
+    },
+  });
+
+  if (!user) {
+    throw new Error(`User name ${user} not found.`);
+  }
+
+  const checkifuseringroup = await prisma.groupUser.findFirst({
+    where: {
+      userId: user.id,
+      groupId: group.id,
+    },
+  });
+
+  if (!checkifuseringroup) {
+    return null;
+  }
+
+  const currentGroupBalance = group.balance;
+  const changingGroupBalance =
+    Number(currentGroupBalance) - Number(moneyAmount);
+
+  const currentUserBalance = user.balance;
+  const changingUserBalance = Number(currentUserBalance) + Number(moneyAmount);
+
+  if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER) {
+    if (changingGroupBalance >= 0) {
+      createSendingMoneyLog(
+        group.id,
+        whoUsingRNID,
+        user.userName,
+        Number(currentGroupBalance),
+        Number(changingGroupBalance),
+      );
+      await await prisma.groups.updateMany({
+        where: {
+          id: group.id,
+        },
+        data: {
+          balance: changingGroupBalance,
+        },
+      });
+
+      return await prisma.user.updateMany({
+        where: {
+          id: user.id,
+        },
+        data: {
+          balance: changingUserBalance,
+        },
+      });
+    }
+  }
+
   return null;
 }
