@@ -1,7 +1,7 @@
 import { Message } from "@prisma/client";
 import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
-import { Form, json, useLoaderData } from "@remix-run/react";
-import { useEffect, useRef, useState } from "react";
+import { Form, json, useActionData, useLoaderData } from "@remix-run/react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
 import { useParams } from "react-router-dom";
@@ -15,15 +15,23 @@ import { requireUser } from "~/session.server";
 export const meta: MetaFunction = () => [
   { title: "Žinutės peržiūra - Žemaičiai" },
 ];
-
+interface Errors {
+  message?: string;
+}
 export const action = async (actionArg) => {
   const formData = await actionArg.request.formData();
   const formid = formData.get("form-id");
-
+  const errors: Errors = {};
   if (formid === "sendingMessage") {
     const whoSentMessage = formData.get("whoSentMessage");
     const messageContent = formData.get("messageContent");
     const messageId = formData.get("messageId");
+    if (typeof messageContent !== "string" || messageContent.length <= 0) {
+      errors.message = "Negalite išsiųsti tuščios žinutės";
+    }
+    if (errors.message) {
+      return errors;
+    }
     sendMessage(messageId, whoSentMessage, messageContent);
     return null;
   }
@@ -32,7 +40,6 @@ export const action = async (actionArg) => {
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const userUsingRN = await requireUser(request);
-
   const url = request.url;
   const parts = url.split("/");
   const messageId = parts[parts.length - 1];
@@ -49,7 +56,7 @@ const GroupDetailPage = () => {
 
   // Ref for the chatbox container
   const chatboxRef = useRef<HTMLDivElement>(null);
-
+  const errorData = useActionData<Errors>();
   useEffect(() => {
     // Scroll to the bottom of the chatbox when it is loaded or updated
     if (chatboxRef.current) {
@@ -115,12 +122,20 @@ const GroupDetailPage = () => {
             name="messageContent"
             className="flex-grow border rounded-l-xl focus:outline-none focus:border-custom-800 pl-4 h-10"
           />
+
           <button
             type="submit"
             className="flex items-center justify-center bg-custom-800 hover:bg-custom-850 rounded-r-xl text-white px-4 py-1"
           >
             Siųsti
           </button>
+        </div>
+        <div>
+          {errorData?.message ? (
+            <div className="pt-1 font-bold text-red-500" id="firstname-error">
+              {errorData.message}
+            </div>
+          ) : null}
         </div>
       </Form>
     </div>
