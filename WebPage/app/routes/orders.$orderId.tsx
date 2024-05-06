@@ -69,16 +69,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   switch (intent) {
     case "update":
+      const currentOrder = await getOrderById(orderId);
+
       const newOrderName = String(formData.get("orderName"));
       const newWorkerEmail = String(formData.get("workerEmail"));
       const newCompletionDateString = formData.get("completionDate") as string;
       const newCompletionDate = new Date(newCompletionDateString);
-      const currentOrder = await getOrderById(orderId);
-
-      console.log("newCompletionDate:", newCompletionDate);
-
       const newRevisionDays = parseInt(String(formData.get("revisionDays")));
-
       const newDescription = String(formData.get("description"));
       const newFootageLink = String(formData.get("footageLink"));
 
@@ -133,7 +130,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         newDescription,
         newFootageLink,
       );
-      // return redirect(`/orders/${orderId}`);
       break;
     case "changeStatus":
       const state = formData.get("action");
@@ -291,14 +287,13 @@ export default function OrderDetailPage() {
     setEnded(true);
   };
 
-  const [showPopup, setShowPopup] = useState(false);
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mr-1 w-full md:w-[calc(100% - 360px)]">
-        <ul className="flex flex-wrap -mb-px border-b border-gray-200 pb-3">
-          <div className="flex h-full mt-4 space-x-2 ml-3">
-            <h1 className="font-bold w-full text-2xl text-ellipsis overflow-hidden">
-              Užsakymas - {order?.orderName}
+        <ul className="flex grow-0 w-full border-b border-gray-200 pb-3 pl-3 pt-4">
+          <div className="flex h-full w-full justify-between">
+            <h1 className="flex w-[36rem] font-bold text-2xl">
+              <span className="truncate">Užsakymas: {order?.orderName}</span>
             </h1>
             <div className="flex ml-2 justify-center items-center">
               Statusas:
