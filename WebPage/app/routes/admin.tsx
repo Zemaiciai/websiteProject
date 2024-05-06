@@ -73,11 +73,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const logsOfAdmin = await getAllLogs();
   const customMessageList = await getAllMessages();
   const faqQuestionList = await getFAQQuestions();
-  console.log(await isAdmin(request));
 
   if (!(await isAdmin(request))) {
     return redirect("/dashboard");
   }
+
   return json({
     secretCodeList,
     userList,
