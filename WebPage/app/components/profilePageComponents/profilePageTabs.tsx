@@ -268,16 +268,6 @@ function ProfilePageTabs({
             <div className="exampleDiv">
               <ul className="list-disc pl-8 space-y-4 ">
                 {workExample?.examples.map((videoLink, index) => (
-                  // <li key={index} className="py-2">
-                  //   <a
-                  //     href={videoLink}
-                  //     target="_blank"
-                  //     rel="noopener noreferrer"
-                  //   >
-                  //     {videoLink}
-                  //   </a>
-
-                  // </li>
                   <YouTube videoId={YoutubeLinkToId(videoLink)} />
                 ))}
               </ul>
@@ -390,7 +380,7 @@ function ProfilePageTabs({
                 {isUserInProfile() && (
                   <button
                     type="submit"
-                    //onClick={() => handleTabClickSubmit("example")}
+                    // onClick={() => handleTabClick("example")}
                     className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
                   >
                     Išsaugoti

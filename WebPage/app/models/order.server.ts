@@ -62,11 +62,13 @@ export async function checkOrders() {
         order.customerId,
         `Užsakymas ${order.orderName} baigtas`,
         NotificationTypes.ORDER_COMPLETED,
+        order.id,
       );
       await sendNotification(
         order.workerId,
         `Užsakymas ${order.orderName} baigtas`,
         NotificationTypes.ORDER_COMPLETED,
+        order.id,
       );
       await updateOrderStatus(OrderStatus.COMPLETED, order.id);
     }),

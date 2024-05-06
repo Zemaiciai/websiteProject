@@ -55,7 +55,6 @@ export default function App() {
     "/FAQ": "Dažnai užduodami klausimai",
     "/groups": "Grupės",
     "/groups/new": "Sukurti grupę",
-    "/questioner": "Užduoti klausimą",
     "/workerAds": "Reklamos",
     "/workerAds/new": "Sukurti reklamą",
   };
@@ -124,7 +123,6 @@ export default function App() {
                   calender: "Kalendorius",
                   FAQ: "D.U.K",
                   groups: "Grupės",
-                  questioner: "Klausimai",
                   workerAds: "Reklamos",
                 }}
               />

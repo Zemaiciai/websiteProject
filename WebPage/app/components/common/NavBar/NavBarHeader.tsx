@@ -125,6 +125,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
               className="peer h-full w-full outline-none text-sm text-gray-700 pr-2"
               type="text"
               id="search"
+              autoComplete="false"
               onClick={handeShowSearchResult}
               placeholder="Ieškoti vartotojo"
               value={searchQueryAllUsers}

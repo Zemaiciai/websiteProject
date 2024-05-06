@@ -149,7 +149,7 @@ export const action = async (actionArg) => {
     }
     const examples = await getUserWorkExamples(user);
     if (examples) {
-      const updated = await workExamplesUpdate(
+      await workExamplesUpdate(
         user,
         video1,
         video2,
@@ -159,16 +159,10 @@ export const action = async (actionArg) => {
         examples.id,
       );
     } else {
-      const created = await createWorkExamples(
-        user,
-        video1,
-        video2,
-        video3,
-        video4,
-        video5,
-      );
+      await createWorkExamples(user, video1, video2, video3, video4, video5);
     }
-    return redirect("/profile/" + user);
+
+    return redirect(`/profile/${user}`);
   }
 
   if (formid === "sendInvite") {
@@ -211,7 +205,6 @@ export const action = async (actionArg) => {
 export default function NoteDetailsPage() {
   const data = useTypedLoaderData<typeof loader>();
   const errorData = useActionData<Errors>();
-  const userinweb = useUser();
   return (
     <div className="main-div">
       <div className="profilePageDiv">
