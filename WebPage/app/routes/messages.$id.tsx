@@ -61,7 +61,7 @@ const GroupDetailPage = () => {
     <div className="flex flex-col h-full w-full bg-custom-200 m-4">
       {/* Display existing messages */}
       <div
-        className="overflow-y-auto max-h-[750px] flex flex-col space-y-4 flex-grow p-2"
+        className="overflow-y-auto max-h-[735px] flex flex-col space-y-4 flex-grow p-2"
         ref={chatboxRef}
       >
         {messageList.messages.map((message) => (
@@ -73,14 +73,14 @@ const GroupDetailPage = () => {
                 : "flex flex-row"
             }
           >
-            <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0 ml-2 mr-2">
+            <div className="flex items-center justify-center h-10 w-10 rounded-full bg-custom-800 text-white flex-shrink-0 ml-2 mr-2">
               {"Ž"}
             </div>
             <div
               className={
                 message.senderId === userUsingRN.id
-                  ? "relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl"
-                  : "relative mr-3 text-sm bg-white py-2 px-4 shadow rounded-xl"
+                  ? "relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl w-[400px]"
+                  : "relative mr-3 text-sm bg-custom-100 py-2 px-4 shadow rounded-xl w-[400px]"
               }
               style={{ height: "auto" }} // Adjust the height dynamically
             >
@@ -95,6 +95,7 @@ const GroupDetailPage = () => {
                     outline: "none",
                     background: "none",
                     overflow: "hidden",
+                    width: "350px",
                   }}
                 />
               </div>
@@ -104,7 +105,7 @@ const GroupDetailPage = () => {
       </div>
 
       {/* Form to send new message */}
-      <Form method="post" className="mt-4">
+      <Form method="post" className="m-4">
         <input name="form-id" hidden defaultValue="sendingMessage" />
         <input name="whoSentMessage" hidden defaultValue={userUsingRN.id} />
         <input name="messageId" hidden defaultValue={messageId} />
@@ -112,7 +113,7 @@ const GroupDetailPage = () => {
           <input
             type="text"
             name="messageContent"
-            className="flex-grow border rounded-l-xl focus:outline-none focus:border-indigo-300 pl-4 h-10"
+            className="flex-grow border rounded-l-xl focus:outline-none focus:border-custom-800 pl-4 h-10"
           />
           <button
             type="submit"
