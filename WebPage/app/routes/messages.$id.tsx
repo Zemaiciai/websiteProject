@@ -94,6 +94,7 @@ const GroupDetailPage = () => {
                     border: "none",
                     outline: "none",
                     background: "none",
+                    overflow: "hidden",
                   }}
                 />
               </div>
