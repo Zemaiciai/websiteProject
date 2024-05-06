@@ -16,7 +16,6 @@ import stylesheet from "~/tailwind.css";
 import NavBar from "./components/common/NavBar/NavBar";
 import { useEffect, useState } from "react";
 import NavBarHeader from "./components/common/NavBar/NavBarHeader";
-import { useOptionalUser } from "./utils";
 import NewFooter from "./components/newFooter/NewFooter";
 import { getUserNotifications } from "./models/notification.server";
 import { getAllusers } from "./models/user.server";
@@ -78,12 +77,20 @@ export default function App() {
       setHeaderTitle("Profilio peržiūra");
       return;
     }
+    if (location.pathname.startsWith("/messages")) {
+      setHeaderTitle("Žinutės");
+      return;
+    }
     if (location.pathname.match("/workerAds/[^new].+")) {
       setHeaderTitle("Reklama");
       return;
     }
-    if (location.pathname.match("/groups/[^new].+")) {
-      setHeaderTitle(`Grupė ${location.pathname.slice(8)}`);
+    if (location.pathname.match("/groups/(?!new)")) {
+      setHeaderTitle("Grupė");
+      return;
+    }
+    if (location.pathname.match("/orders/(?!new)")) {
+      setHeaderTitle("Užsakymas");
       return;
     }
 
@@ -111,8 +118,8 @@ export default function App() {
                 title={"Žemaičiai"}
                 redirectTo={"dashboard"}
                 tabTitles={{
+                  dashboard: "Titulinis",
                   orders: "Užsakymai",
-                  dashboard: "Dashboard",
                   messages: "Žinutės",
                   calender: "Kalendorius",
                   FAQ: "D.U.K",

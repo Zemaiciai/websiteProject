@@ -577,3 +577,40 @@ export async function checkContractExpiration(userId: string) {
 
   return false;
 }
+
+export async function checkingThirtyDaysLeft(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (user?.expiringAt) {
+    const currentDate = new Date();
+    const expirationDate = new Date(user.expiringAt);
+    const millisecondsInDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+
+    // Calculate the difference in milliseconds between the current date and expiration date
+    const differenceInMs = expirationDate.getTime() - currentDate.getTime();
+
+    // Calculate the difference in days
+    const differenceInDays = Math.ceil(differenceInMs / millisecondsInDay);
+
+    // Check if less than 31 days are remaining until expiration
+    if (differenceInDays < 31) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export async function getUserBalanceById(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  return Number(user?.balance);
+}

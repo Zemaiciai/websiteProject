@@ -10,6 +10,7 @@ interface OrderDatePickerProps {
     type: string,
     dateName: string,
   ) => void;
+  defaultDate?: Date;
 }
 
 const OrderDatePicker = ({
@@ -18,6 +19,7 @@ const OrderDatePicker = ({
   selectedDate,
   handleDateChange,
   error,
+  defaultDate,
 }: OrderDatePickerProps) => {
   const currentDate = new Date();
   const [maxDays, setMaxDays] = useState<number>(31);
@@ -63,6 +65,7 @@ const OrderDatePicker = ({
             <select
               onChange={(e) => handleDateChange(e, "year", name)}
               className="cursor-pointer focus:outline-none rounded border border-gray-500 px-1 text-lg focus:outline-none"
+              defaultValue={defaultDate?.getFullYear()}
             >
               <option value="" disabled selected hidden>
                 YYYY
@@ -82,6 +85,7 @@ const OrderDatePicker = ({
             <select
               onChange={(e) => handleDateChange(e, "month", name)}
               className="cursor-pointer focus:outline-none  rounded border border-gray-500 px-1 text-lg focus:outline-none"
+              defaultValue={defaultDate?.getMonth()}
             >
               <option defaultValue="" disabled selected hidden>
                 MM
@@ -98,6 +102,7 @@ const OrderDatePicker = ({
             <select
               onChange={(e) => handleDateChange(e, "day", name)}
               className="cursor-pointer focus:outline-none w-14 rounded border border-gray-500 px-1 text-lg focus:outline-none"
+              defaultValue={defaultDate?.getDate()}
             >
               <option value="" disabled selected hidden>
                 DD
@@ -115,6 +120,7 @@ const OrderDatePicker = ({
             <select
               onChange={(e) => handleDateChange(e, "hour", name)}
               className="cursor-pointer focus:outline-none"
+              defaultValue={defaultDate?.getHours()}
             >
               <option value="" disabled selected hidden>
                 Valandos
