@@ -83,7 +83,7 @@ export default function App() {
       return;
     }
     if (location.pathname.match("/groups/(?!new)")) {
-      setHeaderTitle(`Grupė ${location.pathname.slice(8)}`);
+      setHeaderTitle("Grupė");
       return;
     }
     if (location.pathname.match("/orders/(?!new)")) {

@@ -32,7 +32,7 @@ import { OrderStatus } from "@prisma/client";
 export { OrderStatus } from "@prisma/client";
 
 export const meta: MetaFunction = () => [
-  { title: "Grupės peržiūra - Žemaičiai" },
+  { title: "Užsakymo peržiūra - Žemaičiai" },
 ];
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -216,10 +216,8 @@ function UserCard({ user }: UserCardProps) {
 }
 
 export default function OrderDetailPage() {
-  const { groupId } = useParams();
   const { order, worker, customer, isClient } =
     useTypedLoaderData<typeof loader>();
-  const user = useUser();
   const actionData = useTypedActionData<typeof action>();
 
   const [activeTabUsers, setActiveTabUsers] = useState("mainPage");
@@ -325,50 +323,6 @@ export default function OrderDetailPage() {
                 }
               </span>
             </div>
-            {order.orderStatus === "PLACED" && !isClient && (
-              <Form
-                method="post"
-                reloadDocument
-                className="flex justify-center"
-              >
-                <input type="hidden" name="orderId" value={order.id} readOnly />
-                <input
-                  type="hidden"
-                  name="intent"
-                  value="changeStatus"
-                  readOnly
-                />
-                <input
-                  type="submit"
-                  name="action"
-                  value="Priimti"
-                  className="w-full cursor-pointer font-bold pr-2"
-                />
-                <input
-                  type="submit"
-                  name="action"
-                  value="Atmesti"
-                  className="w-full cursor-pointer font-bold"
-                />
-              </Form>
-            )}
-            {canPay && isClient && (
-              <Form method="post" className="flex justify-center">
-                <input type="hidden" name="orderId" value={order.id} readOnly />
-                <input
-                  type="hidden"
-                  name="intent"
-                  value="changeStatus"
-                  readOnly
-                />
-                <input
-                  type="submit"
-                  name="action"
-                  value="Sumokėti"
-                  className="w-full cursor-pointer font-bold"
-                />
-              </Form>
-            )}
           </div>
         </ul>
         {activeTabUsers === "mainPage" ? (
@@ -520,6 +474,40 @@ export default function OrderDetailPage() {
               Keisti informacija
             </button>
           </div>
+        )}
+        {order.orderStatus === "PLACED" && !isClient && (
+          <Form
+            method="post"
+            reloadDocument
+            className="flex flex-col justify-center"
+          >
+            <input type="hidden" name="orderId" value={order.id} readOnly />
+            <input type="hidden" name="intent" value="changeStatus" readOnly />
+            <input
+              type="submit"
+              name="action"
+              value="Priimti"
+              className="w-full mb-2 cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap"
+            />
+            <input
+              type="submit"
+              name="action"
+              value="Atmesti"
+              className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap"
+            />
+          </Form>
+        )}
+        {canPay && isClient && (
+          <Form method="post" className="flex justify-center">
+            <input type="hidden" name="orderId" value={order.id} readOnly />
+            <input type="hidden" name="intent" value="changeStatus" readOnly />
+            <input
+              type="submit"
+              name="action"
+              value="Sumokėti"
+              className="w-full cursor-pointer font-bold"
+            />
+          </Form>
         )}
       </div>
     </>

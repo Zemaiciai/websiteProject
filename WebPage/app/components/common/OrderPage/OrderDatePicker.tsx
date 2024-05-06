@@ -24,8 +24,6 @@ const OrderDatePicker = ({
   const currentDate = new Date();
   const [maxDays, setMaxDays] = useState<number>(31);
 
-  console.log(defaultDate);
-
   useEffect(() => {
     let newMaxDays: number | null;
     if (selectedDate) {
