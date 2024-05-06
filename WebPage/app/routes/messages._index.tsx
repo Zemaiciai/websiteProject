@@ -1,6 +1,7 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
+import { typedjson } from "remix-typedjson";
 import { getConversations } from "~/models/messages.server";
 
 import {
@@ -15,7 +16,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
   const messagesList = await getConversations(user.id);
 
-  return json({
+  return typedjson({
     user,
     messagesList,
   });

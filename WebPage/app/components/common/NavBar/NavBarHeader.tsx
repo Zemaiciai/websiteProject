@@ -140,7 +140,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
                   <>
                     <li
                       onClick={() => handleUserNameClick(user.id)}
-                      className="cursor-pointer hover:bg-gray-200 p-2 rounded flex justify-between items-center"
+                      className="cursor-pointer hover:bg-gray-200 p-2 rounded flex justify-between items-center border border-gray-100 mt-1"
                     >
                       <span className="truncate mr-2">{user.userName}</span>
                       <span className="text-sm text-nowrap">{user.role}</span>

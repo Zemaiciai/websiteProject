@@ -33,6 +33,7 @@ import {
   workExamplesUpdate,
 } from "~/models/workExamples.server";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
+import { getOrdersByUserId } from "~/models/order.server";
 export const meta: MetaFunction = () => [
   { title: "Profilio peržiūra - Žemaičiai" },
 ];
@@ -42,6 +43,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const parts = url.split("/");
   const user2 = await requireUser(request);
   const userProfileId = parts[parts.length - 1];
+  const orders = await getOrdersByUserId(userProfileId);
+
+  const completedOrders = orders?.filter(
+    (order) =>
+      order.orderStatus === "COMPLETED" || order.orderStatus === "PAYED",
+  );
+  let ordersCount = 0;
+  if (Number(completedOrders?.length) > 0) {
+    ordersCount = Number(completedOrders?.length);
+  }
 
   const checkPendingStatusRequesteer = await checkPendingStatusRequesteerSide(
     user2.id,
@@ -64,6 +75,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     currenltyFriends: CurrentlyFriends,
     socialMediaLinks: socialMediaLinks,
     workExamples: await getUserWorkExamples(userProfileId),
+    ordersCount: ordersCount,
   });
 };
 interface Errors {
@@ -215,6 +227,7 @@ export default function NoteDetailsPage() {
           errorData={errorData}
           workExample={data.workExamples}
           socialMediaLinks={data.socialMediaLinks}
+          orderCount={data.ordersCount}
         />
       </div>
     </div>

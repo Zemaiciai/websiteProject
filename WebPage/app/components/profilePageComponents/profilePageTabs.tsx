@@ -30,6 +30,7 @@ interface UserInfoProps {
   errorData: JsonifyObject<Errors> | null | undefined;
   workExample: workExamples | null | undefined;
   socialMediaLinks: socialMedia | null;
+  orderCount: number;
 }
 
 function ProfilePageTabs({
@@ -37,6 +38,7 @@ function ProfilePageTabs({
   errorData,
   workExample,
   socialMediaLinks,
+  orderCount,
 }: UserInfoProps) {
   const [activeTab, setActiveTab] = useState("statistics");
   const [edit, setEdit] = useState(false);
@@ -60,17 +62,17 @@ function ProfilePageTabs({
   };
   const isUserInProfile = () => {
     // Check if the user is in their profile
-    return user.id === realuser.id; // Assuming user ID is used for identification
+    return user?.id === realuser.id; // Assuming user ID is used for identification
   };
   const isUserWorker = () => {
-    if (user.role == "Darbuotojas") return true;
+    if (user?.role == "Darbuotojas") return true;
     return false;
   };
   const YoutubeLinkToId = (link: string) => {
     const youtubePattern =
       /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})\b/;
     const match = link.match(youtubePattern);
-    return match[1];
+    return match ? match[1] : undefined;
   };
   const [video1, setVideo1] = useState(workExample?.examples[0]);
   const [video2, setVideo2] = useState(workExample?.examples[1]);
@@ -159,11 +161,94 @@ function ProfilePageTabs({
       </ul>
       <div className="p-6 text-medium text-gray-500 rounded-lg w-[800px] min-h-[400px]">
         {activeTab === "statistics" ? (
-          <>
-            <div className="statsDiv border rounded border-grey-200">
-              <p>Statistika</p>
+          <div className="stats shadow-md p-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="stat bg-white rounded-lg p-4 flex items-center justify-start">
+              <div className="stat-figure text-secondary flex items-center justify-center w-12 h-12 bg-gray-200 rounded-full">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  className="w-8 h-8 stroke-current"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  ></path>
+                </svg>
+              </div>
+              <div className="ml-4">
+                <div className="stat-title font-bold">Reitingas</div>
+                <div className="stat-value text-secondary flex">
+                  <svg
+                    className="w-4 h-4 text-custom-800 me-1"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 22 20"
+                  >
+                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                  </svg>
+                  <svg
+                    className="w-4 h-4 text-custom-800 me-1"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 22 20"
+                  >
+                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                  </svg>
+                  <svg
+                    className="w-4 h-4 text-custom-800 me-1"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 22 20"
+                  >
+                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                  </svg>
+                  <svg
+                    className="w-4 h-4 text-custom-800 me-1"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 22 20"
+                  >
+                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                  </svg>
+                  <svg
+                    className="w-4 h-4 text-gray-300 me-1"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 22 20"
+                  >
+                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                  </svg>
+                </div>
+                <div className="stat-desc">148 atsiliepimai</div>
+              </div>
             </div>
-          </>
+
+            <div className="stat bg-white rounded-lg p-4 flex items-center justify-start">
+              <div className="stat-figure flex items-center justify-center w-12 h-12 bg-gray-200 rounded-full">
+                <div className="avatar online">
+                  <div className="w-10 h-10 rounded-full overflow-hidden">
+                    <img
+                      src="https://t3.ftcdn.net/jpg/02/73/98/20/360_F_273982019_a7Xi36Ed6KRltIIEyGagHYgMMxUX3Z6T.jpg"
+                      alt="Profile"
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="ml-4">
+                <div className="stat-title font-bold">Atlikti darbai</div>
+                <div className="stat-value">{Number(orderCount)}</div>
+              </div>
+            </div>
+          </div>
         ) : null}
         {activeTab === "skills" ? (
           <>
