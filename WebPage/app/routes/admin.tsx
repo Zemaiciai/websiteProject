@@ -93,6 +93,8 @@ interface Errors {
   customMessageName?: string;
   customMessageMessage?: string;
   customMessagePriority?: string;
+  faqQuestion?: string;
+  faqAnswer?: string;
 }
 interface ChangeUserInfoErrors {
   firstNameValidation?: string;
@@ -236,6 +238,18 @@ export const action = async (actionArg) => {
     console.log("ATEJO KRW");
     const questionName = String(formData.get("questionName"));
     const questionDescription = String(formData.get("questionDescription"));
+    if (typeof questionName !== "string" || questionName.length <= 0) {
+      errors.faqQuestion = "Klausimas yra privalomas";
+    }
+    if (
+      typeof questionDescription !== "string" ||
+      questionDescription.length <= 0
+    ) {
+      errors.faqAnswer = "Atsakymas yra privalomas";
+    }
+    if (errors.faqAnswer || errors.faqQuestion) {
+      return errors;
+    }
     return createFAQQuestion(questionName, questionDescription);
   } else if (formId === "deleteFAQQuestion") {
     const question = String(formData.get("questionID"));
@@ -2477,6 +2491,14 @@ export default function NotesPage() {
                               className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                               placeholder="Klausimo pavadinimas"
                             />
+                            {actionData?.faqQuestion ? (
+                              <div
+                                className="pt-1 font-bold text-red-500"
+                                id="firstname-error"
+                              >
+                                {actionData.faqQuestion}
+                              </div>
+                            ) : null}
                           </div>
                         </div>
 
@@ -2493,6 +2515,14 @@ export default function NotesPage() {
                                 style={{ resize: "none" }} // Disable resizing
                                 rows={7}
                               ></textarea>
+                              {actionData?.faqAnswer ? (
+                                <div
+                                  className="pt-1 font-bold text-red-500"
+                                  id="firstname-error"
+                                >
+                                  {actionData.faqAnswer}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         </div>
