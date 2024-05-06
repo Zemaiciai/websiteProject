@@ -9,6 +9,7 @@ import {
 import { Form, useActionData } from "@remix-run/react";
 import { ChangeEvent, useState } from "react";
 import OrderDatePicker from "~/components/common/OrderPage/OrderDatePicker";
+import OrderInput from "~/components/common/OrderPage/OrderInput";
 import { sendNotification } from "~/models/notification.server";
 import { createOrder } from "~/models/order.server";
 import { getUserByEmail, getUserById } from "~/models/user.server";
@@ -35,6 +36,8 @@ interface OrderErrors {
   description?: string;
   footageLink?: string;
 }
+
+export type { OrderErrors };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
@@ -91,78 +94,27 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   // the non-null assertion is done because we check above if the createdBy or worker is null
   // however typescript can't see that for some reason
-  await createOrder(
+  const order = await createOrder(
     orderName,
     createdBy!, // Non-null assertion
     worker!, // Non-null assertion
     completionDate,
-    revisionDate,
+    revisionDays,
     description,
     footageLink,
   );
 
   // Create a notification for the worker
-  await sendNotification(
+  const notification = await sendNotification(
     worker!.id,
     `Jums vartotojas ${createdBy!.userName} priskirė naują užsakymą!`,
     NotificationTypes.ORDER_ASSIGNED,
+    order.id,
   );
+
+  console.log(notification);
 
   return redirect("/orders");
-};
-
-interface OrderInputProps {
-  title: string;
-  error?: string;
-  name: string;
-  bigger?: boolean;
-}
-
-const OrderInput = ({ title, name, error, bigger }: OrderInputProps) => {
-  const [currentLenght, setCurrentLength] = useState(0);
-
-  const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    const inputValue = event.target.value;
-    setCurrentLength(inputValue.length);
-  };
-
-  return (
-    <div className={`w-full ${bigger && "h-44"} md:w-1/2 px-3 mb-6`}>
-      {error ? (
-        <div
-          className="pt-1 font-bold text-red-400 bottom-9"
-          id={`${name}-error`}
-        >
-          {error}
-        </div>
-      ) : null}
-      <div className="flex flex-col h-full">
-        <div className="relative h-full">
-          {bigger ? (
-            <div className="flex flex-col h-full text-right">
-              <span className={`${500 - currentLenght < 0 && "text-red-500"}`}>
-                {500 - currentLenght}
-              </span>
-              <textarea
-                name={name}
-                onChange={(e) => handleChange(e)}
-                placeholder="Aprašymas"
-                className="w-full h-full resize-none rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black "
-              />
-            </div>
-          ) : (
-            <input
-              name={name}
-              type="text"
-              autoComplete="on"
-              className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
-              placeholder={title}
-            />
-          )}
-        </div>
-      </div>
-    </div>
-  );
 };
 
 export default function NewOrderPage() {
@@ -226,7 +178,7 @@ export default function NewOrderPage() {
       <h1 className="text-3xl font-mono font-font-extralight pb-3">
         Užsakymo sukurimas
       </h1>
-      <Form method="post">
+      <Form method="post" action="/orders/new">
         <div className="flex flex-wrap -mx-3">
           <OrderDatePicker
             error={actionData?.errors.completionDate}

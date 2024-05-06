@@ -281,7 +281,7 @@ const GroupDetailPage = () => {
             </div>
             <div>
               <div className="flex justify-between pb-5"></div>
-              <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+              <div className="overflow-x-auto shadow-md sm:rounded-lg">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
                     <tr>
@@ -700,65 +700,52 @@ const GroupDetailPage = () => {
             </div>
           </div>
         )}
-
-        {userHasPermissionsToLeave && (
-          <>
-            <div className="flex justify-center pb-2">
+        <div className="flex justify-center flex-col">
+          {userHasPermissionsToLeave && (
+            <>
               <Form method="post">
                 <input name="form-id" hidden defaultValue="leaveGroup" />
                 <input name="group-name" hidden defaultValue={groupId} />
                 <input name="user" hidden defaultValue={userUsingRN.id} />
                 <button
                   type="submit"
-                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-11 rounded text-nowrap
-                      ? "bg-custom-900 border-black"
-                      : "bg-custom-800  transition duration-300 ease-in-out border-black"
-                  }`}
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap`}
                 >
                   Palikti grupę
                 </button>
               </Form>
-            </div>
-          </>
-        )}
+            </>
+          )}
 
-        {/* Render buttons only if the user is invited */}
-        {userIsInvited && (
-          <>
-            <div className="flex justify-center pb-2">
+          {/* Render buttons only if the user is invited */}
+          {userIsInvited && (
+            <>
               <Form method="post">
                 <input name="form-id" hidden defaultValue="acceptInvite" />
                 <input name="group-name" hidden defaultValue={groupId} />
                 <input name="user" hidden defaultValue={userUsingRN.id} />
                 <button
                   type="submit"
-                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap
-                      ? "bg-custom-900 border-black"
-                      : "bg-custom-800  transition duration-300 ease-in-out border-black"
-                  }`}
+                  className={`mb-2 w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap`}
                 >
                   Priimti pakvietimą
                 </button>
               </Form>
-            </div>
-            <div className="flex justify-center pb-2">
+
               <Form method="post">
                 <input name="form-id" hidden defaultValue="declineInvite" />
                 <input name="group-name" hidden defaultValue={groupId} />
                 <input name="user" hidden defaultValue={userUsingRN.id} />
                 <button
                   type="submit"
-                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap
-                      ? "bg-custom-900 border-black"
-                      : "bg-custom-800  transition duration-300 ease-in-out border-black"
-                  }`}
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap`}
                 >
                   Atmesti pakvietimą
                 </button>
               </Form>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </div>
     </>
   );

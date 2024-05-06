@@ -4,7 +4,7 @@ import useDuration from "~/hooks/useDuration";
 
 interface OrderCardTimerProps {
   orderEndDate: Date;
-  handleOrderEnd: () => void;
+  handleOrderEnd?: () => void;
 }
 
 export default function OrderTimer({
@@ -23,14 +23,14 @@ export default function OrderTimer({
       setEnding(true);
     else setEnding(false);
 
-    if (time.endInMs <= 999) handleOrderEnd();
+    if (time.endInMs <= 999 && handleOrderEnd) handleOrderEnd();
   }, [time.days, time.hours, time.minutes, time.endInMs, handleOrderEnd]);
 
   return (
     <div className="text-nowrap w-full">
       {time.days >= 3 ? (
         <span>
-          {String(year)}-{String(month + 2).padStart(2, "0")}-
+          {String(year)}-{String(month).padStart(2, "0")}-
           {String(day).padStart(2, "0")}
         </span>
       ) : time.days >= 1 && time.days <= 3 ? (

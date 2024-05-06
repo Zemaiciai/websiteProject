@@ -31,6 +31,7 @@ enum NotificationTypes {
   ORDER_ACCEPTED
   ORDER_DECLINED
   ORDER_IN_PROGRESS
+  ORDER_UPDATED
   FRIEND_REQUEST
   FRIEND_ACCEPTED
   FRIEND_DECLINED
@@ -98,7 +99,7 @@ model Order {
   updatedAt   DateTime @updatedAt
 
   completionDate DateTime
-  revisionDate   DateTime
+  revisionDays   Int
   orderStatus OrderStatus
   description String?
   footageLink String

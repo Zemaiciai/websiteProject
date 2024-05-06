@@ -28,60 +28,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return typedjson({ orders: userOrders, isClient: isClient });
 };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
-  const state = formData.get("action");
-  const orderId = String(formData.get("orderId"));
-  const order = await getOrderById(orderId, true);
-
-  if (!order) return null;
-
-  const worker = await getUserById(order.workerId);
-
-  let newStatus: OrderStatus | undefined;
-
-  switch (state) {
-    case "Priimti":
-      await sendNotification(
-        order.customerId,
-        `Užsakymą ${order.orderName} vartotojas ${worker?.userName} priėmė`,
-        NotificationTypes.ORDER_ACCEPTED,
-      );
-      newStatus = OrderStatus.ACCEPTED;
-      break;
-    case "Atmesti":
-      await sendNotification(
-        order.customerId,
-        `Užsakymą ${order.orderName} vartotojas ${worker?.userName} atmetė`,
-        NotificationTypes.ORDER_DECLINED,
-      );
-      newStatus = OrderStatus.DECLINED;
-      break;
-    case "Sumokėti":
-      await sendNotification(
-        order.workerId,
-        `Už užsakymą ${order.orderName} sumokėta`,
-        NotificationTypes.ORDER_PAYED,
-      );
-      newStatus = OrderStatus.PAYED;
-      break;
-    case "Pašalinti":
-      newStatus = OrderStatus.REMOVED;
-      break;
-    default:
-      newStatus = undefined;
-      break;
-  }
-
-  if (newStatus !== undefined && orderId) {
-    await updateOrderStatus(newStatus, orderId);
-
-    return null;
-  }
-
-  return null;
-};
-
 export default function OrdersPage() {
   const data = useTypedLoaderData<typeof loader>();
   const [worker, setWorker] = useState(false);

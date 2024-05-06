@@ -82,8 +82,12 @@ export default function App() {
       setHeaderTitle("Reklama");
       return;
     }
-    if (location.pathname.match("/groups/[^new].+")) {
-      setHeaderTitle(`Grupė ${location.pathname.slice(8)}`);
+    if (location.pathname.match("/groups/(?!new)")) {
+      setHeaderTitle("Grupė");
+      return;
+    }
+    if (location.pathname.match("/orders/(?!new)")) {
+      setHeaderTitle("Užsakymas");
       return;
     }
 
