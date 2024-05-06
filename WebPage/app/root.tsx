@@ -16,7 +16,6 @@ import stylesheet from "~/tailwind.css";
 import NavBar from "./components/common/NavBar/NavBar";
 import { useEffect, useState } from "react";
 import NavBarHeader from "./components/common/NavBar/NavBarHeader";
-import { useOptionalUser } from "./utils";
 import NewFooter from "./components/newFooter/NewFooter";
 import { getUserNotifications } from "./models/notification.server";
 
@@ -75,7 +74,11 @@ export default function App() {
       setHeaderTitle("Profilis");
       return;
     }
-    if (location.pathname.match("/workerAds/(?!new)")) {
+    if (location.pathname.startsWith("/messages")) {
+      setHeaderTitle("Žinutės");
+      return;
+    }
+    if (location.pathname.match("/workerAds/[^new].+")) {
       setHeaderTitle("Reklama");
       return;
     }
