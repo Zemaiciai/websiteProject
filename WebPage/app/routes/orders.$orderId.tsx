@@ -498,7 +498,7 @@ export default function OrderDetailPage() {
               type="submit"
               name="action"
               value="Sumokėti"
-              className="w-full cursor-pointer font-bold"
+              className="w-full mb-2 cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap"
             />
           </Form>
         )}
