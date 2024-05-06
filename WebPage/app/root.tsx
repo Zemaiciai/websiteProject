@@ -49,7 +49,7 @@ export default function App() {
   const headerTitlesDictionary = {
     "/orders": "Užsakymų sąrašas",
     "/orders/new": "Sukurti užsakymą",
-    "/dashboard": "Dashboard",
+    "/dashboard": "Titulinis",
     "/messages": "Žinutės",
     "/calender": "Kalendorius",
     "/FAQ": "Dažnai užduodami klausimai",

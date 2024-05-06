@@ -23,14 +23,14 @@ export default function OrderCard({ createdBy, order }: OrderCardProps) {
   };
 
   return (
-    <tr className="order-card-row bg-white outline outline-1 outline-gray-100">
+    <tr
+      onClick={handleNavigateToOrder}
+      className="cursor-pointer order-card-row bg-white outline outline-1 outline-gray-100"
+    >
       <td className="order-name text-center max-w-[50px] truncate">
         {createdBy}
       </td>
-      <td
-        className="order-name text-center max-w-[100px] truncate cursor-pointer hover:underline"
-        onClick={handleNavigateToOrder}
-      >
+      <td className="order-name text-center max-w-[100px] truncate cursor-pointer">
         {order.orderName}
       </td>
       <td className="order-status text-center truncate">
