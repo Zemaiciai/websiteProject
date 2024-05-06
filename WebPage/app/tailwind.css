@@ -18,3 +18,7 @@ select:-webkit-autofill:focus {
 .notifications {
   height: calc(100vh - 75pt);
 }
+
+.chatbox {
+  height: calc(100vh - 410px);
+}

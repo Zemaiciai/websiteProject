@@ -58,10 +58,10 @@ const GroupDetailPage = () => {
   }, [messageList]);
 
   return (
-    <div className="flex flex-col h-full w-full bg-custom-200 m-4">
+    <div className="flex flex-col w-full max-h-full bg-custom-200 m-4">
       {/* Display existing messages */}
       <div
-        className="overflow-y-auto max-h-[735px] flex flex-col space-y-4 flex-grow p-2"
+        className="chatbox overflow-y-auto max-h-full flex grow-0 flex-col space-y-4 p-2"
         ref={chatboxRef}
       >
         {messageList.messages.map((message) => (
@@ -79,8 +79,8 @@ const GroupDetailPage = () => {
             <div
               className={
                 message.senderId === userUsingRN.id
-                  ? "relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl w-[400px]"
-                  : "relative mr-3 text-sm bg-custom-100 py-2 px-4 shadow rounded-xl w-[400px]"
+                  ? "ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl w-[400px]"
+                  : "mr-3 text-sm bg-custom-100 py-2 px-4 shadow rounded-xl w-[400px]"
               }
               style={{ height: "auto" }} // Adjust the height dynamically
             >
