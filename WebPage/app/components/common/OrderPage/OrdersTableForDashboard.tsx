@@ -13,7 +13,7 @@ export default function OrdersTable({
   title,
 }: OrdersTableProps) {
   if (!orderCards || orderCards.length === 0) {
-    return <span>No orders available</span>;
+    return <span>Neturite užsakymų</span>;
   }
 
   const ONE_HOUR_IN_MS = 60 * 60 * 1000;
@@ -30,7 +30,7 @@ export default function OrdersTable({
     .reverse();
 
   if (!sortedOrderCards || sortedOrderCards.length === 0) {
-    return <span>No orders available</span>;
+    return <span>Neturite užsakymų</span>;
   }
 
   const recentOrders = sortedOrderCards.slice(0, 5); // Display only the five most recent orders
