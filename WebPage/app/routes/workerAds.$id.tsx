@@ -48,7 +48,7 @@ export const action = async (actionArg) => {
     const groupId = formData.get("groupId");
 
     deleteAdd(groupId);
-    return redirect("/workerAds/");
+    return redirect("/workerAds");
   }
   return null;
 };

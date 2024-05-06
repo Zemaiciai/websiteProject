@@ -22,9 +22,9 @@ function ProfileSettings() {
   };
 
   return (
-    <div className="settingsMainDiv">
-      <div className="md:flex">
-        <ul className="flex-column space-y space-y-4 text-sm font-medium text-custom-800 md:me-4 mb-4 md:mb-0 w-[200px]">
+    <div className="settingsMainDiv h-full w-full">
+      <div className="flex">
+        <ul className="space-y space-y-4 text-sm font-medium text-custom-800 md:me-4 mb-4 md:mb-0 w-[200px]">
           <li>
             <button
               className={`inline-flex items-center px-4 py-3 rounded-lg ${
@@ -74,13 +74,13 @@ function ProfileSettings() {
             </button>
           </li>
         </ul>
-        <div className="p-6 bg-gray-100 text-medium text-gray-500  rounded-lg w-[800px] h-[400px]">
+        <div className="p-6 bg-gray-100 flex text-medium text-gray-500 rounded-lg w-full h-[22rem]">
           {activeTab === "profile" ? (
             <>
-              <div className=" items-center justify-center w-full">
+              <div className="flex flex-col items-center justify-center w-full">
                 <label
                   htmlFor="dropzone-file"
-                  className="flex flex-col items-center justify-center w-full h-80 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50"
+                  className="flex flex-col items-center justify-center w-full h-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50"
                 >
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <svg
@@ -107,9 +107,12 @@ function ProfileSettings() {
                     </p>
                   </div>
                   <input id="dropzone-file" type="file" className="hidden" />
-                  <span className="sr-only">Upload an image</span>
+                  <span>Upload an image</span>
                 </label>
-                <Form method="get" className="saveButton flex justify-end mt-4">
+                <Form
+                  method="get"
+                  className="saveButton flex w-full justify-end mt-4"
+                >
                   <button className="text-base font-semibold text-neutral-600 rounded border border-gray-400 w-20 h-8 hover:bg-gray-100 hover:text-gray-900">
                     Save
                   </button>
@@ -119,14 +122,14 @@ function ProfileSettings() {
           ) : null}
           {activeTab === "Dashboard" ? (
             <>
-              <div className=" items-center justify-center w-full">
+              <div className="flex flex-col items-center justify-center w-full">
                 <label
                   htmlFor="dropzone-file"
-                  className="flex flex-col items-center justify-center w-full h-80 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 "
+                  className="flex flex-col items-center justify-center w-full h-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50"
                 >
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <svg
-                      className="w-8 h-8 mb-4 text-gray-500"
+                      className="w-8 h-8 mb-4 text-gray-500 "
                       aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -149,9 +152,12 @@ function ProfileSettings() {
                     </p>
                   </div>
                   <input id="dropzone-file" type="file" className="hidden" />
-                  <span className="sr-only">Upload an image</span>
+                  <span>Upload an image</span>
                 </label>
-                <Form method="get" className="saveButton flex justify-end mt-4">
+                <Form
+                  method="get"
+                  className="saveButton flex w-full justify-end mt-4"
+                >
                   <button className="text-base font-semibold text-neutral-600 rounded border border-gray-400 w-20 h-8 hover:bg-gray-100 hover:text-gray-900">
                     Save
                   </button>

@@ -1,12 +1,9 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 
-import { getUserByEmail, verifyLogin, User } from "~/models/user.server";
-import { prisma } from "./db.server";
-import {
-  checkExpirationDateByEmail,
-  getCodeByEmail,
-} from "./models/secretCode.server";
+import { verifyLogin, User } from "~/models/user.server";
+import { Notification } from "~/models/notification.server";
+import { checkExpirationDateByEmail } from "./models/secretCode.server";
 import {
   getCustomMessagesByMessage,
   getCustomMessagesByName,
@@ -60,6 +57,39 @@ function isUser(user: unknown): user is User {
     "email" in user &&
     typeof user.email === "string"
   );
+}
+
+function isNotification(notification: unknown): notification is Notification {
+  return (
+    typeof notification === "object" &&
+    notification !== null &&
+    "id" in notification &&
+    "recipientId" in notification &&
+    "notificationType" in notification &&
+    "message" in notification &&
+    "isSeen" in notification &&
+    "createdAt" in notification &&
+    "updatedAt" in notification
+  );
+}
+
+function isNotifications(
+  notifications: unknown,
+): notifications is Notification[] {
+  if (!Array.isArray(notifications)) {
+    return false;
+  }
+
+  return notifications.every((notification) => isNotification(notification));
+}
+
+export function useOptionalNotifications(): Notification[] | undefined {
+  const data = useMatchesData("root");
+  if (!data || !isNotifications(data.notifications)) {
+    return undefined;
+  }
+
+  return data.notifications;
 }
 
 export function useOptionalUser(): User | undefined {

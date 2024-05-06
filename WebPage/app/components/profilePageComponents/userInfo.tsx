@@ -1,16 +1,12 @@
 import FacebookImage from "./socialMediaImages/facebook";
 import InstagramImage from "./socialMediaImages/instagram";
 import XImage from "./socialMediaImages/x";
-import { useEffect, useState } from "react";
-import { User, getUserById } from "~/models/user.server";
 
 interface UserInfoProps {
   user: any;
 }
 
 export default function UserInfo({ user }: UserInfoProps) {
-  console.log(user);
-
   return (
     <div className="info h-full place-items-center">
       <h1 className="text-4xl font-semibold pl-96 pt-6 font-serif w-[800px]">

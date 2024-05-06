@@ -48,7 +48,7 @@ export const meta: MetaFunction = () => [{ title: "Prisijungti - Žemaičiai" }]
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/Dashboard";
+  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
   const actionData = useActionData<typeof action>();
 
   return (
@@ -98,7 +98,12 @@ export default function LoginPage() {
                   </div>
                 ) : null}
 
-                <input type="hidden" name="redirectTo" value={redirectTo} />
+                <input
+                  type="hidden"
+                  name="redirectTo"
+                  readOnly
+                  value={redirectTo}
+                />
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
