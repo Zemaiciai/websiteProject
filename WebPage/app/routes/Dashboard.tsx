@@ -38,7 +38,7 @@ const Dashboard = () => {
             ),
         )}
         <div className="flex  mb-4 ml-4 mr-4">
-          <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full h-full ">
+          <div className="pt-2 pl-3 pr-6 pb-6 bg-custom-200 text-medium mt-3 mr-1 w-full h-full ">
             <h1 className="text-3xl font-mono font-font-extralight pb-3 pt-2">
               Penki naujausi užsakymai
             </h1>
