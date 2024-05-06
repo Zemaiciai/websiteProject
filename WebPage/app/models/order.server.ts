@@ -135,7 +135,6 @@ export async function updateOrder(
       orderName: orderName,
       completionDate: completionDate,
       revisionDays: revisionDays,
-      orderStatus: OrderStatus.PLACED,
       description: description,
       footageLink: footageLink,
       worker: {

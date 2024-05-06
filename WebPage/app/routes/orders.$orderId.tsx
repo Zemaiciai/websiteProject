@@ -75,6 +75,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const newCompletionDate = new Date(newCompletionDateString);
       const currentOrder = await getOrderById(orderId);
 
+      console.log("newCompletionDate:", newCompletionDate);
+
       const newRevisionDays = parseInt(String(formData.get("revisionDays")));
 
       const newDescription = String(formData.get("description"));
@@ -227,21 +229,16 @@ export default function OrderDetailPage() {
   const [canPay, setCanPay] = useState(false);
   const [ended, setEnded] = useState(false);
 
-  const [selectedDate, setSelectedDate] = useState<{
-    [key: string]: Date;
-  }>({
-    completionDate: new Date(),
-  });
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const [selectedDay, setSelectedDay] = useState<string>("0");
 
   const handleDateChange = (
     event: React.ChangeEvent<HTMLSelectElement>,
     type: string,
-    dateName: string,
   ) => {
     const { value } = event.target;
-    const newDate = new Date(selectedDate[dateName]);
+    let newDate = new Date(selectedDate);
 
     switch (type) {
       case "month":
@@ -261,11 +258,12 @@ export default function OrderDetailPage() {
         break;
     }
 
-    setSelectedDate({
-      ...selectedDate,
-      [dateName]: newDate,
-    });
+    setSelectedDate(newDate);
   };
+
+  useEffect(() => {
+    setSelectedDate(order.completionDate);
+  }, [!selectedDate]);
 
   useEffect(() => {
     if (!ended) setCanPay(false);
@@ -355,7 +353,7 @@ export default function OrderDetailPage() {
                   <OrderDatePicker
                     error={actionData?.errors?.completionDate}
                     handleDateChange={handleDateChange}
-                    selectedDate={selectedDate.completionDate}
+                    selectedDate={selectedDate}
                     title="Pabaigos data:"
                     name="completionDate"
                     defaultDate={order.completionDate}

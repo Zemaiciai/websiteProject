@@ -309,93 +309,75 @@ const Dashboard = () => {
               <h1 className="text-3xl font-mono font-extralight pb-3 pt-2">
                 Pranešimai
               </h1>
-              <div className="-mx-5">
-                {checkingIfDisplayOfMessagesNeeded &&
-                checkingIfDisplayOfMessagesNeededForClient ? (
-                  <>
-                    {/* Messages */}
-                    {/* FOR WORKER SIDE OF MESSAGES */}
-                    {Number(placedOrderFilteredCount) > 0 && !data.isClient && (
-                      <Message msg={"Turite naujų užsakymų!"} priority={"3"} />
-                    )}
-                    {Number(eightHourOrderFilteredCount) > 0 &&
-                      !data.isClient && (
-                        <Message
-                          msg={"Turite mažiau nei 8h atlikti užsakymą!"}
-                          priority={"2"}
-                        />
-                      )}
-                    {Number(fourHourOrderFilteredCount) > 0 &&
-                      !data.isClient && (
-                        <Message
-                          msg={"Turite mažiau nei 4h atlikti užsakymą!"}
-                          priority={"3"}
-                        />
-                      )}
-                    {Number(expiredOrderFilteredCount) > 0 &&
-                      !data.isClient && (
-                        <Message
-                          msg={"Vėluojate atlikti užsakymą!"}
-                          priority={"3"}
-                        />
-                      )}
-
-                    {/* FOR CLIENT SIDE OF MESSAGES */}
-                    {Number(placedOrderFilteredCount) > 0 && data.isClient && (
+              {checkingIfDisplayOfMessagesNeeded ||
+              checkingIfDisplayOfMessagesNeededForClient ? (
+                <div className="-mx-5">
+                  {/* Messages */}
+                  {/* FOR WORKER SIDE OF MESSAGES */}
+                  {Number(placedOrderFilteredCount) > 0 && !data.isClient && (
+                    <Message msg={"Turite naujų užsakymų!"} priority={"3"} />
+                  )}
+                  {Number(eightHourOrderFilteredCount) > 0 &&
+                    !data.isClient && (
                       <Message
-                        msg={"Darbuotojas dar nepatvirtino užsakymo!"}
+                        msg={"Turite mažiau nei 8h atlikti užsakymą!"}
                         priority={"2"}
                       />
                     )}
-                    {Number(eightHourOrderFilteredCount) > 0 &&
-                      data.isClient && (
-                        <Message
-                          msg={
-                            "Darbuotojas turi mažiau nei 8h atlikti užsakymą!"
-                          }
-                          priority={"2"}
-                        />
-                      )}
-                    {Number(fourHourOrderFilteredCount) > 0 &&
-                      data.isClient && (
-                        <Message
-                          msg={
-                            "Darbuotojas turi mažiau nei 4h atlikti užsakymą!"
-                          }
-                          priority={"3"}
-                        />
-                      )}
-                    {Number(expiredOrderFilteredCount) > 0 && data.isClient && (
-                      <Message
-                        msg={"Darbuotojas vėluoja atlikti užsakymą!"}
-                        priority={"3"}
-                      />
-                    )}
-                    {Number(completedOrderFilteredCount) > 0 &&
-                      data.isClient && (
-                        <Message
-                          msg={"Nesate apmokėję užsakymo!"}
-                          priority={"2"}
-                        />
-                      )}
-                  </>
-                ) : (
-                  <h1 className="text-xl font-mono font-extralight pb-3 pt-2">
-                    Neturite pranešimų
-                  </h1>
-                )}
-                {checkingIfDisplayOfMessagesNeededForClient && (
-                  <>
-                    {Number(completedOrderFilteredCount) > 0 &&
-                      data.isClient && (
-                        <Message
-                          msg={"Nesate apmokėję užsakymo!"}
-                          priority={"2"}
-                        />
-                      )}
-                  </>
-                )}
-              </div>
+                  {Number(fourHourOrderFilteredCount) > 0 && !data.isClient && (
+                    <Message
+                      msg={"Turite mažiau nei 4h atlikti užsakymą!"}
+                      priority={"3"}
+                    />
+                  )}
+                  {Number(expiredOrderFilteredCount) > 0 && !data.isClient && (
+                    <Message
+                      msg={"Vėluojate atlikti užsakymą!"}
+                      priority={"3"}
+                    />
+                  )}
+
+                  {/* FOR CLIENT SIDE OF MESSAGES */}
+                  {Number(placedOrderFilteredCount) > 0 && data.isClient && (
+                    <Message
+                      msg={"Darbuotojas dar nepatvirtino užsakymo!"}
+                      priority={"2"}
+                    />
+                  )}
+                  {Number(eightHourOrderFilteredCount) > 0 && data.isClient && (
+                    <Message
+                      msg={"Darbuotojas turi mažiau nei 8h atlikti užsakymą!"}
+                      priority={"2"}
+                    />
+                  )}
+                  {Number(fourHourOrderFilteredCount) > 0 && data.isClient && (
+                    <Message
+                      msg={"Darbuotojas turi mažiau nei 4h atlikti užsakymą!"}
+                      priority={"3"}
+                    />
+                  )}
+                  {Number(expiredOrderFilteredCount) > 0 && data.isClient && (
+                    <Message
+                      msg={"Darbuotojas vėluoja atlikti užsakymą!"}
+                      priority={"3"}
+                    />
+                  )}
+                  {Number(completedOrderFilteredCount) > 0 && data.isClient && (
+                    <Message msg={"Nesate apmokėję užsakymo!"} priority={"2"} />
+                  )}
+                </div>
+              ) : (
+                <h1 className="text-xl font-mono font-extralight pb-3 pt-2">
+                  Neturite pranešimų
+                </h1>
+              )}
+              {checkingIfDisplayOfMessagesNeededForClient && (
+                <>
+                  {Number(completedOrderFilteredCount) > 0 && data.isClient && (
+                    <Message msg={"Nesate apmokėję užsakymo!"} priority={"2"} />
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
