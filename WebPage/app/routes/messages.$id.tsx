@@ -1,7 +1,8 @@
 import { Message } from "@prisma/client";
 import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
 import { Form, json, useLoaderData } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import TextareaAutosize from "react-textarea-autosize";
 
 import { useParams } from "react-router-dom";
 import {
@@ -10,6 +11,7 @@ import {
 } from "~/models/messages.server";
 
 import { requireUser } from "~/session.server";
+
 export const meta: MetaFunction = () => [
   { title: "Reklamos peržiūra - Žemaičiai" },
 ];
@@ -45,43 +47,81 @@ const GroupDetailPage = () => {
   const { userUsingRN, messageId, messageList } =
     useLoaderData<typeof loader>();
 
+  // Ref for the chatbox container
+  const chatboxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Scroll to the bottom of the chatbox when it is loaded or updated
+    if (chatboxRef.current) {
+      chatboxRef.current.scrollTop = chatboxRef.current.scrollHeight;
+    }
+  }, [messageList]);
+
   return (
-    <>
+    <div className="flex flex-col h-full w-full bg-custom-200 m-4">
       {/* Display existing messages */}
-      <div>
+      <div
+        className="overflow-y-auto max-h-[750px] flex flex-col space-y-4 flex-grow p-2"
+        ref={chatboxRef}
+      >
         {messageList.messages.map((message) => (
           <div
             key={message.id}
             className={
-              message.senderId === userUsingRN.id ? "sent" : "received"
+              message.senderId === userUsingRN.id
+                ? "flex flex-row-reverse"
+                : "flex flex-row"
             }
           >
-            <p>{message.text}</p>
-            <p>Sent by: {message.senderId}</p>
+            <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0 ml-2 mr-2">
+              {"Ž"}
+            </div>
+            <div
+              className={
+                message.senderId === userUsingRN.id
+                  ? "relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl"
+                  : "relative mr-3 text-sm bg-white py-2 px-4 shadow rounded-xl"
+              }
+              style={{ height: "auto" }} // Adjust the height dynamically
+            >
+              <div>
+                <TextareaAutosize
+                  defaultValue={message.text}
+                  readOnly
+                  disabled
+                  style={{
+                    resize: "none",
+                    border: "none",
+                    outline: "none",
+                    background: "none",
+                  }}
+                />
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
       {/* Form to send new message */}
-
-      <Form method="post">
-        <div className="flex flex-wrap -mx-3 mb-4">
-          <div className="w-full  px-3 mb-6 md:mb-0">
-            <input name="form-id" hidden defaultValue="sendingMessage" />
-            <input name="whoSentMessage" hidden defaultValue={userUsingRN.id} />
-            <input name="messageId" hidden defaultValue={messageId} />
-            <input type="text" name="messageContent" />
-          </div>
+      <Form method="post" className="mt-4">
+        <input name="form-id" hidden defaultValue="sendingMessage" />
+        <input name="whoSentMessage" hidden defaultValue={userUsingRN.id} />
+        <input name="messageId" hidden defaultValue={messageId} />
+        <div className="flex">
+          <input
+            type="text"
+            name="messageContent"
+            className="flex-grow border rounded-l-xl focus:outline-none focus:border-indigo-300 pl-4 h-10"
+          />
+          <button
+            type="submit"
+            className="flex items-center justify-center bg-custom-800 hover:bg-custom-850 rounded-r-xl text-white px-4 py-1"
+          >
+            Siųsti
+          </button>
         </div>
-
-        <button
-          type="submit"
-          className="w-full rounded bg-custom-800  px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
-        >
-          siusti!
-        </button>
       </Form>
-    </>
+    </div>
   );
 };
 
