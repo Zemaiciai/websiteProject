@@ -191,8 +191,10 @@ export async function deleteOrdersByEmail(email: User["email"]) {
 export async function calculateOrdersByUserID(userId: User["id"]) {
   const orders = await getOrdersByUserId(userId);
 
-  const completedOrders = orders?.filter((order) =>
-    order.orderStatus.includes(OrderStatus.COMPLETED),
+  const completedOrders = orders?.filter(
+    (order) =>
+      order.orderStatus === OrderStatus.COMPLETED ||
+      order.orderStatus === OrderStatus.PAYED,
   );
   const rejectedOrders = orders?.filter((order) =>
     order.orderStatus.includes(OrderStatus.DECLINED),

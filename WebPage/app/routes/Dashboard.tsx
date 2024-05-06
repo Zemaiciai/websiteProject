@@ -54,23 +54,32 @@ const Dashboard = () => {
   const fourHoursInMs = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
   const eightHoursInMs = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
 
-  const eightHourOrderFiltered = data?.orders?.filter((order) => {
+  let eightHourOrderFiltered = data?.orders?.filter((order) => {
     if (order.completionDate instanceof Date) {
       const timeRemaining = order.completionDate.getTime() - currentTime;
       return timeRemaining < eightHoursInMs && timeRemaining >= fourHoursInMs;
     }
     return false;
   });
+
+  eightHourOrderFiltered = eightHourOrderFiltered?.filter((order) =>
+    order.orderStatus.includes("ACCEPTED"),
+  );
+
   const eightHourOrderFilteredCount = eightHourOrderFiltered?.length;
 
   //Used for checking if theres any orders that will expire in 4h
-  const fourHourOrderFiltered = data?.orders?.filter((order) => {
+  let fourHourOrderFiltered = data?.orders?.filter((order) => {
     if (order.completionDate instanceof Date) {
       const timeRemaining = order.completionDate.getTime() - currentTime;
       return timeRemaining < fourHoursInMs && timeRemaining >= 0;
     }
     return false;
   });
+
+  fourHourOrderFiltered = fourHourOrderFiltered?.filter((order) =>
+    order.orderStatus.includes("ACCEPTED"),
+  );
 
   const fourHourOrderFilteredCount = fourHourOrderFiltered?.length;
 
@@ -362,9 +371,6 @@ const Dashboard = () => {
                       priority={"3"}
                     />
                   )}
-                  {Number(completedOrderFilteredCount) > 0 && data.isClient && (
-                    <Message msg={"Nesate apmokėję užsakymo!"} priority={"2"} />
-                  )}
                 </div>
               ) : (
                 <h1 className="text-xl font-mono font-extralight pb-3 pt-2">
@@ -373,9 +379,15 @@ const Dashboard = () => {
               )}
               {checkingIfDisplayOfMessagesNeededForClient && (
                 <>
-                  {Number(completedOrderFilteredCount) > 0 && data.isClient && (
-                    <Message msg={"Nesate apmokėję užsakymo!"} priority={"2"} />
-                  )}
+                  <div className="-mx-5">
+                    {Number(completedOrderFilteredCount) > 0 &&
+                      data.isClient && (
+                        <Message
+                          msg={"Nesate apmokėję užsakymo!"}
+                          priority={"2"}
+                        />
+                      )}
+                  </div>
                 </>
               )}
             </div>

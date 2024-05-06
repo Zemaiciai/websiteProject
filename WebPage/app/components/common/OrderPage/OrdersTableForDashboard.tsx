@@ -1,5 +1,6 @@
 import { Order, OrderStatus } from "@prisma/client";
 import OrderTableRowForDashboard from "./OrderTableRowForDashboard";
+import OrdersTableHeaderForDashboard from "./OrdersTableHeaderForDashboard";
 
 interface OrdersTableProps {
   orderCards?: Order[] | null;
@@ -43,6 +44,7 @@ export default function OrdersTable({
         <div className="table-container flex flex-col h-full overflow-auto bg-custom-200">
           <div className="table-wrapper flex flex-col h-full overflow-auto">
             <table className="table mt-4 outline outline-1 outline-gray-100 h-min w-full">
+              <OrdersTableHeaderForDashboard />
               <tbody>
                 {recentOrders.map((order, index) => (
                   <OrderTableRowForDashboard
