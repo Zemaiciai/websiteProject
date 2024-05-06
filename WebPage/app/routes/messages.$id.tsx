@@ -13,7 +13,7 @@ import {
 import { requireUser } from "~/session.server";
 
 export const meta: MetaFunction = () => [
-  { title: "Reklamos peržiūra - Žemaičiai" },
+  { title: "Žinutės peržiūra - Žemaičiai" },
 ];
 
 export const action = async (actionArg) => {

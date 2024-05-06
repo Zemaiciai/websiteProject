@@ -24,7 +24,7 @@ const Dashboard = () => {
       </div>
 
       <div className="w-screen h-screen flex flex-grow flex-col bg-custom-100 pb-3">
-        <NavBarHeader title={`${activeTab ? "Pokalbiai" : "Grupės"}`} />
+        <NavBarHeader title={`${activeTab ? "Žinutės" : "Grupės"}`} />
         <div className="flex justify-between">
           <Outlet />
         </div>

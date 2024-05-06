@@ -9,7 +9,7 @@ import {
   getAllWorkerAddsCreators,
 } from "~/models/workerAds.server";
 import { requireUser } from "~/session.server";
-export const meta: MetaFunction = () => [{ title: "Reklama - Žemaičiai" }];
+export const meta: MetaFunction = () => [{ title: "Žinutės - Žemaičiai" }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
@@ -49,18 +49,27 @@ export default function GroupsIndexPage() {
   const messagesList: Conversation[] =
     useLoaderData<typeof loader>().messagesList;
 
+  let filteredMessagesList = messagesList;
+
+  if (searchQueryAllGroups) {
+    filteredMessagesList = messagesList.filter((conversation) =>
+      conversation.participants.some((participant) => {
+        const fullName =
+          `${participant.firstName} ${participant.lastName}`.toLowerCase();
+        return (
+          participant && fullName.includes(searchQueryAllGroups.toLowerCase())
+        );
+      }),
+    );
+  }
+
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
-        {/* Adjusted width */}
         <ul className="flex flex-wrap -mb-px border-b border-gray-200">
           <li className="me-2">
             <button
-              className={`inline-block p-4  ${
-                activeTab === "messages"
-                  ? "border-custom-800 border-b-2 rounded-t-lg"
-                  : "hover:text-gray-600 hover:border-gray-300"
-              }`}
+              className="inline-block p-4 border-custom-800 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300"
               onClick={() => handleTabClick("messages")}
             >
               Žinutės
@@ -72,15 +81,14 @@ export default function GroupsIndexPage() {
           <>
             <input
               type="text"
-              placeholder="Ieškoti pokalbio pagal vartotoją"
+              placeholder="Ieškoti žinutės pagal vartotoją"
               value={searchQueryAllGroups}
               onChange={(e) => setSearchQueryAllGroups(e.target.value)}
               className="p-2 mt-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-custom-800"
               style={{ width: "80%" }}
             />
-            {messagesList.length === 0 ? (
-              <p className="mt-5">Nėra pokalbių!</p>
-            ) : (
+            {filteredMessagesList.length > 0 ? (
+              // Render the table if there are conversations
               <div>
                 <div className="flex justify-between pb-5"></div>
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -90,50 +98,39 @@ export default function GroupsIndexPage() {
                         <th scope="col" className="p-4">
                           Vartotojas
                         </th>
-                        <th scope="col" className="p-4">
-                          Pranešimo tekstas
-                        </th>
-                        <th scope="col" className="p-4">
-                          Laikas
-                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {/* Map through conversations and render table rows */}
-                      {messagesList &&
-                        messagesList.length > 0 &&
-                        messagesList.map((conversation) => (
-                          <Link
-                            key={conversation.id}
-                            to={`/messages/${conversation.id}`}
-                            className="block"
-                          >
-                            <tr className="bg-white border-b hover:bg-gray-50">
-                              <td className="px-6 py-4 cursor-pointer">
-                                {/* Display participant information excluding the current user */}
-                                {conversation.participants.map(
-                                  (participant) =>
-                                    participant.id !== user.id && (
-                                      <div key={participant.id}>
-                                        <span>{participant.firstName}</span>{" "}
-                                        <span>{participant.lastName}</span>
-                                      </div>
-                                    ),
-                                )}
-                              </td>
-                              <td className="px-6 py-4">
-                                {/* Display message text */}
-                              </td>
-                              <td className="px-6 py-4">
-                                {/* Display timestamp */}
-                              </td>
-                            </tr>
-                          </Link>
-                        ))}
+                      {filteredMessagesList.map((conversation) => (
+                        <Link
+                          key={conversation.id}
+                          to={`/messages/${conversation.id}`}
+                          className="block"
+                        >
+                          <tr className="bg-white border-b ">
+                            <td className="px-6 py-4 cursor-pointer">
+                              {/* Display participant information excluding the current user */}
+                              {conversation.participants.map(
+                                (participant) =>
+                                  participant.id !== user.id && (
+                                    <div key={participant.id}>
+                                      <span>{participant.firstName}</span>{" "}
+                                      <span>{participant.lastName}</span>
+                                    </div>
+                                  ),
+                              )}
+                            </td>
+                          </tr>
+                        </Link>
+                      ))}
                     </tbody>
                   </table>
                 </div>
               </div>
+            ) : (
+              // Render a message if there are no conversations
+              <p className="mt-5">Nėra žinučių!</p>
             )}
           </>
         ) : null}
@@ -145,7 +142,7 @@ export default function GroupsIndexPage() {
             className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap"
             to={"new"}
           >
-            Sukurti pokalbį
+            Sukurti žinutę
           </Link>
         </div>
       </div>
