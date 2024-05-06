@@ -83,8 +83,14 @@ const Dashboard = () => {
                 Pranešimai
               </h1>
               <div className="-mx-5">
-                {Number(placedOrderFilteredCount) > 0 && (
+                {Number(placedOrderFilteredCount) > 0 && !data.isClient && (
                   <Message msg={"Turite naujų užsakymų!"} priority={"3"} />
+                )}
+                {Number(placedOrderFilteredCount) > 0 && data.isClient && (
+                  <Message
+                    msg={"Darbuotojas dar nepatvirtino užsakymo!"}
+                    priority={"2"}
+                  />
                 )}
               </div>
             </div>
