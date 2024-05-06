@@ -1,23 +1,49 @@
 import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { useState } from "react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import Message from "~/components/DashBoardCustomMessagesDesign/Message";
+import OrdersTable from "~/components/common/OrderPage/OrdersTable";
 
 import { getAllMessages } from "~/models/customMessage.server";
-import { requireUser } from "~/session.server";
+import { getOrdersByUserId } from "~/models/order.server";
+import { isUserClient, requireUser, requireUserId } from "~/session.server";
 export const meta: MetaFunction = () => [{ title: "Titulinis - Žemaičiai" }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await requireUser(request);
-  return typedjson(await getAllMessages());
+  const userId = await requireUserId(request);
+  const userOrders = await getOrdersByUserId(userId, true);
+  const isClient = await isUserClient(request);
+  const customMessages = await getAllMessages();
+
+  return typedjson({
+    orders: userOrders,
+    isClient: isClient,
+    customMessages: customMessages,
+  });
 };
 
 const Dashboard = () => {
-  const customMessages = useTypedLoaderData<typeof loader>();
-
+  const data = useTypedLoaderData<typeof loader>();
+  const [worker, setWorker] = useState(false);
+  const [searchQueries, setSearchQueries] = useState<{ [key: string]: string }>(
+    {
+      mainTable: "",
+      importantTable: "",
+    },
+  );
+  const handleSearch = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    tableName: string,
+  ) => {
+    setSearchQueries({
+      ...searchQueries,
+      [tableName]: event.target.value,
+    });
+  };
   return (
     <div className="flex h-full w-full">
       <div className="flex flex-col h-full w-full bg-custom-100 overflow-auto">
-        {customMessages.map(
+        {data.customMessages.map(
           (message) =>
             message.visibility && (
               <div key={message.id}>
@@ -25,22 +51,19 @@ const Dashboard = () => {
               </div>
             ),
         )}
-
-        <div className="grid grid-cols-4 col-span-1 gap-4 mr-10">
-          <div className="bg-red-200 p-4 pb-16 rounded-md ml-10">
-            <p>Stats</p>
-          </div>
-          <div className="bg-indigo-600 p-4 rounded-md">
-            <p>Stats</p>
-          </div>
-          <div className="bg-indigo-800 p-4 rounded-md">
-            <p>Stats</p>
-          </div>
-          <div className="bg-green-500 col-span-1 row-span-3 p-4 pb-64 rounded-md">
-            <p>Stats</p>
-          </div>
-          <div className="bg-yellow-400 col-span-2 row-span-2 p-4 pt-16 pr-96 rounded-md ml-5">
-            <p>Stats</p>
+        <div className="flex grow mb-4 ml-4 mr-4">
+          <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
+            <h1 className="text-3xl font-mono font-font-extralight pb-3">
+              Penki naujausi užsakymai
+            </h1>
+            <div className="w-full">
+              <OrdersTable
+                orderCards={data.orders}
+                handleSearch={(event) => handleSearch(event, "mainTable")}
+                searchQuery={searchQueries.mainTable}
+                title={`${worker ? "Darbų sąrašas" : "Jūsų užsakymų sąrašas"}`}
+              />
+            </div>
           </div>
         </div>
       </div>
