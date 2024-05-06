@@ -128,7 +128,7 @@ export default function Notifications() {
     ));
 
   return (
-    <div className="notifications flex flex-col absolute h-48 w-[33.75rem] right-0 top-7 bg-custom-200 drop-shadow-lg rounded p-4 overflow-auto">
+    <div className="notifications flex flex-col absolute h-48 w-[33.75rem] right-0 top-7 bg-custom-200 drop-shadow-lg rounded p-4 overflow-auto font-bold">
       <span className="text-2xl">Pranešimai</span>
       <div className="flex items-center justify-center mt-4 mb-2">
         <span className="text-nowrap mr-2 text-sm">Nauji pranešimai</span>

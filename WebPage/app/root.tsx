@@ -19,6 +19,7 @@ import NavBarHeader from "./components/common/NavBar/NavBarHeader";
 import { useOptionalUser } from "./utils";
 import NewFooter from "./components/newFooter/NewFooter";
 import { getUserNotifications } from "./models/notification.server";
+import { getAllusers } from "./models/user.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -29,12 +30,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
 
   if (!user) {
-    return typedjson({ user: null, allNotifications: null });
+    return typedjson({ user: null, allNotifications: null, allUsers: null });
   }
+  const allUsers = await getAllusers();
 
   return typedjson({
     allNotifications: await getUserNotifications(user.id),
     user: user,
+    allUsers: allUsers,
   });
 };
 
@@ -48,7 +51,7 @@ export default function App() {
     "/orders": "Užsakymų sąrašas",
     "/orders/new": "Sukurti užsakymą",
     "/dashboard": "Dashboard",
-    "/messages": "žinutės",
+    "/messages": "Žinutės",
     "/calender": "Kalendorius",
     "/FAQ": "Dažnai užduodami klausimai",
     "/groups": "Grupės",
