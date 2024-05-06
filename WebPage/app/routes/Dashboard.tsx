@@ -6,6 +6,7 @@ import OrdersTableForDashboard from "~/components/common/OrderPage/OrdersTableFo
 
 import { getAllMessages } from "~/models/customMessage.server";
 import { getOrdersByUserId } from "~/models/order.server";
+import { checkingThirtyDaysLeft } from "~/models/user.server";
 import { isUserClient, requireUser, requireUserId } from "~/session.server";
 export const meta: MetaFunction = () => [{ title: "Titulinis - Žemaičiai" }];
 
@@ -15,10 +16,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const isClient = await isUserClient(request);
   const customMessages = await getAllMessages();
 
+  const thirtyDaysRemaining = await checkingThirtyDaysLeft(userId);
+  console.log(thirtyDaysRemaining);
   return typedjson({
     orders: userOrders,
     isClient: isClient,
     customMessages: customMessages,
+    thirtyDaysRemaining: thirtyDaysRemaining,
   });
 };
 
@@ -96,6 +100,18 @@ const Dashboard = () => {
       <div className="flex flex-col h-full">
         {/* Custom messages section */}
         <div className="bg-custom-100 overflow-auto">
+          {/* To show if contract is expiring soon */}
+          {data.thirtyDaysRemaining && (
+            <>
+              <Message
+                msg={
+                  "Jūsų kontraktas baigs galioti už mažiau nei 30 dienų! Maloniai kviečiame susisiekti su administracija."
+                }
+                priority={"3"}
+              />
+            </>
+          )}
+
           {/* Custom messages */}
           {data.customMessages.map(
             (message) =>
@@ -132,6 +148,15 @@ const Dashboard = () => {
                   }`}
                 />
               </div>
+            </div>
+            {/* Divider */}
+            <div className="-mx-4 mb-4 flex items-center">
+              <hr className="border-custom-100 w-full border-[7px]" />
+            </div>
+            <div className="pt-2 pl-3 pr-6 pb-6 mb-4">
+              <h1 className="text-3xl font-mono font-extralight pb-3 pt-2">
+                Placeholder
+              </h1>
             </div>
           </div>
           {/* Sidebar */}
