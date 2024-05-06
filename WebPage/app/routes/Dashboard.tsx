@@ -26,6 +26,12 @@ const Dashboard = () => {
   const data = useTypedLoaderData<typeof loader>();
   const [worker, setWorker] = useState(false);
 
+  const placedOrderFiltered = data?.orders?.filter((order) =>
+    order.orderStatus.includes("PLACED"),
+  );
+
+  const placedOrderFilteredCount = placedOrderFiltered?.length;
+
   return (
     <>
       {/* Flex container */}
@@ -44,21 +50,16 @@ const Dashboard = () => {
         </div>
         {/* Main content */}
         <div className="flex flex-col md:flex-row flex-grow mb-3 ml-4 mr-4">
-          <div className="md:w-3/4 bg-custom-200 text-medium p-4 mr-4 mb-4 md:mb-0">
+          <div className="md:w-5/6 bg-custom-200 text-medium p-4 mr-4 mb-4 md:mb-0">
             {/* Your statistics */}
             <div className="pt-2 pl-3 pr-6 pb-6 mb-4">
-              {" "}
-              {/* Added mb-4 here */}
               <h1 className="text-3xl font-mono font-extralight pb-3 pt-2">
                 Jūsų statistika
               </h1>
             </div>
             {/* Divider */}
             <div className="-mx-4 mb-4 flex items-center">
-              {" "}
-              {/* Added flex and items-center */}
-              <hr className="border-custom-100 w-full border-[7px]" />{" "}
-              {/* Added horizontal divider with height */}
+              <hr className="border-custom-100 w-full border-[7px]" />
             </div>
             {/* Recent orders */}
             <div className="pt-2 pl-3 pr-6 pb-6">
@@ -76,13 +77,17 @@ const Dashboard = () => {
             </div>
           </div>
           {/* Sidebar */}
-          <div className="md:w-1/4 bg-custom-200 text-medium p-4">
-            <div className="flex justify-center">
-              <button className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap">
-                Sukurti grupę
-              </button>
+          <div className="md:w-1/6 bg-custom-200 text-medium p-4 text-center">
+            <div className="flex flex-col justify-center">
+              <h1 className="text-3xl font-mono font-extralight pb-3 pt-2">
+                Pranešimai
+              </h1>
+              <div className="-mx-5">
+                {Number(placedOrderFilteredCount) > 0 && (
+                  <Message msg={"Turite naujų užsakymų!"} priority={"3"} />
+                )}
+              </div>
             </div>
-            <h1>TEST</h1>
           </div>
         </div>
       </div>

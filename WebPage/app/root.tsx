@@ -108,8 +108,8 @@ export default function App() {
                 title={"Žemaičiai"}
                 redirectTo={"dashboard"}
                 tabTitles={{
+                  dashboard: "Titulinis",
                   orders: "Užsakymai",
-                  dashboard: "Dashboard",
                   messages: "Žinutės",
                   calender: "Kalendorius",
                   FAQ: "D.U.K",
