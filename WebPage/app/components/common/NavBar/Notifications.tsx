@@ -45,12 +45,12 @@ export default function Notifications() {
       FRIEND_DECLINED: `/profile/${n.senderId}`,
       FRIEND_ACCEPTED: `/profile/${n.senderId}`,
       FRIEND_REMOVE: `/profile/${n.senderId}`,
-      ORDER_ACCEPTED: "/orders",
-      ORDER_ASSIGNED: "/orders",
-      ORDER_COMPLETED: "/orders",
-      ORDER_DECLINED: "/orders",
-      ORDER_IN_PROGRESS: "/orders",
-      ORDER_PAYED: "/orders",
+      ORDER_ACCEPTED: `/orders/${n.senderId}`,
+      ORDER_ASSIGNED: `/orders/${n.senderId}`,
+      ORDER_COMPLETED: `/orders/${n.senderId}`,
+      ORDER_DECLINED: `/orders/${n.senderId}`,
+      ORDER_IN_PROGRESS: `/orders/${n.senderId}`,
+      ORDER_PAYED: `/orders/${n.senderId}`,
     };
     return redirectTo[type] ?? "404";
   };

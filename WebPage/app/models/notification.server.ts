@@ -5,6 +5,7 @@ import { getUserById } from "./user.server";
 import { Notification } from "@prisma/client";
 
 export type { Notification } from "@prisma/client";
+export { NotificationTypes } from "@prisma/client";
 
 export async function sendNotification(
   recipientId: User["id"],
@@ -92,5 +93,5 @@ export async function updateNotificationStatusToRead(
         isSeen: true,
       },
     });
-  else return;
+  else return null;
 }

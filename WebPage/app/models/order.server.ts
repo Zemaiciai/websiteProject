@@ -118,12 +118,41 @@ export async function getOrdersByEmail(email: User["email"]) {
   return getOrdersByUserId(user.id);
 }
 
+export async function updateOrder(
+  orderId: Order["id"],
+  orderName?: string,
+  createdBy?: User,
+  worker?: User,
+  completionDate?: Date,
+  revisionDays?: number,
+  description?: string,
+  footageLink?: string,
+) {
+  return prisma.order.update({
+    where: { id: orderId },
+    data: {
+      orderName: orderName,
+      completionDate: completionDate,
+      revisionDays: revisionDays,
+      orderStatus: OrderStatus.PLACED,
+      description: description,
+      footageLink: footageLink,
+      worker: {
+        connect: { id: worker?.id },
+      },
+      createdBy: {
+        connect: { id: createdBy?.id },
+      },
+    },
+  });
+}
+
 export async function createOrder(
   orderName: string,
   createdBy: User,
   worker: User,
   completionDate: Date,
-  revisionDate: Date,
+  revisionDays: number,
   description: string,
   footageLink: string,
 ) {
@@ -131,7 +160,7 @@ export async function createOrder(
     data: {
       orderName: orderName,
       completionDate: completionDate,
-      revisionDate: revisionDate,
+      revisionDays: revisionDays,
       orderStatus: OrderStatus.PLACED,
       description: description,
       footageLink: footageLink,

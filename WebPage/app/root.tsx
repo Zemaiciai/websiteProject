@@ -75,12 +75,16 @@ export default function App() {
       setHeaderTitle("Profilis");
       return;
     }
-    if (location.pathname.match("/workerAds/[^new].+")) {
+    if (location.pathname.match("/workerAds/(?!new)")) {
       setHeaderTitle("Reklama");
       return;
     }
-    if (location.pathname.match("/groups/[^new].+")) {
+    if (location.pathname.match("/groups/(?!new)")) {
       setHeaderTitle(`Grupė ${location.pathname.slice(8)}`);
+      return;
+    }
+    if (location.pathname.match("/orders/(?!new)")) {
+      setHeaderTitle("Užsakymas");
       return;
     }
 
