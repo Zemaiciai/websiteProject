@@ -7,6 +7,7 @@ import { useUser } from "~/utils";
 
 import ProfilePageSocialMedia from "./profilePageSocialMedia";
 import SetProgram from "./SkillSetComponents/SetProgram";
+import { socialMedia } from "@prisma/client";
 
 export const loader = async ({ request }) => {
   const user = await requireUser(request);
@@ -24,9 +25,10 @@ type JsonifyObject<T> = {
 };
 interface UserInfoProps {
   errorData: JsonifyObject<Errors> | null | undefined;
+  socialMediaLinks: socialMedia | null;
 }
 
-function ProfileSettings({ errorData }: UserInfoProps) {
+function ProfileSettings({ errorData, socialMediaLinks }: UserInfoProps) {
   const [activeTab, setActiveTab] = useState("profile");
   const user = useUser();
 
@@ -193,7 +195,10 @@ function ProfileSettings({ errorData }: UserInfoProps) {
           ) : null}
           {activeTab === "SocialMedia" ? (
             <>
-              <ProfilePageSocialMedia errorData={errorData} />
+              <ProfilePageSocialMedia
+                errorData={errorData}
+                socialMediaLinks={socialMediaLinks}
+              />
             </>
           ) : null}
         </div>

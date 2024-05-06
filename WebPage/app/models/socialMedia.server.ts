@@ -27,15 +27,15 @@ export async function updateSocialMedia(
   twChange: string | undefined,
 ) {
   const socialMedia = await prisma.socialMedia.findFirst({ where: { id } });
-  if (fbChange == null || fbChange == "") {
-    fbChange = socialMedia?.facebookLink;
-  }
-  if (igChange == null || igChange == "") {
-    igChange = socialMedia?.InstagramLink;
-  }
-  if (twChange == null || twChange == "") {
-    twChange = socialMedia?.TwitterLink;
-  }
+  // if (fbChange == null || fbChange == "") {
+  //   fbChange = socialMedia?.facebookLink;
+  // }
+  // if (igChange == null || igChange == "") {
+  //   igChange = socialMedia?.InstagramLink;
+  // }
+  // if (twChange == null || twChange == "") {
+  //   twChange = socialMedia?.TwitterLink;
+  // }
   const changeInfo = await prisma.socialMedia.update({
     where: {
       id: id,

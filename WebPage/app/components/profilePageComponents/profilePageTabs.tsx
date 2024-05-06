@@ -8,7 +8,7 @@ import ProfilePageTabsSkills from "./profilePageTabsSkills";
 import ProfileSettings from "./profileSettings";
 import { useUser } from "~/utils";
 import { Form } from "@remix-run/react";
-import { User, workExamples } from "@prisma/client";
+import { User, socialMedia, workExamples } from "@prisma/client";
 import YouTube from "react-youtube";
 interface Errors {
   fbLinkError?: string;
@@ -29,9 +29,15 @@ interface UserInfoProps {
   user: User | null;
   errorData: JsonifyObject<Errors> | null | undefined;
   workExample: workExamples | null | undefined;
+  socialMediaLinks: socialMedia | null;
 }
 
-function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
+function ProfilePageTabs({
+  user,
+  errorData,
+  workExample,
+  socialMediaLinks,
+}: UserInfoProps) {
   const [activeTab, setActiveTab] = useState("statistics");
   const [edit, setEdit] = useState(false);
   const realuser = useUser();
@@ -86,6 +92,13 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
   };
   const handleChange5 = (event) => {
     setVideo5(event.target.value);
+  };
+  const handleButtonClickWorkExamples = () => {
+    setVideo1(workExample?.examples[0]);
+    setVideo2(workExample?.examples[1]);
+    setVideo3(workExample?.examples[2]);
+    setVideo4(workExample?.examples[3]);
+    setVideo5(workExample?.examples[4]);
   };
 
   return (
@@ -159,7 +172,10 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
         ) : null}
         {activeTab === "settings" ? (
           <>
-            <ProfileSettings errorData={errorData} />
+            <ProfileSettings
+              errorData={errorData}
+              socialMediaLinks={socialMediaLinks}
+            />
           </>
         ) : null}
         {activeTab === "example" ? (
@@ -182,7 +198,10 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
               </ul>
               {isUserInProfile() && (
                 <button
-                  onClick={() => handleTabClick("changeExample")}
+                  onClick={() => {
+                    handleTabClick("changeExample");
+                    handleButtonClickWorkExamples();
+                  }}
                   className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
                 >
                   Redaguoti

@@ -1,8 +1,9 @@
+import { socialMedia } from "@prisma/client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import { userInfo } from "os";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   createSocialMedia,
   getSocialMediaByUserId,
@@ -22,16 +23,34 @@ type JsonifyObject<T> = {
 };
 interface UserInfoProps {
   errorData: JsonifyObject<Errors> | null | undefined;
+  socialMediaLinks: socialMedia | null;
 }
 
-function ProfilePageSocialMedia({ errorData }: UserInfoProps) {
+function ProfilePageSocialMedia({
+  errorData,
+  socialMediaLinks,
+}: UserInfoProps) {
   const user = useUser();
   const [Clicked, setClicked] = useState(false);
   const handleTabClick = () => {
     setClicked(true);
   };
+
+  const [fb, setLinkFb] = useState(socialMediaLinks?.facebookLink);
+  const [ig, setLinkIg] = useState(socialMediaLinks?.InstagramLink);
+  const [tw, setLinkTw] = useState(socialMediaLinks?.TwitterLink);
+
+  const handleChangeFb = (event) => {
+    setLinkFb(event.target.value);
+  };
+  const handleChangeIg = (event) => {
+    setLinkIg(event.target.value);
+  };
+  const handleChangeTw = (event) => {
+    setLinkTw(event.target.value);
+  };
   return (
-    <Form method="post">
+    <Form method="post" className="w-full">
       <div className="socialMediaDiv">
         <div className="p-4 md:p-5">
           <div className="space-y-4">
@@ -51,6 +70,8 @@ function ProfilePageSocialMedia({ errorData }: UserInfoProps) {
                     id="iglink"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
                     placeholder="instagram.com/profile/"
+                    defaultValue={ig}
+                    onChange={handleChangeIg}
                   />
                 </div>
                 {errorData?.igLinkError ? (
@@ -75,6 +96,8 @@ function ProfilePageSocialMedia({ errorData }: UserInfoProps) {
                     id="fblink"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
                     placeholder="facebook.com/profile/"
+                    defaultValue={fb}
+                    onChange={handleChangeFb}
                   />
                 </div>
                 {errorData?.fbLinkError ? (
@@ -99,6 +122,8 @@ function ProfilePageSocialMedia({ errorData }: UserInfoProps) {
                     id="twlink"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
                     placeholder="twitter.com/profile/"
+                    defaultValue={tw}
+                    onChange={handleChangeTw}
                   />
                 </div>
                 {errorData?.twLinkError ? (
