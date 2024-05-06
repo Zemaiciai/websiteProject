@@ -8,6 +8,7 @@ import {
 import { prisma } from "~/db.server";
 import { getUserByEmail } from "./user.server";
 import { sendNotification } from "./notification.server";
+import OrdersTable from "~/components/common/OrderPage/OrdersTable";
 
 export type { Order } from "@prisma/client";
 
@@ -186,4 +187,39 @@ export async function deleteOrdersByEmail(email: User["email"]) {
   }
 
   return true;
+}
+
+export async function calculateOrdersByUserID(userId: User["id"]) {
+  const orders = await getOrdersByUserId(userId);
+
+  const completedOrders = orders?.filter((order) =>
+    order.orderStatus.includes(OrderStatus.COMPLETED),
+  );
+  const rejectedOrders = orders?.filter((order) =>
+    order.orderStatus.includes(OrderStatus.DECLINED),
+  );
+
+  const completedOrdersCount = completedOrders?.length;
+  const allOrdersCount = Number(orders?.length) - Number(rejectedOrders);
+
+  const result = (Number(completedOrdersCount) / Number(allOrdersCount)) * 100;
+  if (result > 0) {
+    return result;
+  }
+  return 0;
+}
+
+export async function getTasksRemaining(userId: User["id"]) {
+  const orders = await getOrdersByUserId(userId);
+
+  const inProgressOrders = orders?.filter(
+    (order) => order.orderStatus == OrderStatus.ACCEPTED,
+  );
+
+  const inProgressOrdersCount = inProgressOrders?.length;
+
+  if (Number(inProgressOrdersCount) > 0) {
+    return inProgressOrdersCount;
+  }
+  return 0;
 }
