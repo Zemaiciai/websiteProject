@@ -1,13 +1,16 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 
-import { verifyLogin, User } from "~/models/user.server";
+import { verifyLogin, User, checkIfUserNameExists } from "~/models/user.server";
 import { Notification } from "~/models/notification.server";
 import { checkExpirationDateByEmail } from "./models/secretCode.server";
 import {
   getCustomMessagesByMessage,
   getCustomMessagesByName,
 } from "./models/customMessage.server";
+import { aD } from "vitest/dist/reporters-P7C2ytIv";
+import { checkUserAdsLimit } from "./models/workerAds.server";
+import { prisma } from "./db.server";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -155,6 +158,8 @@ export async function validateRegistrationCredentials(
   }
   if (typeof username !== "string" || username === "") {
     errors.username = "Slapyvardis privalomas";
+  } else if (await checkIfUserNameExists(username)) {
+    errors.username = "Slapyvardis yra užimtas";
   }
   if (typeof email !== "string" || email === "") {
     errors.email = "El. pašto adresas privalomas";
@@ -393,5 +398,135 @@ export async function validateChangeUserInfo(
     return errors;
   }
 
+  return null;
+}
+interface CreateWorkerAdErrors {
+  adName?: string;
+  adDescription?: string;
+  video1?: string;
+  video2?: string;
+  video3?: string;
+  limit?: string;
+}
+export async function validateCreateWorkerAd(
+  adName: string,
+  adDescription: string,
+  video1: string,
+  video2: string,
+  video3: string,
+  errors: CreateWorkerAdErrors,
+  userId: string,
+): Promise<CreateWorkerAdErrors | null> {
+  if (typeof adName !== "string" || adName.length <= 0) {
+    errors.adName = "Pavadinimas yra privalomas";
+  } else if (adName.length < 5) {
+    errors.adName = "Pavadinimo ilgį turi sudaryti bent penki simboliai";
+  } else if (adName.length > 100) {
+    errors.adName = "Pavadinimo ilgis negali viršyti šimto simbolių";
+  }
+  if (typeof adDescription !== "string" || adDescription.length <= 0) {
+    errors.adDescription = "Aprašymas yra privalomas";
+  } else if (adDescription.length < 100) {
+    errors.adDescription = "Aprašymą turi sudaryti bent šimtas simbolių";
+  }
+  const youtubePattern =
+    /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})\b/;
+  if (!youtubePattern.test(video1) && video1 != "") {
+    errors.video1 = "Nuoroda neatitinka formato";
+  }
+  if (!youtubePattern.test(video2) && video2 != "") {
+    errors.video2 = "Nuoroda neatitinka formato";
+  }
+  if (!youtubePattern.test(video3) && video3 != "") {
+    errors.video3 = "Nuoroda neatitinka formato";
+  }
+  if (!(await checkUserAdsLimit(userId))) {
+    errors.limit = "Pasiektas reklamų limitas (MAX 2)";
+  }
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+  return null;
+}
+interface workExampleErrors {
+  video1?: string;
+  video2?: string;
+  video3?: string;
+  video4?: string;
+  video5?: string;
+}
+export async function validateCreateWorkExample(
+  video1: string,
+  video2: string,
+  video3: string,
+  video4: string,
+  video5: string,
+  errors: workExampleErrors,
+): Promise<workExampleErrors | null> {
+  const youtubePattern =
+    /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})\b/;
+  if (!youtubePattern.test(video1) && video1 != "") {
+    errors.video1 = "Nuoroda neatitinka formato";
+  }
+  if (!youtubePattern.test(video2) && video2 != "") {
+    errors.video2 = "Nuoroda neatitinka formato";
+  }
+  if (!youtubePattern.test(video3) && video3 != "") {
+    errors.video3 = "Nuoroda neatitinka formato";
+  }
+  if (!youtubePattern.test(video4) && video4 != "") {
+    errors.video4 = "Nuoroda neatitinka formato";
+  }
+  if (!youtubePattern.test(video5) && video5 != "") {
+    errors.video5 = "Nuoroda neatitinka formato";
+  }
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+  return null;
+}
+interface CreateGroupsErrors {
+  groupName?: string;
+  groupShortDesc?: string;
+  groupDescription?: string;
+}
+export async function validateCreateGroup(
+  groupName: string,
+  groupShortDesc: string,
+  groupDescription: string,
+  errors: CreateGroupsErrors,
+  edit: boolean,
+): Promise<CreateGroupsErrors | null> {
+  if (typeof groupName !== "string" || groupName.length <= 0) {
+    errors.groupName = "Pavadinimas yra privalomas";
+  } else if (groupName.length < 5) {
+    errors.groupName = "Pavadinimo ilgį turi sudaryti bent penki simboliai";
+  } else if (groupName.length > 20) {
+    errors.groupName = "Pavadinimo ilgis negali viršyti šimto simbolių";
+  } else if (
+    (await prisma.groups.findFirst({
+      where: {
+        groupName: groupName,
+      },
+    })) &&
+    !edit
+  ) {
+    errors.groupName = "Grupe su tokiu pavadinimu jau egzistuoja";
+  }
+  if (typeof groupShortDesc !== "string" || groupShortDesc.length <= 0) {
+    errors.groupShortDesc = "Apibūdinimas yra privalomas";
+  } else if (groupShortDesc.length > 100) {
+    errors.groupShortDesc = "Apibūdinimas negali viršyti šimto simbolių";
+  } else if (groupShortDesc.length < 10) {
+    errors.groupShortDesc = "Apibūdinimą turi sudaryti bent dešimt simbolių";
+  }
+  if (typeof groupDescription !== "string" || groupDescription.length <= 0) {
+    errors.groupDescription = "Aprašymas yra privalomas";
+  } else if (groupDescription.length < 100) {
+    errors.groupDescription = "Aprašymą turi sudaryti bent šimtą simbolių";
+  }
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
   return null;
 }

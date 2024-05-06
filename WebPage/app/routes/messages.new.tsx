@@ -1,7 +1,8 @@
 import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
-import { Form, json, useLoaderData } from "@remix-run/react";
+import { Form, json, useActionData, useLoaderData } from "@remix-run/react";
 import GroupsCreationInformation from "~/components/workerAds/workerAdsInformation";
 import { createConversation } from "~/models/messages.server";
+import { getUserByEmail, getUserById } from "~/models/user.server";
 import { createWorkerAds } from "~/models/workerAds.server";
 import { requireUser } from "~/session.server";
 export const meta: MetaFunction = () => [
@@ -14,13 +15,24 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   return json(user);
 };
-
+interface Errors {
+  createMessage?: string;
+}
 export const action = async (actionArg) => {
   const formData = await actionArg.request.formData();
   const formId = formData.get("form-id");
-
+  const errors: Errors = {};
   const ownerUserID = formData.get("whoCreated");
   const messageEmail = String(formData.get("messageEmail"));
+  const user = await getUserByEmail(messageEmail);
+  if (!user) {
+    errors.createMessage = "Tokio vartotojo nėra";
+  } else if (user.id === ownerUserID) {
+    errors.createMessage = "Negalite susikurti susirašinėjimo su savimi";
+  }
+  if (errors.createMessage) {
+    return errors;
+  }
   const message = await createConversation(ownerUserID, messageEmail);
 
   if (message) {
@@ -32,6 +44,7 @@ export const action = async (actionArg) => {
 
 export default function NewOrderPage() {
   const data = useLoaderData<typeof loader>();
+  const errorData = useActionData<Errors>();
   return (
     <div className="flex-grow mr-6">
       <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max ml-3 mt-3 mr-3 mb-5">
@@ -67,6 +80,14 @@ export default function NewOrderPage() {
                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                 placeholder="Naudotojo el. paštas"
               />
+              {errorData?.createMessage ? (
+                <div
+                  className="pt-1 font-bold text-red-500"
+                  id="firstname-error"
+                >
+                  {errorData.createMessage}
+                </div>
+              ) : null}
             </div>
           </div>
 

@@ -1,6 +1,7 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
+import { typedjson } from "remix-typedjson";
 import { getConversations } from "~/models/messages.server";
 
 import {
@@ -15,7 +16,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
   const messagesList = await getConversations(user.id);
 
-  return json({
+  return typedjson({
     user,
     messagesList,
   });
@@ -91,7 +92,7 @@ export default function GroupsIndexPage() {
               // Render the table if there are conversations
               <div>
                 <div className="flex justify-between pb-5"></div>
-                <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <div className="overflow-x-auto shadow-md sm:rounded-lg">
                   <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
                       <tr>

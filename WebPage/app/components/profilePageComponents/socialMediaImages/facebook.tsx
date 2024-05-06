@@ -1,10 +1,15 @@
-function FacebookImage() {
+interface Props {
+  fblink: string;
+}
+function FacebookImage({ fblink }: Props) {
+  if (fblink.startsWith("facebook")) {
+    fblink = "https://www." + fblink;
+  }
+  if (fblink.startsWith("www.")) {
+    fblink = "https://" + fblink;
+  }
   return (
-    <a
-      href="your-social-media-link-1"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <a href={fblink} target="_blank" rel="noopener noreferrer">
       <svg
         fill="#000000"
         version="1.1"

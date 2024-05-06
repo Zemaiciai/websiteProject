@@ -220,6 +220,23 @@ model WorkerAds{
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 }
+model socialMedia{
+  id String @id @default(cuid())
+  userid String
+  facebookLink String
+  InstagramLink String
+  TwitterLink String
+}
+model workExamples{
+  id String @id @default(cuid())
+  userid String
+  examples String[]
+}
+model questionerAnswers{
+  id String @id @default(cuid())
+  userid String
+  answers String[]
+}
 
 model Conversation {
   id               String            @id @default(cuid())

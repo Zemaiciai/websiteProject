@@ -57,7 +57,12 @@ export async function createUser(
   const hashedPassword = await bcrypt.hash(password, 10);
 
   markCodeAsUsed(userSecretCode.id);
-
+  const checkIfUserNameExists = await prisma.user.findFirst({
+    where: { userName: userName },
+  });
+  if (checkIfUserNameExists) {
+    return null;
+  }
   return prisma.user.create({
     data: {
       email,
@@ -78,7 +83,15 @@ export async function createUser(
     },
   });
 }
-
+export async function checkIfUserNameExists(userName: string) {
+  const checkIfUserNameExists = await prisma.user.findFirst({
+    where: { userName: userName },
+  });
+  if (checkIfUserNameExists) {
+    return true;
+  }
+  return false;
+}
 export async function deleteUserByEmail(email: User["email"]) {
   return prisma.user.delete({ where: { email } });
 }
@@ -240,12 +253,14 @@ export async function changeUserInformation(
       email: findEMAIL,
     },
   });
+  let check = false;
   //Checking if we need to change the first name
   if (
     user?.firstName !== firstNameChange &&
     firstNameChange !== "" &&
     user?.firstName
   ) {
+    check = true;
     await changeFirstName(user.id, firstNameChange, admin, user.firstName);
   }
   //Checking if we need to change the last name
@@ -254,6 +269,7 @@ export async function changeUserInformation(
     lastNameChange !== "" &&
     user?.lastName
   ) {
+    check = true;
     await changeLastName(user.id, lastNameChange, admin, user.lastName);
   }
   //Checking if we need to change the username
@@ -262,6 +278,7 @@ export async function changeUserInformation(
     nickNameChange !== "" &&
     user?.userName
   ) {
+    check = true;
     await changeUserName(user.id, nickNameChange, admin, user.userName);
   }
 
@@ -272,11 +289,13 @@ export async function changeUserInformation(
     user?.role === "Darbuotojas"
   ) {
     if (user?.percentage) {
+      check = true;
       console.log(percentageChange);
       console.log(user.percentage);
       await changePercentage(user.id, percentageChange, admin, user.percentage);
       await changeCodePercentage(user.id, percentageChange);
     } else if (user?.id) {
+      check = true;
       console.log(percentageChange);
       console.log(user.percentage);
       await changePercentage(user.id, percentageChange, admin, "neegzistavo");
@@ -286,6 +305,7 @@ export async function changeUserInformation(
 
   //Checking if we need to change the role
   if (user?.role !== roleChange && roleChange !== "" && user?.role) {
+    check = true;
     await changeRole(user.id, roleChange, admin, user.role);
   }
 
@@ -294,6 +314,7 @@ export async function changeUserInformation(
 
   if (currentDate !== null && timeChange !== "holder" && user?.id) {
     if (timeChange === "oneMonth") {
+      check = true;
       currentDate = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000);
       changeDate(user?.id, currentDate);
       createInfoChangeLog(
@@ -304,6 +325,7 @@ export async function changeUserInformation(
         "",
       );
     } else if (timeChange === "threeMonths") {
+      check = true;
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 3);
       changeDate(user?.id, currentDate);
@@ -315,6 +337,7 @@ export async function changeUserInformation(
         "",
       );
     } else if (timeChange === "sixMonths") {
+      check = true;
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 6);
       changeDate(user?.id, currentDate);
@@ -326,6 +349,7 @@ export async function changeUserInformation(
         "",
       );
     } else if (timeChange === "nineMonths") {
+      check = true;
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 9);
       changeDate(user?.id, currentDate);
@@ -337,11 +361,13 @@ export async function changeUserInformation(
         "",
       );
     } else if (timeChange === "oneYear") {
+      check = true;
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 12);
       changeDate(user?.id, currentDate);
       createInfoChangeLog(user.email, admin, "galiojimas metams", "", "");
     } else if (timeChange === "twoYears") {
+      check = true;
       const currentMonth = currentDate.getMonth();
       currentDate.setMonth(currentMonth + 24);
       changeDate(user?.id, currentDate);
@@ -351,11 +377,13 @@ export async function changeUserInformation(
 
   //Checking if we need to change the email
   if (user?.email !== emailChange && emailChange !== "" && user?.email) {
+    check = true;
     await changeCodeEmail(user.email, emailChange);
     await changeUserEmail(user.id, emailChange, admin, user.email);
   }
-
-  return user;
+  if (check) {
+    return user;
+  }
 }
 
 async function changeFirstName(

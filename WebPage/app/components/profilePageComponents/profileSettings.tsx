@@ -7,13 +7,28 @@ import { useUser } from "~/utils";
 
 import ProfilePageSocialMedia from "./profilePageSocialMedia";
 import SetProgram from "./SkillSetComponents/SetProgram";
+import { socialMedia } from "@prisma/client";
 
 export const loader = async ({ request }) => {
   const user = await requireUser(request);
   return json({ user });
 };
+interface Errors {
+  fbLinkError?: string;
+  igLinkError?: string;
+  twLinkError?: string;
+}
+type JsonifyObject<T> = {
+  [K in keyof T]: T[K] extends object
+    ? JsonifyObject<T[K]> | null
+    : T[K] | null;
+};
+interface UserInfoProps {
+  errorData: JsonifyObject<Errors> | null | undefined;
+  socialMediaLinks: socialMedia | null;
+}
 
-function ProfileSettings() {
+function ProfileSettings({ errorData, socialMediaLinks }: UserInfoProps) {
   const [activeTab, setActiveTab] = useState("profile");
   const user = useUser();
 
@@ -34,19 +49,7 @@ function ProfileSettings() {
               } w-full`}
               onClick={() => handleTabClick("profile")}
             >
-              Profile Picture
-            </button>
-          </li>
-          <li>
-            <button
-              className={`inline-flex items-center px-4 py-3 rounded-lg ${
-                activeTab === "Dashboard"
-                  ? "text-gray-900 bg-gray-200"
-                  : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
-              } w-full`}
-              onClick={() => handleTabClick("Dashboard")}
-            >
-              Background Picture
+              Profilio nuotrauka
             </button>
           </li>
           <li>
@@ -58,7 +61,7 @@ function ProfileSettings() {
               } w-full`}
               onClick={() => handleTabClick("SocialMedia")}
             >
-              Social Media
+              Socialiniai tinklai
             </button>
           </li>
           <li>
@@ -70,7 +73,7 @@ function ProfileSettings() {
               } w-full`}
               onClick={() => handleTabClick("settings")}
             >
-              Settings
+              Kiti nustatymai
             </button>
           </li>
         </ul>
@@ -192,7 +195,10 @@ function ProfileSettings() {
           ) : null}
           {activeTab === "SocialMedia" ? (
             <>
-              <ProfilePageSocialMedia />
+              <ProfilePageSocialMedia
+                errorData={errorData}
+                socialMediaLinks={socialMediaLinks}
+              />
             </>
           ) : null}
         </div>

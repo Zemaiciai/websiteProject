@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import NavBarHeader from "./components/common/NavBar/NavBarHeader";
 import NewFooter from "./components/newFooter/NewFooter";
 import { getUserNotifications } from "./models/notification.server";
+import { getAllusers } from "./models/user.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -28,12 +29,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
 
   if (!user) {
-    return typedjson({ user: null, allNotifications: null });
+    return typedjson({ user: null, allNotifications: null, allUsers: null });
   }
+  const allUsers = await getAllusers();
 
   return typedjson({
     allNotifications: await getUserNotifications(user.id),
     user: user,
+    allUsers: allUsers,
   });
 };
 
@@ -47,12 +50,11 @@ export default function App() {
     "/orders": "Užsakymų sąrašas",
     "/orders/new": "Sukurti užsakymą",
     "/dashboard": "Dashboard",
-    "/messages": "žinutės",
+    "/messages": "Žinutės",
     "/calender": "Kalendorius",
     "/FAQ": "Dažnai užduodami klausimai",
     "/groups": "Grupės",
     "/groups/new": "Sukurti grupę",
-    "/questioner": "Užduoti klausimą",
     "/workerAds": "Reklamos",
     "/workerAds/new": "Sukurti reklamą",
   };
@@ -71,7 +73,7 @@ export default function App() {
         break;
     }
     if (location.pathname.startsWith("/profile")) {
-      setHeaderTitle("Profilis");
+      setHeaderTitle("Profilio peržiūra");
       return;
     }
     if (location.pathname.startsWith("/messages")) {
@@ -121,7 +123,6 @@ export default function App() {
                   calender: "Kalendorius",
                   FAQ: "D.U.K",
                   groups: "Grupės",
-                  questioner: "Klausimai",
                   workerAds: "Reklamos",
                 }}
               />

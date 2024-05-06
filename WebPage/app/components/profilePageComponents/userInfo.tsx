@@ -1,12 +1,17 @@
+import { getSocialMediaByUserId } from "~/models/socialMedia.server";
 import FacebookImage from "./socialMediaImages/facebook";
 import InstagramImage from "./socialMediaImages/instagram";
 import XImage from "./socialMediaImages/x";
+import { useEffect, useState } from "react";
+import { User, getUserById } from "~/models/user.server";
+import { socialMedia } from "@prisma/client";
 
 interface UserInfoProps {
   user: any;
+  socialMediaLinks: socialMedia | null;
 }
 
-export default function UserInfo({ user }: UserInfoProps) {
+export default function UserInfo({ user, socialMediaLinks }: UserInfoProps) {
   return (
     <div className="info h-full place-items-center">
       <h1 className="text-4xl font-semibold pl-96 pt-6 font-serif w-[800px]">
@@ -44,9 +49,15 @@ export default function UserInfo({ user }: UserInfoProps) {
       </div>
 
       <div className="socialMediaLinks pt-3 flex space-x-4 pl-[400px] w-[800px]">
-        <InstagramImage />
-        <FacebookImage />
-        <XImage />
+        {socialMediaLinks?.InstagramLink ? (
+          <InstagramImage iglink={String(socialMediaLinks?.InstagramLink)} />
+        ) : null}
+        {socialMediaLinks?.facebookLink ? (
+          <FacebookImage fblink={String(socialMediaLinks?.facebookLink)} />
+        ) : null}
+        {socialMediaLinks?.TwitterLink ? (
+          <XImage twlink={String(socialMediaLinks?.TwitterLink)} />
+        ) : null}
       </div>
     </div>
   );

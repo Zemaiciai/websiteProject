@@ -1,10 +1,15 @@
-function InstagramImage() {
+interface Props {
+  iglink: string;
+}
+function InstagramImage({ iglink }: Props) {
+  if (iglink.startsWith("instagram")) {
+    iglink = "https://www." + iglink;
+  }
+  if (iglink.startsWith("www.")) {
+    iglink = "https://" + iglink;
+  }
   return (
-    <a
-      href="your-social-media-link-1"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <a href={iglink} target="_blank" rel="noopener noreferrer">
       <svg
         fill="#000000"
         className="w-6 h-6 opacity-75 hover:opacity-100"

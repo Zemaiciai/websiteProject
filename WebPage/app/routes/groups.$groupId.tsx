@@ -1,17 +1,26 @@
 // groups.$groupId.tsx
 import { GroupsRoles } from "@prisma/client";
 import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
-import { Form, Link, json, useLoaderData } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  json,
+  useActionData,
+  useLoaderData,
+} from "@remix-run/react";
 import { group } from "console";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import { prisma } from "~/db.server";
 import { getMoneyLogsByGroupId } from "~/models/groupBalanceLog.server";
 import {
   acceptInvite,
   cancelInvite,
+  checkIfUserIsInTheGroup,
   deleteGroup,
   getAllGroupUsers,
   getGroupByName,
+  getUserRoleInGroup,
   groupInformationChange,
   groupMemberRoleChange,
   invitingUserToGroup,
@@ -19,18 +28,47 @@ import {
   removeUserFromGroup,
   sendMoneyToUser,
 } from "~/models/groups.server";
+import { getUserByEmail } from "~/models/user.server";
 import { requireUser } from "~/session.server";
+import { validateCreateGroup } from "~/utils";
 export const meta: MetaFunction = () => [
   { title: "Grupės peržiūra - Žemaičiai" },
 ];
-
+interface Errors {
+  ivitingUser?: string;
+  removeUser?: string;
+  roleChangeUser?: string;
+  roleChangeRole?: string;
+  sendMoneyUser?: string;
+  sendMoneyBalance?: string;
+}
+interface ChangeSettingsErrors {
+  groupName?: string;
+  groupShortDesc?: string;
+  groupDescription?: string;
+}
 export const action = async (actionArg) => {
   const formData = await actionArg.request.formData();
   const formid = formData.get("form-id");
-
+  const errors: Errors = {};
+  const changeSettingsErrors: ChangeSettingsErrors = {};
   if (formid === "userInvite") {
     const groupName = formData.get("group-name");
+    const groupID = formData.get("group-id");
     const inviteUserEmail = formData.get("inviteUserEmail");
+    const user = await getUserByEmail(inviteUserEmail);
+    if (typeof inviteUserEmail !== "string" || inviteUserEmail === "") {
+      errors.ivitingUser = "El. pašto adresas privalomas";
+    } else if (inviteUserEmail.length < 3 || !inviteUserEmail.includes("@")) {
+      errors.ivitingUser = "El. pašto adresas netinkamas";
+    } else if (!(await getUserByEmail(inviteUserEmail))) {
+      errors.ivitingUser = "Vartotojas su tokiu el. paštu neegzistuoja";
+    } else if (await checkIfUserIsInTheGroup(groupID, String(user?.id))) {
+      errors.ivitingUser = "Vartotojas jau yra grupeje";
+    }
+    if (errors.ivitingUser) {
+      return errors;
+    }
     invitingUserToGroup(groupName, inviteUserEmail);
     return null;
   }
@@ -56,10 +94,25 @@ export const action = async (actionArg) => {
     }
   }
   if (formid === "userRoleChange") {
-    const groupID = formData.get("group-name");
+    const groupName = formData.get("group-name");
+    const groupId = formData.get("group-id");
     const userEmailRoleChange = formData.get("userEmailRoleChange");
     const roleToChange = formData.get("roleToChange");
-    groupMemberRoleChange(groupID, userEmailRoleChange, roleToChange);
+    const user = await getUserByEmail(userEmailRoleChange);
+    if (!(await checkIfUserIsInTheGroup(groupId, String(user?.id)))) {
+      errors.roleChangeUser = "Toks vartotojas grupeje neegzsituoja";
+    } else if (
+      (await getUserRoleInGroup(groupId, String(user?.id))) === "OWNER"
+    ) {
+      errors.roleChangeUser = "Savininkui role keisti negalima";
+    }
+    if (roleToChange === "holder") {
+      errors.roleChangeRole = "Privaloma pasirinkti rolę";
+    }
+    if (errors.roleChangeRole || errors.roleChangeUser) {
+      return errors;
+    }
+    groupMemberRoleChange(groupName, userEmailRoleChange, roleToChange);
   }
   if (formid === "changeSettings") {
     const groupID = formData.get("group-name");
@@ -70,7 +123,17 @@ export const action = async (actionArg) => {
     const groupFullDescriptionChange = formData.get(
       "groupFullDescriptionChange",
     );
+    const validationErrors = await validateCreateGroup(
+      groupNameChange,
+      groupShortDescriptionChange,
+      groupFullDescriptionChange,
+      changeSettingsErrors,
+      true,
+    );
 
+    if (validationErrors !== null) {
+      return changeSettingsErrors;
+    }
     const check = await groupInformationChange(
       groupID,
       groupNameChange,
@@ -83,11 +146,19 @@ export const action = async (actionArg) => {
     }
   }
   if (formid === "userRemove") {
-    const groupID = formData.get("group-name");
+    const groupName = formData.get("group-name");
+    const groupId = formData.get("group-id");
     const removeUserEmail = formData.get("removeUserEmail");
     const whoMadeRequestId = formData.get("whoMadeRequest");
+    const user = await getUserByEmail(removeUserEmail);
+    if (!(await checkIfUserIsInTheGroup(groupId, String(user?.id)))) {
+      errors.removeUser = "Toks vartotojas grupeje neegzistuoja";
+    }
+    if (errors.removeUser) {
+      return errors;
+    }
     const check = await removeUserFromGroup(
-      groupID,
+      groupName,
       removeUserEmail,
       whoMadeRequestId,
     );
@@ -102,12 +173,26 @@ export const action = async (actionArg) => {
   }
 
   if (formid === "sendingMoney") {
-    const groupID = formData.get("group-name");
+    const groupName = formData.get("group-name");
+    const groupId = formData.get("group-id");
+    const groupBalance = formData.get("group-balance");
     const whoMadeRequestID = formData.get("whoMadeRequestID");
     const userEmailMoneySend = formData.get("userEmailMoneySend");
     const moneyAmount = formData.get("moneyAmount");
+    const user = await getUserByEmail(userEmailMoneySend);
+    if (!(await checkIfUserIsInTheGroup(groupId, String(user?.id)))) {
+      errors.sendMoneyUser = "Toks vartotojas grupeje neegzistuoja";
+    }
+    if (moneyAmount > groupBalance) {
+      errors.sendMoneyBalance = "Grupes balanse nėra tiek pinigų";
+    } else if (moneyAmount.length <= 0) {
+      errors.sendMoneyBalance = "Privaloma įvesti sumą";
+    }
+    if (errors.sendMoneyBalance || errors.sendMoneyUser) {
+      return errors;
+    }
     const check = await sendMoneyToUser(
-      groupID,
+      groupName,
       whoMadeRequestID,
       userEmailMoneySend,
       moneyAmount,
@@ -170,6 +255,9 @@ const GroupDetailPage = () => {
   const handleDeleteClick = () => {
     setShowPopup(true);
   };
+
+  const errorData = useActionData<Errors>();
+  const changeSettingsErrorData = useActionData<ChangeSettingsErrors>();
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
@@ -186,9 +274,15 @@ const GroupDetailPage = () => {
               <h1 className="font-bold text-1xl pt-4 pl-3 text-wrap">
                 Grupės aprašymas:
               </h1>
-              <h1 className=" text-1xl pt-1 pl-3 text-wrap">
+              {/* <h1 className=" text-1xl pt-1 pl-3 text-wrap">
                 {groupInfo?.groupFullDescription}
-              </h1>
+              </h1> */}
+              <textarea
+                className="text-1xl pt-1 pl-3 text-wrap break-words w-full h-[250px] resize-none"
+                readOnly
+              >
+                {groupInfo?.groupFullDescription}
+              </textarea>
             </div>
           </>
         ) : null}
@@ -242,6 +336,11 @@ const GroupDetailPage = () => {
                     <input name="form-id" hidden defaultValue="userInvite" />
                     <input name="group-name" hidden defaultValue={groupId} />
                     <input
+                      name="group-id"
+                      hidden
+                      defaultValue={groupInfo?.id}
+                    />
+                    <input
                       id="inviteUserEmail"
                       name="inviteUserEmail"
                       type="text"
@@ -250,6 +349,14 @@ const GroupDetailPage = () => {
                       className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none"
                       placeholder="Vartotojo el. paštas"
                     />
+                    {errorData?.ivitingUser ? (
+                      <div
+                        className="pt-1 font-bold text-red-500"
+                        id="firstname-error"
+                      >
+                        {errorData.ivitingUser}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
 
@@ -337,13 +444,23 @@ const GroupDetailPage = () => {
             </div>
             <div className="pl-3">
               <h1 className="font-bold text-1xl pt-4 text-wrap mb-5">
-                Reklamos informacijos keitimas:
+                Pinigų pervedimas:
               </h1>
               <Form method="post">
                 <div className="flex flex-wrap -mx-3 mb-4">
                   <div className="w-full  px-3 mb-6 md:mb-0">
                     <input name="form-id" hidden defaultValue="sendingMoney" />
                     <input name="group-name" hidden defaultValue={groupId} />
+                    <input
+                      name="group-id"
+                      hidden
+                      defaultValue={groupInfo?.id}
+                    />
+                    <input
+                      name="group-balance"
+                      hidden
+                      defaultValue={groupInfo?.balance}
+                    />
                     <input
                       name="whoMadeRequestID"
                       hidden
@@ -357,6 +474,14 @@ const GroupDetailPage = () => {
                       className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                       placeholder="Vartotojo kuriame atliekate pavedima el. paštas"
                     />
+                    {errorData?.sendMoneyUser ? (
+                      <div
+                        className="pt-1 font-bold text-red-500"
+                        id="firstname-error"
+                      >
+                        {errorData.sendMoneyUser}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
                 <div className="flex flex-wrap -mx-3 mb-4">
@@ -373,6 +498,14 @@ const GroupDetailPage = () => {
                       max="9999999.99" // Optional: specify maximum value
                       pattern="^\d{1,10}(\.\d{1,2})?$" // Optional: client-side regex pattern validation
                     />
+                    {errorData?.sendMoneyBalance ? (
+                      <div
+                        className="pt-1 font-bold text-red-500"
+                        id="firstname-error"
+                      >
+                        {errorData.sendMoneyBalance}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
 
@@ -391,7 +524,7 @@ const GroupDetailPage = () => {
           <>
             <div className="pl-3">
               <h1 className="font-bold text-1xl pt-4 text-wrap mb-5">
-                Reklamos informacijos keitimas:
+                Grupes narių rolės keitimas:
               </h1>
               <Form method="post">
                 <div className="flex flex-wrap -mx-3 mb-4">
@@ -403,6 +536,11 @@ const GroupDetailPage = () => {
                     />
                     <input name="group-name" hidden defaultValue={groupId} />
                     <input
+                      name="group-id"
+                      hidden
+                      defaultValue={groupInfo?.id}
+                    />
+                    <input
                       id="userEmailRoleChange"
                       name="userEmailRoleChange"
                       type="text"
@@ -410,6 +548,14 @@ const GroupDetailPage = () => {
                       className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                       placeholder="Vartotojo el. paštas"
                     />
+                    {errorData?.roleChangeUser ? (
+                      <div
+                        className="pt-1 font-bold text-red-500"
+                        id="firstname-error"
+                      >
+                        {errorData.roleChangeUser}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
                 <div className="flex flex-wrap -mx-3 mb-4">
@@ -424,6 +570,14 @@ const GroupDetailPage = () => {
                       <option value="moderator">Moderatorius</option>
                       <option value="owner">Vadovas</option>
                     </select>
+                    {errorData?.roleChangeRole ? (
+                      <div
+                        className="pt-1 font-bold text-red-500"
+                        id="firstname-error"
+                      >
+                        {errorData.roleChangeRole}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
 
@@ -450,6 +604,11 @@ const GroupDetailPage = () => {
                     <input name="form-id" hidden defaultValue="userRemove" />
                     <input name="group-name" hidden defaultValue={groupId} />
                     <input
+                      name="group-id"
+                      hidden
+                      defaultValue={groupInfo?.id}
+                    />
+                    <input
                       name="whoMadeRequest"
                       hidden
                       defaultValue={userUsingRN.id}
@@ -463,6 +622,14 @@ const GroupDetailPage = () => {
                       className="w-full rounded border border-gray-500 px-2 py-2 text-lg focus:outline-none"
                       placeholder="Vartotojo el. paštas"
                     />
+                    {errorData?.removeUser ? (
+                      <div
+                        className="pt-1 font-bold text-red-500"
+                        id="firstname-error"
+                      >
+                        {errorData.removeUser}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
 
@@ -503,6 +670,14 @@ const GroupDetailPage = () => {
                       className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                       defaultValue={groupInfo?.groupName}
                     />
+                    {changeSettingsErrorData?.groupName ? (
+                      <div
+                        className="pt-1 font-bold text-red-500"
+                        id="firstname-error"
+                      >
+                        {changeSettingsErrorData.groupName}
+                      </div>
+                    ) : null}
                     <h1 className=" text-1xl pt-2 text-wrap mb-1">
                       Grupės apibūdinimas:
                     </h1>
@@ -514,6 +689,14 @@ const GroupDetailPage = () => {
                       className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                       defaultValue={groupInfo?.groupShortDescription}
                     />
+                    {changeSettingsErrorData?.groupShortDesc ? (
+                      <div
+                        className="pt-1 font-bold text-red-500"
+                        id="firstname-error"
+                      >
+                        {changeSettingsErrorData.groupShortDesc}
+                      </div>
+                    ) : null}
                   </div>
 
                   {/* New textarea field */}
@@ -532,6 +715,14 @@ const GroupDetailPage = () => {
                           style={{ resize: "none" }} // Disable resizing
                           rows={7}
                         ></textarea>
+                        {changeSettingsErrorData?.groupDescription ? (
+                          <div
+                            className="pt-1 font-bold text-red-500"
+                            id="firstname-error"
+                          >
+                            {changeSettingsErrorData.groupDescription}
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </div>

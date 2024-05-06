@@ -4,6 +4,7 @@ import { getUserById } from "./user.server";
 import { prisma } from "~/db.server";
 import { Decimal } from "@prisma/client/runtime/library";
 import { createSendingMoneyLog } from "./groupBalanceLog.server";
+import { AsyncLocalStorage } from "async_hooks";
 interface OwnerGroup {
   group: Groups;
   owner: GroupUser & { user: User | null };
@@ -237,7 +238,18 @@ export async function invitingUserToGroup(
     },
   });
 }
-
+export async function checkIfUserIsInTheGroup(groupID: string, userID: string) {
+  const user = await prisma.groupUser.findFirst({
+    where: {
+      userId: userID,
+      groupId: groupID,
+    },
+  });
+  if (user) {
+    return true;
+  }
+  return false;
+}
 export async function acceptInvite(groupID: string, inviteUserID: string) {
   // Find the group by its id
   const group = await prisma.groups.findFirst({
@@ -441,7 +453,15 @@ export async function groupInformationChange(
     });
   }
 }
-
+export async function getUserRoleInGroup(groupID: string, userID: string) {
+  const user = await prisma.groupUser.findFirst({
+    where: {
+      userId: userID,
+      groupId: groupID,
+    },
+  });
+  return user?.role;
+}
 export async function removeUserFromGroup(
   groupID: string,
   removeUserEmail: string,

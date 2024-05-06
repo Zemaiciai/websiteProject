@@ -1,10 +1,15 @@
-function XImage() {
+interface Props {
+  twlink: string;
+}
+function XImage({ twlink }: Props) {
+  if (twlink.startsWith("twitter")) {
+    twlink = "https://www." + twlink;
+  }
+  if (twlink.startsWith("www.")) {
+    twlink = "https://" + twlink;
+  }
   return (
-    <a
-      href="your-social-media-link-1"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <a href={twlink} target="_blank" rel="noopener noreferrer">
       <svg
         version="1.0"
         xmlns="http://www.w3.org/2000/svg"

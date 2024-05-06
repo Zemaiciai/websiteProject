@@ -93,6 +93,8 @@ interface Errors {
   customMessageName?: string;
   customMessageMessage?: string;
   customMessagePriority?: string;
+  faqQuestion?: string;
+  faqAnswer?: string;
 }
 interface ChangeUserInfoErrors {
   firstNameValidation?: string;
@@ -198,7 +200,7 @@ export const action = async (actionArg) => {
       return json(changeUserInfoErrors);
     }
 
-    return changeUserInformation(
+    const userchange = await changeUserInformation(
       emailID,
       firstNameChange,
       lastNameChange,
@@ -209,6 +211,8 @@ export const action = async (actionArg) => {
       percentage,
       adminUserName,
     );
+    if (userchange) return userchange;
+    else return null;
   } else if (formId === "websiteMessageCreation") {
     const customNameForMessages = formData.get("customName");
     const importanceForMessages = formData.get("importance");
@@ -234,6 +238,18 @@ export const action = async (actionArg) => {
     console.log("ATEJO KRW");
     const questionName = String(formData.get("questionName"));
     const questionDescription = String(formData.get("questionDescription"));
+    if (typeof questionName !== "string" || questionName.length <= 0) {
+      errors.faqQuestion = "Klausimas yra privalomas";
+    }
+    if (
+      typeof questionDescription !== "string" ||
+      questionDescription.length <= 0
+    ) {
+      errors.faqAnswer = "Atsakymas yra privalomas";
+    }
+    if (errors.faqAnswer || errors.faqQuestion) {
+      return errors;
+    }
     return createFAQQuestion(questionName, questionDescription);
   } else if (formId === "deleteFAQQuestion") {
     const question = String(formData.get("questionID"));
@@ -246,8 +262,8 @@ export const action = async (actionArg) => {
 export default function NotesPage() {
   // Admin page tabs
   const [activeTab, setActiveTab] = useState("Dashboard");
-  const [popupOpen, setPopupOpen] = useState(false);
 
+  const [popupOpen, setPopupOpen] = useState(false);
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
   };
@@ -256,11 +272,18 @@ export default function NotesPage() {
   const handleTabClickUser = (tab: string) => {
     setActiveTabUsers(tab);
   };
-
   const togglePopup = () => {
-    setPopupOpen(!popupOpen);
+    setTimeout(() => {
+      if (!actionData?.findingUserEmail) setPopupOpen(!popupOpen);
+    }, 50);
   };
 
+  function handleSubmit() {
+    setTimeout(() => {
+      setActiveTab("Users");
+      setActiveTabUsers("changeUserInformation");
+    }, 500);
+  }
   const data = useLoaderData<typeof loader>();
   const emailRef = useRef<HTMLInputElement>(null);
   const customNameRef = useRef<HTMLInputElement>(null);
@@ -589,16 +612,12 @@ export default function NotesPage() {
                       <button
                         type="submit"
                         className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
-                        onClick={
-                          actionData && !actionData.findingUserEmail
-                            ? togglePopup
-                            : undefined
-                        }
+                        onClick={togglePopup}
                       >
                         Ieškoti
                       </button>
 
-                      {popupOpen ? (
+                      {!actionData?.findingUserEmail && popupOpen ? (
                         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10 overflow-y-auto">
                           <div className="bg-custom-100 p-3 rounded-lg shadow-md text-center">
                             {userList ? (
@@ -2472,6 +2491,14 @@ export default function NotesPage() {
                               className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                               placeholder="Klausimo pavadinimas"
                             />
+                            {actionData?.faqQuestion ? (
+                              <div
+                                className="pt-1 font-bold text-red-500"
+                                id="firstname-error"
+                              >
+                                {actionData.faqQuestion}
+                              </div>
+                            ) : null}
                           </div>
                         </div>
 
@@ -2488,6 +2515,14 @@ export default function NotesPage() {
                                 style={{ resize: "none" }} // Disable resizing
                                 rows={7}
                               ></textarea>
+                              {actionData?.faqAnswer ? (
+                                <div
+                                  className="pt-1 font-bold text-red-500"
+                                  id="firstname-error"
+                                >
+                                  {actionData.faqAnswer}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         </div>

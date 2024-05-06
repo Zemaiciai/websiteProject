@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
-import { Form, json, useLoaderData } from "@remix-run/react";
+import { Form, json, useActionData, useLoaderData } from "@remix-run/react";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { getUserById } from "~/models/user.server";
@@ -9,14 +9,22 @@ import {
   getAddByID,
 } from "~/models/workerAds.server";
 import { requireUser } from "~/session.server";
+import { validateCreateWorkerAd } from "~/utils";
 export const meta: MetaFunction = () => [
   { title: "Reklamos peržiūra - Žemaičiai" },
 ];
-
+interface ChangeWorkerAdErrors {
+  adName?: string;
+  adDescription?: string;
+  video1?: string;
+  video2?: string;
+  video3?: string;
+  limit?: string;
+}
 export const action = async (actionArg) => {
   const formData = await actionArg.request.formData();
   const formid = formData.get("form-id");
-
+  const errors: ChangeWorkerAdErrors = {};
   if (formid === "changeInformation") {
     const whoCreated = formData.get("whoCreated"); // persons id
     const workerAddID = formData.get("workerAddID"); // group id
@@ -25,6 +33,19 @@ export const action = async (actionArg) => {
     const videoOne = formData.get("videoOne");
     const videoTwo = formData.get("videoTwo");
     const videoThird = formData.get("videoThird");
+    const validationErrors = await validateCreateWorkerAd(
+      customName,
+      fullDescription,
+      videoOne,
+      videoTwo,
+      videoThird,
+      errors,
+      whoCreated,
+    );
+
+    if (validationErrors !== null) {
+      return json(errors);
+    }
     const updated = await WorkerAdsUpdate(
       whoCreated,
       workerAddID,
@@ -74,6 +95,7 @@ const GroupDetailPage = () => {
   const handleTabClickUser = (tab: string) => {
     setActiveTabUsers(tab);
   };
+  const errorData = useActionData<ChangeWorkerAdErrors>();
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
@@ -100,13 +122,16 @@ const GroupDetailPage = () => {
                 Paskyros statusas: {getAddOwner?.userStatus}
               </h1>
             </div>
-            <div>
+            <div className="">
               <h1 className="font-bold text-1xl pt-4 pl-3 text-wrap">
                 Reklamos aprašymas:
               </h1>
-              <h1 className=" text-1xl pt-1 pl-3 text-wrap">
+              <textarea
+                className="text-1xl pt-1 pl-3 text-wrap break-words w-full h-[250px] resize-none"
+                readOnly
+              >
                 {getGroup?.adsDescription}
-              </h1>
+              </textarea>
             </div>
             <div>
               <h1 className="font-bold text-1xl pt-4 pl-3 text-wrap">
@@ -173,6 +198,14 @@ const GroupDetailPage = () => {
                       className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                       defaultValue={getGroup?.adsName}
                     />
+                    {errorData?.adName ? (
+                      <div
+                        className="pt-1 font-bold text-red-500"
+                        id="firstname-error"
+                      >
+                        {errorData.adName}
+                      </div>
+                    ) : null}
                   </div>
 
                   {/* New textarea field */}
@@ -188,6 +221,14 @@ const GroupDetailPage = () => {
                           style={{ resize: "none" }} // Disable resizing
                           rows={7}
                         ></textarea>
+                        {errorData?.adDescription ? (
+                          <div
+                            className="pt-1 font-bold text-red-500"
+                            id="firstname-error"
+                          >
+                            {errorData.adDescription}
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -206,6 +247,14 @@ const GroupDetailPage = () => {
                       className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                       defaultValue={getGroup?.adsExamples[0]}
                     />
+                    {errorData?.video1 ? (
+                      <div
+                        className="pt-1 font-bold text-red-500"
+                        id="firstname-error"
+                      >
+                        {errorData.video1}
+                      </div>
+                    ) : null}
                   </div>
                   <div className="w-full  px-3 mb-2 ">
                     <input
@@ -216,6 +265,14 @@ const GroupDetailPage = () => {
                       className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                       defaultValue={getGroup?.adsExamples[1]}
                     />
+                    {errorData?.video2 ? (
+                      <div
+                        className="pt-1 font-bold text-red-500"
+                        id="firstname-error"
+                      >
+                        {errorData.video2}
+                      </div>
+                    ) : null}
                   </div>
                   <div className="w-full px-3 mb-2 ">
                     <input
@@ -226,6 +283,14 @@ const GroupDetailPage = () => {
                       className="w-full rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black"
                       defaultValue={getGroup?.adsExamples[2]}
                     />
+                    {errorData?.video3 ? (
+                      <div
+                        className="pt-1 font-bold text-red-500"
+                        id="firstname-error"
+                      >
+                        {errorData.video3}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
 
