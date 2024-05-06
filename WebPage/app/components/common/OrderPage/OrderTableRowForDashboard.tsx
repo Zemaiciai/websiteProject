@@ -40,9 +40,11 @@ export default function OrderCard({ createdBy, order }: OrderCardProps) {
           <td className="order-status text-center truncate">
             {order.orderStatus}
           </td>
-          <td className="order-status text-center truncate">
-            <OrderTimer orderEndDate={order.completionDate}></OrderTimer>
-          </td>
+          {order.orderStatus !== OrderStatus.PAYED && (
+            <td className="order-status text-center truncate">
+              <OrderTimer orderEndDate={order.completionDate}></OrderTimer>
+            </td>
+          )}
         </>
       ) : (
         <>
@@ -62,9 +64,11 @@ export default function OrderCard({ createdBy, order }: OrderCardProps) {
           >
             {order.orderStatus}
           </td>
-          <td className="order-status text-center truncate">
-            <OrderTimer orderEndDate={order.completionDate}></OrderTimer>
-          </td>
+          {order.orderStatus !== OrderStatus.PAYED && (
+            <td className="order-status text-center truncate">
+              <OrderTimer orderEndDate={order.completionDate}></OrderTimer>
+            </td>
+          )}
         </>
       )}
     </tr>
