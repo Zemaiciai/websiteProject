@@ -576,3 +576,13 @@ export async function checkingThirtyDaysLeft(userId: string) {
 
   return false;
 }
+
+export async function getUserBalanceById(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  return Number(user?.balance);
+}

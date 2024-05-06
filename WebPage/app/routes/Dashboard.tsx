@@ -5,8 +5,15 @@ import Message from "~/components/DashBoardCustomMessagesDesign/Message";
 import OrdersTableForDashboard from "~/components/common/OrderPage/OrdersTableForDashboard";
 
 import { getAllMessages } from "~/models/customMessage.server";
-import { getOrdersByUserId } from "~/models/order.server";
-import { checkingThirtyDaysLeft } from "~/models/user.server";
+import {
+  calculateOrdersByUserID,
+  getOrdersByUserId,
+  getTasksRemaining,
+} from "~/models/order.server";
+import {
+  checkingThirtyDaysLeft,
+  getUserBalanceById,
+} from "~/models/user.server";
 import { isUserClient, requireUser, requireUserId } from "~/session.server";
 export const meta: MetaFunction = () => [{ title: "Titulinis - Žemaičiai" }];
 
@@ -17,12 +24,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const customMessages = await getAllMessages();
 
   const thirtyDaysRemaining = await checkingThirtyDaysLeft(userId);
-  console.log(thirtyDaysRemaining);
+
+  const percentageOfDoneWork = await calculateOrdersByUserID(userId);
+  const tasksRemaining = await getTasksRemaining(userId);
+  const userBalance = await getUserBalanceById(userId);
   return typedjson({
     orders: userOrders,
     isClient: isClient,
     customMessages: customMessages,
     thirtyDaysRemaining: thirtyDaysRemaining,
+    percentageOfDoneWork: percentageOfDoneWork,
+    tasksRemaining: tasksRemaining,
+    userBalance: userBalance,
   });
 };
 
@@ -126,15 +139,146 @@ const Dashboard = () => {
         <div className="flex flex-col md:flex-row flex-grow mb-3 ml-4 mr-4">
           <div className="md:w-5/6 bg-custom-200 text-medium p-4 mr-4 mb-4 md:mb-0">
             {/* Your statistics */}
-            <div className="pt-2 pl-3 pr-6 pb-6 mb-4">
-              <h1 className="text-3xl font-mono font-extralight pb-3 pt-2">
-                Jūsų statistika
-              </h1>
-            </div>
-            {/* Divider */}
-            <div className="-mx-4 mb-4 flex items-center">
-              <hr className="border-custom-100 w-full border-[7px]" />
-            </div>
+            {!data.isClient && (
+              <>
+                <div className="pt-2 pl-3 pr-6 pb-6 mb-4">
+                  <h1 className="text-3xl font-mono font-extralight pb-3 pt-2">
+                    Jūsų statistika
+                  </h1>
+                  <div className="stats shadow-md grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="stat bg-white rounded-lg p-4 flex items-center justify-start">
+                      <div className="stat-figure text-primary flex items-center justify-center w-12 h-12 bg-gray-200 rounded-full">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          className="w-8 h-8 stroke-current"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                          ></path>
+                        </svg>
+                      </div>
+                      <div className="ml-4">
+                        <div className="stat-title font-bold">
+                          Jūsų uždarbis
+                        </div>
+                        <div className="stat-value text-primary">
+                          {Number(data.userBalance).toFixed(2)}€
+                        </div>
+                        <div className="stat-desc">Tai tik jus motyvuoja!</div>
+                      </div>
+                    </div>
+
+                    <div className="stat bg-white rounded-lg p-4 flex items-center justify-start">
+                      <div className="stat-figure text-secondary flex items-center justify-center w-12 h-12 bg-gray-200 rounded-full">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          className="w-8 h-8 stroke-current"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"
+                          ></path>
+                        </svg>
+                      </div>
+                      <div className="ml-4">
+                        <div className="stat-title font-bold">
+                          Jūsų reitingas
+                        </div>
+                        <div className="stat-value text-secondary flex">
+                          <svg
+                            className="w-4 h-4 text-custom-800 me-1"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 22 20"
+                          >
+                            <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                          </svg>
+                          <svg
+                            className="w-4 h-4 text-custom-800 me-1"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 22 20"
+                          >
+                            <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                          </svg>
+                          <svg
+                            className="w-4 h-4 text-custom-800 me-1"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 22 20"
+                          >
+                            <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                          </svg>
+                          <svg
+                            className="w-4 h-4 text-custom-800 me-1"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 22 20"
+                          >
+                            <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                          </svg>
+                          <svg
+                            className="w-4 h-4 text-gray-300 me-1"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 22 20"
+                          >
+                            <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                          </svg>
+                        </div>
+                        <div className="stat-desc">148 atsiliepimai</div>
+                      </div>
+                    </div>
+
+                    <div className="stat bg-white rounded-lg p-4 flex items-center justify-start">
+                      <div className="stat-figure flex items-center justify-center w-12 h-12 bg-gray-200 rounded-full">
+                        <div className="avatar online">
+                          <div className="w-10 h-10 rounded-full overflow-hidden">
+                            <img
+                              src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              alt="Profile"
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <div className="stat-title font-bold">Esate atlike</div>
+                        <div className="stat-value">
+                          {Number(data.percentageOfDoneWork).toFixed(2)}% darbų
+                        </div>
+                        <div className="stat-desc text-secondary">
+                          {Number(data.tasksRemaining)} darbų liko
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Divider */}
+                <div className="-mx-4 mb-4 flex items-center">
+                  <hr className="border-custom-100 w-full border-[7px]" />
+                </div>
+              </>
+            )}
+
+            {/*  */}
+            {/*  */}
+            {/*  */}
+            {/*  */}
             {/* Recent orders */}
             <div className="pt-2 pl-3 pr-6 pb-6">
               <h1 className="text-3xl font-mono font-extralight pb-3 pt-2">
