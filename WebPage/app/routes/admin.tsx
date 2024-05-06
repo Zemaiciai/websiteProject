@@ -27,13 +27,14 @@ import {
   validateCustomMessage,
   validateInviteCodeGeneration,
 } from "~/utils";
-import Questionnaire from "./questioner";
 import {
   createFAQQuestion,
   deleteFAQQuestion,
   getFAQQuestions,
 } from "~/models/faqPage.server";
 import { FaqPage } from "@prisma/client";
+import { isAdmin } from "~/session.server";
+import { redirect } from "remix-typedjson";
 
 export const meta: MetaFunction = () => [{ title: "Admin - Žemaičiai" }];
 
@@ -72,6 +73,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const logsOfAdmin = await getAllLogs();
   const customMessageList = await getAllMessages();
   const faqQuestionList = await getFAQQuestions();
+  console.log(await isAdmin(request));
+
+  if (!(await isAdmin(request))) {
+    return redirect("/dashboard");
+  }
   return json({
     secretCodeList,
     userList,

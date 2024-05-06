@@ -81,6 +81,17 @@ export async function isUserClient(request: Request) {
   return true;
 }
 
+export async function isAdmin(request: Request) {
+  const userId = await requireUserId(request);
+  const user = await getUserById(userId);
+
+  if (user?.role !== "Super Admin") {
+    return false;
+  }
+
+  return true;
+}
+
 export async function requireUser(request: Request) {
   const userId = await requireUserId(request);
 
