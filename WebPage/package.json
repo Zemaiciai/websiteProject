@@ -52,6 +52,8 @@
     "react-calendar": "^4.8.0",
     "react-dom": "^18.2.0",
     "react-youtube": "^10.1.0",
+    "react-text-field": "^0.4.0",
+    "react-textarea-autosize": "^8.5.3",
     "remix-typedjson": "^0.4.1",
     "source-map-support": "^0.5.21",
     "string-width": "^4.1.0",
