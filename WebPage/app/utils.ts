@@ -1,7 +1,7 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 
-import { verifyLogin, User } from "~/models/user.server";
+import { verifyLogin, User, checkIfUserNameExists } from "~/models/user.server";
 import { Notification } from "~/models/notification.server";
 import { checkExpirationDateByEmail } from "./models/secretCode.server";
 import {
@@ -158,6 +158,8 @@ export async function validateRegistrationCredentials(
   }
   if (typeof username !== "string" || username === "") {
     errors.username = "Slapyvardis privalomas";
+  } else if (await checkIfUserNameExists(username)) {
+    errors.username = "Slapyvardis yra užimtas";
   }
   if (typeof email !== "string" || email === "") {
     errors.email = "El. pašto adresas privalomas";
@@ -493,7 +495,7 @@ export async function validateCreateGroup(
   groupShortDesc: string,
   groupDescription: string,
   errors: CreateGroupsErrors,
-  edit: boolean
+  edit: boolean,
 ): Promise<CreateGroupsErrors | null> {
   if (typeof groupName !== "string" || groupName.length <= 0) {
     errors.groupName = "Pavadinimas yra privalomas";
@@ -502,12 +504,13 @@ export async function validateCreateGroup(
   } else if (groupName.length > 20) {
     errors.groupName = "Pavadinimo ilgis negali viršyti šimto simbolių";
   } else if (
-    await prisma.groups.findFirst({
+    (await prisma.groups.findFirst({
       where: {
         groupName: groupName,
       },
-    })
-   && !edit) {
+    })) &&
+    !edit
+  ) {
     errors.groupName = "Grupe su tokiu pavadinimu jau egzistuoja";
   }
   if (typeof groupShortDesc !== "string" || groupShortDesc.length <= 0) {

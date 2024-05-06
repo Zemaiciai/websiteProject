@@ -144,7 +144,7 @@ function ProfilePageTabs({ user, errorData, workExample }: UserInfoProps) {
           </li>
         )}
       </ul>
-      <div className="p-6 text-medium text-gray-500 rounded-lg w-[800px] h-[400px]">
+      <div className="p-6 text-medium text-gray-500 rounded-lg w-[800px] min-h-[400px]">
         {activeTab === "statistics" ? (
           <>
             <div className="statsDiv border rounded border-grey-200">

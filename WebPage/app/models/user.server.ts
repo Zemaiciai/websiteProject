@@ -57,7 +57,12 @@ export async function createUser(
   const hashedPassword = await bcrypt.hash(password, 10);
 
   markCodeAsUsed(userSecretCode.id);
-
+  const checkIfUserNameExists = await prisma.user.findFirst({
+    where: { userName: userName },
+  });
+  if (checkIfUserNameExists) {
+    return null;
+  }
   return prisma.user.create({
     data: {
       email,
@@ -78,7 +83,15 @@ export async function createUser(
     },
   });
 }
-
+export async function checkIfUserNameExists(userName: string) {
+  const checkIfUserNameExists = await prisma.user.findFirst({
+    where: { userName: userName },
+  });
+  if (checkIfUserNameExists) {
+    return true;
+  }
+  return false;
+}
 export async function deleteUserByEmail(email: User["email"]) {
   return prisma.user.delete({ where: { email } });
 }

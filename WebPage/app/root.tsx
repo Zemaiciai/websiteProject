@@ -72,7 +72,7 @@ export default function App() {
         break;
     }
     if (location.pathname.startsWith("/profile")) {
-      setHeaderTitle("Profilis");
+      setHeaderTitle("Profilio peržiūra");
       return;
     }
     if (location.pathname.match("/workerAds/[^new].+")) {
