@@ -42,7 +42,7 @@ const Dashboard = () => {
       const timeRemaining = order.completionDate.getTime() - currentTime;
       return timeRemaining < eightHoursInMs && timeRemaining >= fourHoursInMs;
     }
-    return false; // If completion date is not a valid Date object
+    return false;
   });
   const eightHourOrderFilteredCount = eightHourOrderFiltered?.length;
 
@@ -50,12 +50,28 @@ const Dashboard = () => {
   const fourHourOrderFiltered = data?.orders?.filter((order) => {
     if (order.completionDate instanceof Date) {
       const timeRemaining = order.completionDate.getTime() - currentTime;
-      return timeRemaining < fourHoursInMs && timeRemaining >= 0; // Less than 4 hours remaining but not negative
+      return timeRemaining < fourHoursInMs && timeRemaining >= 0;
     }
-    return false; // If completion date is not a valid Date object
+    return false;
   });
 
   const fourHourOrderFilteredCount = fourHourOrderFiltered?.length;
+
+  //Checking if the order is expired
+  const expiredOrderFiltered = data?.orders?.filter((order) => {
+    if (order.completionDate instanceof Date) {
+      return order.completionDate.getTime() < currentTime;
+    }
+    return false;
+  });
+
+  const expiredOrderFilteredCount = expiredOrderFiltered?.length;
+
+  //Used for checking if theres any orders that are completed but not paid
+  const completedOrderFiltered = data?.orders?.filter((order) =>
+    order.orderStatus.includes("COMPLETED"),
+  );
+  const completedOrderFilteredCount = completedOrderFiltered?.length;
 
   return (
     <>
@@ -124,6 +140,9 @@ const Dashboard = () => {
                     priority={"3"}
                   />
                 )}
+                {Number(expiredOrderFilteredCount) > 0 && !data.isClient && (
+                  <Message msg={"Vėluojate atlikti užsakymą!"} priority={"3"} />
+                )}
                 {/* FOR CLIENT SIDE OF MESSAGES */}
                 {Number(placedOrderFilteredCount) > 0 && data.isClient && (
                   <Message
@@ -142,6 +161,15 @@ const Dashboard = () => {
                     msg={"Darbuotojas turi mažiau nei 4h atlikti užsakymą!"}
                     priority={"3"}
                   />
+                )}
+                {Number(expiredOrderFilteredCount) > 0 && data.isClient && (
+                  <Message
+                    msg={"Darbuotojas vėluoja atlikti užsakymą!"}
+                    priority={"3"}
+                  />
+                )}
+                {Number(completedOrderFilteredCount) > 0 && data.isClient && (
+                  <Message msg={"Nesate apmokėję užsakymo!"} priority={"2"} />
                 )}
               </div>
             </div>
