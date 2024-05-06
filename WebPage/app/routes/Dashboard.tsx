@@ -26,11 +26,36 @@ const Dashboard = () => {
   const data = useTypedLoaderData<typeof loader>();
   const [worker, setWorker] = useState(false);
 
+  //Used for checking if theres any orders that need attention (when the worker hasnt yet declined or accepted the order)
   const placedOrderFiltered = data?.orders?.filter((order) =>
     order.orderStatus.includes("PLACED"),
   );
-
   const placedOrderFilteredCount = placedOrderFiltered?.length;
+
+  //Used for checking if theres any orders that will expire from 8h to 4h
+  const currentTime = new Date().getTime(); // Current time in milliseconds
+  const fourHoursInMs = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+  const eightHoursInMs = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+
+  const eightHourOrderFiltered = data?.orders?.filter((order) => {
+    if (order.completionDate instanceof Date) {
+      const timeRemaining = order.completionDate.getTime() - currentTime;
+      return timeRemaining < eightHoursInMs && timeRemaining >= fourHoursInMs;
+    }
+    return false; // If completion date is not a valid Date object
+  });
+  const eightHourOrderFilteredCount = eightHourOrderFiltered?.length;
+
+  //Used for checking if theres any orders that will expire in 4h
+  const fourHourOrderFiltered = data?.orders?.filter((order) => {
+    if (order.completionDate instanceof Date) {
+      const timeRemaining = order.completionDate.getTime() - currentTime;
+      return timeRemaining < fourHoursInMs && timeRemaining >= 0; // Less than 4 hours remaining but not negative
+    }
+    return false; // If completion date is not a valid Date object
+  });
+
+  const fourHourOrderFilteredCount = fourHourOrderFiltered?.length;
 
   return (
     <>
@@ -83,13 +108,39 @@ const Dashboard = () => {
                 Pranešimai
               </h1>
               <div className="-mx-5">
+                {/* FOR WORKER SIDE OF MESSAGES */}
                 {Number(placedOrderFilteredCount) > 0 && !data.isClient && (
                   <Message msg={"Turite naujų užsakymų!"} priority={"3"} />
                 )}
+                {Number(eightHourOrderFilteredCount) > 0 && !data.isClient && (
+                  <Message
+                    msg={"Turite mažiau nei 8h atlikti užsakymą!"}
+                    priority={"2"}
+                  />
+                )}
+                {Number(fourHourOrderFilteredCount) > 0 && !data.isClient && (
+                  <Message
+                    msg={"Turite mažiau nei 4h atlikti užsakymą!"}
+                    priority={"3"}
+                  />
+                )}
+                {/* FOR CLIENT SIDE OF MESSAGES */}
                 {Number(placedOrderFilteredCount) > 0 && data.isClient && (
                   <Message
                     msg={"Darbuotojas dar nepatvirtino užsakymo!"}
                     priority={"2"}
+                  />
+                )}
+                {Number(eightHourOrderFilteredCount) > 0 && data.isClient && (
+                  <Message
+                    msg={"Darbuotojas turi mažiau nei 8h atlikti užsakymą!"}
+                    priority={"2"}
+                  />
+                )}
+                {Number(fourHourOrderFilteredCount) > 0 && data.isClient && (
+                  <Message
+                    msg={"Darbuotojas turi mažiau nei 4h atlikti užsakymą!"}
+                    priority={"3"}
                   />
                 )}
               </div>
