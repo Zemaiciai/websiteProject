@@ -64,10 +64,23 @@ export async function getConversations(userId: string) {
             lastName: true,
           },
         },
+        messages: { orderBy: { createdAt: "desc" }, take: 1 }, // Fetch the latest message for each conversation
       },
     });
 
-    return conversations;
+    const conversationsWithUpdatedAt = conversations.map((conversation) => {
+      const latestMessage = conversation.messages[0];
+      const updatedAt = latestMessage
+        ? latestMessage.createdAt
+        : conversation.createdAt;
+
+      return {
+        ...conversation,
+        updatedAt: updatedAt,
+      };
+    });
+
+    return conversationsWithUpdatedAt;
   } catch (error) {
     console.error("Error fetching conversations:", error);
     throw new Error("Failed to fetch conversations");

@@ -242,6 +242,8 @@ model Conversation {
   id               String            @id @default(cuid())
   participants     User[]            @relation("UserConversations")
   messages         Message[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Message {
@@ -254,6 +256,7 @@ model Message {
   conversationId   String
   recipient        User              @relation("Recipient", fields: [recipientId], references: [id])
   recipientId      String
+  createdAt     DateTime @default(now())
 }
 
 model FaqPage{
