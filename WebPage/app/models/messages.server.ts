@@ -1,4 +1,5 @@
 import { prisma } from "~/db.server";
+import fs from "fs";
 
 export async function createConversation(userId1: string, userId2: string) {
   const checkOneUser = await prisma.user.findFirst({
@@ -87,12 +88,44 @@ export async function getConversations(userId: string) {
   }
 }
 
+// Function to read bad words from file
+function readBadWords() {
+  try {
+    const data = fs.readFileSync("badwords.txt", "utf8");
+    return data.split("\n").map((word) => word.trim().toLowerCase());
+  } catch (error) {
+    console.error("Error reading bad words:", error);
+    return [];
+  }
+}
+
+// Function to replace bad words with asterisks
+function sanitizeContent(content, badWords) {
+  return content
+    .split(" ")
+    .map((word) => {
+      const lowerCaseWord = word.toLowerCase();
+      if (badWords.includes(lowerCaseWord)) {
+        return "*".repeat(word.length);
+      } else {
+        return word;
+      }
+    })
+    .join(" ");
+}
+
 export async function sendMessage(
   conversationId: string,
   senderId: string,
   content: string,
 ) {
   try {
+    // Read bad words from file
+    const badWords = readBadWords();
+
+    // Sanitize content
+    const sanitizedContent = sanitizeContent(content, badWords);
+
     // Find the conversation
     const conversation = await prisma.conversation.findUnique({
       where: {
@@ -116,10 +149,10 @@ export async function sendMessage(
       throw new Error("Recipient not found");
     }
 
-    // Create the new message
+    // Create the new message with sanitized content
     const newMessage = await prisma.message.create({
       data: {
-        text: content,
+        text: sanitizedContent,
         senderId: senderId,
         recipientId: recipientId,
         conversationId: conversationId,
