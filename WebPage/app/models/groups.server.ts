@@ -499,16 +499,22 @@ export async function removeUserFromGroup(
     throw new Error(`Who made request ${whoMadeRequestToRemove} not found.`);
   }
 
-  const checkWhoMadeRequestRole = await prisma.groupUser.findFirst({
-    where: {
-      groupId: group.id,
-      userId: whoMadeRequestToRemove.id,
-    },
-  });
+  let checkWhoMadeRequestRole;
 
-  if (!checkWhoMadeRequestRole) {
-    throw new Error(`Who made request ${checkWhoMadeRequestRole} not found.`);
+  if (whoMadeRequestToRemove.role !== "Super Admin") {
+    checkWhoMadeRequestRole = await prisma.groupUser.findFirst({
+      where: {
+        groupId: group.id,
+        userId: whoMadeRequestToRemove.id,
+      },
+    });
+
+    if (!checkWhoMadeRequestRole) {
+      throw new Error(`Who made request ${checkWhoMadeRequestRole} not found.`);
+    }
   }
+
+  checkWhoMadeRequestRole = whoMadeRequestToRemove;
 
   if (checkWhoMadeRequestRole.role === GroupsRoles.MODERATOR) {
     const checkUserRole = await prisma.groupUser.findFirst({
@@ -532,7 +538,14 @@ export async function removeUserFromGroup(
     }
   }
 
-  if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER) {
+  const checkAdmin = await prisma.user.findFirst({
+    where: {
+      id: whoMadeRequest,
+      role: "Super Admin",
+    },
+  });
+
+  if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER || checkAdmin) {
     const checkUserRole = await prisma.groupUser.findFirst({
       where: {
         groupId: group.id,
@@ -566,26 +579,50 @@ export async function deleteGroup(groupID: string, whoUsingRN: string) {
     },
   });
 
+  const currentUserGroup = await prisma.groupUser.findFirst({
+    where: {
+      id: whoUsingRN,
+    },
+  });
+
   if (!group) {
     throw new Error(`Group with name ${groupID} not found.`);
   }
 
-  const checkWhoMadeRequestRole = await prisma.groupUser.findFirst({
+  const toCheckUserAdmin = await prisma.user.findFirst({
     where: {
-      groupId: group.id,
-      userId: whoUsingRN,
+      id: whoUsingRN,
     },
   });
 
-  if (!checkWhoMadeRequestRole) {
-    throw new Error(`User name ${checkWhoMadeRequestRole} not found.`);
+  let checkWhoMadeRequestRole;
+
+  if (toCheckUserAdmin?.role !== "Super Admin") {
+    checkWhoMadeRequestRole = await prisma.groupUser.findFirst({
+      where: {
+        groupId: group.id,
+        userId: whoUsingRN,
+      },
+    });
+
+    if (!checkWhoMadeRequestRole) {
+      throw new Error(`User name ${checkWhoMadeRequestRole} not found.`);
+    }
+  } else {
+    checkWhoMadeRequestRole = toCheckUserAdmin;
   }
 
   if (Number(group.balance) !== 0) {
     return null;
   }
+  const checkAdmin = await prisma.user.findFirst({
+    where: {
+      id: whoUsingRN,
+      role: "Super Admin",
+    },
+  });
 
-  if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER) {
+  if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER || checkAdmin) {
     await prisma.groupUser.deleteMany({
       where: {
         groupId: group.id,
@@ -657,7 +694,14 @@ export async function sendMoneyToUser(
   const currentUserBalance = user.balance;
   const changingUserBalance = Number(currentUserBalance) + Number(moneyAmount);
 
-  if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER) {
+  const checkAdmin = await prisma.user.findFirst({
+    where: {
+      id: whoUsingRNID,
+      role: "Super Admin",
+    },
+  });
+
+  if (checkWhoMadeRequestRole.role === GroupsRoles.OWNER || checkAdmin) {
     if (changingGroupBalance >= 0) {
       createSendingMoneyLog(
         group.id,
