@@ -785,7 +785,7 @@ const GroupDetailPage = () => {
             Peržiūrėti narius
           </button>
         </div>
-        {userHasPermissionsToGroupEditing && (
+        {userHasPermissionsToGroupEditing && !viewingAsAdmin && (
           <>
             {/* Buttons */}
             <div className="flex justify-center pb-2">
@@ -827,7 +827,7 @@ const GroupDetailPage = () => {
           </>
         )}
 
-        {abilityToViewGroupAsMember && (
+        {abilityToViewGroupAsMember && !viewingAsAdmin && (
           <>
             <div className="flex justify-center pb-2">
               <button
@@ -922,7 +922,7 @@ const GroupDetailPage = () => {
                 <input name="user" hidden defaultValue={userUsingRN.id} />
                 <button
                   type="submit"
-                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap`}
+                  className={`w-full cursor-pointer bg-custom-800 mb-2 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap`}
                 >
                   Palikti grupę
                 </button>
@@ -1063,8 +1063,7 @@ const GroupDetailPage = () => {
 
           {!viewingAsAdmin &&
             userUsingRN.role === "Super Admin" &&
-            OwnerPermissions === false &&
-            userHasPermissionsToGroupEditing === false && (
+            OwnerPermissions === false && (
               <div className="flex justify-center pb-2">
                 <button
                   className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
@@ -1081,8 +1080,7 @@ const GroupDetailPage = () => {
 
           {viewingAsAdmin &&
             userUsingRN.role === "Super Admin" &&
-            OwnerPermissions === false &&
-            userHasPermissionsToGroupEditing === false && (
+            OwnerPermissions === false && (
               <div className="flex justify-center pb-2">
                 <button
                   className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
