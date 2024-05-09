@@ -57,6 +57,7 @@ export default function App() {
     "/groups/new": "Sukurti grupę",
     "/workerAds": "Reklamos",
     "/workerAds/new": "Sukurti reklamą",
+    "/Balance": "Balansas",
   };
 
   useEffect(() => {
@@ -78,6 +79,10 @@ export default function App() {
     }
     if (location.pathname.startsWith("/messages")) {
       setHeaderTitle("Žinutės");
+      return;
+    }
+    if (location.pathname.startsWith("/Balance")) {
+      setHeaderTitle("Balansas");
       return;
     }
     if (location.pathname.match("/workerAds/[^new].+")) {
@@ -124,6 +129,7 @@ export default function App() {
                   FAQ: "D.U.K",
                   groups: "Grupės",
                   workerAds: "Reklamos",
+                  Balance: "Balansas",
                 }}
               />
             </div>
