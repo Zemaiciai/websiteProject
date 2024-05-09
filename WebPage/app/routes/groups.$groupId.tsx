@@ -958,35 +958,144 @@ const GroupDetailPage = () => {
               </Form>
             </>
           )}
-          {!viewingAsAdmin && userUsingRN.role === "Super Admin" && (
-            <div className="flex justify-center pb-2">
-              <button
-                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
-                  activeTabUsers === "adminSettings"
-                    ? "text-white  py-2 bg-custom-900  border-black "
-                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
-                } w-full`}
-                onClick={handleViewAsAdminClick}
-              >
-                Admin rėžimas
-              </button>
-            </div>
+
+          {/* CHECKER FOR IF THE GROUP OWNER IS ADMIN */}
+
+          {viewingAsAdmin && userUsingRN.role === "Super Admin" && (
+            <>
+              {/* Buttons */}
+              <div className="flex justify-center pb-2">
+                <button
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                    activeTabUsers === "changeSettings"
+                      ? "text-white  py-2 bg-custom-900  border-black "
+                      : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                  } w-full`}
+                  onClick={() => handleTabClickUser("changeSettings")}
+                >
+                  Keisti informacija
+                </button>
+              </div>
+              <div className="flex justify-center pb-2">
+                <button
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                    activeTabUsers === "inviteMember"
+                      ? "text-white  py-2 bg-custom-900  border-black "
+                      : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                  } w-full`}
+                  onClick={() => handleTabClickUser("inviteMember")}
+                >
+                  Pakviesti vartotoją
+                </button>
+              </div>
+              <div className="flex justify-center pb-2">
+                <button
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                    activeTabUsers === "removeMember"
+                      ? "text-white  py-2 bg-custom-900  border-black "
+                      : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                  } w-full`}
+                  onClick={() => handleTabClickUser("removeMember")}
+                >
+                  Išmesti vartotoją
+                </button>
+              </div>
+            </>
           )}
 
           {viewingAsAdmin && userUsingRN.role === "Super Admin" && (
-            <div className="flex justify-center pb-2">
-              <button
-                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
-                  activeTabUsers === "adminSettings"
-                    ? "text-white  py-2 bg-custom-900  border-black "
-                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
-                } w-full`}
-                onClick={handleViewAsAdminClick}
-              >
-                Išeiti iš admin
-              </button>
-            </div>
+            <>
+              <div className="flex justify-center pb-2">
+                <button
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                    activeTabUsers === "viewBalance"
+                      ? "text-white  py-2 bg-custom-900  border-black "
+                      : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                  } w-full`}
+                  onClick={() => handleTabClickUser("viewBalance")}
+                >
+                  Peržiūrėti balansą
+                </button>
+              </div>
+            </>
           )}
+
+          {viewingAsAdmin && userUsingRN.role === "Super Admin" && (
+            <>
+              <div className="flex justify-center pb-2">
+                <button
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                    activeTabUsers === "changeRole"
+                      ? "text-white  py-2 bg-custom-900  border-black "
+                      : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                  } w-full`}
+                  onClick={() => handleTabClickUser("changeRole")}
+                >
+                  Pakeisti rolę
+                </button>
+              </div>
+              <div className="flex justify-center pb-2">
+                <button
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                    activeTabUsers === "sendMoney"
+                      ? "text-white  py-2 bg-custom-900  border-black "
+                      : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                  } w-full`}
+                  onClick={() => handleTabClickUser("sendMoney")}
+                >
+                  Atlikti pervedimą
+                </button>
+              </div>
+              <div className="flex justify-center pb-2">
+                <button
+                  type="button" // Change type to "button" to prevent form submission
+                  onClick={handleDeleteClick}
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-11 rounded text-nowrap
+            ? "bg-custom-900 border-black"
+            : "bg-custom-800  transition duration-300 ease-in-out border-black"
+          }`}
+                >
+                  Ištrinti šią grupę
+                </button>
+              </div>
+            </>
+          )}
+
+          {!viewingAsAdmin &&
+            userUsingRN.role === "Super Admin" &&
+            OwnerPermissions === false &&
+            userHasPermissionsToGroupEditing === false && (
+              <div className="flex justify-center pb-2">
+                <button
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                    activeTabUsers === "adminSettings"
+                      ? "text-white  py-2 bg-custom-900  border-black "
+                      : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                  } w-full`}
+                  onClick={handleViewAsAdminClick}
+                >
+                  Admin rėžimas
+                </button>
+              </div>
+            )}
+
+          {viewingAsAdmin &&
+            userUsingRN.role === "Super Admin" &&
+            OwnerPermissions === false &&
+            userHasPermissionsToGroupEditing === false && (
+              <div className="flex justify-center pb-2">
+                <button
+                  className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                    activeTabUsers === "adminSettings"
+                      ? "text-white  py-2 bg-custom-900  border-black "
+                      : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                  } w-full`}
+                  onClick={handleViewAsAdminClick}
+                >
+                  Išeiti iš admin
+                </button>
+              </div>
+            )}
         </div>
       </div>
     </>
