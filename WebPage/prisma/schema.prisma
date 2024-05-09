@@ -191,6 +191,15 @@ model GroupBalanceLog{
   balanceTo Decimal @db.Decimal(10,2)
 }
 
+model UserBalanceLog{
+  id String @id @default(cuid())
+  userId String
+  whoDidChanges String
+  description String
+  balanceFrom Decimal @db.Decimal(10,2)
+  balanceTo Decimal @db.Decimal(10,2)
+}
+
 
 
 model FriendshipRequest {

@@ -5,6 +5,7 @@ import { prisma } from "~/db.server";
 import { Decimal } from "@prisma/client/runtime/library";
 import { createSendingMoneyLog } from "./groupBalanceLog.server";
 import { AsyncLocalStorage } from "async_hooks";
+import { createRecievingMoneyFromGroupLog } from "./userBalanceLog.server";
 interface OwnerGroup {
   group: Groups;
   owner: GroupUser & { user: User | null };
@@ -666,7 +667,7 @@ export async function sendMoneyToUser(
         Number(currentGroupBalance),
         Number(changingGroupBalance),
       );
-      await await prisma.groups.updateMany({
+      await prisma.groups.updateMany({
         where: {
           id: group.id,
         },
@@ -674,6 +675,13 @@ export async function sendMoneyToUser(
           balance: changingGroupBalance,
         },
       });
+
+      createRecievingMoneyFromGroupLog(
+        user.id,
+        group.groupName,
+        Number(currentUserBalance),
+        Number(changingUserBalance),
+      );
 
       return await prisma.user.updateMany({
         where: {

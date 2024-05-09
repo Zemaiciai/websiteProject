@@ -1,24 +1,23 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { typedjson, useTypedLoaderData } from "remix-typedjson";
-import { getFAQQuestions } from "~/models/faqPage.server";
-import { requireUser, requireUserId } from "~/session.server";
+import { getMoneyLogsByUserId } from "~/models/userBalanceLog.server";
+import { requireUser } from "~/session.server";
 
 export const meta: MetaFunction = () => [{ title: "D.U.K. - Žemaičiai" }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const userId = await requireUserId(request);
   const user = await requireUser(request);
-  const faqMessages = await getFAQQuestions();
+  const userBalanceLog = await getMoneyLogsByUserId(user.id);
 
   console.log(user.balance);
   return json({
     user,
+    userBalanceLog,
   });
 };
 
 const FAQ = () => {
-  const { user } = useLoaderData<typeof loader>();
+  const { user, userBalanceLog } = useLoaderData<typeof loader>();
   return (
     <div className="flex h-full bg-custom-100">
       <div className="w-full h-full flex flex-grow flex-col bg-custom-100 ">
@@ -54,9 +53,8 @@ const FAQ = () => {
                     </th>
                   </tr>
                 </thead>
-                {/* <tbody>
-         
-                  {balanceLogs.map((log) => (
+                <tbody>
+                  {userBalanceLog.map((log) => (
                     <tr
                       key={log.id}
                       className="bg-white border-b  hover:bg-gray-50 "
@@ -67,7 +65,7 @@ const FAQ = () => {
                       <td className="px-6 py-4">{log.balanceTo}</td>
                     </tr>
                   ))}
-                </tbody> */}
+                </tbody>
               </table>
             </div>
           </div>
