@@ -9,8 +9,6 @@ export async function createRatingInput(
   orderIdForWhichReviewLeft: string, //COMES TO HERE AS A ID WILL BE CHANGED TO NAME
   description: string,
 ) {
-  givenRating = 4;
-
   const whoLeftRatingUserName = await getUserById(whoLeftRatingId);
   const inputForUserName =
     whoLeftRatingUserName?.firstName + " " + whoLeftRatingUserName?.lastName;
@@ -67,7 +65,6 @@ export async function createRatingInput(
 }
 
 // CALCULATING THE AVRG BY USER ID
-
 export async function gettingAverageRating(userid: string) {
   const getingUser = await getUserById(userid);
 
@@ -81,6 +78,7 @@ export async function gettingAverageRating(userid: string) {
   return 0;
 }
 
+// Geting the list of all the reviews and their descriptions
 export async function gettingReviewList(userid: string) {
   return prisma.userRatings.findMany({
     where: {

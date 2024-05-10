@@ -69,7 +69,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const socialMediaLinks = await getSocialMediaByUserId(userProfileId);
 
-  const listOfReviews = await gettingReviewList(userProfileId);
+  let listOfReviews = await gettingReviewList(userProfileId);
+  listOfReviews.reverse(); // So the newest ones would be on top
 
   return typedjson({
     user: await getUserById(userProfileId),
