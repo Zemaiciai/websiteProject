@@ -131,22 +131,45 @@ export async function updateOrder(
   description?: string,
   footageLink?: string,
 ) {
-  return prisma.order.update({
-    where: { id: orderId },
-    data: {
-      orderName: orderName,
-      completionDate: completionDate,
-      revisionDays: revisionDays,
-      description: description,
-      footageLink: footageLink,
-      worker: {
-        connect: { id: worker?.id },
+  const check = await getOrderById(orderId);
+
+  if (
+    (check?.orderStatus === OrderStatus.DECLINED ||
+      check?.orderStatus === OrderStatus.PLACED) &&
+    worker?.id !== check?.workerId
+  ) {
+    return prisma.order.update({
+      where: { id: orderId },
+      data: {
+        orderName: orderName,
+        completionDate: completionDate,
+        revisionDays: revisionDays,
+        description: description,
+        footageLink: footageLink,
+        orderStatus: OrderStatus.PLACED,
+        worker: {
+          connect: { id: worker?.id },
+        },
+        createdBy: {
+          connect: { id: createdBy?.id },
+        },
       },
-      createdBy: {
-        connect: { id: createdBy?.id },
+    });
+  } else {
+    return prisma.order.update({
+      where: { id: orderId },
+      data: {
+        orderName: orderName,
+        completionDate: completionDate,
+        revisionDays: revisionDays,
+        description: description,
+        footageLink: footageLink,
+        createdBy: {
+          connect: { id: createdBy?.id },
+        },
       },
-    },
-  });
+    });
+  }
 }
 
 export async function createOrder(
