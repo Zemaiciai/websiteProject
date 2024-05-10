@@ -206,8 +206,8 @@ export default function NoteDetailsPage() {
   const data = useTypedLoaderData<typeof loader>();
   const errorData = useActionData<Errors>();
   return (
-    <div className="main-div">
-      <div className="profilePageDiv">
+    <div className="main-div mb-3">
+      <div className="profilePageDiv bg-white">
         <ProfileCard
           user={data.user}
           checkPendingStatusRequesteer={data.requesteerStatus}
