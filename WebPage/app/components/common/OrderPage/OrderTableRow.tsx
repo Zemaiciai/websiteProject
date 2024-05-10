@@ -25,15 +25,11 @@ export default function OrderCard({ createdBy, order }: OrderCardProps) {
   return (
     <tr
       onClick={handleNavigateToOrder}
-      className="cursor-pointer order-card-row bg-white outline outline-1 outline-gray-100"
+      className="bg-white border-b  hover:bg-gray-50 "
     >
-      <td className="order-name text-center max-w-[50px] truncate">
-        {createdBy}
-      </td>
-      <td className="order-name text-center max-w-[100px] truncate cursor-pointer">
-        {order.orderName}
-      </td>
-      <td className="order-status text-center truncate">
+      <td className="px-6 py-4">{createdBy}</td>
+      <td className="px-6 py-4">{order.orderName}</td>
+      <td className="px-6 py-4">
         <span
           className={`${
             order.orderStatus === "ACCEPTED"
@@ -44,7 +40,7 @@ export default function OrderCard({ createdBy, order }: OrderCardProps) {
           {order.orderStatus}
         </span>
       </td>
-      <td className="order-timer text-center text-nowrap">
+      <td className="px-6 py-4">
         <OrderTimer
           orderEndDate={order.completionDate}
           handleOrderEnd={handleOrderEnd}

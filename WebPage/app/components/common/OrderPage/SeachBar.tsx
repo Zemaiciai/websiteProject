@@ -10,7 +10,7 @@ export default function SearchBar({
   searchQuery,
 }: SearchBarProps) {
   return (
-    <div className="search-bar-container flex flex-row bg-white p-1 w-[25rem]">
+    <div className="search-bar-container flex flex-row bg-white p-1 w-full border border-gray ">
       <div className="icon-wrapper flex items-center justify-center mr-1">
         <SearchIcon className="w-4 h-4" />
       </div>
@@ -19,7 +19,7 @@ export default function SearchBar({
           type="text"
           value={searchQuery}
           onChange={handleSearch}
-          placeholder="Search..."
+          placeholder="Ieškoti pagal pavadinimą..."
           className="flex-grow outline-none w-full"
         />
       </div>

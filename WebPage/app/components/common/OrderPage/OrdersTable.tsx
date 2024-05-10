@@ -111,55 +111,61 @@ export default function OrdersTable({
       {imporantCardsAmount === 0 && important ? (
         <span className="text-center">There are no important orders</span>
       ) : (
-        <div className="table-container flex flex-col h-full overflow-auto bg-custom-200">
-          <OrderPageHeader
-            handleSearch={handleSearch}
-            searchQuery={searchQuery}
-            title={title}
-          />
-          {filteredOrderCards.length > 0 ? (
-            <div className="table-wrapper flex flex-col h-full overflow-auto">
-              <table className="table mt-4 outline outline-1 outline-gray-100 h-min w-full">
-                <OrdersTableHeader
-                  handleSort={handleSort}
-                  sortOrder={sortOrder}
-                  sortColumn={sortColumn}
-                />
-                <tbody>
-                  {currentCards.map((order, index) => (
-                    <OrderTableRow
-                      key={index}
-                      order={order}
-                      createdBy={order["createdBy"]["userName"]}
+        <>
+          <div className="mb-5">
+            <OrderPageHeader
+              handleSearch={handleSearch}
+              searchQuery={searchQuery}
+              title={title}
+            />
+          </div>
+          <div className="overflow-x-auto shadow-md sm:rounded-lg">
+            <div className="table-container flex flex-col h-full overflow-auto bg-custom-200">
+              {filteredOrderCards.length > 0 ? (
+                <div className="table-wrapper flex flex-col h-full overflow-auto">
+                  <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                    <OrdersTableHeader
+                      handleSort={handleSort}
+                      sortOrder={sortOrder}
+                      sortColumn={sortColumn}
                     />
-                  ))}
-                </tbody>
-              </table>
+                    <tbody>
+                      {currentCards.map((order, index) => (
+                        <OrderTableRow
+                          key={index}
+                          order={order}
+                          createdBy={order["createdBy"]["userName"]}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <span>No Results Found</span>
+              )}
+              {maxPageAmount > 1 && (
+                <div className="page-buttons flex justify-center mt-2">
+                  <ul className="flex list-none">
+                    {Array.from({ length: maxPageAmount }).map((_, index) => (
+                      <li key={index} className="mx-1">
+                        <button
+                          className={`w-10 h-8 rounded ${
+                            currentPage === index + 1
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-200 text-gray-700"
+                          }`}
+                          onClick={() => setCurrentPage(index + 1)}
+                        >
+                          {index + 1}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-          ) : (
-            <span>No Results Found</span>
-          )}
-          {maxPageAmount > 1 && (
-            <div className="page-buttons flex justify-center mt-2">
-              <ul className="flex list-none">
-                {Array.from({ length: maxPageAmount }).map((_, index) => (
-                  <li key={index} className="mx-1">
-                    <button
-                      className={`w-10 h-8 rounded ${
-                        currentPage === index + 1
-                          ? "bg-blue-500 text-white"
-                          : "bg-gray-200 text-gray-700"
-                      }`}
-                      onClick={() => setCurrentPage(index + 1)}
-                    >
-                      {index + 1}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+          </div>
+        </>
       )}
     </>
   );
