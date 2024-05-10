@@ -49,7 +49,6 @@ export async function createRatingInput(
     });
   } else {
     const getUser = await getUserById(userid);
-    console.log(getUser);
     const changingRating = Number(getUser?.rating) + Number(givenRating);
     const changingAmount = Number(getUser?.ratingAmount) + 1;
     await prisma.user.update({

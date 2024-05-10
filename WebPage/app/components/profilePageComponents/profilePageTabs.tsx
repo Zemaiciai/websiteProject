@@ -111,7 +111,6 @@ function ProfilePageTabs({
   };
 
   let average = Number(user?.rating) / Number(user?.ratingAmount);
-  console.log(average);
   if (Number(user?.rating) > 0 && Number(user?.ratingAmount) > 0) {
     average.toFixed(2);
   } else {
