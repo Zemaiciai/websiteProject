@@ -7,17 +7,15 @@ interface OrderTableHeaderCellProps {
 
 function OrderTableHeaderCell({ column, title }: OrderTableHeaderCellProps) {
   return (
-    <th scope="col">
-      <span className="cursor-pointer select-none flex items-center justify-center">
-        {title}
-      </span>
+    <th scope="col" className="p-4">
+      <span className="cursor-pointer select-none flex">{title}</span>
     </th>
   );
 }
 
 export default function OrderTableHeader() {
   return (
-    <thead className="table-header bg-white">
+    <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
       <tr>
         <OrderTableHeaderCell column="orderedBy" title="Užsakymą sukurė" />
         <OrderTableHeaderCell column="name" title="Pavadinimas" />
