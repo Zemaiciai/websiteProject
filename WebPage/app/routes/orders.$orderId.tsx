@@ -301,7 +301,7 @@ export default function OrderDetailPage() {
                 className={`${
                   order?.orderStatus === "ACCEPTED"
                     ? "text-green-400"
-                    : order.orderStatus === "DECLINED" && "text-green-400"
+                    : order.orderStatus === "DECLINED" && "text-red-400"
                 } ml-1`}
               >
                 {order?.orderStatus}
