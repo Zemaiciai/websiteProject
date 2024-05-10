@@ -111,11 +111,12 @@ function ProfilePageTabs({
   };
 
   let average = Number(user?.rating) / Number(user?.ratingAmount);
-
-  if (average > 0) {
+  console.log(average);
+  if (Number(user?.rating) > 0 && Number(user?.ratingAmount) > 0) {
     average.toFixed(2);
+  } else {
+    average = 0;
   }
-  average = 0;
 
   const fullStars = Math.floor(Number(average));
   const partialFillPercentage = (Number(average) - fullStars) * 100;
