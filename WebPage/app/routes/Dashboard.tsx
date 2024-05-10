@@ -128,8 +128,6 @@ const Dashboard = () => {
   const partialFillPercentage =
     (Number(data.userAverageRating) - fullStars) * 100;
 
-  console.log("fullStars ", fullStars);
-  console.log("partialFillPercentage ", partialFillPercentage);
   return (
     <>
       {/* Flex container */}
