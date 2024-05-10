@@ -8,7 +8,7 @@ interface OrderTableHeaderCellProps {
 function OrderTableHeaderCell({ column, title }: OrderTableHeaderCellProps) {
   return (
     <th scope="col" className="p-4">
-      <span className="cursor-pointer select-none flex">{title}</span>
+      <span className=" select-none flex">{title}</span>
     </th>
   );
 }
