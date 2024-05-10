@@ -8,7 +8,7 @@ import ProfilePageTabsSkills from "./profilePageTabsSkills";
 import ProfileSettings from "./profileSettings";
 import { useUser } from "~/utils";
 import { Form } from "@remix-run/react";
-import { User, socialMedia, workExamples } from "@prisma/client";
+import { User, UserRatings, socialMedia, workExamples } from "@prisma/client";
 import YouTube from "react-youtube";
 interface Errors {
   fbLinkError?: string;
@@ -25,12 +25,23 @@ type JsonifyObject<T> = {
     ? JsonifyObject<T[K]> | null
     : T[K] | null;
 };
+
+interface UserRating {
+  id: string;
+  userid: string;
+  whoLeftRatingUserName: string;
+  orderNameForWhichReviewLeft: string;
+  givenRating: number;
+  description: string;
+}
+
 interface UserInfoProps {
   user: User | null;
   errorData: JsonifyObject<Errors> | null | undefined;
   workExample: workExamples | null | undefined;
   socialMediaLinks: socialMedia | null;
   orderCount: number;
+  Reviews: UserRating[] | null | undefined;
 }
 
 function ProfilePageTabs({
@@ -39,6 +50,7 @@ function ProfilePageTabs({
   workExample,
   socialMediaLinks,
   orderCount,
+  Reviews,
 }: UserInfoProps) {
   const [activeTab, setActiveTab] = useState("statistics");
   const [edit, setEdit] = useState(false);
@@ -113,6 +125,8 @@ function ProfilePageTabs({
   const fullStars = Math.floor(Number(average));
   const partialFillPercentage = (Number(average) - fullStars) * 100;
 
+  console.log(Reviews);
+
   return (
     <div className="text-sm font-medium text-center text-gray-500 mt-6 pl-24">
       <ul className="flex flex-wrap -mb-px border-b border-gray-200">
@@ -138,6 +152,18 @@ function ProfilePageTabs({
             onClick={() => handleTabClick("skills")}
           >
             Įgudžiai
+          </button>
+        </li>
+        <li className="me-2">
+          <button
+            className={`inline-block p-4  ${
+              activeTab === "rating"
+                ? "border-custom-800 border-b-2 rounded-t-lg"
+                : "hover:text-gray-600 hover:border-gray-300"
+            }`}
+            onClick={() => handleTabClick("rating")}
+          >
+            Atsiliepimai
           </button>
         </li>
         {isUserWorker() && (
@@ -258,6 +284,51 @@ function ProfilePageTabs({
               errorData={errorData}
               socialMediaLinks={socialMediaLinks}
             />
+          </>
+        ) : null}
+        {activeTab === "rating" ? (
+          <>
+            {Reviews && Reviews.length === 0 ? (
+              <p className="mt-5">Šis profilis neturi paliktų atsiliepimų!</p>
+            ) : (
+              <div>
+                <div className="overflow-x-auto shadow-md sm:rounded-lg">
+                  <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
+                      <tr>
+                        <th scope="col" className="p-4">
+                          Atsiliepimą paliko
+                        </th>
+                        <th scope="col" className="p-4">
+                          Komentaras
+                        </th>
+                        <th scope="col" className="p-4">
+                          Įvertinimas
+                        </th>
+                        <th scope="col" className="p-4">
+                          Užsakymo pavadinimas
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* Map through Reviews and render table rows */}
+                      {Reviews?.map((review) => (
+                        <tr key={review.id} className="bg-white border-b ">
+                          <td className="px-6 py-4 ">
+                            {review.whoLeftRatingUserName}
+                          </td>
+                          <td className="px-6 py-4">{review.description}</td>
+                          <td className="px-6 py-4">{review.givenRating}</td>
+                          <td className="px-6 py-4">
+                            {review.orderNameForWhichReviewLeft}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </>
         ) : null}
         {activeTab === "example" ? (

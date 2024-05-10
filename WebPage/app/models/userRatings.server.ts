@@ -80,3 +80,11 @@ export async function gettingAverageRating(userid: string) {
   }
   return 0;
 }
+
+export async function gettingReviewList(userid: string) {
+  return prisma.userRatings.findMany({
+    where: {
+      userid: userid,
+    },
+  });
+}

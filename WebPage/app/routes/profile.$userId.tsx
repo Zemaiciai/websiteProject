@@ -34,6 +34,7 @@ import {
 } from "~/models/workExamples.server";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import { getOrdersByUserId } from "~/models/order.server";
+import { gettingReviewList } from "~/models/userRatings.server";
 export const meta: MetaFunction = () => [
   { title: "Profilio peržiūra - Žemaičiai" },
 ];
@@ -68,6 +69,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const socialMediaLinks = await getSocialMediaByUserId(userProfileId);
 
+  const listOfReviews = await gettingReviewList(userProfileId);
+
   return typedjson({
     user: await getUserById(userProfileId),
     requesteerStatus: checkPendingStatusRequesteer,
@@ -76,6 +79,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     socialMediaLinks: socialMediaLinks,
     workExamples: await getUserWorkExamples(userProfileId),
     ordersCount: ordersCount,
+    listOfReviews: listOfReviews,
   });
 };
 interface Errors {
@@ -221,6 +225,7 @@ export default function NoteDetailsPage() {
           workExample={data.workExamples}
           socialMediaLinks={data.socialMediaLinks}
           orderCount={data.ordersCount}
+          Reviews={data.listOfReviews}
         />
       </div>
     </div>
