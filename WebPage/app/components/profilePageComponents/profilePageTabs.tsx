@@ -1,9 +1,4 @@
-import { json } from "@remix-run/node";
 import { useState } from "react";
-
-import { requireUser } from "~/session.server";
-
-import ProfilePageSocialMedia from "./profilePageSocialMedia";
 import ProfilePageTabsSkills from "./profilePageTabsSkills";
 import ProfileSettings from "./profileSettings";
 import { useUser } from "~/utils";
@@ -124,8 +119,6 @@ function ProfilePageTabs({
 
   const fullStars = Math.floor(Number(average));
   const partialFillPercentage = (Number(average) - fullStars) * 100;
-
-  console.log(Reviews);
 
   return (
     <div className="text-sm font-medium text-center text-gray-500 mt-6 pl-24">
