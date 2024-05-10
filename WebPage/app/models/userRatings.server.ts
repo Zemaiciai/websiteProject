@@ -65,3 +65,18 @@ export async function createRatingInput(
     });
   }
 }
+
+// CALCULATING THE AVRG BY USER ID
+
+export async function gettingAverageRating(userid: string) {
+  const getingUser = await getUserById(userid);
+
+  const calculating =
+    Number(getingUser?.rating) / Number(getingUser?.ratingAmount);
+  const average = calculating.toFixed(2);
+
+  if (Number(average) > 0) {
+    return average;
+  }
+  return 0;
+}
