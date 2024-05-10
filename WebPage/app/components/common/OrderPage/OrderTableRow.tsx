@@ -25,7 +25,7 @@ export default function OrderCard({ createdBy, order }: OrderCardProps) {
   return (
     <tr
       onClick={handleNavigateToOrder}
-      className="bg-white border-b  hover:bg-gray-50 "
+      className="bg-white border-b  hover:bg-gray-50 cursor-pointer "
     >
       <td className="px-6 py-4">{createdBy}</td>
       <td className="px-6 py-4">{order.orderName}</td>
