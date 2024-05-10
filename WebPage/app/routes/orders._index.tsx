@@ -111,16 +111,18 @@ export default function OrdersPage() {
           </>
         )}
       </div>
-      <div className="p-6 bg-custom-200 text-medium mt-3 mr-3 ">
-        <div className="flex justify-center ">
-          <Link
-            className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap"
-            to={"new"}
-          >
-            Sukurti užsakymą
-          </Link>
+      {data.isClient && (
+        <div className="p-6 bg-custom-200 text-medium mt-3 mr-3 ">
+          <div className="flex justify-center ">
+            <Link
+              className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap"
+              to={"new"}
+            >
+              Sukurti užsakymą
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
