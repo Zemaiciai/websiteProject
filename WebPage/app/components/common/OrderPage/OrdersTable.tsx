@@ -144,15 +144,15 @@ export default function OrdersTable({
                 <span>No Results Found</span>
               )}
               {maxPageAmount > 1 && (
-                <div className="page-buttons flex justify-center mt-2">
+                <div className="page-buttons flex justify-center mt-3 mb-3">
                   <ul className="flex list-none">
                     {Array.from({ length: maxPageAmount }).map((_, index) => (
                       <li key={index} className="mx-1">
                         <button
-                          className={`w-10 h-8 rounded ${
+                          className={`w-8 h-8 rounded ${
                             currentPage === index + 1
-                              ? "bg-blue-500 text-white"
-                              : "bg-gray-200 text-gray-700"
+                              ? "bg-custom-850 text-white"
+                              : "bg-custom-800 text-white"
                           }`}
                           onClick={() => setCurrentPage(index + 1)}
                         >
