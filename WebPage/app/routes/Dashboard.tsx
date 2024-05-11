@@ -194,7 +194,7 @@ const Dashboard = () => {
           )}
         </div>
         {/* Main content */}
-        <div className="flex flex-col md:flex-row flex-grow mb-3 ml-4 mr-4">
+        <div className="flex flex-col md:flex-row flex-grow mb-3 ml-4 mr-4 mt-4">
           <div className="md:w-5/6 bg-custom-200 text-medium p-4 mr-4 mb-4 md:mb-0">
             {/* Your statistics */}
             {!data.isClient && (

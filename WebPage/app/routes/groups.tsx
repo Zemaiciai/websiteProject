@@ -3,7 +3,7 @@ export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
 export default function Groups() {
   return (
-    <div className="flex grow m-4">
+    <div className="flex grow m-1">
       <Outlet />
     </div>
   );

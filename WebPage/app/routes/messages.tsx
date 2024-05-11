@@ -3,7 +3,7 @@ export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 
 const Dashboard = () => {
   return (
-    <div className="flex h-full">
+    <div className="flex h-full m-1">
       <Outlet />
     </div>
   );

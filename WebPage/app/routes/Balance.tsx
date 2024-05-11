@@ -20,7 +20,7 @@ const FAQ = () => {
   const { user, userBalanceLog } = useLoaderData<typeof loader>();
 
   return (
-    <div className="flex h-full bg-custom-100">
+    <div className="flex h-full bg-custom-100 m-1">
       <div className="w-full h-full flex flex-grow flex-col bg-custom-100 ">
         <div className="flex flex-col justify-between bg-custom-200 m-3 pl-8 pr-8 pt-4 pb-8">
           <div className="w-full  bg-white border border-gray-200 rounded-lg shadow mt-5">

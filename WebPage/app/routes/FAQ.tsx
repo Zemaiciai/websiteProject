@@ -39,7 +39,7 @@ const FAQ = () => {
   }, [searchQuery, faqMessages]);
 
   return (
-    <div className="flex h-full bg-custom-100">
+    <div className="flex h-full bg-custom-100 m-1">
       <div className="w-full h-full flex flex-grow flex-col bg-custom-100">
         <div className="flex justify-between bg-custom-200 m-3">
           <div className="mb-1">
