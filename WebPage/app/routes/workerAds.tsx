@@ -5,7 +5,7 @@ export const meta: MetaFunction = () => [{ title: "Žemaičiai" }];
 const Dashboard = () => {
   return (
     <div className="w-full h-full flex flex-grow flex-col bg-custom-100 pb-3 m-1">
-      <div className="flex justify-between overflow-auto">
+      <div className="flex justify-between overflow-auto mr-2">
         <Outlet />
       </div>
     </div>
