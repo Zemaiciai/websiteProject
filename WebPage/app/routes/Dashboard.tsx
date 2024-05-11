@@ -111,6 +111,13 @@ const Dashboard = () => {
 
   const fourHourOrderFilteredCount = fourHourOrderFiltered?.length;
 
+  //Checking if any orders are canceled by workers
+  let canceledOrdersFiltered = data?.orders?.filter((order) =>
+    order.orderStatus.includes("DECLINED"),
+  );
+
+  const canceledOrdersFilteredCount = canceledOrdersFiltered?.length;
+
   //Checking if the order is expired
   const expiredOrderFiltered = data?.orders?.filter((order) => {
     if (order.completionDate instanceof Date) {
@@ -441,7 +448,6 @@ const Dashboard = () => {
                       priority={"3"}
                     />
                   )}
-
                   {/* FOR CLIENT SIDE OF MESSAGES */}
                   {Number(placedOrderFilteredCount) > 0 && data.isClient && (
                     <Message
@@ -465,6 +471,13 @@ const Dashboard = () => {
                     <Message
                       msg={"Darbuotojas vėluoja atlikti užsakymą!"}
                       priority={"3"}
+                    />
+                  )}
+
+                  {Number(canceledOrdersFilteredCount) > 0 && data.isClient && (
+                    <Message
+                      msg={"Darbuotojas atsisakė jūsų užsakymo!"}
+                      priority={"2"}
                     />
                   )}
                 </div>
