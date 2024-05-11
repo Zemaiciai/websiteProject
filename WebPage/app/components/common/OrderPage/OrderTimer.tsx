@@ -26,6 +26,15 @@ export default function OrderTimer({
     if (time.endInMs <= 999 && handleOrderEnd) handleOrderEnd();
   }, [time.days, time.hours, time.minutes, time.endInMs, handleOrderEnd]);
 
+  if (orderEndDate <= new Date()) {
+    return (
+      <span className={`${ending && "text-red-400"}`}>
+        {String(time.minutes).padStart(2, "0")}:
+        {String(time.seconds).padStart(2, "0")}
+      </span>
+    );
+  }
+
   return (
     <div className="text-nowrap w-full">
       {time.days >= 3 ? (

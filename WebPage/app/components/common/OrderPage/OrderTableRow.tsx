@@ -29,8 +29,8 @@ export default function OrderCard({ createdBy, order }: OrderCardProps) {
     >
       <td className="px-6 py-4">{createdBy}</td>
       <td className="px-6 py-4">{order.orderName}</td>
-      <td className="px-6 py-4">
-        <RenderStatus status={order.orderStatus} />
+      <td className="px-3 py-4">
+        <RenderStatus status={order.orderStatus} box={true} />
       </td>
       <td className="px-6 py-4">
         <OrderTimer

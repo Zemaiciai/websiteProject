@@ -130,7 +130,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         newDescription,
         newFootageLink,
       );
-      break;
+      return typedjson({ errors: null }, { status: 200 });
     case "changeStatus":
       const state = formData.get("action");
       const order = await getOrderById(orderId, true);
@@ -224,9 +224,8 @@ export default function OrderDetailPage() {
   };
   const [canPay, setCanPay] = useState(false);
   const [ended, setEnded] = useState(false);
-
+  const [showMessage, setShowMessage] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-
   const [selectedDay, setSelectedDay] = useState<string>("0");
 
   const handleDateChange = (
@@ -287,6 +286,23 @@ export default function OrderDetailPage() {
     setEnded(true);
   };
 
+  useEffect(() => {
+    if (actionData) {
+      showPopUp();
+    }
+  }, [actionData]);
+
+  const showPopUp = () => {
+    setShowMessage(false);
+
+    if (actionData?.errors === null || actionData?.errors === undefined) {
+      setShowMessage(true);
+    }
+  };
+  const handlePopUpAnimationEnd = () => {
+    setShowMessage(false);
+  };
+
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mr-1 w-full md:w-[calc(100% - 360px)]">
@@ -300,12 +316,10 @@ export default function OrderDetailPage() {
               <RenderStatus status={order.orderStatus} />
               <span className="flex text-nowrap ml-2">
                 <span className="pr-1">Likęs laikas:</span>
-                {
-                  <OrderTimer
-                    orderEndDate={order.completionDate}
-                    handleOrderEnd={handleOrderEnd}
-                  />
-                }
+                <OrderTimer
+                  orderEndDate={order.completionDate}
+                  handleOrderEnd={handleOrderEnd}
+                />
               </span>
             </div>
           </div>
@@ -333,7 +347,32 @@ export default function OrderDetailPage() {
         {activeTabUsers === "updateOrder" && (
           <div className="flex w-full grow space-x-10">
             <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max">
-              <Form method="put">
+              <Form method="put" onSubmit={showPopUp}>
+                <div
+                  className={`absolute left-[45%] -top-14 p-4 rounded bg-green-600 text-white ${
+                    showMessage ? "animate-popup " : "-top-14"
+                  }`}
+                  onAnimationEnd={handlePopUpAnimationEnd}
+                >
+                  <div className="flex justify-center items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 cursor-pointer"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="white"
+                      onClick={showPopUp}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                    Užsakymas atnaujintas sėkmingai!
+                  </div>
+                </div>
                 <div className="flex flex-wrap -mx-3">
                   <input name="orderId" value={order.id} readOnly hidden />
                   <input type="hidden" name="intent" value="update" readOnly />

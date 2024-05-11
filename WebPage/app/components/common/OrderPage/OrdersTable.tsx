@@ -9,6 +9,7 @@ interface OrdersTableProps {
   searchQuery: string;
   handleSearch: (event: React.ChangeEvent<HTMLInputElement>) => void;
   important?: boolean;
+  activeOnly?: boolean;
   title: string;
 }
 
@@ -18,6 +19,7 @@ export default function OrdersTable({
   important,
   handleSearch,
   title,
+  activeOnly,
 }: OrdersTableProps) {
   if (!orderCards || orderCards.length === 0) {
     return <span>No orders available</span>;
@@ -61,6 +63,11 @@ export default function OrdersTable({
       if (important && order.completionDate instanceof Date) {
         const endInMs = order.completionDate.getTime() - Date.now();
         return endInMs <= ONE_HOUR_IN_MS;
+      } else if (activeOnly) {
+        return (
+          order.orderStatus === "ACCEPTED" ||
+          order.orderStatus === "IN_PROGRESS"
+        );
       }
       return true;
     })

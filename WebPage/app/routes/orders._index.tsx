@@ -2,20 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "@remix-run/react";
 import OrdersTable from "~/components/common/OrderPage/OrdersTable";
 import { isUserClient, requireUserId } from "~/session.server";
-import {
-  getOrderById,
-  getOrdersByUserId,
-  updateOrderStatus,
-} from "~/models/order.server";
+import { getOrdersByUserId } from "~/models/order.server";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  MetaFunction,
-} from "@remix-run/node";
-import { NotificationTypes, OrderStatus } from "@prisma/client";
-import { sendNotification } from "~/models/notification.server";
-import { getUserById } from "~/models/user.server";
+import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 
 export const meta: MetaFunction = () => [{ title: "Užsakymai - Žemaičiai" }];
 
@@ -77,6 +66,18 @@ export default function OrdersPage() {
           <li className="me-2">
             <button
               className={`inline-block p-4  ${
+                activeTab === "activeOrders"
+                  ? "border-custom-800 border-b-2 rounded-t-lg"
+                  : "hover:text-gray-600 hover:border-gray-300"
+              }`}
+              onClick={() => handleTabClick("activeOrders")}
+            >
+              Aktyvūs užsakymai
+            </button>
+          </li>
+          <li className="me-2">
+            <button
+              className={`inline-block p-4  ${
                 activeTab === "importantOrders"
                   ? "border-custom-800 border-b-2 rounded-t-lg"
                   : "hover:text-gray-600 hover:border-gray-300"
@@ -106,6 +107,18 @@ export default function OrdersPage() {
               handleSearch={(event) => handleSearch(event, "importantTable")}
               searchQuery={searchQueries.importantTable}
               important={true}
+              title={"Priminimų sąrašas"}
+            />
+          </>
+        )}
+        {activeTab === "activeOrders" && (
+          <>
+            <div className="flex justify-between pb-5"></div>
+            <OrdersTable
+              orderCards={data.orders}
+              handleSearch={(event) => handleSearch(event, "importantTable")}
+              searchQuery={searchQueries.importantTable}
+              activeOnly={true}
               title={"Priminimų sąrašas"}
             />
           </>
