@@ -25,6 +25,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 interface Conversation {
   id: string;
   participants: Participant[];
+  updatedAt: Date;
   // Add other properties as needed
 }
 
@@ -63,7 +64,6 @@ export default function GroupsIndexPage() {
       }),
     );
   }
-
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
@@ -99,17 +99,20 @@ export default function GroupsIndexPage() {
                         <th scope="col" className="p-4">
                           Vartotojas
                         </th>
+                        <th scope="col" className="p-4">
+                          Paskutinė žinutė
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {/* Map through conversations and render table rows */}
                       {filteredMessagesList.map((conversation) => (
-                        <Link
-                          key={conversation.id}
-                          to={`/messages/${conversation.id}`}
-                          className="block"
-                        >
-                          <tr className="bg-white border-b ">
+                        <tr className="bg-white border-b ">
+                          <Link
+                            key={conversation.id}
+                            to={`/messages/${conversation.id}`}
+                            className="block"
+                          >
                             <td className="px-6 py-4 cursor-pointer">
                               {/* Display participant information excluding the current user */}
                               {conversation.participants.map(
@@ -122,8 +125,27 @@ export default function GroupsIndexPage() {
                                   ),
                               )}
                             </td>
-                          </tr>
-                        </Link>
+                          </Link>
+                          <td className="px-6 py-4">
+                            {conversation.updatedAt
+                              ? new Date(conversation.updatedAt)
+                                  .toLocaleDateString("en-CA", {
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                  })
+                                  .replace(/\//g, "-") +
+                                ", " +
+                                new Date(
+                                  conversation.updatedAt,
+                                ).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: false,
+                                })
+                              : null}
+                          </td>
+                        </tr>
                       ))}
                     </tbody>
                   </table>

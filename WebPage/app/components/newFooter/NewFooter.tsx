@@ -1,6 +1,6 @@
 export default function NewFooter() {
   return (
-    <footer className="bg-white w-full dark:bg-gray-900">
+    <footer className="bg-white w-full dark:bg-gray-900 pl-6 pr-6 pb-4 pt-2">
       <div className="w-full p-3">
         <div className="md:flex md:justify-between">
           <div className="mb-6 md:mb-0">
@@ -13,51 +13,46 @@ export default function NewFooter() {
           <div className="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
             <div>
               <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">
-                TITLE
+                Informacija
               </h2>
               <ul className="text-gray-500 dark:text-gray-400 font-medium">
                 <li className="mb-4">
-                  <a href="#" className="hover:underline">
-                    Title
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:underline">
-                    Title
+                  <a href="/FAQ" className="hover:underline">
+                    D.U.K.
                   </a>
                 </li>
               </ul>
             </div>
             <div>
               <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">
-                Title
+                Apie mus
               </h2>
               <ul className="text-gray-500 dark:text-gray-400 font-medium">
                 <li className="mb-4">
-                  <a href="#" className="hover:underline ">
-                    Title
+                  <a href="/About" className="hover:underline ">
+                    Apie mus
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:underline">
-                    Title
+                  <a href="/Contact" className="hover:underline">
+                    Kontaktai
                   </a>
                 </li>
               </ul>
             </div>
             <div>
               <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">
-                Legal
+                Teisinė informacija
               </h2>
               <ul className="text-gray-500 dark:text-gray-400 font-medium">
                 <li className="mb-4">
-                  <a href="#" className="hover:underline">
-                    Privacy Policy
+                  <a href="/Privacy" className="hover:underline">
+                    Privatumo politika
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:underline">
-                    Terms &amp; Conditions
+                  <a href="/Rules" className="hover:underline">
+                    Taisyklės
                   </a>
                 </li>
               </ul>

@@ -7,7 +7,9 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
   useLocation,
+  useRouteError,
 } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 
@@ -19,6 +21,7 @@ import NavBarHeader from "./components/common/NavBar/NavBarHeader";
 import NewFooter from "./components/newFooter/NewFooter";
 import { getUserNotifications } from "./models/notification.server";
 import { getAllusers } from "./models/user.server";
+import NotFound from "./components/notFound/notFound";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -39,6 +42,28 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     allUsers: allUsers,
   });
 };
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <html lang="en" className="h-full">
+        <head>
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width,initial-scale=1" />
+          <Meta />
+          <Links />
+        </head>
+        <body className="h-full">
+          <div>
+            <NotFound></NotFound>
+          </div>
+        </body>
+      </html>
+    );
+  }
+}
 
 export default function App() {
   const [headerTitle, setHeaderTitle] = useState("Loading...");
