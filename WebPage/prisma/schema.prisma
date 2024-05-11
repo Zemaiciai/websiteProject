@@ -78,6 +78,10 @@ model User {
   sentMessages          Message[]         @relation("Sender")
   receivedMessages      Message[]         @relation("Recipient")
   conversations         Conversation[]    @relation("UserConversations")
+
+  // Used for user ratings
+  rating Int
+  ratingAmount Int
 }
 
 model Password {
@@ -272,4 +276,13 @@ model FaqPage{
   id String @id @default(cuid())
   questionName String
   questionAnswer String
+}
+
+model UserRatings{
+  id String @id @default(cuid())
+  userid String
+  whoLeftRatingUserName String
+  orderNameForWhichReviewLeft String
+  givenRating Int
+  description String
 }
