@@ -41,7 +41,16 @@ export default function OrderCard({ createdBy, order }: OrderCardProps) {
         <>
           <td className="px-6 py-4">{createdBy}</td>
           <td className="px-6 py-4">{order.orderName}</td>
-          <td className="px-6 py-4">{order.orderStatus}</td>
+          <td
+            className={`${
+              order.orderStatus === OrderStatus.ACCEPTED && "text-lime-500"
+            } 
+            ${
+              order.orderStatus === OrderStatus.DECLINED && "text-red-500"
+            } px-6 py-4`}
+          >
+            {order.orderStatus}
+          </td>
           {order.orderStatus !== OrderStatus.PAYED &&
             order.orderStatus !== OrderStatus.COMPLETED && (
               <td className="px-6 py-4">
