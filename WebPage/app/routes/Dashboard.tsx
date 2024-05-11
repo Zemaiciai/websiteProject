@@ -148,9 +148,10 @@ const Dashboard = () => {
   const fullStars = Math.floor(Number(data.userAverageRating));
   const partialFillPercentage =
     (Number(data.userAverageRating) - fullStars) * 100;
+
+  //To shwo five last messages
   const messagesList: Conversation[] =
     useLoaderData<typeof loader>().messagesList;
-
   messagesList.sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   );
