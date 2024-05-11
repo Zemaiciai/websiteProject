@@ -5,7 +5,6 @@ import {
 } from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import {
   redirect,
   typedjson,
@@ -19,16 +18,17 @@ import {
   updateOrderStatus,
 } from "~/models/order.server";
 import { User, getUserByEmail, getUserById } from "~/models/user.server";
-import { isUserClient, requireUser, requireUserId } from "~/session.server";
+import { isUserClient, requireUser } from "~/session.server";
 import OrderDatePicker from "~/components/common/OrderPage/OrderDatePicker";
 import OrderInput from "~/components/common/OrderPage/OrderInput";
-import { useUser, validateOrderData } from "~/utils";
+import { validateOrderData } from "~/utils";
 import { OrderErrors } from "./orders.new";
 import {
   NotificationTypes,
   sendNotification,
 } from "~/models/notification.server";
 import { OrderStatus } from "@prisma/client";
+import RenderStatus from "~/components/common/OrderPage/OrderStatus";
 export { OrderStatus } from "@prisma/client";
 
 export const meta: MetaFunction = () => [
@@ -297,15 +297,7 @@ export default function OrderDetailPage() {
             </h1>
             <div className="flex ml-2 justify-center items-center">
               Statusas:
-              <span
-                className={`${
-                  order?.orderStatus === "ACCEPTED"
-                    ? "text-green-400"
-                    : order.orderStatus === "DECLINED" && "text-red-400"
-                } ml-1`}
-              >
-                {order?.orderStatus}
-              </span>
+              <RenderStatus status={order.orderStatus} />
               <span className="flex text-nowrap ml-2">
                 <span className="pr-1">Likęs laikas:</span>
                 {

@@ -96,77 +96,70 @@ export default function OrdersTable({
       }
     });
 
-  if (!sortedOrderCards || sortedOrderCards.length === 0) {
-    return <span>No orders available</span>;
-  }
-
   const maxPageAmount = Math.ceil(sortedOrderCards.length / cardsPerPage);
   const currentCards = sortedOrderCards.slice(
     (currentPage - 1) * cardsPerPage,
     currentPage * cardsPerPage,
   );
 
+  if (imporantCardsAmount === 0 && important) {
+    return <span className="text-center">There are no important orders</span>;
+  }
   return (
-    <>
-      {imporantCardsAmount === 0 && important ? (
-        <span className="text-center">There are no important orders</span>
-      ) : (
-        <>
-          <div className="mb-5">
-            <OrderPageHeader
-              handleSearch={handleSearch}
-              searchQuery={searchQuery}
-              title={title}
-            />
-          </div>
-          <div className="overflow-x-auto shadow-md sm:rounded-lg">
-            <div className="table-container flex flex-col h-full overflow-auto bg-custom-200">
-              {filteredOrderCards.length > 0 ? (
-                <div className="table-wrapper flex flex-col h-full overflow-auto">
-                  <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
-                    <OrdersTableHeader
-                      handleSort={handleSort}
-                      sortOrder={sortOrder}
-                      sortColumn={sortColumn}
+    <div>
+      <div className="mb-5">
+        <OrderPageHeader
+          handleSearch={handleSearch}
+          searchQuery={searchQuery}
+          title={title}
+        />
+      </div>
+      {filteredOrderCards.length > 0 ? (
+        <div className="overflow-x-auto shadow-md sm:rounded-lg">
+          <div className="table-container flex flex-col h-full overflow-auto bg-custom-200">
+            <div className="table-wrapper flex flex-col h-full overflow-auto">
+              <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                <OrdersTableHeader
+                  handleSort={handleSort}
+                  sortOrder={sortOrder}
+                  sortColumn={sortColumn}
+                />
+                <tbody>
+                  {currentCards.map((order, index) => (
+                    <OrderTableRow
+                      key={index}
+                      order={order}
+                      createdBy={order["createdBy"]["userName"]}
                     />
-                    <tbody>
-                      {currentCards.map((order, index) => (
-                        <OrderTableRow
-                          key={index}
-                          order={order}
-                          createdBy={order["createdBy"]["userName"]}
-                        />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <span>No Results Found</span>
-              )}
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-          {maxPageAmount > 1 && (
-            <div className="page-buttons flex justify-center mt-6">
-              <ul className="flex list-none">
-                {Array.from({ length: maxPageAmount }).map((_, index) => (
-                  <li key={index} className="mx-1">
-                    <button
-                      className={`w-8 h-8 rounded ${
-                        currentPage === index + 1
-                          ? "bg-custom-850 text-white"
-                          : "bg-custom-800 text-white"
-                      }`}
-                      onClick={() => setCurrentPage(index + 1)}
-                    >
-                      {index + 1}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </>
+        </div>
+      ) : (
+        <span>No Results Found</span>
       )}
-    </>
+      {maxPageAmount > 1 && (
+        <div className="page-buttons flex justify-center mt-6">
+          <ul className="flex list-none">
+            {Array.from({ length: maxPageAmount }).map((_, index) => (
+              <li key={index} className="mx-1">
+                <button
+                  className={`w-8 h-8 rounded ${
+                    currentPage === index + 1
+                      ? "bg-custom-850 text-white"
+                      : "bg-custom-800 text-white"
+                  }`}
+                  onClick={() => setCurrentPage(index + 1)}
+                >
+                  {index + 1}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
