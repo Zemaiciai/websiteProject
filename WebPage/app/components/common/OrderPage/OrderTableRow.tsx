@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import OrderTimer from "./OrderTimer";
 import { User } from "~/models/user.server";
-import { Form, useNavigate } from "@remix-run/react";
-import { Order, OrderStatus } from "@prisma/client";
-import { useUser } from "~/utils";
+import { useNavigate } from "@remix-run/react";
+import { Order } from "@prisma/client";
 interface OrderCardProps {
   order: Order;
   createdBy: User["userName"];

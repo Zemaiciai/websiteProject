@@ -18,15 +18,15 @@ function OrderTableHeaderCell({
   return (
     <th scope="col" className="p-4">
       <span
-        className="cursor-pointer select-none flex "
+        className="cursor-pointer select-none flex text-center"
         onClick={() => handleSort(column)}
       >
         {title}
-        <div className="icon-wrapper flex flex-row items-center justify-center cursor-pointer ">
+        <div className="icon-wrapper relative cursor-pointer ">
           <Arrow
-            className={`h-3 w-3 absolute ${sortColumn !== column && "hidden"} ${
-              sortOrder === "asc" && "rotate-180"
-            }`}
+            className={`h-3 w-3 left-2 top-0.5 absolute ${
+              sortColumn !== column && "hidden"
+            } ${sortOrder === "asc" && "rotate-180"}`}
           />
         </div>
       </span>
