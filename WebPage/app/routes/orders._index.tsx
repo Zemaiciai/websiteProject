@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import { Link } from "@remix-run/react";
 import OrdersTable from "~/components/common/OrderPage/OrdersTable";
 import { isUserClient, requireUserId } from "~/session.server";
@@ -31,19 +30,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function OrdersPage() {
   const data = useTypedLoaderData<typeof loader>();
   const [worker, setWorker] = useState(false);
-
   const [searchQueries, setSearchQueries] = useState<{ [key: string]: string }>(
     {
       mainTable: "",
       importantTable: "",
     },
   );
+  const [activeTab, setActiveTab] = useState("allOrders");
 
   useEffect(() => {
     if (!data.isClient) {
       setWorker(true);
     }
-  });
+  }, []);
 
   const handleSearch = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -55,42 +54,75 @@ export default function OrdersPage() {
     });
   };
 
-  return (
-    <div className="flex h-full w-full p-4 space-x-4 bg-custom-200">
-      <div className="orders-table grow flex justify-center place-items-start">
-        <div className="w-full">
-          <OrdersTable
-            orderCards={data.orders}
-            handleSearch={(event) => handleSearch(event, "mainTable")}
-            searchQuery={searchQueries.mainTable}
-            title={`${worker ? "Darbų sąrašas" : "Jūsų užsakymų sąrašas"}`}
-          />
-        </div>
-      </div>
+  const handleTabClick = (tab: string) => {
+    setActiveTab(tab);
+  };
 
-      <div className="customer-and-orderer-options flex-grow flex justify-center place-items-start">
-        <div className="flex flex-col w-full">
-          <div
-            className={`flex button justify-center mb-4 ${worker && "hidden"}`}
-          >
+  return (
+    <>
+      <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
+        <ul className="flex flex-wrap -mb-px border-b border-gray-200">
+          <li className="me-2">
+            <button
+              className={`inline-block p-4  ${
+                activeTab === "allOrders"
+                  ? "border-custom-800 border-b-2 rounded-t-lg"
+                  : "hover:text-gray-600 hover:border-gray-300"
+              }`}
+              onClick={() => handleTabClick("allOrders")}
+            >
+              Visi užsakymai
+            </button>
+          </li>
+          <li className="me-2">
+            <button
+              className={`inline-block p-4  ${
+                activeTab === "importantOrders"
+                  ? "border-custom-800 border-b-2 rounded-t-lg"
+                  : "hover:text-gray-600 hover:border-gray-300"
+              }`}
+              onClick={() => handleTabClick("importantOrders")}
+            >
+              Svarbūs užsakymai
+            </button>
+          </li>
+        </ul>
+        {activeTab === "allOrders" && (
+          <>
+            <div className="flex justify-between pb-5"></div>
+            <OrdersTable
+              orderCards={data.orders}
+              handleSearch={(event) => handleSearch(event, "mainTable")}
+              searchQuery={searchQueries.mainTable}
+              title={`${worker ? "Darbų sąrašas" : "Jūsų užsakymų sąrašas"}`}
+            />
+          </>
+        )}
+        {activeTab === "importantOrders" && (
+          <>
+            <div className="flex justify-between pb-5"></div>
+            <OrdersTable
+              orderCards={data.orders}
+              handleSearch={(event) => handleSearch(event, "importantTable")}
+              searchQuery={searchQueries.importantTable}
+              important={true}
+              title={"Priminimų sąrašas"}
+            />
+          </>
+        )}
+      </div>
+      {data.isClient && (
+        <div className="p-6 bg-custom-200 text-medium mt-3 mr-3 ">
+          <div className="flex justify-center ">
             <Link
-              className="flex justify-center px-4 py-3 w-3/4 
-                  text-white bg-custom-900 hover:bg-custom-850 
-                  transition duration-300 ease-in-out rounded"
+              className="w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap"
               to={"new"}
             >
               Sukurti užsakymą
             </Link>
           </div>
-          <OrdersTable
-            orderCards={data.orders}
-            handleSearch={(event) => handleSearch(event, "importantTable")}
-            searchQuery={searchQueries.importantTable}
-            important={true}
-            title={"Priminimų sąrašas"}
-          />
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }

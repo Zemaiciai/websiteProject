@@ -16,17 +16,17 @@ function OrderTableHeaderCell({
   sortColumn,
 }: OrderTableHeaderCellProps) {
   return (
-    <th scope="col">
+    <th scope="col" className="p-4">
       <span
-        className="cursor-pointer select-none flex items-center justify-center"
+        className="cursor-pointer select-none flex text-center"
         onClick={() => handleSort(column)}
       >
         {title}
-        <div className="icon-wrapper flex flex-row items-center justify-center cursor-pointer pl-2">
+        <div className="icon-wrapper relative cursor-pointer ">
           <Arrow
-            className={`h-3 w-3 absolute ${sortColumn !== column && "hidden"} ${
-              sortOrder === "asc" && "rotate-180"
-            }`}
+            className={`h-3 w-3 left-2 top-0.5 absolute ${
+              sortColumn !== column && "hidden"
+            } ${sortOrder === "asc" && "rotate-180"}`}
           />
         </div>
       </span>
@@ -46,7 +46,7 @@ export default function OrderTableHeader({
   sortColumn,
 }: OrderTableHeaderProps) {
   return (
-    <thead className="table-header bg-white">
+    <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
       <tr>
         <OrderTableHeaderCell
           column="orderedBy"

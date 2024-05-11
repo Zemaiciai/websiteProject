@@ -35,50 +35,42 @@ export default function OrderCard({ createdBy, order }: OrderCardProps) {
   return (
     <tr
       onClick={handleNavigateToOrder}
-      className="cursor-pointer order-card-row bg-white outline outline-1 outline-gray-100"
+      className="bg-white border-b  hover:bg-gray-50 cursor-pointer "
     >
       {user.role === "Darbuotojas" ? (
         <>
-          <td className="order-name text-center max-w-[50px] truncate">
-            {createdBy}
-          </td>
-          <td className="order-name text-center max-w-[100px] truncate">
-            {order.orderName}
-          </td>
-          <td className="order-status text-center truncate">
-            {order.orderStatus}
-          </td>
+          <td className="px-6 py-4">{createdBy}</td>
+          <td className="px-6 py-4">{order.orderName}</td>
+          <td className="px-6 py-4">{order.orderStatus}</td>
           {order.orderStatus !== OrderStatus.PAYED &&
             order.orderStatus !== OrderStatus.COMPLETED && (
-              <td className="order-status text-center truncate">
+              <td className="px-6 py-4">
                 <OrderTimer orderEndDate={order.completionDate} />
               </td>
             )}
         </>
       ) : (
         <>
-          <td className="order-name text-center max-w-[100px] truncate">
-            {createdBy}
-          </td>
-          <td className="order-name text-center max-w-[100px] truncate">
-            {order.orderName}
-          </td>
+          <td className="px-6 py-4">{createdBy}</td>
+          <td className="px-6 py-4">{order.orderName}</td>
           <td
             className={`${
               order.orderStatus === OrderStatus.ACCEPTED && "text-lime-500"
             } 
             ${
               order.orderStatus === OrderStatus.DECLINED && "text-red-500"
-            } order-name text-center max-w-[100px] truncate`}
+            } px-6 py-4`}
           >
             {order.orderStatus}
           </td>
           {order.orderStatus !== OrderStatus.PAYED &&
-            order.orderStatus !== OrderStatus.COMPLETED && (
-              <td className="order-status text-center truncate">
-                <OrderTimer orderEndDate={order.completionDate} />
-              </td>
-            )}
+          order.orderStatus !== OrderStatus.COMPLETED ? (
+            <td className="px-6 py-4">
+              <OrderTimer orderEndDate={order.completionDate} />
+            </td>
+          ) : (
+            <td className="px-6 py-4"></td>
+          )}
         </>
       )}
     </tr>

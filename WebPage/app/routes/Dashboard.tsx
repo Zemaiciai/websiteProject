@@ -1,10 +1,12 @@
 import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import Message from "~/components/DashBoardCustomMessagesDesign/Message";
 import OrdersTableForDashboard from "~/components/common/OrderPage/OrdersTableForDashboard";
 
 import { getAllMessages } from "~/models/customMessage.server";
+import { getConversations } from "~/models/messages.server";
 import {
   calculateOrdersByUserID,
   getOrdersByUserId,
@@ -19,6 +21,21 @@ import { gettingAverageRating } from "~/models/userRatings.server";
 import { isUserClient, requireUser, requireUserId } from "~/session.server";
 export const meta: MetaFunction = () => [{ title: "Titulinis - Žemaičiai" }];
 
+interface Conversation {
+  id: string;
+  participants: Participant[];
+  updatedAt: Date;
+  // Add other properties as needed
+}
+
+interface Participant {
+  id: string;
+  name: string;
+  firstName: string; // Add firstName property
+  lastName: string; // Add lastName property
+  // Add other participant properties as needed
+}
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   const userOrders = await getOrdersByUserId(userId, true);
@@ -27,6 +44,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUserById(userId);
   const thirtyDaysRemaining = await checkingThirtyDaysLeft(userId);
 
+  const messagesList = await getConversations(userId);
+
   const percentageOfDoneWork = await calculateOrdersByUserID(userId);
   const tasksRemaining = await getTasksRemaining(userId);
   const userBalance = await getUserBalanceById(userId);
@@ -34,6 +53,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userAverageRating = await gettingAverageRating(userId);
 
   return typedjson({
+    userId: userId,
     orders: userOrders,
     isClient: isClient,
     customMessages: customMessages,
@@ -43,6 +63,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     userBalance: userBalance,
     user: user,
     userAverageRating: userAverageRating,
+    messagesList: messagesList,
   });
 };
 
@@ -127,6 +148,14 @@ const Dashboard = () => {
   const fullStars = Math.floor(Number(data.userAverageRating));
   const partialFillPercentage =
     (Number(data.userAverageRating) - fullStars) * 100;
+  const messagesList: Conversation[] =
+    useLoaderData<typeof loader>().messagesList;
+
+  messagesList.sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+  );
+
+  let filteredMessagesList = messagesList;
 
   return (
     <>
@@ -307,8 +336,75 @@ const Dashboard = () => {
             </div>
             <div className="pt-2 pl-3 pr-6 pb-6 mb-4">
               <h1 className="text-3xl font-mono font-extralight pb-3 pt-2">
-                Placeholder
+                Paskutinės penkios atnaujintos žinutės
               </h1>
+              {filteredMessagesList.length > 0 ? (
+                // Render the table if there are conversations
+                <div>
+                  <div className="flex justify-between pb-5"></div>
+                  <div className="overflow-x-auto shadow-md sm:rounded-lg">
+                    <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                      <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
+                        <tr>
+                          <th scope="col" className="p-4">
+                            Vartotojas
+                          </th>
+                          <th scope="col" className="p-4">
+                            Paskutinė žinutė
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* Map through conversations and render table rows */}
+                        {filteredMessagesList.map((conversation) => (
+                          <tr className="bg-white border-b ">
+                            <Link
+                              key={conversation.id}
+                              to={`/messages/${conversation.id}`}
+                              className="block"
+                            >
+                              <td className="px-6 py-4 cursor-pointer">
+                                {/* Display participant information excluding the current user */}
+                                {conversation.participants.map(
+                                  (participant) =>
+                                    participant.id !== data.userId && (
+                                      <div key={participant.id}>
+                                        <span>{participant.firstName}</span>{" "}
+                                        <span>{participant.lastName}</span>
+                                      </div>
+                                    ),
+                                )}
+                              </td>
+                            </Link>
+                            <td className="px-6 py-4">
+                              {conversation.updatedAt
+                                ? new Date(conversation.updatedAt)
+                                    .toLocaleDateString("en-CA", {
+                                      year: "numeric",
+                                      month: "2-digit",
+                                      day: "2-digit",
+                                    })
+                                    .replace(/\//g, "-") +
+                                  ", " +
+                                  new Date(
+                                    conversation.updatedAt,
+                                  ).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: false,
+                                  })
+                                : null}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                // Render a message if there are no conversations
+                <p className="mt-5">Nėra žinučių!</p>
+              )}
             </div>
           </div>
           {/* Sidebar */}

@@ -195,6 +195,15 @@ model GroupBalanceLog{
   balanceTo Decimal @db.Decimal(10,2)
 }
 
+model UserBalanceLog{
+  id String @id @default(cuid())
+  userId String
+  whoDidChanges String
+  description String
+  balanceFrom Decimal @db.Decimal(10,2)
+  balanceTo Decimal @db.Decimal(10,2)
+}
+
 
 
 model FriendshipRequest {
@@ -246,6 +255,8 @@ model Conversation {
   id               String            @id @default(cuid())
   participants     User[]            @relation("UserConversations")
   messages         Message[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Message {
@@ -258,6 +269,7 @@ model Message {
   conversationId   String
   recipient        User              @relation("Recipient", fields: [recipientId], references: [id])
   recipientId      String
+  createdAt     DateTime @default(now())
 }
 
 model FaqPage{
