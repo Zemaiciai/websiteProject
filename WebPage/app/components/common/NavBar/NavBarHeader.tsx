@@ -1,7 +1,7 @@
 import { Form, Link, useNavigate } from "@remix-run/react";
 import { useState, useEffect, useRef } from "react";
 
-import { useOptionalUser } from "~/utils";
+import { useOptionalUser, useUser } from "~/utils";
 import Notifications from "./Notifications";
 import { Notification, User } from "@prisma/client";
 import { useTypedLoaderData } from "remix-typedjson";
@@ -13,18 +13,20 @@ interface NavBarHeaderProps {
 
 export default function NavBarHeader({ title }: NavBarHeaderProps) {
   const { allUsers } = useTypedLoaderData<typeof loader>();
+  const currentUser = useOptionalUser();
   const [searchQueryAllUsers, setSearchQueryAllUsers] = useState("");
   let filteredUsers: User[] | undefined;
 
-  filteredUsers = allUsers?.filter((user) =>
-    user.userName.toLowerCase().includes(searchQueryAllUsers.toLowerCase()),
+  filteredUsers = allUsers?.filter(
+    (user) =>
+      user.userName.toLowerCase().includes(searchQueryAllUsers.toLowerCase()) &&
+      user.id !== currentUser?.id,
   );
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
 
-  const user = useOptionalUser();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => {
@@ -125,7 +127,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
               className="peer h-full w-full outline-none text-sm text-gray-700 pr-2"
               type="text"
               id="search"
-              autoComplete="false"
+              autoComplete="off"
               onClick={handeShowSearchResult}
               placeholder="Ieškoti vartotojo"
               value={searchQueryAllUsers}
@@ -137,7 +139,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
             filteredUsers.length > 0 &&
             showSearchResult ? (
               <ul className="absolute max-h-72 w-[15.375rem] right-4 top-7 bg-custom-200 drop-shadow-lg rounded p-4 overflow-auto">
-                {filteredUsers.map((user, index) => (
+                {filteredUsers.map((user, _) => (
                   <>
                     <li
                       onClick={() => handleUserNameClick(user.id)}
@@ -159,10 +161,13 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
             )}
           </div>
           <div className="flex items-center text-1xl text-bold font-bold">
-            <Link to={"/profile/" + user?.id} className="btn btn-primary">
+            <Link
+              to={"/profile/" + currentUser?.id}
+              className="btn btn-primary"
+            >
               <div style={{ display: "flex", alignItems: "center" }}>
                 <span style={{ marginRight: "0.5rem" }}>
-                  {user?.firstName + " " + user?.lastName}
+                  {currentUser?.firstName + " " + currentUser?.lastName}
                 </span>
                 <img
                   src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
@@ -199,7 +204,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
                   className="absolute right-0 top-4 bg-white divide-y divide-gray-100 border-custom-800 border rounded shadow"
                   style={{ transform: "translateY(8px)", minWidth: "10rem" }} // Set a minimum width for the dropdown
                 >
-                  <Form action={"/profile/" + user?.id} method="get">
+                  <Form action={"/profile/" + currentUser?.id} method="get">
                     <button
                       type="submit"
                       className="block w-full py-2 px-4 text-sm text-gray-800 hover:bg-gray-100 focus:outline-none"
@@ -207,7 +212,7 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
                       Profilis
                     </button>
                   </Form>
-                  {user?.role.toLocaleLowerCase() === "super admin" && (
+                  {currentUser?.role.toLocaleLowerCase() === "super admin" && (
                     <Form action={"/admin"} method="get">
                       <button
                         type="submit"

@@ -2,7 +2,7 @@ import { OrderStatus } from "@prisma/client";
 import { useEffect, useState } from "react";
 
 interface RenderStatusProps {
-  status: OrderStatus;
+  status: OrderStatus | undefined;
   box?: boolean;
 }
 
@@ -13,13 +13,13 @@ export default function RenderStatus({ status, box }: RenderStatusProps) {
 
   if (box) {
     orderStatusColorsDictionary = {
-      COMPLETED: "bg-green-400 text-white",
-      CANCELLED: "bg-red-400 text-white",
-      DECLINED: "bg-red-400 text-white",
-      IN_PROGRESS: "bg-green-400 text-white",
+      COMPLETED: "bg-red-400 text-red-900",
+      CANCELLED: "bg-red-800 text-red-100",
+      DECLINED: "bg-red-800 text-white",
+      IN_PROGRESS: "bg-green-400 text-green-900",
       PAYED: "bg-green-800 text-white",
-      PLACED: "bg-yellow-400 text-white",
-      ACCEPTED: "bg-green-300 text-white",
+      PLACED: "bg-yellow-400 text-yellow-900",
+      ACCEPTED: "bg-green-300 text-green-800",
     };
   } else if (!box) {
     orderStatusColorsDictionary = {
@@ -34,6 +34,11 @@ export default function RenderStatus({ status, box }: RenderStatusProps) {
   }
 
   useEffect(() => {
+    if (status === undefined) {
+      setStatusColor("OrderTableRow.tsx");
+      return;
+    }
+
     if (orderStatusColorsDictionary[status] === undefined) {
       setStatusColor("OrderTableRow.tsx");
       return;
@@ -45,7 +50,7 @@ export default function RenderStatus({ status, box }: RenderStatusProps) {
   return (
     <span
       className={`${statusColor} font-bold ${
-        box && "text-xs"
+        box && "text-[11px]"
       } rounded py-0.5 px-1`}
     >
       {status}

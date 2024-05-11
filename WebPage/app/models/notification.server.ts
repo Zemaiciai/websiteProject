@@ -95,3 +95,11 @@ export async function updateNotificationStatusToRead(
     });
   else return null;
 }
+
+export async function getOrderRelatedNotifications(userId: User["id"]) {
+  const allUserNotifications = await getUserNotifications(userId);
+
+  return allUserNotifications.filter((n) =>
+    n.notificationType.startsWith("ORDER"),
+  );
+}

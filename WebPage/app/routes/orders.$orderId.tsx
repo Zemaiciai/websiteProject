@@ -130,6 +130,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         newDescription,
         newFootageLink,
       );
+
+      await sendNotification(
+        worker!.id,
+        `Užsakymui ${currentOrder?.orderName} buvo atlikti pakeitimai`,
+        NotificationTypes.ORDER_UPDATED,
+        orderId,
+      );
+
       return typedjson({ errors: null }, { status: 200 });
     case "changeStatus":
       const state = formData.get("action");
@@ -349,29 +357,12 @@ export default function OrderDetailPage() {
             <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max">
               <Form method="put" onSubmit={showPopUp}>
                 <div
-                  className={`absolute left-[45%] -top-14 p-4 rounded bg-green-600 text-white ${
+                  className={`absolute left-[45%] -top-14 p-4 rounded bg-green-500 text-white ${
                     showMessage ? "animate-popup " : "-top-14"
                   }`}
                   onAnimationEnd={handlePopUpAnimationEnd}
                 >
-                  <div className="flex justify-center items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 cursor-pointer"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="white"
-                      onClick={showPopUp}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                    Užsakymas atnaujintas sėkmingai!
-                  </div>
+                  Užsakymas atnaujintas sėkmingai!
                 </div>
                 <div className="flex flex-wrap -mx-3">
                   <input name="orderId" value={order.id} readOnly hidden />
