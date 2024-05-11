@@ -11,7 +11,7 @@ export default function OrderTableHeader({
   title,
 }: OrderTableHeaderProps) {
   return (
-    <div className="order-table-header flex flex-row items-center justify-center w-full">
+    <div className="order-table-header flex flex-row items-center justify-center w-full ">
       <span className="text-nowrap select-none pr-4">{title}</span>
       <div className="order-table-options w-full">
         <div className="order-table-options-wrapper flex justify-between">

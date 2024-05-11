@@ -388,40 +388,44 @@ const GroupDetailPage = () => {
             </div>
             <div>
               <div className="flex justify-between pb-5"></div>
-              <div className="overflow-x-auto shadow-md sm:rounded-lg">
-                <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
-                    <tr>
-                      <th scope="col" className="p-4">
-                        Pervedimą atliko
-                      </th>
-                      <th scope="col" className="p-4">
-                        Balanso pokyčio aprašymas
-                      </th>
-                      <th scope="col" className="p-4">
-                        Balansas pasikeitė iš
-                      </th>
-                      <th scope="col" className="p-4">
-                        Balansas pasikeitė į
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {/* Map through all balance logs and render table rows */}
-                    {balanceLogs.map((log) => (
-                      <tr
-                        key={log.id}
-                        className="bg-white border-b  hover:bg-gray-50 "
-                      >
-                        <td className="px-6 py-4">{log.whoDidChanges}</td>
-                        <td className="px-6 py-4">{log.description}</td>
-                        <td className="px-6 py-4">{log.balanceFrom}</td>
-                        <td className="px-6 py-4">{log.balanceTo}</td>
+              {balanceLogs.length === 0 ? (
+                <h1 className=" text-xl">Pokyčiai nerasti!</h1>
+              ) : (
+                <div className="overflow-x-auto shadow-md sm:rounded-lg">
+                  <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
+                      <tr>
+                        <th scope="col" className="p-4">
+                          Pervedimą atliko
+                        </th>
+                        <th scope="col" className="p-4">
+                          Balanso pokyčio aprašymas
+                        </th>
+                        <th scope="col" className="p-4">
+                          Balansas pasikeitė iš
+                        </th>
+                        <th scope="col" className="p-4">
+                          Balansas pasikeitė į
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {/* Map through all balance logs and render table rows */}
+                      {balanceLogs.map((log) => (
+                        <tr
+                          key={log.id}
+                          className="bg-white border-b  hover:bg-gray-50 "
+                        >
+                          <td className="px-6 py-4">{log.whoDidChanges}</td>
+                          <td className="px-6 py-4">{log.description}</td>
+                          <td className="px-6 py-4">{log.balanceFrom}</td>
+                          <td className="px-6 py-4">{log.balanceTo}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </>
         ) : null}

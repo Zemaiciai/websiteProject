@@ -41,20 +41,22 @@ export default function OrdersTable({
       {imporantCardsAmount === 0 && important ? (
         <span className="text-center">There are no important orders</span>
       ) : (
-        <div className="table-container flex flex-col h-full overflow-auto bg-custom-200">
-          <div className="table-wrapper flex flex-col h-full overflow-auto">
-            <table className="table mt-4 outline outline-1 outline-gray-100 h-min w-full">
-              <OrdersTableHeaderForDashboard />
-              <tbody>
-                {recentOrders.map((order, index) => (
-                  <OrderTableRowForDashboard
-                    key={index}
-                    order={order}
-                    createdBy={order["createdBy"]["userName"]}
-                  />
-                ))}
-              </tbody>
-            </table>
+        <div className="overflow-x-auto shadow-md sm:rounded-lg">
+          <div className="table-container flex flex-col h-full overflow-auto bg-custom-200">
+            <div className="table-wrapper flex flex-col h-full overflow-auto">
+              <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                <OrdersTableHeaderForDashboard />
+                <tbody>
+                  {recentOrders.map((order, index) => (
+                    <OrderTableRowForDashboard
+                      key={index}
+                      order={order}
+                      createdBy={order["createdBy"]["userName"]}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
