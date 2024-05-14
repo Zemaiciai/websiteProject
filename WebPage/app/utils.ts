@@ -5,7 +5,7 @@ import {
   User,
   checkIfUserNameExists,
   getUserById,
-} from "~/models/user.server";
+} from "./models/user.server";
 import { Notification } from "~/models/notification.server";
 import { checkExpirationDateByEmail } from "./models/secretCode.server";
 import {

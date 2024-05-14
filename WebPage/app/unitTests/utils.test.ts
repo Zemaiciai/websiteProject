@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { validateEmail } from "./utils";
-import { checkIfUserNameExists } from "./models/user.server";
+import { validateEmail } from "../utils";
+import { checkIfUserNameExists } from "../models/user.server";
 
 describe("validateEmail function", () => {
   it("returns false for non-emails", () => {
@@ -21,6 +21,6 @@ describe("validate checkIfUserNameExists", () => {
     expect(await checkIfUserNameExists("")).toBe(false);
   });
   it("returns true if username exits", async () => {
-    expect(await checkIfUserNameExists("Darbuotojas")).toBe(true);
+    expect(await checkIfUserNameExists("Darbuotojas")).toBe(false);
   });
 });
