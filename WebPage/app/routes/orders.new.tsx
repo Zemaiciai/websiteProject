@@ -7,7 +7,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import OrderDatePicker from "~/components/common/OrderPage/OrderDatePicker";
 import OrderInput from "~/components/common/OrderPage/OrderInput";
 import { sendNotification } from "~/models/notification.server";
@@ -113,8 +113,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     NotificationTypes.ORDER_ASSIGNED,
     order.id,
   );
-
-  console.log(notification);
 
   return redirect("/orders");
 };

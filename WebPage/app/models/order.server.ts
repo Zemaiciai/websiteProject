@@ -5,10 +5,9 @@ import {
   type User,
 } from "@prisma/client";
 
-import { prisma } from "~/db.server";
+import { prisma } from "../db.server";
 import { getUserByEmail } from "./user.server";
 import { sendNotification } from "./notification.server";
-import OrdersTable from "~/components/common/OrderPage/OrdersTable";
 
 export type { Order } from "@prisma/client";
 

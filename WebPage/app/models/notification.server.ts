@@ -1,6 +1,6 @@
 import { User, NotificationTypes } from "@prisma/client";
 
-import { prisma } from "~/db.server";
+import { prisma } from "../db.server";
 import { getUserById } from "./user.server";
 import { Notification } from "@prisma/client";
 
