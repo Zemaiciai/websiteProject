@@ -74,6 +74,8 @@ export async function createUser(
       percentage: userSecretCode.percentage,
       warningAmount: "0",
       balance: 0,
+      rating: 0,
+      ratingAmount: 0,
       userStatus: "Aktyvi",
       password: {
         create: {

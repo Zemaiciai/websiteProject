@@ -1,8 +1,12 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
-
-import { verifyLogin, User, checkIfUserNameExists } from "./models/user.server";
-import { Notification } from "./models/notification.server";
+import {
+  verifyLogin,
+  User,
+  checkIfUserNameExists,
+  getUserById,
+} from "~/models/user.server";
+import { Notification } from "~/models/notification.server";
 import { checkExpirationDateByEmail } from "./models/secretCode.server";
 import {
   getCustomMessagesByMessage,
@@ -11,6 +15,8 @@ import {
 import { aD } from "vitest/dist/reporters-P7C2ytIv";
 import { checkUserAdsLimit } from "./models/workerAds.server";
 import { prisma } from "./db.server";
+import { OrderStatus } from "@prisma/client";
+import OrdersTable from "./components/common/OrderPage/OrdersTable";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -223,6 +229,8 @@ export async function validateOrderData(
   orderName: unknown,
   completionDate: unknown,
   workerEmail: unknown,
+  currentWorkerId: unknown,
+  currentOrderStatus: unknown,
   description: unknown,
   footageLink: unknown,
 ): Promise<OrderErrors | null> {
@@ -241,8 +249,19 @@ export async function validateOrderData(
 
   if (typeof workerEmail === "string" && workerEmail.length <= 0) {
     errors.workerEmail = "Darbuotojo el. paštas privalomas";
-  } else if (!validateEmail(workerEmail))
+  } else if (!validateEmail(workerEmail)) {
     errors.workerEmail = "Neteisingas darbuotojo el. paštas";
+  } else if (
+    currentOrderStatus === OrderStatus.ACCEPTED ||
+    currentOrderStatus === OrderStatus.COMPLETED ||
+    currentOrderStatus === OrderStatus.PAYED
+  ) {
+    const user = await getUserById(String(currentWorkerId));
+    if (user?.email !== workerEmail) {
+      errors.workerEmail =
+        "Darbuotojas jau priėmė užsakymą todėl jo keisti negalite";
+    }
+  }
 
   if (typeof description !== "string")
     errors.description = "Aprašymo tipas neteisingas";

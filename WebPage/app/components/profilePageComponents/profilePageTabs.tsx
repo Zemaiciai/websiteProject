@@ -1,14 +1,9 @@
-import { json } from "@remix-run/node";
 import { useState } from "react";
-
-import { requireUser } from "~/session.server";
-
-import ProfilePageSocialMedia from "./profilePageSocialMedia";
 import ProfilePageTabsSkills from "./profilePageTabsSkills";
 import ProfileSettings from "./profileSettings";
 import { useUser } from "~/utils";
 import { Form } from "@remix-run/react";
-import { User, socialMedia, workExamples } from "@prisma/client";
+import { User, UserRatings, socialMedia, workExamples } from "@prisma/client";
 import YouTube from "react-youtube";
 interface Errors {
   fbLinkError?: string;
@@ -25,12 +20,23 @@ type JsonifyObject<T> = {
     ? JsonifyObject<T[K]> | null
     : T[K] | null;
 };
+
+interface UserRating {
+  id: string;
+  userid: string;
+  whoLeftRatingUserName: string;
+  orderNameForWhichReviewLeft: string;
+  givenRating: number;
+  description: string;
+}
+
 interface UserInfoProps {
   user: User | null;
   errorData: JsonifyObject<Errors> | null | undefined;
   workExample: workExamples | null | undefined;
   socialMediaLinks: socialMedia | null;
   orderCount: number;
+  Reviews: UserRating[] | null | undefined;
 }
 
 function ProfilePageTabs({
@@ -39,6 +45,7 @@ function ProfilePageTabs({
   workExample,
   socialMediaLinks,
   orderCount,
+  Reviews,
 }: UserInfoProps) {
   const [activeTab, setActiveTab] = useState("statistics");
   const [edit, setEdit] = useState(false);
@@ -103,6 +110,16 @@ function ProfilePageTabs({
     setVideo5(workExample?.examples[4]);
   };
 
+  let average = Number(user?.rating) / Number(user?.ratingAmount);
+  if (Number(user?.rating) > 0 && Number(user?.ratingAmount) > 0) {
+    average.toFixed(2);
+  } else {
+    average = 0;
+  }
+
+  const fullStars = Math.floor(Number(average));
+  const partialFillPercentage = (Number(average) - fullStars) * 100;
+
   return (
     <div className="text-sm font-medium text-center text-gray-500 mt-6 pl-24">
       <ul className="flex flex-wrap -mb-px border-b border-gray-200">
@@ -128,6 +145,18 @@ function ProfilePageTabs({
             onClick={() => handleTabClick("skills")}
           >
             Įgudžiai
+          </button>
+        </li>
+        <li className="me-2">
+          <button
+            className={`inline-block p-4  ${
+              activeTab === "rating"
+                ? "border-custom-800 border-b-2 rounded-t-lg"
+                : "hover:text-gray-600 hover:border-gray-300"
+            }`}
+            onClick={() => handleTabClick("rating")}
+          >
+            Atsiliepimai
           </button>
         </li>
         {isUserWorker() && (
@@ -179,55 +208,42 @@ function ProfilePageTabs({
                 </svg>
               </div>
               <div className="ml-4">
-                <div className="stat-title font-bold">Reitingas</div>
+                <div className="stat-title font-bold">Jūsų reitingas</div>
                 <div className="stat-value text-secondary flex">
-                  <svg
-                    className="w-4 h-4 text-custom-800 me-1"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    viewBox="0 0 22 20"
-                  >
-                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                  </svg>
-                  <svg
-                    className="w-4 h-4 text-custom-800 me-1"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    viewBox="0 0 22 20"
-                  >
-                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                  </svg>
-                  <svg
-                    className="w-4 h-4 text-custom-800 me-1"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    viewBox="0 0 22 20"
-                  >
-                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                  </svg>
-                  <svg
-                    className="w-4 h-4 text-custom-800 me-1"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    viewBox="0 0 22 20"
-                  >
-                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                  </svg>
-                  <svg
-                    className="w-4 h-4 text-gray-300 me-1"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    viewBox="0 0 22 20"
-                  >
-                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                  </svg>
+                  {[...Array(fullStars)].map((_, index) => (
+                    <svg
+                      key={index}
+                      className="w-4 h-4 text-custom-800 me-1"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                      viewBox="0 0 22 20"
+                    >
+                      <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                    </svg>
+                  ))}
+                  {partialFillPercentage > 0 && (
+                    <svg
+                      className="w-4 h-4 text-custom-800 me-1"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                      viewBox="0 0 22 20"
+                    >
+                      <path
+                        d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"
+                        style={{
+                          clipPath: `inset(0 ${
+                            100 - partialFillPercentage
+                          }% 0 0)`,
+                        }}
+                      />
+                    </svg>
+                  )}
                 </div>
-                <div className="stat-desc">148 atsiliepimai</div>
+                <div className="stat-desc">
+                  {user?.ratingAmount} atsiliepimai
+                </div>
               </div>
             </div>
 
@@ -261,6 +277,51 @@ function ProfilePageTabs({
               errorData={errorData}
               socialMediaLinks={socialMediaLinks}
             />
+          </>
+        ) : null}
+        {activeTab === "rating" ? (
+          <>
+            {Reviews && Reviews.length === 0 ? (
+              <p className="mt-5">Šis profilis neturi paliktų atsiliepimų!</p>
+            ) : (
+              <div>
+                <div className="overflow-x-auto shadow-md sm:rounded-lg">
+                  <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
+                      <tr>
+                        <th scope="col" className="p-4">
+                          Atsiliepimą paliko
+                        </th>
+                        <th scope="col" className="p-4">
+                          Komentaras
+                        </th>
+                        <th scope="col" className="p-4">
+                          Įvertinimas
+                        </th>
+                        <th scope="col" className="p-4">
+                          Užsakymo pavadinimas
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* Map through Reviews and render table rows */}
+                      {Reviews?.map((review) => (
+                        <tr key={review.id} className="bg-white border-b ">
+                          <td className="px-6 py-4 ">
+                            {review.whoLeftRatingUserName}
+                          </td>
+                          <td className="px-6 py-4">{review.description}</td>
+                          <td className="px-6 py-4">{review.givenRating}</td>
+                          <td className="px-6 py-4">
+                            {review.orderNameForWhichReviewLeft}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </>
         ) : null}
         {activeTab === "example" ? (

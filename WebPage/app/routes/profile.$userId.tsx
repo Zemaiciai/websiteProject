@@ -34,6 +34,7 @@ import {
 } from "~/models/workExamples.server";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import { getOrdersByUserId } from "~/models/order.server";
+import { gettingReviewList } from "~/models/userRatings.server";
 export const meta: MetaFunction = () => [
   { title: "Profilio peržiūra - Žemaičiai" },
 ];
@@ -68,6 +69,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const socialMediaLinks = await getSocialMediaByUserId(userProfileId);
 
+  let listOfReviews = await gettingReviewList(userProfileId);
+  listOfReviews.reverse(); // So the newest ones would be on top
+
   return typedjson({
     user: await getUserById(userProfileId),
     requesteerStatus: checkPendingStatusRequesteer,
@@ -76,6 +80,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     socialMediaLinks: socialMediaLinks,
     workExamples: await getUserWorkExamples(userProfileId),
     ordersCount: ordersCount,
+    listOfReviews: listOfReviews,
   });
 };
 interface Errors {
@@ -206,8 +211,8 @@ export default function NoteDetailsPage() {
   const data = useTypedLoaderData<typeof loader>();
   const errorData = useActionData<Errors>();
   return (
-    <div className="main-div">
-      <div className="profilePageDiv">
+    <div className="main-div mb-3">
+      <div className="profilePageDiv bg-white">
         <ProfileCard
           user={data.user}
           checkPendingStatusRequesteer={data.requesteerStatus}
@@ -221,6 +226,7 @@ export default function NoteDetailsPage() {
           workExample={data.workExamples}
           socialMediaLinks={data.socialMediaLinks}
           orderCount={data.ordersCount}
+          Reviews={data.listOfReviews}
         />
       </div>
     </div>
