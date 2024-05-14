@@ -44,7 +44,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const createdBy = await getUserById(userId);
 
   const formData = await request.formData();
-  const orderName = String(formData.get("orderName"));
+  const orderName = String(formData.get("orderName")).trim();
   const workerEmail = String(formData.get("workerEmail"));
 
   const completionDateString = formData.get("completionDate") as string;

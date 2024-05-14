@@ -1,4 +1,4 @@
-import { prisma } from "~/db.server";
+import { prisma } from "../db.server";
 import { inviteCodeLog } from "./adminLogs.server";
 
 const generateRandomSecretCode = (length: number) => {

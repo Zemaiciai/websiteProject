@@ -7,6 +7,16 @@ export default {
   ],
   theme: {
     extend: {
+      keyframes: {
+        popup: {
+          "0%, 100%": { transform: "translateY(0%)" },
+          "25%": { transform: "translateY(125%)" },
+          "50%": { transform: "translateY(125%)" },
+        },
+      },
+      animation: {
+        popup: "popup 2s forwards",
+      },
       backgroundImage: {
         "purple-background": "url('app/public/images/purple-background.png')",
         "white-background": "url('app/public/images/white-background.png')",

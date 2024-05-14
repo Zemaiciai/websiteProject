@@ -64,8 +64,9 @@ const OrderDatePicker = ({
           <label>
             <select
               onChange={(e) => handleDateChange(e, "year", name)}
-              className="cursor-pointer focus:outline-none rounded border border-gray-500 px-1 text-lg focus:outline-none"
+              className="cursor-pointer rounded border border-gray-500 px-1 text-lg focus:outline-none"
               defaultValue={defaultDate?.getFullYear()}
+              name="year"
             >
               <option value="" disabled selected hidden>
                 YYYY
@@ -84,8 +85,9 @@ const OrderDatePicker = ({
           <label>
             <select
               onChange={(e) => handleDateChange(e, "month", name)}
-              className="cursor-pointer focus:outline-none  rounded border border-gray-500 px-1 text-lg focus:outline-none"
+              className="cursor-pointer  rounded border border-gray-500 px-1 text-lg focus:outline-none"
               defaultValue={defaultDate?.getMonth()}
+              name="month"
             >
               <option defaultValue="" disabled selected hidden>
                 MM
@@ -101,8 +103,9 @@ const OrderDatePicker = ({
           <label>
             <select
               onChange={(e) => handleDateChange(e, "day", name)}
-              className="cursor-pointer focus:outline-none w-14 rounded border border-gray-500 px-1 text-lg focus:outline-none"
+              className="cursor-pointer w-14 rounded border border-gray-500 px-1 text-lg focus:outline-none"
               defaultValue={defaultDate?.getDate()}
+              name="day"
             >
               <option value="" disabled selected hidden>
                 DD
@@ -116,11 +119,12 @@ const OrderDatePicker = ({
           </label>
         </div>
         <div className="flex pl-4">
-          <label className="flex w-full rounded border border-gray-500 px-1 text-lg focus:outline-none placeholder-black">
+          <label className="flex w-full rounded border border-gray-500 px-1 text-lg placeholder-black">
             <select
               onChange={(e) => handleDateChange(e, "hour", name)}
               className="cursor-pointer focus:outline-none"
               defaultValue={defaultDate?.getHours()}
+              name="hours"
             >
               <option value="" disabled selected hidden>
                 Valandos

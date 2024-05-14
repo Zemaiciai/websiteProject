@@ -36,9 +36,6 @@ export default function OrderInput({
         <div className="relative h-full">
           {bigger ? (
             <div className="flex flex-col h-full text-right">
-              <span className={`${500 - currentLenght < 0 && "text-red-500"}`}>
-                {500 - currentLenght}
-              </span>
               <textarea
                 name={name}
                 onChange={(e) => handleChange(e)}
@@ -46,6 +43,9 @@ export default function OrderInput({
                 className="w-full h-full resize-none rounded border border-gray-500 px-2 py-1 text-lg focus:outline-none placeholder-black "
                 defaultValue={defaultValue}
               />
+              <span className={`${500 - currentLenght < 0 && "text-red-500"}`}>
+                {500 - currentLenght}
+              </span>
             </div>
           ) : (
             <input

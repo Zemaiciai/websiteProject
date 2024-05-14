@@ -1,4 +1,4 @@
-import { prisma } from "~/db.server";
+import { prisma } from "../db.server";
 import { createCustomMessageLog } from "./adminLogs.server";
 
 export async function createMessage(

@@ -1,9 +1,6 @@
-import { getSocialMediaByUserId } from "~/models/socialMedia.server";
 import FacebookImage from "./socialMediaImages/facebook";
 import InstagramImage from "./socialMediaImages/instagram";
 import XImage from "./socialMediaImages/x";
-import { useEffect, useState } from "react";
-import { User, getUserById } from "~/models/user.server";
 import { socialMedia } from "@prisma/client";
 
 interface UserInfoProps {

@@ -26,6 +26,10 @@ export default function OrderTimer({
     if (time.endInMs <= 999 && handleOrderEnd) handleOrderEnd();
   }, [time.days, time.hours, time.minutes, time.endInMs, handleOrderEnd]);
 
+  if (orderEndDate <= new Date()) {
+    return <span className="font-bold">BAIGĖSI</span>;
+  }
+
   return (
     <div className="text-nowrap w-full">
       {time.days >= 3 ? (

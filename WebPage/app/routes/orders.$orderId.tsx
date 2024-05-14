@@ -5,7 +5,6 @@ import {
 } from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import {
   redirect,
   typedjson,
@@ -19,16 +18,17 @@ import {
   updateOrderStatus,
 } from "~/models/order.server";
 import { User, getUserByEmail, getUserById } from "~/models/user.server";
-import { isUserClient, requireUser, requireUserId } from "~/session.server";
+import { isUserClient, requireUser } from "~/session.server";
 import OrderDatePicker from "~/components/common/OrderPage/OrderDatePicker";
 import OrderInput from "~/components/common/OrderPage/OrderInput";
-import { useUser, validateOrderData } from "~/utils";
+import { validateOrderData } from "~/utils";
 import { OrderErrors } from "./orders.new";
 import {
   NotificationTypes,
   sendNotification,
 } from "~/models/notification.server";
 import { OrderStatus } from "@prisma/client";
+import RenderStatus from "~/components/common/OrderPage/OrderStatus";
 export { OrderStatus } from "@prisma/client";
 
 export const meta: MetaFunction = () => [
@@ -71,7 +71,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     case "update":
       const currentOrder = await getOrderById(orderId);
 
-      const newOrderName = String(formData.get("orderName"));
+      const newOrderName = String(formData.get("orderName")).trim();
       const newWorkerEmail = String(formData.get("workerEmail"));
       const newCompletionDateString = formData.get("completionDate") as string;
       const newCompletionDate = new Date(newCompletionDateString);
@@ -132,7 +132,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         newDescription,
         newFootageLink,
       );
-      break;
+
+      await sendNotification(
+        worker!.id,
+        `Užsakymui ${currentOrder?.orderName} buvo atlikti pakeitimai`,
+        NotificationTypes.ORDER_UPDATED,
+        orderId,
+      );
+
+      return typedjson({ errors: null }, { status: 200 });
     case "changeStatus":
       const state = formData.get("action");
       const order = await getOrderById(orderId, true);
@@ -226,9 +234,8 @@ export default function OrderDetailPage() {
   };
   const [canPay, setCanPay] = useState(false);
   const [ended, setEnded] = useState(false);
-
+  const [showMessage, setShowMessage] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-
   const [selectedDay, setSelectedDay] = useState<string>("0");
 
   const handleDateChange = (
@@ -289,6 +296,23 @@ export default function OrderDetailPage() {
     setEnded(true);
   };
 
+  useEffect(() => {
+    if (actionData) {
+      showPopUp();
+    }
+  }, [actionData]);
+
+  const showPopUp = () => {
+    setShowMessage(false);
+
+    if (actionData?.errors === null || actionData?.errors === undefined) {
+      setShowMessage(true);
+    }
+  };
+  const handlePopUpAnimationEnd = () => {
+    setShowMessage(false);
+  };
+
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mr-1 w-full md:w-[calc(100% - 360px)]">
@@ -299,23 +323,13 @@ export default function OrderDetailPage() {
             </h1>
             <div className="flex ml-2 justify-center items-center">
               Statusas:
-              <span
-                className={`${
-                  order?.orderStatus === "ACCEPTED"
-                    ? "text-green-400"
-                    : order.orderStatus === "DECLINED" && "text-red-400"
-                } ml-1`}
-              >
-                {order?.orderStatus}
-              </span>
+              <RenderStatus status={order.orderStatus} />
               <span className="flex text-nowrap ml-2">
                 <span className="pr-1">Likęs laikas:</span>
-                {
-                  <OrderTimer
-                    orderEndDate={order.completionDate}
-                    handleOrderEnd={handleOrderEnd}
-                  />
-                }
+                <OrderTimer
+                  orderEndDate={order.completionDate}
+                  handleOrderEnd={handleOrderEnd}
+                />
               </span>
             </div>
           </div>
@@ -343,7 +357,15 @@ export default function OrderDetailPage() {
         {activeTabUsers === "updateOrder" && (
           <div className="flex w-full grow space-x-10">
             <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max">
-              <Form method="put">
+              <Form method="put" onSubmit={showPopUp}>
+                <div
+                  className={`absolute left-[45%] -top-14 p-4 rounded bg-green-500 text-white ${
+                    showMessage ? "animate-popup " : "-top-14"
+                  }`}
+                  onAnimationEnd={handlePopUpAnimationEnd}
+                >
+                  Užsakymas sėkmingai atnaujintas!
+                </div>
                 <div className="flex flex-wrap -mx-3">
                   <input name="orderId" value={order.id} readOnly hidden />
                   <input type="hidden" name="intent" value="update" readOnly />

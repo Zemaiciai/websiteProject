@@ -1,6 +1,5 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
-
 import {
   verifyLogin,
   User,
@@ -273,7 +272,7 @@ export async function validateOrderData(
   else if (!validateUrl(footageLink))
     errors.footageLink = "Nuorodos formatas neteisingas";
 
-  if (typeof orderName !== "string" || orderName.length <= 0)
+  if (typeof orderName !== "string" || orderName.trim().length <= 0)
     errors.orderName = "Užsakymo pavadinimas privalomas";
 
   if (Object.keys(errors).length > 0) {
