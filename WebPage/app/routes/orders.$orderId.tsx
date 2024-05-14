@@ -71,7 +71,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     case "update":
       const currentOrder = await getOrderById(orderId);
 
-      const newOrderName = String(formData.get("orderName"));
+      const newOrderName = String(formData.get("orderName")).trim();
       const newWorkerEmail = String(formData.get("workerEmail"));
       const newCompletionDateString = formData.get("completionDate") as string;
       const newCompletionDate = new Date(newCompletionDateString);
@@ -362,7 +362,7 @@ export default function OrderDetailPage() {
                   }`}
                   onAnimationEnd={handlePopUpAnimationEnd}
                 >
-                  Užsakymas atnaujintas sėkmingai!
+                  Užsakymas sėkmingai atnaujintas!
                 </div>
                 <div className="flex flex-wrap -mx-3">
                   <input name="orderId" value={order.id} readOnly hidden />

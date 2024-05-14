@@ -37,13 +37,13 @@ export function RenderNotifications(
 
   const notificationsColorsDictionary = {
     ORDER_COMPLETED: "bg-red-400 text-red-800",
-    CANCELLED: "bg-red-800 hover:bg-red-600 text-red-100",
-    ORDER_DECLINED: "bg-red-800 hover:bg-red-600 text-red-100",
-    ORDER_IN_PROGRESS: "bg-green-400 hover:bg-green-300 text-black",
-    ORDER_PAYED: "bg-green-800 hover:bg-green-600 text-green-100",
-    ORDER_ASSIGNED: "bg-yellow-400 hover:bg-yellow-300 text-yellow-800",
-    ORDER_ACCEPTED: "bg-green-300 hover:bg-green-200 text-green-800",
-    ORDER_UPDATED: "bg-yellow-200 hover:bg-yellow-100 text-yellow-800",
+    CANCELLED: "bg-red-800 text-red-100",
+    ORDER_DECLINED: "bg-red-800 text-red-100",
+    ORDER_IN_PROGRESS: "bg-green-400 text-black",
+    ORDER_PAYED: "bg-green-800 text-green-100",
+    ORDER_ASSIGNED: "bg-yellow-400 text-yellow-800",
+    ORDER_ACCEPTED: "bg-green-300 text-green-800",
+    ORDER_UPDATED: "bg-yellow-200 text-yellow-800",
   };
 
   const notificationsTextDictionary = {
@@ -96,7 +96,7 @@ export function RenderNotifications(
           <span
             className={`${getNotificationsColor(
               n.notificationType,
-            )} font-bold text-xs absolute -right-3 top-5 rounded py-0.5 px-1`}
+            )} font-bold text-xs absolute -right-4 top-5 rounded py-0.5 px-1`}
           >
             {getNotificationsText(n.notificationType)}
           </span>
@@ -127,9 +127,17 @@ export function RenderNotifications(
           readOnly
         />
         <div
-          className={`${n.isSeen && "opacity-50"} hover:opacity-100 text-wrap`}
+          className={`${n.isSeen && "opacity-50"} ${
+            forOrderPage && "group"
+          } hover:opacity-100 text-wrap`}
         >
-          <span className="truncate font-bold text-wrap">{n.message}</span>
+          <span
+            className={`truncate font-bold text-wrap ${
+              forOrderPage && "group-hover:underline"
+            }`}
+          >
+            {n.message}
+          </span>
           <span className="text-[#626f86] text-black font-normal text-nowrap text-sm pl-1">
             {useHowLongAgo(new Date(n.createdAt))}
           </span>

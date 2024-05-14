@@ -1,15 +1,11 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "@remix-run/react";
+import { Suspense, useEffect, useState } from "react";
+import { Await, Link, useLocation } from "@remix-run/react";
 import OrdersTable from "~/components/common/OrderPage/OrdersTable";
 import { isUserClient, requireUserId } from "~/session.server";
 import { getOrdersByUserId } from "~/models/order.server";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import {
-  NotificationTypes,
-  getOrderRelatedNotifications,
-} from "~/models/notification.server";
-import { Notification } from "@prisma/client";
+import { getOrderRelatedNotifications } from "~/models/notification.server";
 import { RenderNotifications } from "~/components/common/NavBar/Notifications";
 
 export const meta: MetaFunction = () => [{ title: "Užsakymai - Žemaičiai" }];
@@ -17,17 +13,22 @@ export const meta: MetaFunction = () => [{ title: "Užsakymai - Žemaičiai" }];
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
 
-  console.log(await getOrderRelatedNotifications(userId));
+  const [orders, isClient, orderRelatedNotifications] = await Promise.all([
+    await getOrdersByUserId(userId, true),
+    await isUserClient(request),
+    await getOrderRelatedNotifications(userId),
+  ]);
 
   return typedjson({
-    orders: await getOrdersByUserId(userId, true),
-    isClient: await isUserClient(request),
-    orderRelatedNotifications: await getOrderRelatedNotifications(userId),
+    orders,
+    isClient,
+    orderRelatedNotifications,
   });
 };
 
 export default function OrdersPage() {
-  const data = useTypedLoaderData<typeof loader>();
+  const { orders, isClient, orderRelatedNotifications } =
+    useTypedLoaderData<typeof loader>();
   const [worker, setWorker] = useState(false);
   const [searchQueries, setSearchQueries] = useState<{ [key: string]: string }>(
     {
@@ -38,10 +39,10 @@ export default function OrdersPage() {
   const [activeTab, setActiveTab] = useState("allOrders");
 
   useEffect(() => {
-    if (!data.isClient) {
+    if (!isClient) {
       setWorker(true);
     }
-  }, []);
+  });
 
   const handleSearch = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -101,19 +102,27 @@ export default function OrdersPage() {
         {activeTab === "allOrders" && (
           <>
             <div className="flex justify-between pb-5"></div>
-            <OrdersTable
-              orderCards={data.orders}
-              handleSearch={(event) => handleSearch(event, "mainTable")}
-              searchQuery={searchQueries.mainTable}
-              title={`${worker ? "Darbų sąrašas" : "Jūsų užsakymų sąrašas"}`}
-            />
+            <Suspense>
+              <Await resolve={orders}>
+                {(orders) => (
+                  <OrdersTable
+                    orderCards={orders}
+                    handleSearch={(event) => handleSearch(event, "mainTable")}
+                    searchQuery={searchQueries.mainTable}
+                    title={`${
+                      worker ? "Darbų sąrašas" : "Jūsų užsakymų sąrašas"
+                    }`}
+                  />
+                )}
+              </Await>
+            </Suspense>
           </>
         )}
         {activeTab === "importantOrders" && (
           <>
             <div className="flex justify-between pb-5"></div>
             <OrdersTable
-              orderCards={data.orders}
+              orderCards={orders}
               handleSearch={(event) => handleSearch(event, "importantTable")}
               searchQuery={searchQueries.importantTable}
               important={true}
@@ -125,7 +134,7 @@ export default function OrdersPage() {
           <>
             <div className="flex justify-between pb-5"></div>
             <OrdersTable
-              orderCards={data.orders}
+              orderCards={orders}
               handleSearch={(event) => handleSearch(event, "importantTable")}
               searchQuery={searchQueries.importantTable}
               activeOnly={true}
@@ -137,7 +146,7 @@ export default function OrdersPage() {
 
       <div className="p-6 bg-custom-200 text-medium mt-3 mr-3 w-[40%]">
         <div className="flex flex-col justify-center ">
-          {data.isClient && (
+          {isClient && (
             <>
               <Link
                 className="w-full text-center h-min cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap"
@@ -152,15 +161,14 @@ export default function OrdersPage() {
             <span className="w-full font-bold py-2 px-8  text-nowrap text-center">
               Neperskaityti pranešimai
             </span>
-            {data.orderRelatedNotifications.filter((n) => !n.isSeen).length <=
-            0 ? (
+            {orderRelatedNotifications.filter((n) => !n.isSeen).length <= 0 ? (
               <span className="w-full text-center">
                 Visi pranešimai perskaityti
               </span>
             ) : (
               <ul className="flex flex-col space-y-2">
                 {RenderNotifications(
-                  data.orderRelatedNotifications.filter((n) => !n.isSeen),
+                  orderRelatedNotifications.filter((n) => !n.isSeen),
                   true,
                 )}
               </ul>

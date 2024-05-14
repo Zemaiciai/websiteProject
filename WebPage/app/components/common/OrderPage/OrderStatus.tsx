@@ -7,9 +7,17 @@ interface RenderStatusProps {
 }
 
 export default function RenderStatus({ status, box }: RenderStatusProps) {
-  const [statusColor, setStatusColor] = useState("");
-
   let orderStatusColorsDictionary: { [key: string]: string };
+
+  const orderStatusTextDictionary = {
+    COMPLETED: "BAIGTAS",
+    CANCELLED: "ATŠAUKTAS",
+    DECLINED: "ATMESTAS",
+    IN_PROGRESS: "VYKDOMAS",
+    PAYED: "SUMOKĖTA",
+    PLACED: "PRISKIRTAS",
+    ACCEPTED: "PRIIMTAS",
+  };
 
   if (box) {
     orderStatusColorsDictionary = {
@@ -33,27 +41,25 @@ export default function RenderStatus({ status, box }: RenderStatusProps) {
     };
   }
 
-  useEffect(() => {
-    if (status === undefined) {
-      setStatusColor("OrderTableRow.tsx");
-      return;
-    }
+  const getStatusColor = (orderStatus: string | undefined) => {
+    if (orderStatus === undefined) return "";
 
-    if (orderStatusColorsDictionary[status] === undefined) {
-      setStatusColor("OrderTableRow.tsx");
-      return;
-    }
+    return orderStatusColorsDictionary[orderStatus];
+  };
 
-    setStatusColor(orderStatusColorsDictionary[status]);
-  }, [status]);
+  const getStatusText = (orderStatus: string | undefined) => {
+    if (orderStatus === undefined) return "";
+
+    return orderStatusTextDictionary[orderStatus];
+  };
 
   return (
     <span
-      className={`${statusColor} font-bold ${
-        box && "text-[11px]"
-      } rounded py-0.5 px-1`}
+      className={`${getStatusColor(status)} font-bold ${
+        box ? "text-[11px] py-0.5 px-1 rounded" : "ml-1"
+      } `}
     >
-      {status}
+      {getStatusText(status)}
     </span>
   );
 }
