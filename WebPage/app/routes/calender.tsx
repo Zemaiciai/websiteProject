@@ -182,7 +182,17 @@ function Calendar() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-custom-100 overflow-auto pb-3">
+  <div className="flex">
+    <div
+      className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 flex-grow md:w-[calc(100% - 360px)]"
+    >
+      <ul className="flex flex-wrap -mb-px border-b border-gray-200">
+        <li className="me-2">
+          <button className="inline-block p-4 border-custom-800 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300">
+            Kalendorius
+          </button>
+        </li>
+      </ul>
       <div className="flex justify-center mt-3">
         <div className="calendar">
           <div className="calendar-header">
@@ -191,8 +201,8 @@ function Calendar() {
                 setSelectedDate(
                   new Date(
                     selectedDate.getFullYear(),
-                    selectedDate.getMonth() - 1,
-                  ),
+                    selectedDate.getMonth() - 1
+                  )
                 )
               }
             >
@@ -215,8 +225,8 @@ function Calendar() {
                 setSelectedDate(
                   new Date(
                     selectedDate.getFullYear(),
-                    selectedDate.getMonth() + 1,
-                  ),
+                    selectedDate.getMonth() + 1
+                  )
                 )
               }
             >
@@ -228,23 +238,33 @@ function Calendar() {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(7, 1fr)",
-              gap: "5px",
+              gap: "5px"
             }}
           >
             {generateCalendarGrid()}
           </div>
         </div>
-        <div>
-          <h3>Užsakymas ties kurio dirbama pažymėtą dieną</h3>
+      </div>
+    </div>
+
+    <div
+      className="p-6 bg-custom-200 text-medium mt-3 mr-3"
+      style={{ width: "30%" }}
+    >
+      <div className="flex justify-end">
+        <span className="w-full font-bold py-2 px-8 text-nowrap text-center">
+          Užsakymas ties kurio dirbama pažymėtą dieną
           <ul>
             {hoveredOrders.map((orderName, index) => (
               <li key={index}>{orderName}</li>
             ))}
           </ul>
-        </div>
+        </span>
       </div>
     </div>
-  );
+  </div>
+);
+
 }
 
 export default Calendar;
