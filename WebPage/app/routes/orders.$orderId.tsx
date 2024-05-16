@@ -523,58 +523,6 @@ export default function OrderDetailPage() {
                     <div>{workSubmission.additionalDescription}</div>
                   </div>
                 </div>
-                <Form method="put" onSubmit={hideWarningPopUp}>
-                  <input name="orderId" value={order.id} readOnly hidden />
-                  <input
-                    type="hidden"
-                    name="intent"
-                    value="acceptSubmission"
-                    readOnly
-                  />
-                  {order.orderStatus !== OrderStatus.COMPLETED &&
-                    order.orderStatus !== OrderStatus.PAYED &&
-                    order.orderStatus !== OrderStatus.PAYED_LATE && (
-                      <div
-                        className="w-full cursor-pointer text-center rounded bg-custom-800 mt-5 px-2 py-2 hover:bg-custom-850 transition duration-300 ease-in-out"
-                        onClick={showWarningPopUp}
-                      >
-                        <span className="w-full text-white ">
-                          Priimti darbą
-                        </span>
-                      </div>
-                    )}
-
-                  {showWarning &&
-                    order.orderStatus !== OrderStatus.COMPLETED && (
-                      <div className="w-screen h-screen top-0 right-0 absolute">
-                        <div className="w-full h-full absolute top-0 right-0 bg-gray-800 opacity-50"></div>
-                        <div className="flex justify-center items-center w-full h-full">
-                          <div className="rounded p-4 z-50 flex flex-col bg-custom-200 w-[30%]">
-                            <span className="font-bold">
-                              Jei priimsite pateikta darbą jūs turėsite sumokėti
-                              už užsakymą
-                            </span>
-                            <button
-                              type="submit"
-                              className="w-full rounded bg-custom-800 mt-2 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
-                            >
-                              Priimti
-                            </button>
-                            <div
-                              className="w-full flex justify-center items-center 
-                            cursor-pointer rounded bg-custom-800 px-2 mt-2 py-2 
-                            hover:bg-custom-850 transition duration-300 ease-in-out"
-                              onClick={hideWarningPopUp}
-                            >
-                              <span className="w-full text-white text-center">
-                                Atmesti
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                </Form>
               </div>
             )}
           </div>
