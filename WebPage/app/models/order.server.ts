@@ -15,6 +15,8 @@ export async function updateOrderStatus(
   newStatus: OrderStatus,
   orderId: Order["id"],
 ) {
+  if (!(await getOrderById(orderId))) return null;
+
   const updatedOrder = await prisma.order.update({
     where: { id: orderId },
     data: { orderStatus: newStatus },
@@ -173,8 +175,8 @@ export async function updateOrder(
 
 export async function createOrder(
   orderName: string,
-  createdBy: User,
-  worker: User,
+  createdById: User["id"],
+  workerId: User["id"],
   completionDate: Date,
   revisionDays: number,
   description: string,
@@ -189,10 +191,10 @@ export async function createOrder(
       description: description,
       footageLink: footageLink,
       worker: {
-        connect: { id: worker.id },
+        connect: { id: workerId },
       },
       createdBy: {
-        connect: { id: createdBy.id },
+        connect: { id: createdById },
       },
     },
   });
