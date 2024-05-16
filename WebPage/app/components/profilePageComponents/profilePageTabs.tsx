@@ -47,7 +47,7 @@ function ProfilePageTabs({
   orderCount,
   Reviews,
 }: UserInfoProps) {
-  const [activeTab, setActiveTab] = useState("statistics");
+  const [activeTab, setActiveTab] = useState("");
   const [edit, setEdit] = useState(false);
   const realuser = useUser();
   const handleTabClick = (tab) => {
@@ -127,42 +127,48 @@ function ProfilePageTabs({
   return (
     <div className="text-sm font-medium text-center text-gray-500 mt-6 pl-24">
       <ul className="flex flex-wrap -mb-px border-b border-gray-200">
-        <li className="me-2">
-          <button
-            className={`inline-block p-4  ${
-              activeTab === "statistics"
-                ? "border-custom-800 border-b-2 rounded-t-lg"
-                : "hover:text-gray-600 hover:border-gray-300"
-            }`}
-            onClick={() => handleTabClick("statistics")}
-          >
-            Statistika
-          </button>
-        </li>
-        <li className="me-2">
-          <button
-            className={`inline-block p-4  ${
-              activeTab === "skills"
-                ? "border-custom-800 border-b-2 rounded-t-lg"
-                : "hover:text-gray-600 hover:border-gray-300"
-            }`}
-            onClick={() => handleTabClick("skills")}
-          >
-            Įgudžiai
-          </button>
-        </li>
-        <li className="me-2">
-          <button
-            className={`inline-block p-4  ${
-              activeTab === "rating"
-                ? "border-custom-800 border-b-2 rounded-t-lg"
-                : "hover:text-gray-600 hover:border-gray-300"
-            }`}
-            onClick={() => handleTabClick("rating")}
-          >
-            Atsiliepimai
-          </button>
-        </li>
+        {isUserWorker() && (
+          <li className="me-2">
+            <button
+              className={`inline-block p-4  ${
+                activeTab === "statistics"
+                  ? "border-custom-800 border-b-2 rounded-t-lg"
+                  : "hover:text-gray-600 hover:border-gray-300"
+              }`}
+              onClick={() => handleTabClick("statistics")}
+            >
+              Statistika
+            </button>
+          </li>
+        )}
+        {isUserWorker() && (
+          <li className="me-2">
+            <button
+              className={`inline-block p-4  ${
+                activeTab === "skills"
+                  ? "border-custom-800 border-b-2 rounded-t-lg"
+                  : "hover:text-gray-600 hover:border-gray-300"
+              }`}
+              onClick={() => handleTabClick("skills")}
+            >
+              Įgudžiai
+            </button>
+          </li>
+        )}
+        {isUserWorker() && (
+          <li className="me-2">
+            <button
+              className={`inline-block p-4  ${
+                activeTab === "rating"
+                  ? "border-custom-800 border-b-2 rounded-t-lg"
+                  : "hover:text-gray-600 hover:border-gray-300"
+              }`}
+              onClick={() => handleTabClick("rating")}
+            >
+              Atsiliepimai
+            </button>
+          </li>
+        )}
         {isUserWorker() && (
           <li className="me-2">
             <button
