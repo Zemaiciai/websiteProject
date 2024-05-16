@@ -1,5 +1,4 @@
 import { OrderStatus } from "@prisma/client";
-import { useEffect, useState } from "react";
 
 interface RenderStatusProps {
   status: OrderStatus | undefined;
@@ -13,7 +12,7 @@ export default function RenderStatus({ status, box }: RenderStatusProps) {
     COMPLETED: "BAIGTAS",
     CANCELLED: "ATŠAUKTAS",
     DECLINED: "ATMESTAS",
-    IN_PROGRESS: "VYKDOMAS",
+    TIME_ENDED: "PASIBAIGĖ LAIKAS",
     PAYED: "SUMOKĖTA",
     PLACED: "PRISKIRTAS",
     ACCEPTED: "PRIIMTAS",
@@ -24,17 +23,17 @@ export default function RenderStatus({ status, box }: RenderStatusProps) {
       COMPLETED: "bg-red-400 text-red-900",
       CANCELLED: "bg-red-800 text-red-100",
       DECLINED: "bg-red-800 text-white",
-      IN_PROGRESS: "bg-green-400 text-green-900",
+      TIME_ENDED: "bg-yellow-400 text-yellow-900",
       PAYED: "bg-green-800 text-white",
       PLACED: "bg-yellow-400 text-yellow-900",
       ACCEPTED: "bg-green-300 text-green-800",
     };
   } else if (!box) {
     orderStatusColorsDictionary = {
-      COMPLETED: "text-green-400",
+      COMPLETED: "text-red-800",
       CANCELLED: "text-red-400",
       DECLINED: "text-red-400",
-      IN_PROGRESS: "text-green-400",
+      TIME_ENDED: "text-yellow-400",
       PAYED: "text-green-800",
       PLACED: "text-yellow-400",
       ACCEPTED: "text-green-300",

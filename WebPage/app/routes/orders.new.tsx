@@ -35,6 +35,8 @@ interface OrderErrors {
   revisionDays?: string;
   description?: string;
   footageLink?: string;
+  editNotAllowed?: string;
+  noErrors?: boolean;
 }
 
 export type { OrderErrors };

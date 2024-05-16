@@ -1,6 +1,7 @@
 import {
   NotificationTypes,
   OrderStatus,
+  OrderSubmission,
   type Order,
   type User,
 } from "@prisma/client";
@@ -9,6 +10,7 @@ import { prisma } from "~/db.server";
 import { getUserByEmail } from "./user.server";
 import { sendNotification } from "./notification.server";
 import OrdersTable from "~/components/common/OrderPage/OrdersTable";
+import { connect } from "node:http2";
 
 export type { Order } from "@prisma/client";
 
@@ -49,7 +51,7 @@ export async function checkOrders() {
     where: {
       completionDate: { lte: currentDate },
       orderStatus: {
-        in: [OrderStatus.PLACED, OrderStatus.IN_PROGRESS, OrderStatus.ACCEPTED],
+        in: [OrderStatus.PLACED, OrderStatus.ACCEPTED],
       },
     },
   });
@@ -60,17 +62,17 @@ export async function checkOrders() {
 
       await sendNotification(
         order.customerId,
-        `Užsakymas ${order.orderName} baigtas`,
-        NotificationTypes.ORDER_COMPLETED,
+        `Užsakymui ${order.orderName} pasibaigė laikas`,
+        NotificationTypes.ORDER_TIME_ENDED,
         order.id,
       );
       await sendNotification(
         order.workerId,
-        `Užsakymas ${order.orderName} baigtas`,
-        NotificationTypes.ORDER_COMPLETED,
+        `Užsakymui ${order.orderName} pasibaigė laikas`,
+        NotificationTypes.ORDER_TIME_ENDED,
         order.id,
       );
-      await updateOrderStatus(OrderStatus.COMPLETED, order.id);
+      await updateOrderStatus(OrderStatus.TIME_ENDED, order.id);
     }),
   );
 }
@@ -248,4 +250,58 @@ export async function getTasksRemaining(userId: User["id"]) {
     return inProgressOrdersCount;
   }
   return 0;
+}
+
+async function createNewSubmission(
+  submissionLink: OrderSubmission["submissionLink"],
+  additionalDescription?: OrderSubmission["additionalDescription"],
+) {
+  return await prisma.orderSubmission.create({
+    data: {
+      submissionLink: submissionLink,
+      additionalDescription: additionalDescription,
+    },
+  });
+}
+
+export async function addSubmission(
+  orderId: Order["id"],
+  submissionLink: OrderSubmission["submissionLink"],
+  additionalDescription?: OrderSubmission["additionalDescription"],
+) {
+  const submission = await createNewSubmission(
+    submissionLink,
+    additionalDescription,
+  );
+
+  return prisma.order.update({
+    where: { id: orderId },
+    data: { workSubmission: { connect: { id: submission.id } } },
+  });
+}
+
+export async function updateSubmission(
+  submissionId: OrderSubmission["id"],
+  submissionLink: OrderSubmission["submissionLink"],
+  additionalDescription?: OrderSubmission["additionalDescription"],
+) {
+  return prisma.orderSubmission.update({
+    where: { id: submissionId },
+    data: {
+      submissionLink: submissionLink,
+      additionalDescription: additionalDescription,
+    },
+  });
+}
+
+export async function getOrderSubmission(orderId: Order["id"]) {
+  const order = await getOrderById(orderId);
+
+  if (!order || !order.submissionId) {
+    return null;
+  }
+
+  return prisma.orderSubmission.findUnique({
+    where: { id: order.submissionId },
+  });
 }
