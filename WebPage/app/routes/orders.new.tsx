@@ -1,4 +1,5 @@
 import { NotificationTypes } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -35,6 +36,7 @@ interface OrderErrors {
   revisionDays?: string;
   description?: string;
   footageLink?: string;
+  price?: string;
 }
 
 export type { OrderErrors };
@@ -58,7 +60,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const description = String(formData.get("description"));
   const footageLink = String(formData.get("footageLink"));
-
+  const price = String(formData.get("price"));
   let validationErrors: OrderErrors | null = {};
 
   const additionalErrors = await validateOrderData(
@@ -70,6 +72,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     null,
     description,
     footageLink,
+    price,
   );
 
   const worker = await getUserByEmail(workerEmail);
@@ -93,6 +96,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (Object.keys(validationErrors).length > 0) {
     return json({ errors: validationErrors }, { status: 400 });
   }
+  const pricee = parseInt(String(formData.get("price")), 10);
 
   // the non-null assertion is done because we check above if the createdBy or worker is null
   // however typescript can't see that for some reason
@@ -104,6 +108,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     revisionDays,
     description,
     footageLink,
+    pricee,
   );
 
   // Create a notification for the worker
@@ -239,6 +244,11 @@ export default function NewOrderPage() {
             title={"Video nuoruoda"}
             name={"footageLink"}
             error={actionData?.errors.footageLink}
+          />
+          <OrderInput
+            title={"Atlygis už darbą"}
+            name={"price"}
+            error={actionData?.errors.price}
           />
           <button
             type="submit"

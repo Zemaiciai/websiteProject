@@ -13,7 +13,6 @@ import {
   getCustomMessagesByMessage,
   getCustomMessagesByName,
 } from "./models/customMessage.server";
-import { aD } from "vitest/dist/reporters-P7C2ytIv";
 import { checkUserAdsLimit } from "./models/workerAds.server";
 import { prisma } from "./db.server";
 import { OrderStatus } from "@prisma/client";
@@ -223,6 +222,7 @@ interface OrderErrors {
   workerEmail?: string;
   description?: string;
   footageLink?: string;
+  price?: string;
 }
 
 export async function validateOrderData(
@@ -234,6 +234,7 @@ export async function validateOrderData(
   currentOrderStatus: unknown,
   description: unknown,
   footageLink: unknown,
+  price: string,
 ): Promise<OrderErrors | null> {
   const errors: OrderErrors = {};
   const currentDate = new Date();
@@ -273,9 +274,12 @@ export async function validateOrderData(
   else if (!validateUrl(footageLink))
     errors.footageLink = "Nuorodos formatas neteisingas";
 
-  if (typeof orderName !== "string" || orderName.length <= 0)
+  if (typeof orderName !== "string" || orderName.length <= 0) {
     errors.orderName = "Užsakymo pavadinimas privalomas";
-
+  }
+  if (typeof price !== "string" || price.length <= 0 || isNaN(Number(price))) {
+    errors.price = "Atlygis turi buti skaičius (Formato pvz.: 5.99)";
+  }
   if (Object.keys(errors).length > 0) {
     return errors;
   }

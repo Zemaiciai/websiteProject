@@ -15,6 +15,7 @@ import {
 import OrderTimer from "~/components/common/OrderPage/OrderTimer";
 import {
   getOrderById,
+  payForOrder,
   updateOrder,
   updateOrderStatus,
 } from "~/models/order.server";
@@ -78,6 +79,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const newRevisionDays = parseInt(String(formData.get("revisionDays")));
       const newDescription = String(formData.get("description"));
       const newFootageLink = String(formData.get("footageLink"));
+      const newPrice = String(formData.get("price"));
+      const newPricee = parseInt(String(formData.get("price")), 10);
 
       const createdBy = await getUserById(currentOrder!.customerId);
 
@@ -97,6 +100,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         currentOrder?.orderStatus,
         newDescription,
         newFootageLink,
+        newPrice,
       );
 
       const worker = await getUserByEmail(newWorkerEmail);
@@ -131,6 +135,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         newRevisionDays,
         newDescription,
         newFootageLink,
+        newPricee,
       );
       break;
     case "changeStatus":
@@ -170,6 +175,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             order.id,
           );
           newStatus = OrderStatus.PAYED;
+          //Send money
+          await payForOrder(
+            order.customerId,
+            order.workerId,
+            Number(order.price.d),
+          );
           break;
         case "Pašalinti":
           newStatus = OrderStatus.REMOVED;
@@ -218,6 +229,7 @@ function UserCard({ user }: UserCardProps) {
 export default function OrderDetailPage() {
   const { order, worker, customer, isClient } =
     useTypedLoaderData<typeof loader>();
+  console.log(order.price);
   const actionData = useTypedActionData<typeof action>();
 
   const [activeTabUsers, setActiveTabUsers] = useState("mainPage");
@@ -323,6 +335,9 @@ export default function OrderDetailPage() {
         {activeTabUsers === "mainPage" ? (
           <>
             <div>
+              <span className="font-bold text-1xl pt-4 pl-3 text-wrap">
+                Atlygis už darbą: {order.price.d}
+              </span>
               <h1 className="font-bold text-1xl pt-4 pl-3 text-wrap">
                 Užsakymo aprašymas:
               </h1>
@@ -417,6 +432,12 @@ export default function OrderDetailPage() {
                     name={"footageLink"}
                     defaultValue={order.footageLink}
                     error={actionData?.errors?.footageLink}
+                  />
+                  <OrderInput
+                    title={"Atlygis už darbą"}
+                    name={"price"}
+                    defaultValue={order.price.d.toString()}
+                    error={actionData?.errors?.price}
                   />
                   <button
                     type="submit"

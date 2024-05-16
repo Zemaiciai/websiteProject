@@ -107,6 +107,7 @@ model Order {
   orderStatus OrderStatus
   description String?
   footageLink String
+  price Decimal @db.Decimal(10,2)
   
 }
 
