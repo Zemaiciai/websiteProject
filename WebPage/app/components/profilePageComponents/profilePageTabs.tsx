@@ -199,7 +199,7 @@ function ProfilePageTabs({
         )}
       </ul>
       <div className="p-6 text-medium text-gray-500 rounded-lg w-[800px] min-h-[400px]">
-        {activeTab === "statistics" ? (
+        {activeTab === "statistics" && isUserWorker() ? (
           <div className="stats shadow-md p-2 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="stat bg-white rounded-lg p-4 flex items-center justify-start">
               <div className="stat-figure text-secondary flex items-center justify-center w-12 h-12 bg-gray-200 rounded-full">
@@ -311,20 +311,21 @@ function ProfilePageTabs({
             </div>
           </div>
         ) : null}
-        {activeTab === "skills" ? (
+        {activeTab === "skills" && isUserWorker() ? (
           <>
             <ProfilePageTabsSkills />
           </>
         ) : null}
-        {activeTab === "settings" ? (
+        {activeTab === "settings" && isUserInProfile() ? (
           <>
             <ProfileSettings
               errorData={errorData}
               socialMediaLinks={socialMediaLinks}
+              userdata={user}
             />
           </>
         ) : null}
-        {activeTab === "rating" ? (
+        {activeTab === "rating" && isUserWorker() ? (
           <>
             {Reviews && Reviews.length === 0 ? (
               <p className="mt-5">Šis profilis neturi paliktų atsiliepimų!</p>
@@ -369,7 +370,7 @@ function ProfilePageTabs({
             )}
           </>
         ) : null}
-        {activeTab === "example" ? (
+        {activeTab === "example" && isUserWorker() ? (
           <>
             <div className="exampleDiv">
               <ul className="list-disc pl-8 space-y-4 ">
@@ -391,7 +392,7 @@ function ProfilePageTabs({
             </div>
           </>
         ) : null}
-        {activeTab === "changeExample" ? (
+        {activeTab === "changeExample" && isUserWorker() ? (
           <>
             <Form method="post">
               <div className="exampleDiv space-y-2 ">
