@@ -16,6 +16,8 @@ enum OrderStatus {
   DECLINED
   CANCELLED
   REMOVED
+  LATE
+  PAYED_LATE
 }
 
 enum GroupsRoles {

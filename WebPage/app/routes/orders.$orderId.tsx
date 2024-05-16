@@ -217,7 +217,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             NotificationTypes.ORDER_PAYED,
             order.id,
           );
-          newStatus = OrderStatus.PAYED;
+          if (order.orderStatus == "LATE") newStatus = OrderStatus.PAYED_LATE;
+          else newStatus = OrderStatus.PAYED;
           break;
         case "Pašalinti":
           newStatus = OrderStatus.REMOVED;
@@ -296,17 +297,27 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           );
       } else {
         await addSubmission(order.id, submissionLink, additionalDescription);
-        await sendNotification(
-          order.customerId,
-          `${worker.userName} įkėlė darbą`,
-          NotificationTypes.ORDER_UPDATED,
-          order.id,
-        );
+        if (order.orderStatus == "TIME_ENDED") {
+          await sendNotification(
+            order.customerId,
+            `${worker.userName} įkėlė darbą pavėluotai`,
+            NotificationTypes.ORDER_UPDATED,
+            order.id,
+          );
+          await updateOrderStatus(OrderStatus.LATE, order.id);
+        } else {
+          await sendNotification(
+            order.customerId,
+            `${worker.userName} įkėlė darbą`,
+            NotificationTypes.ORDER_UPDATED,
+            order.id,
+          );
+          await updateOrderStatus(OrderStatus.COMPLETED, order.id);
+        }
       }
 
       return typedjson({ errors: emptyError }, { status: 200 });
     case "acceptSubmission":
-      await updateOrderStatus(OrderStatus.COMPLETED, order.id);
       await sendNotification(
         worker.id,
         `Jūsų ikeltas darbas ${order.orderName} priimtas`,
@@ -414,6 +425,7 @@ export default function OrderDetailPage() {
       [OrderStatus.PAYED]: false,
       [OrderStatus.PLACED]: false,
       [OrderStatus.REMOVED]: false,
+      [OrderStatus.LATE]: true,
     };
 
     setCanPay(statusToCanPayMap[order.orderStatus] || false);
@@ -520,7 +532,8 @@ export default function OrderDetailPage() {
                     readOnly
                   />
                   {order.orderStatus !== OrderStatus.COMPLETED &&
-                    order.orderStatus !== OrderStatus.PAYED && (
+                    order.orderStatus !== OrderStatus.PAYED &&
+                    order.orderStatus !== OrderStatus.PAYED_LATE && (
                       <div
                         className="w-full cursor-pointer text-center rounded bg-custom-800 mt-5 px-2 py-2 hover:bg-custom-850 transition duration-300 ease-in-out"
                         onClick={showWarningPopUp}
@@ -754,20 +767,24 @@ export default function OrderDetailPage() {
             Peržiūrėti narius
           </button>
         </div>
-        {!isClient && order.orderStatus === OrderStatus.ACCEPTED && (
-          <div className="flex justify-center pb-2">
-            <button
-              className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
-                activeTabUsers === "submitWork"
-                  ? "text-white  py-2 bg-custom-900  border-black "
-                  : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
-              } w-full`}
-              onClick={() => handleTabClickUser("submitWork")}
-            >
-              {order.submissionId === null ? "Įkelti darbą" : "Pakeisti darbą"}
-            </button>
-          </div>
-        )}
+        {!isClient &&
+          (order.orderStatus === OrderStatus.ACCEPTED ||
+            order.orderStatus === OrderStatus.TIME_ENDED) && (
+            <div className="flex justify-center pb-2">
+              <button
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                  activeTabUsers === "submitWork"
+                    ? "text-white  py-2 bg-custom-900  border-black "
+                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                } w-full`}
+                onClick={() => handleTabClickUser("submitWork")}
+              >
+                {order.submissionId === null
+                  ? "Įkelti darbą"
+                  : "Pakeisti darbą"}
+              </button>
+            </div>
+          )}
         {isClient && (
           <div className="flex justify-center pb-2">
             <button

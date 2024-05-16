@@ -16,6 +16,8 @@ export default function RenderStatus({ status, box }: RenderStatusProps) {
     PAYED: "SUMOKĖTA",
     PLACED: "PRISKIRTAS",
     ACCEPTED: "PRIIMTAS",
+    LATE: "PAVELUOTAS",
+    PAYED_LATE: "SUMOKĖTA",
   };
 
   if (box) {
@@ -23,8 +25,10 @@ export default function RenderStatus({ status, box }: RenderStatusProps) {
       COMPLETED: "bg-red-400 text-red-900",
       CANCELLED: "bg-red-800 text-red-100",
       DECLINED: "bg-red-800 text-white",
+      LATE: "bg-red-800 text-red-100",
       TIME_ENDED: "bg-yellow-400 text-yellow-900",
       PAYED: "bg-green-800 text-white",
+      PAYED_LATE: "bg-green-800 text-white",
       PLACED: "bg-yellow-400 text-yellow-900",
       ACCEPTED: "bg-green-300 text-green-800",
     };
@@ -33,8 +37,10 @@ export default function RenderStatus({ status, box }: RenderStatusProps) {
       COMPLETED: "text-red-800",
       CANCELLED: "text-red-400",
       DECLINED: "text-red-400",
+      LATE: "text-red-400",
       TIME_ENDED: "text-yellow-400",
       PAYED: "text-green-800",
+      PAYED_LATE: "text-green-800",
       PLACED: "text-yellow-400",
       ACCEPTED: "text-green-300",
     };
