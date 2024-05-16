@@ -1,7 +1,7 @@
-import bcrypt from "bcryptjs";
-import { prisma } from "../db.server";
 import type { Password, User } from "@prisma/client";
 
+import { prisma } from "../db.server";
+import bcrypt from "bcryptjs";
 import {
   createBanLog,
   createInfoChangeLog,

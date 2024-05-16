@@ -1,5 +1,5 @@
+// Import necessary modules and functions
 import { describe, it, expect, vi } from "vitest";
-
 import {
   getUserById,
   getUserByEmail,
@@ -30,7 +30,7 @@ vi.mock("../db.server", () => ({
   prisma: mockPrismaClient,
 }));
 
-/// Mock bcrypt
+// Mock bcrypt
 vi.mock("bcryptjs", () => ({
   hash: vi.fn(),
   compare: vi.fn(),

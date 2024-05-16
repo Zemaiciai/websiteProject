@@ -1,13 +1,12 @@
+import { getUserByEmail } from "./user.server";
+import { sendNotification } from "./notification.server";
+import { prisma } from "../db.server";
 import {
   NotificationTypes,
   OrderStatus,
   type Order,
   type User,
 } from "@prisma/client";
-
-import { prisma } from "../db.server";
-import { getUserByEmail } from "./user.server";
-import { sendNotification } from "./notification.server";
 
 export type { Order } from "@prisma/client";
 
