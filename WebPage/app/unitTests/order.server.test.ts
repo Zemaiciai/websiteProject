@@ -1,50 +1,74 @@
-import { describe, it, expect, vi } from "vitest";
-import { updateOrderStatus } from "../models/order.server";
+import { describe, beforeEach, it, expect, vi } from "vitest";
+import * as orderServer from "../models/order.server";
 import { Order, OrderStatus } from "@prisma/client";
+import prismaMock from "../__mocks__/prisma";
+import { User } from "../models/user.server";
+import { Decimal } from "@prisma/client/runtime/library";
 
-const mockPrismaClient = {
-  $connect: vi.fn(),
-  order: {
-    findUnique: vi.fn(),
-    findFirst: vi.fn(),
-    create: vi.fn(),
-    delete: vi.fn(),
-    update: vi.fn().mockReturnValue({ id: "1", status: OrderStatus.CANCELLED }),
-  },
-  secretCodeAdmin: {
-    findFirst: vi.fn(),
-  },
+vi.mock("../models/order.server");
+
+// Mock data for testing
+const mockUser: User = {
+  id: "1",
+  email: "email@gmail.com",
+  firstName: "Vardas",
+  lastName: "Pavarde",
+  userName: "userName",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  expiringAt: new Date(),
+  warningAmount: "0",
+  firstWarning: "",
+  firstWarningDate: new Date(),
+  secondWarning: "",
+  secondWarningDate: new Date(),
+  thirdWarning: "",
+  thirdWarningDate: new Date(),
+  banReason: "",
+  role: "admin",
+  percentage: "30%",
+  balance: 1.0 as unknown as Decimal,
+  userStatus: "",
+  rating: 1,
+  ratingAmount: 1,
 };
 
-// Mock bcrypt
-vi.mock("bcryptjs", () => ({
-  hash: vi.fn(),
-  compare: vi.fn(),
-}));
+// Mock order data
+const mockOrder: Order = {
+  id: "1",
+  orderName: "Order1",
+  customerId: "clw6j0nny0000wfnb1tl9a0sr",
+  workerId: "clw6j0nny0000wfnb1tl9a0sr",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  completionDate: new Date(),
+  revisionDays: 2,
+  orderStatus: OrderStatus.PLACED,
+  description: "Aprasymas",
+  footageLink: "https://youtube.com",
+};
 
-describe("updateOrderStatus function", () => {
-  // Mock the Prisma client
-  vi.mock("../db.server", () => ({
-    prisma: mockPrismaClient,
-  }));
+describe("order.server", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
 
-  const mockOrder: Order | null = {
-    id: "1",
-    orderName: "Order1",
-    customerId: "1",
-    workerId: "2",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    completionDate: new Date(),
-    revisionDays: 2,
-    orderStatus: OrderStatus.ACCEPTED,
-    description: "Aprasymas",
-    footageLink: "https://youtube.com",
-  };
+  it("returns order object if order is created successfully", async () => {
+    // Mock prisma.order.create to resolve with mockOrder
+    prismaMock.order.create.mockResolvedValue(mockOrder);
 
-  it("returns null if order doesn't exist", async () => {
-    expect(
-      await updateOrderStatus(OrderStatus.CANCELLED, "nonexistent_order_id"),
-    ).toBe(null);
+    // Call createOrder function with mock data
+    const createdOrder = await orderServer.createOrder(
+      "Order1",
+      "clw6j0nny0000wfnb1tl9a0sr", // createdById
+      "clw6j0nny0000wfnb1tl9a0sr", // workerId
+      new Date(),
+      2,
+      "Aprasymas",
+      "https://youtube.com",
+    );
+
+    // Assert that the returned order matches the mockOrder
+    expect(createdOrder).toEqual(mockOrder);
   });
 });

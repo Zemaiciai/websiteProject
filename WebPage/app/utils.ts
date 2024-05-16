@@ -235,7 +235,6 @@ export async function validateOrderData(
   footageLink: unknown,
 ): Promise<OrderErrors | null> {
   const errors: OrderErrors = {};
-  const currentDate = new Date();
 
   if (typeof revisionDays !== "number") {
     errors.revisionDays = "Revizijos dienos turi buti skaicius";
