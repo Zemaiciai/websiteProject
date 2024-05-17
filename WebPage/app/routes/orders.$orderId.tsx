@@ -21,11 +21,10 @@ import {
   updateSubmission,
 } from "~/models/order.server";
 import { User, getUserByEmail, getUserById } from "~/models/user.server";
-import { isUserClient } from "~/session.server";
+import { getUser, isUserClient } from "~/session.server";
 import OrderDatePicker from "~/components/common/OrderPage/OrderDatePicker";
 import OrderInput from "~/components/common/OrderPage/OrderInput";
 import { validateOrderData, validateWorkSubmissionData } from "~/utils";
-import { OrderErrors } from "./orders.new";
 import {
   NotificationTypes,
   sendNotification,
@@ -64,20 +63,53 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     : redirect("/orders");
 };
 
+interface OrderDetailedPageErrors {
+  customerNotFound?: string;
+  workerNotFound?: string;
+  workerEmail?: string;
+  wrongUser?: string;
+  orderName?: string;
+  completionDate?: string;
+  revisionDays?: string;
+  description?: string;
+  footageLink?: string;
+  editNotAllowed?: string;
+  userMismatch?: string;
+  noErrors?: boolean;
+}
+
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
+  const currentUser = await getUser(request);
   const intent = String(formData.get("intent"));
   const orderId = String(formData.get("orderId"));
   const order = await getOrderById(orderId);
 
-  const emptyError: OrderErrors | null = {};
-  emptyError.noErrors = true;
+  const intialErrors: OrderDetailedPageErrors | null = {};
+  intialErrors.noErrors = true;
 
-  if (!order) return typedjson({ errors: emptyError }, { status: 400 });
+  if (!order) return typedjson({ errors: intialErrors }, { status: 400 });
   const customer = await getUserById(order.customerId);
   const worker = await getUserById(order.workerId);
   if (!worker || !customer)
-    return typedjson({ errors: emptyError }, { status: 400 });
+    return typedjson({ errors: intialErrors }, { status: 400 });
+
+  console.log(
+    "Current user: ",
+
+    !(currentUser?.id === worker.id || currentUser?.id === customer.id),
+  );
+
+  console.log(currentUser?.userName);
+  console.log(worker.userName);
+  console.log(customer.userName);
+
+  if (!(currentUser?.id === worker.id || currentUser?.id === customer.id)) {
+    intialErrors.noErrors = false;
+    intialErrors.userMismatch =
+      "Tik darbuotojas arba klientas sukūres užsakymą gali daryti keitimus";
+    return typedjson({ errors: intialErrors }, { status: 400 });
+  }
 
   switch (intent) {
     case "update":
@@ -89,7 +121,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const newDescription = String(formData.get("description"));
       const newFootageLink = String(formData.get("footageLink"));
 
-      let validationErrors: OrderErrors | null = {};
+      let validationErrors: OrderDetailedPageErrors | null = {};
 
       if (
         order.orderStatus !== OrderStatus.ACCEPTED &&
@@ -183,7 +215,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           orderId,
         );
 
-      return typedjson({ errors: emptyError }, { status: 200 });
+      return typedjson({ errors: intialErrors }, { status: 200 });
     case "changeStatus":
       const state = formData.get("action");
 
@@ -239,7 +271,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         formData.get("additionalDescription"),
       );
 
-      let workSubmissionErrors: OrderErrors | null = {};
+      let workSubmissionErrors: OrderDetailedPageErrors | null = {};
 
       const workSubmissionAditionalErrors = await validateWorkSubmissionData(
         submissionLink,
@@ -264,7 +296,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         const previousSubmission = await getOrderSubmission(order.id);
 
         if (!previousSubmission)
-          return typedjson({ errors: emptyError }, { status: 200 });
+          return typedjson({ errors: intialErrors }, { status: 200 });
 
         await updateSubmission(
           order.submissionId,
@@ -315,7 +347,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         }
       }
 
-      return typedjson({ errors: emptyError }, { status: 200 });
+      return typedjson({ errors: intialErrors }, { status: 200 });
     case "acceptSubmission":
       await sendNotification(
         worker.id,
@@ -458,16 +490,17 @@ export default function OrderDetailPage() {
     setShowMessage(false);
   };
 
-  const showWarningPopUp = () => {
-    setShowWarning(true);
-  };
-  const hideWarningPopUp = () => {
-    setShowWarning(false);
-  };
-
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mr-1 w-full md:w-[calc(100% - 360px)]">
+        {actionData?.errors?.userMismatch && (
+          <span
+            className="pt-1 font-bold text-red-400 bottom-9"
+            id={`edit-not-allowed-error`}
+          >
+            {actionData?.errors?.userMismatch}
+          </span>
+        )}
         <ul className="flex grow-0 w-full border-b border-gray-200 pb-3 pl-3 pt-4">
           <div className="flex h-full w-full justify-between">
             <h1 className="flex w-[36rem] font-bold text-2xl">
