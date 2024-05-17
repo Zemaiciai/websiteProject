@@ -233,7 +233,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       }
 
       return typedjson({ errors: null }, { status: 200 });
-      break;
     case "submitWork":
       const submissionLink = String(formData.get("submissionLink"));
       const additionalDescription = String(
@@ -717,6 +716,7 @@ export default function OrderDetailPage() {
         </div>
         {!isClient &&
           (order.orderStatus === OrderStatus.ACCEPTED ||
+            order.orderStatus === OrderStatus.COMPLETED ||
             order.orderStatus === OrderStatus.TIME_ENDED) && (
             <div className="flex justify-center pb-2">
               <button
