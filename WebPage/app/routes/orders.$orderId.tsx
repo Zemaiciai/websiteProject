@@ -319,7 +319,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     case "acceptSubmission":
       await sendNotification(
         worker.id,
-        `Jūsų ikeltas darbas ${order.orderName} priimtas`,
+        `Jūsų įkeltas darbas ${order.orderName} priimtas`,
         NotificationTypes.ORDER_COMPLETED,
       );
 
@@ -717,6 +717,7 @@ export default function OrderDetailPage() {
         {!isClient &&
           (order.orderStatus === OrderStatus.ACCEPTED ||
             order.orderStatus === OrderStatus.COMPLETED ||
+            order.orderStatus === OrderStatus.LATE ||
             order.orderStatus === OrderStatus.TIME_ENDED) && (
             <div className="flex justify-center pb-2">
               <button

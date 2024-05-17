@@ -19,7 +19,7 @@ export const meta: MetaFunction = () => [
   { title: "Naujas užsakymas - Žemaičiai" },
 ];
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await isUserClient(request);
+  await isUserClient(request, true);
   await requireUserId(request);
 
   return null;
@@ -45,6 +45,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
   const createdBy = await getUserById(userId);
 
+  if (!(await isUserClient(request))) redirect("/orders");
+
   const formData = await request.formData();
   const orderName = String(formData.get("orderName")).trim();
   const workerEmail = String(formData.get("workerEmail"));
@@ -57,6 +59,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (revisionDays > 0) {
     revisionDate.setDate(revisionDate.getDate() + revisionDays);
   }
+
+  console.log(completionDate);
 
   const description = String(formData.get("description"));
   const footageLink = String(formData.get("footageLink"));
@@ -109,7 +113,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   );
 
   // Create a notification for the worker
-  const notification = await sendNotification(
+  await sendNotification(
     worker!.id,
     `Jums vartotojas ${createdBy!.userName} priskirė naują užsakymą!`,
     NotificationTypes.ORDER_ASSIGNED,
