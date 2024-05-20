@@ -149,18 +149,30 @@ export async function validateRegistrationCredentials(
 ): Promise<RegisterErrors | null> {
   const errors: RegisterErrors | null = {};
 
-  if (typeof firstname !== "string" || firstname === "") {
+  if (
+    typeof firstname !== "string" ||
+    firstname === "" ||
+    firstname.trim().length <= 0
+  ) {
     errors.firstname = "Vardas privalomas";
   }
-  if (typeof lastname !== "string" || lastname === "") {
+  if (
+    typeof lastname !== "string" ||
+    lastname === "" ||
+    lastname.trim().length <= 0
+  ) {
     errors.lastname = "Pavardė privaloma";
   }
-  if (typeof username !== "string" || username === "") {
+  if (
+    typeof username !== "string" ||
+    username === "" ||
+    username.trim().length <= 0
+  ) {
     errors.username = "Slapyvardis privalomas";
   } else if (await checkIfUserNameExists(username)) {
     errors.username = "Slapyvardis yra užimtas";
   }
-  if (typeof email !== "string" || email === "") {
+  if (typeof email !== "string" || email === "" || email.trim().length <= 0) {
     errors.email = "El. pašto adresas privalomas";
   } else if (email.length < 3 || !email.includes("@")) {
     errors.email = "El. pašto adresas netinkamas";
@@ -170,7 +182,11 @@ export async function validateRegistrationCredentials(
   } else if (password.length < 8) {
     errors.password = "Slaptažodis per trumpas";
   }
-  if (typeof secretCode !== "string" || secretCode === "") {
+  if (
+    typeof secretCode !== "string" ||
+    secretCode === "" ||
+    secretCode.trim().length <= 0
+  ) {
     errors.secretCode = "Pakvietimo kodas privalomas";
   }
 

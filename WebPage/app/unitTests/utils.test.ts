@@ -116,12 +116,63 @@ describe("utils validation tests", () => {
       expect(errors).toStrictEqual(expectedErrors);
     });
 
-    it("returns error object if null values are provided", async () => {
+    it("returns error object if bad firstname is provided", async () => {
+      const expectedErrors: RegisterErrors | null = {
+        firstname: "Vardas privalomas",
+      };
+      expect(
+        await validateRegistrationCredentials(
+          null,
+          "a",
+          "a",
+          "a",
+          "a@gmail.com",
+          "aaaaaaa123",
+        ),
+      ).toStrictEqual(expectedErrors);
+      expect(
+        await validateRegistrationCredentials(
+          null,
+          "a",
+          "a",
+          "a",
+          "a@gmail.com",
+          "aaaaaaa123",
+        ),
+      ).toStrictEqual(expectedErrors);
+      expect(
+        await validateRegistrationCredentials(
+          "          ",
+          "a",
+          "a",
+          "a",
+          "a@gmail.com",
+          "aaaaaaa123",
+        ),
+      ).toStrictEqual(expectedErrors);
+    });
+
+    it("returns error object if bad lastname is provided", async () => {
+      const expectedErrors: RegisterErrors | null = {
+        firstname: "Vardas privalomas",
+      };
+      const errors = await validateRegistrationCredentials(
+        null,
+        "a",
+        "a",
+        "a",
+        "a@gmail.com",
+        "aaaaaaa123",
+      );
+      expect(errors).toStrictEqual(expectedErrors);
+    });
+
+    it("returns error object if bad email is provided", async () => {
       const expectedErrors: RegisterErrors | null = {
         email: "El. pašto adresas netinkamas",
       };
       const errors = await validateRegistrationCredentials(
-        null,
+        "a",
         "a",
         "a",
         "a",
