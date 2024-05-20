@@ -175,6 +175,11 @@ describe("utils validation tests", () => {
       const errors = await validateLoginCredentials("a", "aaaaaaa123");
       expect(errors).toStrictEqual(expectedErrors);
     });
+    it("returns null if correct values are provided", async () => {
+      const expectedErrors: LoginErrors | null = {};
+      const result = await validateLoginCredentials("aaaa@", "aaaaaaa123");
+      expect(result).toBe(null);
+    });
   });
   // LOGIN ------------------------------------------------
   // CUSTOM MESSAGE------------------------------------------------
@@ -232,6 +237,15 @@ describe("utils validation tests", () => {
       };
       const errors = await validateCustomMessage("undefined", "a", "1");
       expect(errors).toStrictEqual(expectedErrors);
+    });
+    it("returns null if correct values are provided", async () => {
+      const expectedErrors: InviteCustomMessagesErrors | null = {};
+      const result = await validateCustomMessage(
+        "undefined",
+        "aaaaaaaaaaaaaaaaaaaaaa",
+        "1",
+      );
+      expect(result).toBe(null);
     });
   });
   // CUSTOM MESSAGE------------------------------------------------
@@ -346,6 +360,18 @@ describe("utils validation tests", () => {
         "undefined",
       );
       expect(errors).toStrictEqual(expectedErrors);
+    });
+    it("returns null if correct values are provided", async () => {
+      const expectedErrors: ChangeUserInfoErrors | null = {};
+      const result = await validateChangeUserInfo(
+        "undefined",
+        "undefined",
+        "undefined",
+        "undefined@",
+        "Darbuotojas",
+        "undefined",
+      );
+      expect(result).toBe(null);
     });
   });
 });
