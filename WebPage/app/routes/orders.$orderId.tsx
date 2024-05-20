@@ -152,8 +152,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         newOrderName,
         newCompletionDate,
         newWorkerEmail,
-        order?.workerId,
-        order?.orderStatus,
         newDescription,
         newFootageLink,
       );

@@ -1,22 +1,14 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
-import {
-  verifyLogin,
-  User,
-  checkIfUserNameExists,
-  getUserById,
-} from "./models/user.server";
+import { verifyLogin, User, checkIfUserNameExists } from "./models/user.server";
 import { Notification } from "~/models/notification.server";
 import { checkExpirationDateByEmail } from "./models/secretCode.server";
 import {
   getCustomMessagesByMessage,
   getCustomMessagesByName,
 } from "./models/customMessage.server";
-import { aD } from "vitest/dist/reporters-P7C2ytIv";
 import { checkUserAdsLimit } from "./models/workerAds.server";
 import { prisma } from "./db.server";
-import { OrderStatus } from "@prisma/client";
-import OrdersTable from "./components/common/OrderPage/OrdersTable";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -128,7 +120,7 @@ export function validateDate(date: unknown): date is Date {
 
   return date instanceof Date && date >= currentDate;
 }
-function validateUrl(url: unknown): url is string {
+export function validateUrl(url: unknown): url is string {
   if (typeof url !== "string") return false;
 
   const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
@@ -154,8 +146,9 @@ export async function validateRegistrationCredentials(
   secretCode: unknown,
   email: unknown,
   password: unknown,
-  errors: RegisterErrors,
 ): Promise<RegisterErrors | null> {
+  const errors: RegisterErrors | null = {};
+
   if (typeof firstname !== "string" || firstname === "") {
     errors.firstname = "Vardas privalomas";
   }
@@ -229,8 +222,6 @@ export async function validateOrderData(
   orderName: unknown,
   completionDate: unknown,
   workerEmail: unknown,
-  currentWorkerId: unknown,
-  currentOrderStatus: unknown,
   description: unknown,
   footageLink: unknown,
 ): Promise<OrderErrors | null> {

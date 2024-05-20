@@ -72,8 +72,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     orderName,
     completionDate,
     workerEmail,
-    null,
-    null,
     description,
     footageLink,
   );
