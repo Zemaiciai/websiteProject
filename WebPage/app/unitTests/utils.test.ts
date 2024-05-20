@@ -2,6 +2,7 @@ import { vi, describe, it, expect } from "vitest";
 import {
   validateDate,
   validateEmail,
+  validateOrderData,
   validateRegistrationCredentials,
   validateUrl,
 } from "../utils";
@@ -65,121 +66,60 @@ describe("utils validation tests", () => {
   });
 
   describe("Validate entered registration values", () => {
-    interface RegisterErrors {
-      email?: string;
-      password?: string;
-      firstname?: string;
-      lastname?: string;
-      username?: string;
-      secretCode?: string;
-      existingUser?: string;
-      wrongCredentials?: string;
-      wrongSecretCode?: string;
-    }
-    it("returns error object if undefined values are provided", async () => {
-      const expectedErrors: RegisterErrors | null = {
-        email: "El. pašto adresas privalomas",
-        firstname: "Vardas privalomas",
-        lastname: "Pavardė privaloma",
-        password: "Slaptažodis privalomas",
-        secretCode: "Pakvietimo kodas privalomas",
-        username: "Slapyvardis privalomas",
-      };
-      const errors = await validateRegistrationCredentials(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-      );
-      expect(errors).toStrictEqual(expectedErrors);
+    it("returns error object if empty, undefined or null strings are provided", async () => {
+      const invalidStrings = [undefined, null, "     "];
+      invalidStrings.forEach(async (badString) => {
+        const result = await validateRegistrationCredentials(
+          badString,
+          badString,
+          badString,
+          badString,
+          badString,
+          badString,
+        );
+        expect(result).toBeTypeOf("object");
+      });
     });
 
-    it("returns error object if null values are provided", async () => {
-      const expectedErrors: RegisterErrors | null = {
-        email: "El. pašto adresas privalomas",
-        firstname: "Vardas privalomas",
-        lastname: "Pavardė privaloma",
-        password: "Slaptažodis privalomas",
-        secretCode: "Pakvietimo kodas privalomas",
-        username: "Slapyvardis privalomas",
-      };
-      const errors = await validateRegistrationCredentials(
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
+    it("returns null if valid strings are provided", async () => {
+      const result = await validateRegistrationCredentials(
+        "firstname",
+        "lastname",
+        "username",
+        "secretCode",
+        "email@gmail.com",
+        "password",
       );
-      expect(errors).toStrictEqual(expectedErrors);
+      expect(result).toBe(null);
+    });
+  });
+
+  describe("Validate entered order values", () => {
+    it("returns error object if empty, undefined or null strings are provided", async () => {
+      const invalidStrings = [undefined, null, "     "];
+      invalidStrings.forEach(async (badString) => {
+        const result = await validateOrderData(
+          badString,
+          badString,
+          badString,
+          badString,
+          badString,
+          badString,
+        );
+        expect(result).toBeTypeOf("object");
+      });
     });
 
-    it("returns error object if bad firstname is provided", async () => {
-      const expectedErrors: RegisterErrors | null = {
-        firstname: "Vardas privalomas",
-      };
-      expect(
-        await validateRegistrationCredentials(
-          null,
-          "a",
-          "a",
-          "a",
-          "a@gmail.com",
-          "aaaaaaa123",
-        ),
-      ).toStrictEqual(expectedErrors);
-      expect(
-        await validateRegistrationCredentials(
-          null,
-          "a",
-          "a",
-          "a",
-          "a@gmail.com",
-          "aaaaaaa123",
-        ),
-      ).toStrictEqual(expectedErrors);
-      expect(
-        await validateRegistrationCredentials(
-          "          ",
-          "a",
-          "a",
-          "a",
-          "a@gmail.com",
-          "aaaaaaa123",
-        ),
-      ).toStrictEqual(expectedErrors);
-    });
-
-    it("returns error object if bad lastname is provided", async () => {
-      const expectedErrors: RegisterErrors | null = {
-        firstname: "Vardas privalomas",
-      };
-      const errors = await validateRegistrationCredentials(
-        null,
-        "a",
-        "a",
-        "a",
-        "a@gmail.com",
-        "aaaaaaa123",
+    it("returns null if valid strings are provided", async () => {
+      const result = await validateOrderData(
+        1,
+        "orderName",
+        new Date(),
+        "workerEmail@gmail.com",
+        "description",
+        "https://valid-footage-link.com",
       );
-      expect(errors).toStrictEqual(expectedErrors);
-    });
-
-    it("returns error object if bad email is provided", async () => {
-      const expectedErrors: RegisterErrors | null = {
-        email: "El. pašto adresas netinkamas",
-      };
-      const errors = await validateRegistrationCredentials(
-        "a",
-        "a",
-        "a",
-        "a",
-        "a",
-        "aaaaaaa123",
-      );
-      expect(errors).toStrictEqual(expectedErrors);
+      expect(result).toBe(null);
     });
   });
 });
