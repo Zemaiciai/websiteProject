@@ -4,6 +4,16 @@
 Description
 
 
+# Tailwind
+
+For our projects front-end we are using tailwind with very small introductions of normal css
+
+
+# BACKEND
+
+For our projects back-end we are using ----------------------------
+
+
 ## How to run our project locally
 
 Install dependencies
