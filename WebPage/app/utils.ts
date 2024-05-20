@@ -250,16 +250,6 @@ export async function validateOrderData(
     errors.workerEmail = "Darbuotojo el. paštas privalomas";
   } else if (!validateEmail(workerEmail)) {
     errors.workerEmail = "Neteisingas darbuotojo el. paštas";
-  } else if (
-    currentOrderStatus === OrderStatus.ACCEPTED ||
-    currentOrderStatus === OrderStatus.COMPLETED ||
-    currentOrderStatus === OrderStatus.PAYED
-  ) {
-    const user = await getUserById(String(currentWorkerId));
-    if (user?.email !== workerEmail) {
-      errors.workerEmail =
-        "Darbuotojas jau priėmė užsakymą todėl jo keisti negalite";
-    }
   }
 
   if (typeof description !== "string")
@@ -273,6 +263,29 @@ export async function validateOrderData(
 
   if (typeof orderName !== "string" || orderName.trim().length <= 0)
     errors.orderName = "Užsakymo pavadinimas privalomas";
+
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+
+  return null;
+}
+
+export async function validateWorkSubmissionData(
+  footageLink: unknown,
+  additionalDescription?: unknown,
+): Promise<OrderErrors | null> {
+  const errors: OrderErrors = {};
+
+  if (typeof additionalDescription !== "string")
+    errors.description = "Aprašymo tipas neteisingas";
+  else if (additionalDescription.length > 500)
+    errors.description = "Aprašymas per ilgas";
+
+  if (typeof footageLink === "string" && footageLink.trim().length <= 0)
+    errors.footageLink = "Nuoroda privaloma";
+  else if (!validateUrl(footageLink))
+    errors.footageLink = "Nuorodos formatas neteisingas";
 
   if (Object.keys(errors).length > 0) {
     return errors;
