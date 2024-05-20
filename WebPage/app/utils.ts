@@ -196,12 +196,16 @@ export async function validateRegistrationCredentials(
 
   return null;
 }
-
+interface LoginErrors {
+  email?: string;
+  password?: string;
+  wrongCredentials?: string;
+}
 export async function validateLoginCredentials(
   email: unknown,
   password: unknown,
-  errors: RegisterErrors,
-): Promise<User | null> {
+): Promise<LoginErrors | null> {
+  const errors: LoginErrors = {};
   if (typeof email !== "string" || email.length <= 0) {
     errors.email = "El. pašto adresas privalomas";
   } else if (email.length < 3 || !email.includes("@")) {
@@ -211,17 +215,14 @@ export async function validateLoginCredentials(
     errors.password = "Slaptažodis privalomas";
   }
 
-  if (Object.keys(errors).length > 0) {
-    return null;
-  }
-
   const user = await verifyLogin(email as string, password as string);
   if (!user) {
     errors.wrongCredentials = "Neteisingas el. paštas arba slaptažodis";
-    return null;
   }
-
-  return user;
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+  return null;
 }
 
 interface OrderErrors {
@@ -361,9 +362,8 @@ export async function validateCustomMessage(
   customMessageName: unknown,
   customMessageMessage: unknown,
   customMessagePriority: unknown,
-  errors: InviteCustomMessagesErrors,
 ): Promise<InviteCustomMessagesErrors | null> {
-  //const errors: InviteCodeGenerationErrors = {};
+  const errors: InviteCustomMessagesErrors = {};
 
   if (typeof customMessageName !== "string" || customMessageName.length <= 0) {
     errors.customMessageName = "Pavadinimas yra privalomas";
@@ -404,8 +404,8 @@ export async function validateChangeUserInfo(
   emailValidation: unknown,
   roleValidation: unknown,
   expirationDateValidation: unknown,
-  errors: ChangeUserInfoErrors,
 ): Promise<ChangeUserInfoErrors | null> {
+  const errors: ChangeUserInfoErrors = {};
   if (
     typeof firstNameValidation !== "string" ||
     firstNameValidation.length <= 0
