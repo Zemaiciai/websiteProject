@@ -69,14 +69,13 @@ export async function requireUserId(
   return userId;
 }
 
-export async function isUserClient(request: Request) {
+export async function isUserClient(request: Request, kickOut?: boolean) {
   const userId = await requireUserId(request);
   const user = await getUserById(userId!);
 
-  if (user?.role !== "Klientas") {
-    redirect("/orders");
-    return false;
-  }
+  if (user?.role !== "Klientas" && kickOut) {
+    throw redirect(`/orders`);
+  } else if (user?.role !== "Klientas") return false;
 
   return true;
 }

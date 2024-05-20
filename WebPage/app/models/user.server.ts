@@ -129,7 +129,9 @@ export async function verifyLogin(
 }
 
 export async function getAllusers() {
-  return prisma.user.findMany();
+  return prisma.user.findMany({
+    select: { userName: true, role: true, id: true },
+  });
 }
 
 export async function baningUser(
