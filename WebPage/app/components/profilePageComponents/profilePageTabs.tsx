@@ -36,6 +36,7 @@ interface UserInfoProps {
   workExample: workExamples | null | undefined;
   socialMediaLinks: socialMedia | null;
   orderCount: number;
+  lateCount: number;
   Reviews: UserRating[] | null | undefined;
 }
 
@@ -46,6 +47,7 @@ function ProfilePageTabs({
   socialMediaLinks,
   orderCount,
   Reviews,
+  lateCount,
 }: UserInfoProps) {
   const [activeTab, setActiveTab] = useState("");
   const [edit, setEdit] = useState(false);
@@ -141,7 +143,7 @@ function ProfilePageTabs({
             </button>
           </li>
         )}
-        {isUserWorker() && (
+        {isUserWorker() && false && (
           <li className="me-2">
             <button
               className={`inline-block p-4  ${
@@ -306,7 +308,7 @@ function ProfilePageTabs({
               </div>
               <div className="ml-4">
                 <div className="stat-title font-bold">Laiku atlikti darbai</div>
-                <div className="stat-value">{Number(orderCount)}%</div>
+                <div className="stat-value">{Number(lateCount)}%</div>
               </div>
             </div>
           </div>

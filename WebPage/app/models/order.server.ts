@@ -23,7 +23,7 @@ export async function payForOrder(
   });
 
   if (!sender) {
-    throw new Error(`User that was trying to send money wasn't found`);
+    return Error(`User that was trying to send money wasn't found`);
   }
   const reicever = await prisma.user.findFirst({
     where: {

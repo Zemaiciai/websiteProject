@@ -77,6 +77,8 @@ interface OrderDetailedPageErrors {
   editNotAllowed?: string;
   userMismatch?: string;
   noErrors?: boolean;
+  price?: string;
+  noMoney?: string;
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -246,6 +248,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           newStatus = OrderStatus.DECLINED;
           break;
         case "Sumokėti":
+          if (customer.balance < order.price) {
+            const errors: OrderDetailedPageErrors | null = {};
+            errors.noMoney = "Balanse neturi pakankamai pinigų";
+            return typedjson({ errors: errors }, { status: 400 });
+          }
           await sendNotification(
             order.workerId,
             `Už užsakymą ${order.orderName} sumokėta`,
@@ -412,6 +419,7 @@ export default function OrderDetailPage() {
   const [canPay, setCanPay] = useState(false);
   const [ended, setEnded] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<string>("0");
   const [showWarning, setShowWarning] = useState<boolean>(false);
@@ -423,6 +431,9 @@ export default function OrderDetailPage() {
     return match ? match[1] : undefined;
   };
 
+  const handleNoMoney = () => {
+    if (actionData && actionData.errors?.noMoney) setShowErrorMessage(true);
+  };
   const handleDateChange = (
     event: React.ChangeEvent<HTMLSelectElement>,
     type: string,
@@ -483,8 +494,6 @@ export default function OrderDetailPage() {
   };
 
   useEffect(() => {
-    console.log(actionData);
-
     if (actionData && actionData.errors !== null) {
       showPopUp();
     }
@@ -499,6 +508,7 @@ export default function OrderDetailPage() {
   };
   const handlePopUpAnimationEnd = () => {
     setShowMessage(false);
+    setShowErrorMessage(false);
   };
 
   return (
@@ -512,6 +522,18 @@ export default function OrderDetailPage() {
             {actionData?.errors?.userMismatch}
           </span>
         )}
+        <Suspense>
+          <Await resolve={actionData}>
+            <div
+              className={`absolute left-[45%] -top-14 p-4 rounded bg-red-500 text-white ${
+                showErrorMessage ? "animate-popup " : "-top-14"
+              }`}
+              onAnimationEnd={handlePopUpAnimationEnd}
+            >
+              {actionData?.errors?.noMoney}
+            </div>
+          </Await>
+        </Suspense>
         <ul className="flex grow-0 w-full border-b border-gray-200 pb-3 pl-3 pt-4">
           <div className="flex h-full w-full justify-between">
             <h1 className="flex w-[36rem] font-bold text-2xl">
@@ -586,6 +608,7 @@ export default function OrderDetailPage() {
                     {actionData?.errors?.editNotAllowed}
                   </div>
                 ) : null}
+
                 <Suspense>
                   <Await resolve={actionData}>
                     <div
@@ -838,7 +861,11 @@ export default function OrderDetailPage() {
           </Form>
         )}
         {canPay && isClient && (
-          <Form method="post" className="flex justify-center">
+          <Form
+            method="post"
+            className="flex justify-center"
+            onSubmit={handleNoMoney}
+          >
             <input type="hidden" name="orderId" value={order.id} readOnly />
             <input type="hidden" name="intent" value="changeStatus" readOnly />
             <input

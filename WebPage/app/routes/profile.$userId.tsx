@@ -48,11 +48,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const completedOrders = orders?.filter(
     (order) =>
-      order.orderStatus === "COMPLETED" || order.orderStatus === "PAYED",
+      order.orderStatus === "COMPLETED" ||
+      order.orderStatus === "PAYED" ||
+      order.orderStatus === "LATE" ||
+      order.orderStatus === "PAYED_LATE",
   );
   let ordersCount = 0;
   if (Number(completedOrders?.length) > 0) {
     ordersCount = Number(completedOrders?.length);
+  }
+  const lateCompletedOrders = orders?.filter(
+    (order) =>
+      order.orderStatus === "COMPLETED" || order.orderStatus === "PAYED",
+  );
+  let lateCount = 0;
+  if (Number(lateCompletedOrders?.length) > 0) {
+    lateCount = Number(lateCompletedOrders?.length);
+    lateCount = (lateCount / ordersCount) * 100;
   }
 
   const checkPendingStatusRequesteer = await checkPendingStatusRequesteerSide(
@@ -81,6 +93,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     workExamples: await getUserWorkExamples(userProfileId),
     ordersCount: ordersCount,
     listOfReviews: listOfReviews,
+    lateCount: lateCount,
   });
 };
 interface Errors {
@@ -227,6 +240,7 @@ export default function NoteDetailsPage() {
           socialMediaLinks={data.socialMediaLinks}
           orderCount={data.ordersCount}
           Reviews={data.listOfReviews}
+          lateCount={data.lateCount}
         />
       </div>
     </div>
