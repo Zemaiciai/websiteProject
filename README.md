@@ -1,17 +1,17 @@
 
 # Website for videography services
 
-Description
+Our project is used for videographers and clients to find each other faster and manage their orders.
 
 
-# Tailwind
+# Front-end
 
-For our projects front-end we are using tailwind with very small introductions of normal css
+We are using Tailwind with very small parts of normal CSS.
 
 
-# BACKEND
+# Back-end
 
-For our projects back-end we are using ----------------------------
+We are using Remix (React), Prisma, PostgreSQL.
 
 
 ## How to run our project locally
