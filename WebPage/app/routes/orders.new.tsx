@@ -72,8 +72,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     orderName,
     completionDate,
     workerEmail,
-    null,
-    null,
     description,
     footageLink,
   );
@@ -104,8 +102,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   // however typescript can't see that for some reason
   const order = await createOrder(
     orderName,
-    createdBy!, // Non-null assertion
-    worker!, // Non-null assertion
+    createdBy!.id, // Non-null assertion
+    worker!.id, // Non-null assertion
     completionDate,
     revisionDays,
     description,

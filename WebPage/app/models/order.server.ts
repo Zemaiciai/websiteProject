@@ -1,3 +1,6 @@
+import { getUserByEmail } from "./user.server";
+import { sendNotification } from "./notification.server";
+import { prisma } from "../db.server";
 import {
   NotificationTypes,
   OrderStatus,
@@ -6,18 +9,14 @@ import {
   type User,
 } from "@prisma/client";
 
-import { prisma } from "~/db.server";
-import { getUserByEmail } from "./user.server";
-import { sendNotification } from "./notification.server";
-import OrdersTable from "~/components/common/OrderPage/OrdersTable";
-import { connect } from "node:http2";
-
 export type { Order } from "@prisma/client";
 
 export async function updateOrderStatus(
   newStatus: OrderStatus,
   orderId: Order["id"],
 ) {
+  if (!(await getOrderById(orderId))) return null;
+
   const updatedOrder = await prisma.order.update({
     where: { id: orderId },
     data: { orderStatus: newStatus },
@@ -176,8 +175,8 @@ export async function updateOrder(
 
 export async function createOrder(
   orderName: string,
-  createdBy: User,
-  worker: User,
+  createdById: User["id"],
+  workerId: User["id"],
   completionDate: Date,
   revisionDays: number,
   description: string,
@@ -192,10 +191,10 @@ export async function createOrder(
       description: description,
       footageLink: footageLink,
       worker: {
-        connect: { id: worker.id },
+        connect: { id: workerId },
       },
       createdBy: {
-        connect: { id: createdBy.id },
+        connect: { id: createdById },
       },
     },
   });

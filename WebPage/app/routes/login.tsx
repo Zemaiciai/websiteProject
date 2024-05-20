@@ -6,6 +6,7 @@ import type {
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { CustomInput } from "~/components/common/CustomInput";
+import { getUserByEmail } from "~/models/user.server";
 
 import { createUserSession, getUserId } from "~/session.server";
 import { safeRedirect, validateLoginCredentials } from "~/utils";
@@ -16,12 +17,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return json({});
 };
 
-interface Errors {
-  email?: string;
-  password?: string;
-  wrongCredentials?: string;
-}
-
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const email = formData.get("email");
@@ -29,12 +24,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
   const remember = formData.get("remember");
 
-  const errors: Errors = {};
-  const user = await validateLoginCredentials(email, password, errors);
-
-  if (errors && Object.keys(errors).length > 0) {
-    return json({ errors }, { status: 400 });
-  } else if (user) {
+  const validationsErrors = await validateLoginCredentials(email, password);
+  if (validationsErrors && Object.keys(validationsErrors).length > 0) {
+    return json({ validationsErrors }, { status: 400 });
+  }
+  const user = await getUserByEmail(String(email));
+  if (user) {
     return createUserSession({
       redirectTo,
       remember: remember === "on" ? true : false,
@@ -81,20 +76,20 @@ export default function LoginPage() {
                   name="email"
                   type="text"
                   title="El. paštas"
-                  error={actionData?.errors.email}
+                  error={actionData?.validationsErrors.email}
                 />
                 <CustomInput
                   name="password"
                   type="password"
                   title="Slaptažodis"
-                  error={actionData?.errors.password}
+                  error={actionData?.validationsErrors.password}
                 />
-                {actionData?.errors?.wrongCredentials ? (
+                {actionData?.validationsErrors?.wrongCredentials ? (
                   <div
                     className="font-bold text-red-400"
                     id="wrong-credentials-error"
                   >
-                    {actionData.errors.wrongCredentials}
+                    {actionData.validationsErrors.wrongCredentials}
                   </div>
                 ) : null}
 

@@ -39,7 +39,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const secretCode = String(formData.get("secretCode"));
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
 
-  const errors: Errors = {};
+  const additionalErrors: Errors = {};
 
   const validationErrors = await validateRegistrationCredentials(
     firstname,
@@ -48,7 +48,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     secretCode,
     email,
     password,
-    errors,
   );
 
   if (validationErrors !== null) {
@@ -56,8 +55,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   if (await getUserByEmail(email)) {
-    errors.existingUser = "Vartotojas su tuo pačiu el. paštu jau egzistuoja";
-    return json({ errors: errors }, { status: 400 });
+    additionalErrors.existingUser =
+      "Vartotojas su tuo pačiu el. paštu jau egzistuoja";
+    return json({ errors: additionalErrors }, { status: 400 });
   }
 
   const user = await createUser(
@@ -70,8 +70,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   );
 
   if (!user) {
-    errors.wrongSecretCode = "Neteisingas pakvietimo kodas arba el. paštas";
-    return json({ errors: errors }, { status: 400 });
+    additionalErrors.wrongSecretCode =
+      "Neteisingas pakvietimo kodas arba el. paštas";
+    return json({ errors: additionalErrors }, { status: 400 });
   }
 
   return createUserSession({

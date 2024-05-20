@@ -2,6 +2,7 @@ import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
 import { Form, json, useActionData, useLoaderData } from "@remix-run/react";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import YouTube from "react-youtube";
 import { getUserById } from "~/models/user.server";
 import {
   WorkerAdsUpdate,
@@ -96,6 +97,13 @@ const GroupDetailPage = () => {
     setActiveTabUsers(tab);
   };
   const errorData = useActionData<ChangeWorkerAdErrors>();
+
+  const YoutubeLinkToId = (link: string) => {
+    const youtubePattern =
+      /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})\b/;
+    const match = link.match(youtubePattern);
+    return match ? match[1] : undefined;
+  };
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mt-3 ml-3 mr-1 w-full md:w-[calc(100% - 360px)]">
@@ -139,15 +147,7 @@ const GroupDetailPage = () => {
               </h1>
               <ul className="list-disc pl-8">
                 {getGroup?.adsExamples.map((videoLink, index) => (
-                  <li key={index} className="py-2">
-                    <a
-                      href={videoLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {videoLink}
-                    </a>
-                  </li>
+                  <YouTube videoId={YoutubeLinkToId(videoLink)} />
                 ))}
               </ul>
             </div>
