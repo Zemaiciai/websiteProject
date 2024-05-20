@@ -1,6 +1,6 @@
 import { User, NotificationTypes } from "@prisma/client";
 
-import { prisma } from "~/db.server";
+import { prisma } from "../db.server";
 import { getUserById } from "./user.server";
 import { Notification } from "@prisma/client";
 
@@ -94,4 +94,12 @@ export async function updateNotificationStatusToRead(
       },
     });
   else return null;
+}
+
+export async function getOrderRelatedNotifications(userId: User["id"]) {
+  const allUserNotifications = await getUserNotifications(userId);
+
+  return allUserNotifications.filter((n) =>
+    n.notificationType.startsWith("ORDER"),
+  );
 }

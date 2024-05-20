@@ -3,6 +3,7 @@ import OrderTimer from "./OrderTimer";
 import { User } from "~/models/user.server";
 import { useNavigate } from "@remix-run/react";
 import { Order } from "@prisma/client";
+import RenderStatus from "./OrderStatus";
 interface OrderCardProps {
   order: Order;
   createdBy: User["userName"];
@@ -27,17 +28,9 @@ export default function OrderCard({ createdBy, order }: OrderCardProps) {
       className="bg-white border-b  hover:bg-gray-50 cursor-pointer "
     >
       <td className="px-6 py-4">{createdBy}</td>
-      <td className="px-6 py-4">{order.orderName}</td>
-      <td className="px-6 py-4">
-        <span
-          className={`${
-            order.orderStatus === "ACCEPTED"
-              ? "text-green-400"
-              : order.orderStatus === "DECLINED" && "text-green-400"
-          } ml-1`}
-        >
-          {order.orderStatus}
-        </span>
+      <td className="px-6 py-4 truncate max-w-4">{order.orderName}</td>
+      <td className="px-3 py-4">
+        <RenderStatus status={order.orderStatus} box={true} />
       </td>
       <td className="px-6 py-4">
         <OrderTimer

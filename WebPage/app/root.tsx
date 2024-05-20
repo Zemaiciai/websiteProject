@@ -1,6 +1,7 @@
 import { cssBundleHref } from "@remix-run/css-bundle";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import {
+  Await,
   Links,
   LiveReload,
   Meta,
@@ -16,7 +17,7 @@ import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import { getUser } from "~/session.server";
 import stylesheet from "~/tailwind.css";
 import NavBar from "./components/common/NavBar/NavBar";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import NavBarHeader from "./components/common/NavBar/NavBarHeader";
 import NewFooter from "./components/newFooter/NewFooter";
 import { getUserNotifications } from "./models/notification.server";

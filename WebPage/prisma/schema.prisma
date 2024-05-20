@@ -9,13 +9,15 @@ generator client {
 
 enum OrderStatus {
   PLACED
-  IN_PROGRESS
+  TIME_ENDED
   PAYED
   COMPLETED
   ACCEPTED
   DECLINED
   CANCELLED
   REMOVED
+  LATE
+  PAYED_LATE
 }
 
 enum GroupsRoles {
@@ -30,7 +32,7 @@ enum NotificationTypes {
   ORDER_PAYED
   ORDER_ACCEPTED
   ORDER_DECLINED
-  ORDER_IN_PROGRESS
+  ORDER_TIME_ENDED
   ORDER_UPDATED
   FRIEND_REQUEST
   FRIEND_ACCEPTED
@@ -48,39 +50,37 @@ model User {
 
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  expiringAt DateTime
+  expiringAt     DateTime
 
-  password       Password?
-  notes Note[]
+  password              Password?
+  notes                 Note[]
   notificationsRecieved Notification[] @relation("Recipient")
-  createdOrders  Order[]  @relation("CreatedBy")
-  workingOrders  Order[]  @relation("Worker")
-  role String
-  percentage String?
+  createdOrders         Order[]  @relation("CreatedBy")
+  workingOrders         Order[]  @relation("Worker")
+  role                  String
+  percentage            String?
 
-  warningAmount String
-  firstWarning String?
-  firstWarningDate DateTime?
-  secondWarning String?
+  warningAmount     String
+  firstWarning      String?
+  firstWarningDate  DateTime?
+  secondWarning     String?
   secondWarningDate DateTime?
-  thirdWarning String?
-  thirdWarningDate DateTime?
-  balance Decimal @db.Decimal(10,2)
+  thirdWarning      String?
+  thirdWarningDate  DateTime?
+  balance           Decimal @db.Decimal(10,2)
 
-  userStatus String
-  banReason String?
-  groups            GroupUser[]
+  userStatus     String
+  banReason      String?
+  groups         GroupUser[]
 
   requestedFriendships FriendshipRequest[] @relation("RequestedFriendships")
   receivedFriendships  FriendshipRequest[]  @relation("ReceivedFriendships")
 
-    // New fields for messaging
-  sentMessages          Message[]         @relation("Sender")
-  receivedMessages      Message[]         @relation("Recipient")
-  conversations         Conversation[]    @relation("UserConversations")
+  sentMessages     Message[]         @relation("Sender")
+  receivedMessages Message[]         @relation("Recipient")
+  conversations    Conversation[]    @relation("UserConversations")
 
-  // Used for user ratings
-  rating Int
+  rating       Int
   ratingAmount Int
 }
 
@@ -109,6 +109,16 @@ model Order {
   footageLink String
   price Decimal @db.Decimal(10,2)
   
+  workSubmission OrderSubmission? @relation("submission", fields: [submissionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  submissionId String? @unique
+}
+
+model OrderSubmission {
+  id               String @id @default(cuid())
+  order            Order? @relation("submission")
+
+  submissionLink   String
+  additionalDescription String?
 }
 
 model SecretCodeAdmin {
@@ -241,11 +251,13 @@ model socialMedia{
   InstagramLink String
   TwitterLink String
 }
+
 model workExamples{
   id String @id @default(cuid())
   userid String
   examples String[]
 }
+
 model questionerAnswers{
   id String @id @default(cuid())
   userid String

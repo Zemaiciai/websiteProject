@@ -3,9 +3,8 @@ import {
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
-import { Form } from "@remix-run/react";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Await, Form } from "@remix-run/react";
+import { Suspense, useEffect, useState } from "react";
 import {
   redirect,
   typedjson,
@@ -14,22 +13,26 @@ import {
 } from "remix-typedjson";
 import OrderTimer from "~/components/common/OrderPage/OrderTimer";
 import {
+  addSubmission,
   getOrderById,
   payForOrder,
+  getOrderSubmission,
   updateOrder,
   updateOrderStatus,
+  updateSubmission,
 } from "~/models/order.server";
 import { User, getUserByEmail, getUserById } from "~/models/user.server";
-import { isUserClient, requireUser, requireUserId } from "~/session.server";
+import { getUser, isUserClient } from "~/session.server";
 import OrderDatePicker from "~/components/common/OrderPage/OrderDatePicker";
 import OrderInput from "~/components/common/OrderPage/OrderInput";
-import { useUser, validateOrderData } from "~/utils";
-import { OrderErrors } from "./orders.new";
+import { validateOrderData, validateWorkSubmissionData } from "~/utils";
 import {
   NotificationTypes,
   sendNotification,
 } from "~/models/notification.server";
 import { OrderStatus } from "@prisma/client";
+import RenderStatus from "~/components/common/OrderPage/OrderStatus";
+import YouTube from "react-youtube";
 export { OrderStatus } from "@prisma/client";
 
 export const meta: MetaFunction = () => [
@@ -37,7 +40,6 @@ export const meta: MetaFunction = () => [
 ];
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  await requireUser(request);
   const { orderId } = params;
 
   if (!orderId) {
@@ -57,22 +59,62 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         worker: worker,
         customer: customer,
         isClient: await isUserClient(request),
+        workSubmission: await getOrderSubmission(orderId),
       })
     : redirect("/orders");
 };
 
+interface OrderDetailedPageErrors {
+  customerNotFound?: string;
+  workerNotFound?: string;
+  workerEmail?: string;
+  wrongUser?: string;
+  orderName?: string;
+  completionDate?: string;
+  revisionDays?: string;
+  description?: string;
+  footageLink?: string;
+  editNotAllowed?: string;
+  userMismatch?: string;
+  noErrors?: boolean;
+}
+
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
+  const currentUser = await getUser(request);
   const intent = String(formData.get("intent"));
   const orderId = String(formData.get("orderId"));
+  const order = await getOrderById(orderId);
 
-  if (!orderId) return typedjson({ errors: null }, { status: 400 });
+  const intialErrors: OrderDetailedPageErrors | null = {};
+  intialErrors.noErrors = true;
+
+  if (!order) return typedjson({ errors: intialErrors }, { status: 400 });
+  const customer = await getUserById(order.customerId);
+  const worker = await getUserById(order.workerId);
+  if (!worker || !customer)
+    return typedjson({ errors: intialErrors }, { status: 400 });
+
+  console.log(
+    "Current user: ",
+
+    !(currentUser?.id === worker.id || currentUser?.id === customer.id),
+  );
+
+  console.log(currentUser?.userName);
+  console.log(worker.userName);
+  console.log(customer.userName);
+
+  if (!(currentUser?.id === worker.id || currentUser?.id === customer.id)) {
+    intialErrors.noErrors = false;
+    intialErrors.userMismatch =
+      "Tik darbuotojas arba klientas sukūres užsakymą gali daryti keitimus";
+    return typedjson({ errors: intialErrors }, { status: 400 });
+  }
 
   switch (intent) {
     case "update":
-      const currentOrder = await getOrderById(orderId);
-
-      const newOrderName = String(formData.get("orderName"));
+      const newOrderName = String(formData.get("orderName")).trim();
       const newWorkerEmail = String(formData.get("workerEmail"));
       const newCompletionDateString = formData.get("completionDate") as string;
       const newCompletionDate = new Date(newCompletionDateString);
@@ -82,9 +124,26 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const newPrice = String(formData.get("price"));
       const newPricee = parseInt(String(formData.get("price")), 10);
 
-      const createdBy = await getUserById(currentOrder!.customerId);
+      let validationErrors: OrderDetailedPageErrors | null = {};
 
-      let validationErrors: OrderErrors | null = {};
+      if (
+        order.orderStatus !== OrderStatus.ACCEPTED &&
+        order.completionDate.getTime() !== newCompletionDate.getTime()
+      ) {
+        validationErrors.editNotAllowed =
+          "Užsakymo pabaigos laiką galima keisti tik tada jei užsakymas dar nėra priimtas ar pasibaigęs";
+      }
+      if (
+        order.orderStatus !== OrderStatus.ACCEPTED &&
+        newWorkerEmail !== worker.email
+      ) {
+        validationErrors.editNotAllowed =
+          "Darbuotuoja keisti galima tik tada kai užsakymas dar nėra priimtas";
+      }
+
+      if (Object.keys(validationErrors).length > 0) {
+        return typedjson({ errors: validationErrors }, { status: 400 });
+      }
 
       if (newRevisionDays !== null)
         newCompletionDate.setDate(
@@ -96,24 +155,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         newOrderName,
         newCompletionDate,
         newWorkerEmail,
-        currentOrder?.workerId,
-        currentOrder?.orderStatus,
         newDescription,
         newFootageLink,
         newPrice,
       );
 
-      const worker = await getUserByEmail(newWorkerEmail);
+      const newWorker = await getUserByEmail(newWorkerEmail);
 
-      if (!createdBy) {
+      if (!customer) {
         validationErrors.customerNotFound = "Nerastas užsakovas";
       }
-      if (!worker) {
+
+      if (!newWorker) {
         validationErrors.workerNotFound = "Nerastas darbuotuojas";
-      }
-      if (worker?.email === createdBy?.email) {
+      } else if (newWorker.email === customer.email) {
         validationErrors.wrongUser = "Negalima sukurti užsakymo sau";
-      } else if (worker?.role === "client")
+      } else if (newWorker.role === "client")
         validationErrors.wrongUser =
           "Reikia pasirinkti darbuotoja, o ne klientą";
 
@@ -129,22 +186,43 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       await updateOrder(
         orderId,
         newOrderName,
-        createdBy!, // Non-null assertion
-        worker!, // Non-null assertion
+        customer,
+        newWorker!, // Non-null assertion
         newCompletionDate,
         newRevisionDays,
         newDescription,
         newFootageLink,
         newPricee,
       );
-      break;
+
+      let changesMade = "";
+
+      if (newOrderName !== order.orderName) changesMade = "pavadinimą, ";
+      if (newWorker!.id !== order.workerId) changesMade += "darbuotuoją, ";
+      if (newCompletionDate.getTime() !== order.completionDate.getTime())
+        changesMade += "pabaigos datą, ";
+      if (newDescription !== order.description) changesMade += "aprašymą, ";
+      if (newFootageLink !== order.footageLink)
+        changesMade += "video nuorodą, ";
+
+      if (changesMade.length > 0)
+        await sendNotification(
+          newWorker!.id,
+          `Vartotojas ${
+            customer.userName
+          } užsakyme ${order?.orderName} pakeitė ${changesMade.substring(
+            0,
+            changesMade.length - 2,
+          )}`,
+          NotificationTypes.ORDER_UPDATED,
+          orderId,
+        );
+
+      return typedjson({ errors: intialErrors }, { status: 200 });
     case "changeStatus":
       const state = formData.get("action");
-      const order = await getOrderById(orderId, true);
 
       if (!order) return typedjson({ errors: null }, { status: 400 });
-
-      const currentWorker = await getUserById(order.workerId);
 
       let newStatus: OrderStatus | undefined;
 
@@ -152,7 +230,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         case "Priimti":
           await sendNotification(
             order.customerId,
-            `Užsakymą ${order.orderName} vartotojas ${currentWorker?.userName} priėmė`,
+            `Užsakymą ${order.orderName} vartotojas ${worker.userName} priėmė`,
             NotificationTypes.ORDER_ACCEPTED,
             order.id,
           );
@@ -161,7 +239,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         case "Atmesti":
           await sendNotification(
             order.customerId,
-            `Užsakymą ${order.orderName} vartotojas ${currentWorker?.userName} atmetė`,
+            `Užsakymą ${order.orderName} vartotojas ${worker.userName} atmetė`,
             NotificationTypes.ORDER_DECLINED,
             order.id,
           );
@@ -181,6 +259,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             order.workerId,
             Number(order.price.d),
           );
+          if (order.orderStatus == "LATE") newStatus = OrderStatus.PAYED_LATE;
+          else newStatus = OrderStatus.PAYED;
           break;
         case "Pašalinti":
           newStatus = OrderStatus.REMOVED;
@@ -193,9 +273,102 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       if (newStatus !== undefined && orderId) {
         await updateOrderStatus(newStatus, orderId);
       }
+
+      return typedjson({ errors: null }, { status: 200 });
+    case "submitWork":
+      const submissionLink = String(formData.get("submissionLink"));
+      const additionalDescription = String(
+        formData.get("additionalDescription"),
+      );
+
+      let workSubmissionErrors: OrderDetailedPageErrors | null = {};
+
+      const workSubmissionAditionalErrors = await validateWorkSubmissionData(
+        submissionLink,
+        additionalDescription,
+      );
+
+      if (workSubmissionAditionalErrors != null) {
+        workSubmissionErrors = {
+          ...workSubmissionErrors,
+          ...workSubmissionAditionalErrors,
+        };
+      }
+
+      if (
+        workSubmissionErrors === null ||
+        Object.keys(workSubmissionErrors).length > 0
+      ) {
+        return typedjson({ errors: workSubmissionErrors }, { status: 400 });
+      }
+
+      if (order.submissionId) {
+        const previousSubmission = await getOrderSubmission(order.id);
+
+        if (!previousSubmission)
+          return typedjson({ errors: intialErrors }, { status: 200 });
+
+        await updateSubmission(
+          order.submissionId,
+          submissionLink,
+          additionalDescription,
+        );
+
+        let notificationMessege = "";
+
+        if (
+          previousSubmission?.additionalDescription !== additionalDescription &&
+          previousSubmission?.submissionLink !== submissionLink
+        ) {
+          notificationMessege = "pakeitė įkelto darbo aprašymą ir nuorodą";
+        } else if (
+          previousSubmission?.additionalDescription !== additionalDescription
+        ) {
+          notificationMessege = "pakeitė įkelto darbo aprašymą";
+        } else if (previousSubmission?.submissionLink !== submissionLink) {
+          notificationMessege = "pakeitė įkelto darbo nuorodą";
+        }
+
+        if (notificationMessege.length > 0)
+          await sendNotification(
+            order.customerId,
+            `${worker.userName} ${notificationMessege}`,
+            NotificationTypes.ORDER_UPDATED,
+            order.id,
+          );
+      } else {
+        await addSubmission(order.id, submissionLink, additionalDescription);
+        if (order.orderStatus == "TIME_ENDED") {
+          await sendNotification(
+            order.customerId,
+            `${worker.userName} įkėlė darbą pavėluotai`,
+            NotificationTypes.ORDER_UPDATED,
+            order.id,
+          );
+          await updateOrderStatus(OrderStatus.LATE, order.id);
+        } else {
+          await sendNotification(
+            order.customerId,
+            `${worker.userName} įkėlė darbą`,
+            NotificationTypes.ORDER_UPDATED,
+            order.id,
+          );
+          await updateOrderStatus(OrderStatus.COMPLETED, order.id);
+        }
+      }
+
+      return typedjson({ errors: intialErrors }, { status: 200 });
+    case "acceptSubmission":
+      await sendNotification(
+        worker.id,
+        `Jūsų įkeltas darbas ${order.orderName} priimtas`,
+        NotificationTypes.ORDER_COMPLETED,
+      );
+
+      return typedjson({ errors: null }, { status: 200 });
   }
 
-  return typedjson({ errors: null }, { status: 400 });
+  return typedjson({ errors: null }, { status: 200 });
 };
 
 interface UserCardProps {
@@ -227,7 +400,7 @@ function UserCard({ user }: UserCardProps) {
 }
 
 export default function OrderDetailPage() {
-  const { order, worker, customer, isClient } =
+  const { order, worker, customer, isClient, workSubmission } =
     useTypedLoaderData<typeof loader>();
   console.log(order.price);
   const actionData = useTypedActionData<typeof action>();
@@ -238,10 +411,17 @@ export default function OrderDetailPage() {
   };
   const [canPay, setCanPay] = useState(false);
   const [ended, setEnded] = useState(false);
-
+  const [showMessage, setShowMessage] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-
   const [selectedDay, setSelectedDay] = useState<string>("0");
+  const [showWarning, setShowWarning] = useState<boolean>(false);
+
+  const YoutubeLinkToId = (link: string) => {
+    const youtubePattern =
+      /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})\b/;
+    const match = link.match(youtubePattern);
+    return match ? match[1] : undefined;
+  };
 
   const handleDateChange = (
     event: React.ChangeEvent<HTMLSelectElement>,
@@ -283,10 +463,11 @@ export default function OrderDetailPage() {
       [OrderStatus.CANCELLED]: false,
       [OrderStatus.COMPLETED]: true,
       [OrderStatus.DECLINED]: false,
-      [OrderStatus.IN_PROGRESS]: false,
+      [OrderStatus.TIME_ENDED]: false,
       [OrderStatus.PAYED]: false,
       [OrderStatus.PLACED]: false,
       [OrderStatus.REMOVED]: false,
+      [OrderStatus.LATE]: true,
     };
 
     setCanPay(statusToCanPayMap[order.orderStatus] || false);
@@ -301,9 +482,36 @@ export default function OrderDetailPage() {
     setEnded(true);
   };
 
+  useEffect(() => {
+    console.log(actionData);
+
+    if (actionData && actionData.errors !== null) {
+      showPopUp();
+    }
+  }, [actionData]);
+
+  const showPopUp = () => {
+    setShowMessage(false);
+
+    if (actionData && actionData.errors?.noErrors) {
+      setShowMessage(true);
+    }
+  };
+  const handlePopUpAnimationEnd = () => {
+    setShowMessage(false);
+  };
+
   return (
     <>
       <div className="pt-2 pl-6 pr-6 pb-6 bg-custom-200 text-medium mr-1 w-full md:w-[calc(100% - 360px)]">
+        {actionData?.errors?.userMismatch && (
+          <span
+            className="pt-1 font-bold text-red-400 bottom-9"
+            id={`edit-not-allowed-error`}
+          >
+            {actionData?.errors?.userMismatch}
+          </span>
+        )}
         <ul className="flex grow-0 w-full border-b border-gray-200 pb-3 pl-3 pt-4">
           <div className="flex h-full w-full justify-between">
             <h1 className="flex w-[36rem] font-bold text-2xl">
@@ -311,23 +519,13 @@ export default function OrderDetailPage() {
             </h1>
             <div className="flex ml-2 justify-center items-center">
               Statusas:
-              <span
-                className={`${
-                  order?.orderStatus === "ACCEPTED"
-                    ? "text-green-400"
-                    : order.orderStatus === "DECLINED" && "text-red-400"
-                } ml-1`}
-              >
-                {order?.orderStatus}
-              </span>
+              <RenderStatus status={order.orderStatus} />
               <span className="flex text-nowrap ml-2">
                 <span className="pr-1">Likęs laikas:</span>
-                {
-                  <OrderTimer
-                    orderEndDate={order.completionDate}
-                    handleOrderEnd={handleOrderEnd}
-                  />
-                }
+                <OrderTimer
+                  orderEndDate={order.completionDate}
+                  handleOrderEnd={handleOrderEnd}
+                />
               </span>
             </div>
           </div>
@@ -355,10 +553,51 @@ export default function OrderDetailPage() {
           </div>
         ) : null}
 
+        {activeTabUsers === "viewSubmission" && (
+          <div className="flex pt-4">
+            {workSubmission && (
+              <div className="flex flex-col h-full w-full">
+                <div className="flex space-x-4">
+                  <div className="flex h-full flex-col">
+                    <span className="font-bold">Darbo nuoroda: </span>
+                    <YouTube
+                      videoId={YoutubeLinkToId(workSubmission.submissionLink)}
+                    />
+                  </div>
+                  <div className="flex flex-col w-full">
+                    <span className="font-bold">Darbo aprašymas: </span>
+                    <div>{workSubmission.additionalDescription}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {activeTabUsers === "updateOrder" && (
           <div className="flex w-full grow space-x-10">
             <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max">
               <Form method="put">
+                {actionData?.errors?.editNotAllowed ? (
+                  <div
+                    className="pt-1 font-bold text-red-400 bottom-9"
+                    id={`edit-not-allowed-error`}
+                  >
+                    {actionData?.errors?.editNotAllowed}
+                  </div>
+                ) : null}
+                <Suspense>
+                  <Await resolve={actionData}>
+                    <div
+                      className={`absolute left-[45%] -top-14 p-4 rounded bg-green-500 text-white ${
+                        showMessage ? "animate-popup " : "-top-14"
+                      }`}
+                      onAnimationEnd={handlePopUpAnimationEnd}
+                    >
+                      Užsakymas sėkmingai atnaujintas!
+                    </div>
+                  </Await>
+                </Suspense>
                 <div className="flex flex-wrap -mx-3">
                   <input name="orderId" value={order.id} readOnly hidden />
                   <input type="hidden" name="intent" value="update" readOnly />
@@ -419,7 +658,7 @@ export default function OrderDetailPage() {
                     }
                   />
                   <OrderInput
-                    title={"Aprasymas"}
+                    title={"Aprašymas"}
                     name={"description"}
                     defaultValue={
                       order.description !== null ? order.description : undefined
@@ -444,6 +683,57 @@ export default function OrderDetailPage() {
                     className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
                   >
                     Atnaujinti užsakymą
+                  </button>
+                </div>
+              </Form>
+            </div>
+          </div>
+        )}
+        {activeTabUsers === "submitWork" && (
+          <div className="flex w-full grow space-x-10">
+            <div className="p-6 flex flex-col bg-custom-200 text-medium w-full h-max">
+              <Form method="post">
+                <Suspense>
+                  <Await resolve={actionData}>
+                    <div
+                      className={`absolute left-[45%] -top-14 p-4 rounded bg-green-500 text-white ${
+                        showMessage ? "animate-popup " : "-top-14"
+                      }`}
+                      onAnimationEnd={handlePopUpAnimationEnd}
+                    >
+                      {order.submissionId
+                        ? "Darbas sėkmingai atnaujintas!"
+                        : "Darbas sėkmingai Įkeltas!"}
+                    </div>
+                  </Await>
+                </Suspense>
+                <div className="flex flex-wrap">
+                  <input name="orderId" value={order.id} readOnly hidden />
+                  <input name="intent" value="submitWork" readOnly hidden />
+                  <OrderInput
+                    title={"Papildomas aprašymas"}
+                    name={"additionalDescription"}
+                    defaultValue={
+                      workSubmission?.additionalDescription !== null
+                        ? workSubmission?.additionalDescription
+                        : undefined
+                    }
+                    error={actionData?.errors?.description}
+                    bigger={true}
+                  />
+                  <OrderInput
+                    title={"Darbo nuoroda"}
+                    name={"submissionLink"}
+                    defaultValue={workSubmission?.submissionLink}
+                    error={actionData?.errors?.footageLink}
+                  />
+                  <button
+                    type="submit"
+                    className="w-full rounded bg-custom-800 mt-5 px-2 py-2 text-white hover:bg-custom-850 transition duration-300 ease-in-out"
+                  >
+                    {order.submissionId === null
+                      ? "Įkelti darbą"
+                      : "Pakeisti darbą"}
                   </button>
                 </div>
               </Form>
@@ -477,6 +767,26 @@ export default function OrderDetailPage() {
             Peržiūrėti narius
           </button>
         </div>
+        {!isClient &&
+          (order.orderStatus === OrderStatus.ACCEPTED ||
+            order.orderStatus === OrderStatus.COMPLETED ||
+            order.orderStatus === OrderStatus.LATE ||
+            order.orderStatus === OrderStatus.TIME_ENDED) && (
+            <div className="flex justify-center pb-2">
+              <button
+                className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                  activeTabUsers === "submitWork"
+                    ? "text-white  py-2 bg-custom-900  border-black "
+                    : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+                } w-full`}
+                onClick={() => handleTabClickUser("submitWork")}
+              >
+                {order.submissionId === null
+                  ? "Įkelti darbą"
+                  : "Pakeisti darbą"}
+              </button>
+            </div>
+          )}
         {isClient && (
           <div className="flex justify-center pb-2">
             <button
@@ -488,6 +798,20 @@ export default function OrderDetailPage() {
               onClick={() => handleTabClickUser("updateOrder")}
             >
               Keisti informacija
+            </button>
+          </div>
+        )}
+        {isClient && order.submissionId && (
+          <div className="flex justify-center pb-2">
+            <button
+              className={`w-full cursor-pointer bg-custom-800 hover:bg-custom-850 text-white font-bold py-2 px-8 rounded text-nowrap ${
+                activeTabUsers === "viewSubmission"
+                  ? "text-white  py-2 bg-custom-900  border-black "
+                  : "text-white  py-2 bg-custom-800 hover:bg-custom-850 transition duration-300 ease-in-out border-black"
+              } w-full`}
+              onClick={() => handleTabClickUser("viewSubmission")}
+            >
+              Įkeltas darbas
             </button>
           </div>
         )}

@@ -8,7 +8,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import OrderDatePicker from "~/components/common/OrderPage/OrderDatePicker";
 import OrderInput from "~/components/common/OrderPage/OrderInput";
 import { sendNotification } from "~/models/notification.server";
@@ -20,7 +20,7 @@ export const meta: MetaFunction = () => [
   { title: "Naujas užsakymas - Žemaičiai" },
 ];
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await isUserClient(request);
+  await isUserClient(request, true);
   await requireUserId(request);
 
   return null;
@@ -37,6 +37,8 @@ interface OrderErrors {
   description?: string;
   footageLink?: string;
   price?: string;
+  editNotAllowed?: string;
+  noErrors?: boolean;
 }
 
 export type { OrderErrors };
@@ -45,8 +47,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
   const createdBy = await getUserById(userId);
 
+  if (!(await isUserClient(request))) redirect("/orders");
+
   const formData = await request.formData();
-  const orderName = String(formData.get("orderName"));
+  const orderName = String(formData.get("orderName")).trim();
   const workerEmail = String(formData.get("workerEmail"));
 
   const completionDateString = formData.get("completionDate") as string;
@@ -58,6 +62,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     revisionDate.setDate(revisionDate.getDate() + revisionDays);
   }
 
+  console.log(completionDate);
+
   const description = String(formData.get("description"));
   const footageLink = String(formData.get("footageLink"));
   const price = String(formData.get("price"));
@@ -68,8 +74,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     orderName,
     completionDate,
     workerEmail,
-    null,
-    null,
     description,
     footageLink,
     price,
@@ -102,8 +106,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   // however typescript can't see that for some reason
   const order = await createOrder(
     orderName,
-    createdBy!, // Non-null assertion
-    worker!, // Non-null assertion
+    createdBy!.id, // Non-null assertion
+    worker!.id, // Non-null assertion
     completionDate,
     revisionDays,
     description,
@@ -112,14 +116,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   );
 
   // Create a notification for the worker
-  const notification = await sendNotification(
+  await sendNotification(
     worker!.id,
     `Jums vartotojas ${createdBy!.userName} priskirė naują užsakymą!`,
     NotificationTypes.ORDER_ASSIGNED,
     order.id,
   );
-
-  console.log(notification);
 
   return redirect("/orders");
 };

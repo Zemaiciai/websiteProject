@@ -17,6 +17,7 @@ export default function SearchBar({
       <div className="input-wraper w-full flex items-center justify-center">
         <input
           type="text"
+          name="searchBar"
           value={searchQuery}
           onChange={handleSearch}
           placeholder="Ieškoti pagal pavadinimą..."
