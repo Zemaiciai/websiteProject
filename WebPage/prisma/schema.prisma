@@ -107,6 +107,7 @@ model Order {
   orderStatus OrderStatus
   description String?
   footageLink String
+  price Decimal @db.Decimal(10,2)
   
   workSubmission OrderSubmission? @relation("submission", fields: [submissionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   submissionId String? @unique

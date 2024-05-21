@@ -109,6 +109,7 @@ describe("utils validation tests", () => {
           badString,
           badString,
           badString,
+          badString,
         );
         expect(result).toBeTypeOf("object");
       });
@@ -122,6 +123,7 @@ describe("utils validation tests", () => {
         "workerEmail@gmail.com",
         "description",
         "https://valid-footage-link.com",
+        "asd",
       );
       expect(result).toBe(null);
     });

@@ -232,6 +232,7 @@ interface OrderErrors {
   workerEmail?: string;
   description?: string;
   footageLink?: string;
+  price?: string;
 }
 
 export async function validateOrderData(
@@ -241,6 +242,7 @@ export async function validateOrderData(
   workerEmail: unknown,
   description: unknown,
   footageLink: unknown,
+  price: unknown,
 ): Promise<OrderErrors | null> {
   const errors: OrderErrors = {};
 
@@ -269,9 +271,12 @@ export async function validateOrderData(
   else if (!validateUrl(footageLink))
     errors.footageLink = "Nuorodos formatas neteisingas";
 
-  if (typeof orderName !== "string" || orderName.trim().length <= 0)
+  if (typeof orderName !== "string" || orderName.trim().length <= 0) {
     errors.orderName = "Užsakymo pavadinimas privalomas";
-
+  }
+  if (typeof price !== "string" || price.length <= 0 || isNaN(Number(price))) {
+    errors.price = "Atlygis turi buti skaičius (Formato pvz.: 5.99)";
+  }
   if (Object.keys(errors).length > 0) {
     return errors;
   }
