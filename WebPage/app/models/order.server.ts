@@ -168,11 +168,47 @@ export async function getOrdersByUserId(
   }
 }
 
+export async function getAcceptedOrdersByUserId(
+  userId: User["id"],
+  includeUserName?: boolean,
+): Promise<Order[] | null> {
+  try {
+    let includeCreatedBy = {};
+    if (includeUserName) {
+      includeCreatedBy = { createdBy: { select: { userName: true } } };
+    }
+
+    const workerOrders = await prisma.order.findMany({
+      where: {
+        workerId: userId,
+        orderStatus: "ACCEPTED"
+      },
+      include: includeCreatedBy,
+    });
+
+    if (workerOrders.length > 0) {
+      return workerOrders;
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error fetching orders by user ID:", error);
+    return null;
+  }
+}
+
 export async function getOrdersByEmail(email: User["email"]) {
   const user = await getUserByEmail(email);
   if (!user) return null;
 
   return getOrdersByUserId(user.id);
+}
+
+export async function getAcceptedOrdersByEmail(email: User["email"]) {
+  const user = await getUserByEmail(email);
+  if (!user) return null;
+
+  return getAcceptedOrdersByUserId(user.id);
 }
 
 export async function updateOrder(
@@ -307,6 +343,8 @@ export async function getTasksRemaining(userId: User["id"]) {
     return inProgressOrdersCount;
   }
   return 0;
+  
+  
 }
 
 async function createNewSubmission(

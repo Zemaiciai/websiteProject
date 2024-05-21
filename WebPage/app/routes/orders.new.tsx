@@ -16,6 +16,7 @@ import { createOrder } from "~/models/order.server";
 import { getUserByEmail, getUserById } from "~/models/user.server";
 import { isUserClient, requireUserId } from "~/session.server";
 import { validateOrderData } from "~/utils";
+import { getAcceptedOrdersByEmail } from "~/models/order.server";
 export const meta: MetaFunction = () => [
   { title: "Naujas užsakymas - Žemaičiai" },
 ];
@@ -36,6 +37,7 @@ interface OrderErrors {
   revisionDays?: string;
   description?: string;
   footageLink?: string;
+  workerBusy?: string;
   price?: string;
   editNotAllowed?: string;
   noErrors?: boolean;
@@ -91,6 +93,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     validationErrors.wrongUser = "Negalima sukurti užsakymo sau";
   } else if (worker?.role === "client")
     validationErrors.wrongUser = "Reikia pasirinkti darbuotoja, o ne klientą";
+
+  // Add validation to check if the worker has any accepted orders
+  const workerAcceptedOrders = await getAcceptedOrdersByEmail(workerEmail);
+
+  if (workerAcceptedOrders !== null && workerAcceptedOrders.length > 0) {
+    validationErrors.workerBusy =
+      "Pasirinktas darbuotojas jau turi priimtų užsakymų";
+  }
 
   // If there are additional errors we append them to the existing validation errors
   if (additionalErrors !== null && typeof additionalErrors === "object") {
@@ -233,7 +243,8 @@ export default function NewOrderPage() {
             name={"workerEmail"}
             error={
               actionData?.errors.workerEmail ||
-              actionData?.errors.workerNotFound
+              actionData?.errors.workerNotFound ||
+              actionData?.errors.workerBusy
             }
           />
           <OrderInput
