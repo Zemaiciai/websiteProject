@@ -11,6 +11,59 @@ import {
 
 export type { Order } from "@prisma/client";
 
+export async function payForOrder(
+  senderID: string,
+  reiceverID: string,
+  moneyAmount: number,
+) {
+  const sender = await prisma.user.findFirst({
+    where: {
+      id: senderID,
+    },
+  });
+
+  if (!sender) {
+    return Error(`User that was trying to send money wasn't found`);
+  }
+  const reicever = await prisma.user.findFirst({
+    where: {
+      id: reiceverID,
+    },
+  });
+
+  if (!reicever) {
+    throw new Error(`User that should receive money wasn't found`);
+  }
+
+  if (Number(sender.balance) < moneyAmount) {
+    throw new Error(`User that is trying to pay doesnt have enough money`);
+  }
+
+  const currentSenderBalance = sender.balance;
+  const newSenderBalance = Number(currentSenderBalance) - Number(moneyAmount);
+  const currentReceiverBalance = reicever.balance;
+  const newReceiverBalance =
+    Number(currentReceiverBalance) + Number(moneyAmount);
+
+  await prisma.user.updateMany({
+    where: {
+      id: sender.id,
+    },
+    data: {
+      balance: newSenderBalance,
+    },
+  });
+  await prisma.user.updateMany({
+    where: {
+      id: reicever.id,
+    },
+    data: {
+      balance: newReceiverBalance,
+    },
+  });
+
+  return null;
+}
 export async function updateOrderStatus(
   newStatus: OrderStatus,
   orderId: Order["id"],
@@ -131,6 +184,7 @@ export async function updateOrder(
   revisionDays?: number,
   description?: string,
   footageLink?: string,
+  price?: any,
 ) {
   const check = await getOrderById(orderId);
 
@@ -147,6 +201,7 @@ export async function updateOrder(
         revisionDays: revisionDays,
         description: description,
         footageLink: footageLink,
+        price: price,
         orderStatus: OrderStatus.PLACED,
         worker: {
           connect: { id: worker?.id },
@@ -165,6 +220,7 @@ export async function updateOrder(
         revisionDays: revisionDays,
         description: description,
         footageLink: footageLink,
+        price: price,
         createdBy: {
           connect: { id: createdBy?.id },
         },
@@ -181,6 +237,7 @@ export async function createOrder(
   revisionDays: number,
   description: string,
   footageLink: string,
+  price: any,
 ) {
   return prisma.order.create({
     data: {
@@ -190,6 +247,7 @@ export async function createOrder(
       orderStatus: OrderStatus.PLACED,
       description: description,
       footageLink: footageLink,
+      price: price,
       worker: {
         connect: { id: workerId },
       },

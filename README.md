@@ -46,6 +46,17 @@ Starting the project
   yarn dev
 ```
 
+## Testing
+```bash
+  yarn test:unit
+```
+```bash
+  yarn test:unit:coverage
+```
+```bash
+  yarn test:unit:ui
+```
+
 ## Features
 
 - Messages
