@@ -1,4 +1,5 @@
 import { NotificationTypes } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -15,12 +16,12 @@ import { createOrder } from "~/models/order.server";
 import { getUserByEmail, getUserById } from "~/models/user.server";
 import { isUserClient, requireUserId } from "~/session.server";
 import { validateOrderData } from "~/utils";
-import {getAcceptedOrdersByEmail} from "~/models/order.server";
+import { getAcceptedOrdersByEmail } from "~/models/order.server";
 export const meta: MetaFunction = () => [
   { title: "Naujas užsakymas - Žemaičiai" },
 ];
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await isUserClient(request);
+  await isUserClient(request, true);
   await requireUserId(request);
 
   return null;
@@ -37,6 +38,9 @@ interface OrderErrors {
   description?: string;
   footageLink?: string;
   workerBusy?: string;
+  price?: string;
+  editNotAllowed?: string;
+  noErrors?: boolean;
 }
 
 export type { OrderErrors };
@@ -44,6 +48,8 @@ export type { OrderErrors };
 export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
   const createdBy = await getUserById(userId);
+
+  if (!(await isUserClient(request))) redirect("/orders");
 
   const formData = await request.formData();
   const orderName = String(formData.get("orderName")).trim();
@@ -58,9 +64,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     revisionDate.setDate(revisionDate.getDate() + revisionDays);
   }
 
+  console.log(completionDate);
+
   const description = String(formData.get("description"));
   const footageLink = String(formData.get("footageLink"));
-
+  const price = String(formData.get("price"));
   let validationErrors: OrderErrors | null = {};
 
   const additionalErrors = await validateOrderData(
@@ -68,10 +76,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     orderName,
     completionDate,
     workerEmail,
-    null,
-    null,
     description,
     footageLink,
+    price,
   );
 
   const worker = await getUserByEmail(workerEmail);
@@ -89,11 +96,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   // Add validation to check if the worker has any accepted orders
   const workerAcceptedOrders = await getAcceptedOrdersByEmail(workerEmail);
-  
+
   if (workerAcceptedOrders !== null && workerAcceptedOrders.length > 0) {
-  validationErrors.workerBusy =
-    "Pasirinktas darbuotojas jau turi priimtų užsakymų";
-}
+    validationErrors.workerBusy =
+      "Pasirinktas darbuotojas jau turi priimtų užsakymų";
+  }
 
   // If there are additional errors we append them to the existing validation errors
   if (additionalErrors !== null && typeof additionalErrors === "object") {
@@ -103,21 +110,23 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (Object.keys(validationErrors).length > 0) {
     return json({ errors: validationErrors }, { status: 400 });
   }
+  const pricee = parseInt(String(formData.get("price")), 10);
 
   // the non-null assertion is done because we check above if the createdBy or worker is null
   // however typescript can't see that for some reason
   const order = await createOrder(
     orderName,
-    createdBy!, // Non-null assertion
-    worker!, // Non-null assertion
+    createdBy!.id, // Non-null assertion
+    worker!.id, // Non-null assertion
     completionDate,
     revisionDays,
     description,
     footageLink,
+    pricee,
   );
 
   // Create a notification for the worker
-  const notification = await sendNotification(
+  await sendNotification(
     worker!.id,
     `Jums vartotojas ${createdBy!.userName} priskirė naują užsakymą!`,
     NotificationTypes.ORDER_ASSIGNED,
@@ -248,6 +257,11 @@ export default function NewOrderPage() {
             title={"Video nuoruoda"}
             name={"footageLink"}
             error={actionData?.errors.footageLink}
+          />
+          <OrderInput
+            title={"Atlygis už darbą"}
+            name={"price"}
+            error={actionData?.errors.price}
           />
           <button
             type="submit"

@@ -7,7 +7,7 @@ import { useUser } from "~/utils";
 
 import ProfilePageSocialMedia from "./profilePageSocialMedia";
 import SetProgram from "./SkillSetComponents/SetProgram";
-import { socialMedia } from "@prisma/client";
+import { socialMedia, User } from "@prisma/client";
 
 export const loader = async ({ request }) => {
   const user = await requireUser(request);
@@ -26,14 +26,23 @@ type JsonifyObject<T> = {
 interface UserInfoProps {
   errorData: JsonifyObject<Errors> | null | undefined;
   socialMediaLinks: socialMedia | null;
+  userdata: User | null;
 }
 
-function ProfileSettings({ errorData, socialMediaLinks }: UserInfoProps) {
+function ProfileSettings({
+  errorData,
+  socialMediaLinks,
+  userdata,
+}: UserInfoProps) {
   const [activeTab, setActiveTab] = useState("profile");
   const user = useUser();
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
+  };
+  const isUserWorker = () => {
+    if (userdata?.role == "Darbuotojas") return true;
+    return false;
   };
 
   return (
@@ -64,18 +73,20 @@ function ProfileSettings({ errorData, socialMediaLinks }: UserInfoProps) {
               Socialiniai tinklai
             </button>
           </li>
-          <li>
-            <button
-              className={`inline-flex items-center px-4 py-3 rounded-lg ${
-                activeTab === "settings"
-                  ? "text-gray-900 bg-gray-200"
-                  : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
-              } w-full`}
-              onClick={() => handleTabClick("settings")}
-            >
-              Kiti nustatymai
-            </button>
-          </li>
+          {isUserWorker() && (
+            <li>
+              <button
+                className={`inline-flex items-center px-4 py-3 rounded-lg ${
+                  activeTab === "settings"
+                    ? "text-gray-900 bg-gray-200"
+                    : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100"
+                } w-full`}
+                onClick={() => handleTabClick("settings")}
+              >
+                Kiti nustatymai
+              </button>
+            </li>
+          )}
         </ul>
         <div className="p-6 bg-gray-100 flex text-medium text-gray-500 rounded-lg w-full h-[22rem]">
           {activeTab === "profile" ? (

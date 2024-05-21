@@ -14,6 +14,12 @@ interface NavBarHeaderProps {
 export default function NavBarHeader({ title }: NavBarHeaderProps) {
   const { allUsers } = useTypedLoaderData<typeof loader>();
   let currentUser = useOptionalUser();
+  const navigate = useNavigate();
+
+  if (currentUser === undefined) {
+    navigate("/");
+  }
+
   const [searchQueryAllUsers, setSearchQueryAllUsers] = useState("");
   let filteredUsers: User[] | undefined;
 
@@ -70,7 +76,6 @@ export default function NavBarHeader({ title }: NavBarHeaderProps) {
       document.removeEventListener("click", handleClickOutside);
     };
   }, [isDropdownOpen]);
-  const navigate = useNavigate();
   const handleUserNameClick = (userId: string) => {
     navigate(`/profile/${userId}`);
     setShowSearchResult(false);

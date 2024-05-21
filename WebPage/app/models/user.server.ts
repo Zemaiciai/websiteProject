@@ -1,8 +1,7 @@
 import type { Password, User } from "@prisma/client";
-import bcrypt from "bcryptjs";
 
 import { prisma } from "../db.server";
-
+import bcrypt from "bcryptjs";
 import {
   createBanLog,
   createInfoChangeLog,
@@ -129,7 +128,9 @@ export async function verifyLogin(
 }
 
 export async function getAllusers() {
-  return prisma.user.findMany();
+  return prisma.user.findMany({
+    select: { userName: true, role: true, id: true },
+  });
 }
 
 export async function baningUser(

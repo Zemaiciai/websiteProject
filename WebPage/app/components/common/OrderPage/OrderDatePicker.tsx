@@ -86,7 +86,7 @@ const OrderDatePicker = ({
             <select
               onChange={(e) => handleDateChange(e, "month", name)}
               className="cursor-pointer  rounded border border-gray-500 px-1 text-lg focus:outline-none"
-              defaultValue={defaultDate?.getMonth()}
+              defaultValue={defaultDate && defaultDate.getMonth() + 1}
               name="month"
             >
               <option defaultValue="" disabled selected hidden>

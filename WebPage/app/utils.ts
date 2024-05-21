@@ -1,22 +1,14 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
-import {
-  verifyLogin,
-  User,
-  checkIfUserNameExists,
-  getUserById,
-} from "~/models/user.server";
+import { verifyLogin, User, checkIfUserNameExists } from "./models/user.server";
 import { Notification } from "~/models/notification.server";
 import { checkExpirationDateByEmail } from "./models/secretCode.server";
 import {
   getCustomMessagesByMessage,
   getCustomMessagesByName,
 } from "./models/customMessage.server";
-import { aD } from "vitest/dist/reporters-P7C2ytIv";
 import { checkUserAdsLimit } from "./models/workerAds.server";
 import { prisma } from "./db.server";
-import { OrderStatus } from "@prisma/client";
-import OrdersTable from "./components/common/OrderPage/OrdersTable";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -128,7 +120,7 @@ export function validateDate(date: unknown): date is Date {
 
   return date instanceof Date && date >= currentDate;
 }
-function validateUrl(url: unknown): url is string {
+export function validateUrl(url: unknown): url is string {
   if (typeof url !== "string") return false;
 
   const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
@@ -154,20 +146,33 @@ export async function validateRegistrationCredentials(
   secretCode: unknown,
   email: unknown,
   password: unknown,
-  errors: RegisterErrors,
 ): Promise<RegisterErrors | null> {
-  if (typeof firstname !== "string" || firstname === "") {
+  const errors: RegisterErrors | null = {};
+
+  if (
+    typeof firstname !== "string" ||
+    firstname === "" ||
+    firstname.trim().length <= 0
+  ) {
     errors.firstname = "Vardas privalomas";
   }
-  if (typeof lastname !== "string" || lastname === "") {
+  if (
+    typeof lastname !== "string" ||
+    lastname === "" ||
+    lastname.trim().length <= 0
+  ) {
     errors.lastname = "Pavardė privaloma";
   }
-  if (typeof username !== "string" || username === "") {
+  if (
+    typeof username !== "string" ||
+    username === "" ||
+    username.trim().length <= 0
+  ) {
     errors.username = "Slapyvardis privalomas";
   } else if (await checkIfUserNameExists(username)) {
     errors.username = "Slapyvardis yra užimtas";
   }
-  if (typeof email !== "string" || email === "") {
+  if (typeof email !== "string" || email === "" || email.trim().length <= 0) {
     errors.email = "El. pašto adresas privalomas";
   } else if (email.length < 3 || !email.includes("@")) {
     errors.email = "El. pašto adresas netinkamas";
@@ -177,7 +182,11 @@ export async function validateRegistrationCredentials(
   } else if (password.length < 8) {
     errors.password = "Slaptažodis per trumpas";
   }
-  if (typeof secretCode !== "string" || secretCode === "") {
+  if (
+    typeof secretCode !== "string" ||
+    secretCode === "" ||
+    secretCode.trim().length <= 0
+  ) {
     errors.secretCode = "Pakvietimo kodas privalomas";
   }
 
@@ -187,12 +196,16 @@ export async function validateRegistrationCredentials(
 
   return null;
 }
-
+interface LoginErrors {
+  email?: string;
+  password?: string;
+  wrongCredentials?: string;
+}
 export async function validateLoginCredentials(
   email: unknown,
   password: unknown,
-  errors: RegisterErrors,
-): Promise<User | null> {
+): Promise<LoginErrors | null> {
+  const errors: LoginErrors = {};
   if (typeof email !== "string" || email.length <= 0) {
     errors.email = "El. pašto adresas privalomas";
   } else if (email.length < 3 || !email.includes("@")) {
@@ -202,17 +215,14 @@ export async function validateLoginCredentials(
     errors.password = "Slaptažodis privalomas";
   }
 
-  if (Object.keys(errors).length > 0) {
-    return null;
-  }
-
   const user = await verifyLogin(email as string, password as string);
   if (!user) {
     errors.wrongCredentials = "Neteisingas el. paštas arba slaptažodis";
-    return null;
   }
-
-  return user;
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+  return null;
 }
 
 interface OrderErrors {
@@ -222,6 +232,7 @@ interface OrderErrors {
   workerEmail?: string;
   description?: string;
   footageLink?: string;
+  price?: string;
 }
 
 export async function validateOrderData(
@@ -229,13 +240,11 @@ export async function validateOrderData(
   orderName: unknown,
   completionDate: unknown,
   workerEmail: unknown,
-  currentWorkerId: unknown,
-  currentOrderStatus: unknown,
   description: unknown,
   footageLink: unknown,
+  price: unknown,
 ): Promise<OrderErrors | null> {
   const errors: OrderErrors = {};
-  const currentDate = new Date();
 
   if (typeof revisionDays !== "number") {
     errors.revisionDays = "Revizijos dienos turi buti skaicius";
@@ -251,16 +260,6 @@ export async function validateOrderData(
     errors.workerEmail = "Darbuotojo el. paštas privalomas";
   } else if (!validateEmail(workerEmail)) {
     errors.workerEmail = "Neteisingas darbuotojo el. paštas";
-  } else if (
-    currentOrderStatus === OrderStatus.ACCEPTED ||
-    currentOrderStatus === OrderStatus.COMPLETED ||
-    currentOrderStatus === OrderStatus.PAYED
-  ) {
-    const user = await getUserById(String(currentWorkerId));
-    if (user?.email !== workerEmail) {
-      errors.workerEmail =
-        "Darbuotojas jau priėmė užsakymą todėl jo keisti negalite";
-    }
   }
 
   if (typeof description !== "string")
@@ -272,8 +271,34 @@ export async function validateOrderData(
   else if (!validateUrl(footageLink))
     errors.footageLink = "Nuorodos formatas neteisingas";
 
-  if (typeof orderName !== "string" || orderName.trim().length <= 0)
+  if (typeof orderName !== "string" || orderName.trim().length <= 0) {
     errors.orderName = "Užsakymo pavadinimas privalomas";
+  }
+  if (typeof price !== "string" || price.length <= 0 || isNaN(Number(price))) {
+    errors.price = "Atlygis turi buti skaičius (Formato pvz.: 5.99)";
+  }
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+
+  return null;
+}
+
+export async function validateWorkSubmissionData(
+  footageLink: unknown,
+  additionalDescription?: unknown,
+): Promise<OrderErrors | null> {
+  const errors: OrderErrors = {};
+
+  if (typeof additionalDescription !== "string")
+    errors.description = "Aprašymo tipas neteisingas";
+  else if (additionalDescription.length > 500)
+    errors.description = "Aprašymas per ilgas";
+
+  if (typeof footageLink === "string" && footageLink.trim().length <= 0)
+    errors.footageLink = "Nuoroda privaloma";
+  else if (!validateUrl(footageLink))
+    errors.footageLink = "Nuorodos formatas neteisingas";
 
   if (Object.keys(errors).length > 0) {
     return errors;
@@ -342,9 +367,8 @@ export async function validateCustomMessage(
   customMessageName: unknown,
   customMessageMessage: unknown,
   customMessagePriority: unknown,
-  errors: InviteCustomMessagesErrors,
 ): Promise<InviteCustomMessagesErrors | null> {
-  //const errors: InviteCodeGenerationErrors = {};
+  const errors: InviteCustomMessagesErrors = {};
 
   if (typeof customMessageName !== "string" || customMessageName.length <= 0) {
     errors.customMessageName = "Pavadinimas yra privalomas";
@@ -385,8 +409,8 @@ export async function validateChangeUserInfo(
   emailValidation: unknown,
   roleValidation: unknown,
   expirationDateValidation: unknown,
-  errors: ChangeUserInfoErrors,
 ): Promise<ChangeUserInfoErrors | null> {
+  const errors: ChangeUserInfoErrors = {};
   if (
     typeof firstNameValidation !== "string" ||
     firstNameValidation.length <= 0

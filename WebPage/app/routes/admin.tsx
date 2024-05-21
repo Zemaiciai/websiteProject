@@ -200,10 +200,9 @@ export const action = async (actionArg) => {
       emailChange,
       roleChange,
       timeChange,
-      changeUserInfoErrors,
     );
     if (UserInfoChangeValidation !== null) {
-      return json(changeUserInfoErrors);
+      return json(UserInfoChangeValidation);
     }
 
     const userchange = await changeUserInformation(
@@ -227,11 +226,10 @@ export const action = async (actionArg) => {
       customNameForMessages,
       customMessageForMessages,
       importanceForMessages,
-      errors,
     );
 
     if (validationCustomMessagesErrors !== null) {
-      return json(errors);
+      return json(validationCustomMessagesErrors);
     }
 
     return createMessage(
